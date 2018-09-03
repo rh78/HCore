@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore", "HCore\HCore.csproj", "{89919E58-AAA0-42CB-BCDE-5BA30C020602}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89919E58-AAA0-42CB-BCDE-5BA30C020602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89919E58-AAA0-42CB-BCDE-5BA30C020602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89919E58-AAA0-42CB-BCDE-5BA30C020602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89919E58-AAA0-42CB-BCDE-5BA30C020602}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5744A354-FB02-4D7E-A2C3-1C6DF325D005}
+	EndGlobalSection
+EndGlobal

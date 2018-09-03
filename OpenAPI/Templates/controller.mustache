@@ -1,0 +1,71 @@
+{{>partial_header}}
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;{{#useSwashbuckle}}
+using Swashbuckle.AspNetCore.SwaggerGen;{{/useSwashbuckle}}
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using SmintIo.Core.Attributes;
+using SmintIo.Core.Result;
+using {{packageName}}.Models;
+
+namespace {{packageName}}.Controllers
+{ {{#operations}}
+	/// <summary>
+    /// {{description}}
+    /// </summary>{{#description}}
+    [Description("{{description}}")]{{/description}}
+    public interface I{{classname}}Controller
+    { {{#operation}}
+		/// <summary>
+        /// {{#summary}}{{summary}}{{/summary}}
+        /// </summary>{{#notes}}
+        /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
+        /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
+        /// <response code="{{code}}">{{message}}</response>{{/responses}}
+        Task<ApiResult<{{&returnType}}>> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, CancellationToken cancellationToken = default(CancellationToken));        
+	  {{/operation}}
+    }
+	
+    /// <summary>
+    /// {{description}}
+    /// </summary>{{#description}}
+    [Description("{{description}}")]{{/description}}
+	[ApiController]
+    public partial class {{classname}}Controller : Controller
+    { 
+		private I{{classname}}Controller _implementation;
+	  
+		public {{classname}}Controller(I{{classname}}Controller implementation)
+		{
+			_implementation = implementation;
+		}		
+	
+	{{#operation}}	 
+        /// <summary>
+        /// {{#summary}}{{summary}}{{/summary}}
+        /// </summary>{{#notes}}
+        /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
+        /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
+        /// <response code="{{code}}">{{message}}</response>{{/responses}}
+        [{{httpMethod}}]
+        [Route("{{{basePathWithoutHost}}}{{{path}}}")]
+        [ValidateModelState]{{#useSwashbuckle}}
+        [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
+        [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}
+        public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, CancellationToken cancellationToken = default(CancellationToken))
+        { 	
+			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, cancellationToken);
+					
+			IActionResult response = StatusCode(result.StatusCode, result.Result);            
+			
+			foreach (var header in result.Headers)
+                Request.HttpContext.Response.Headers.Add(header.Key, header.Value.ToString());
+    
+            return response;								
+        }
+        {{/operation}}
+    }
+{{/operations}}
+}
