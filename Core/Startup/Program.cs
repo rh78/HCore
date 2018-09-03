@@ -51,8 +51,8 @@ namespace ReinhardHolzner.Core.Startup
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            bool useHttps = hostingConfig.GetValue<bool>("UseHttps");
-            int port = hostingConfig.GetValue<int>("Port");
+            bool useHttps = hostingConfig.GetValue<bool>("WebServer:UseHttps");
+            int port = hostingConfig.GetValue<int>("WebServer:Port");
 
             if (useWebListener)
             {
@@ -73,16 +73,16 @@ namespace ReinhardHolzner.Core.Startup
 
                         if (useHttps)
                         {
-                            httpsCertificateAssembly = hostingConfig["HttpsCertificateAssembly"];
+                            httpsCertificateAssembly = hostingConfig["WebServer:Https:Certificate:Assembly"];
                             if (string.IsNullOrEmpty(httpsCertificateAssembly))
                                 throw new Exception("HTTPS certificate assembly not found");
 
-                            httpsCertificateName = hostingConfig["HttpsCertificateName"];
+                            httpsCertificateName = hostingConfig["WebServer:Https:Certificate:Name"];
 
                             if (string.IsNullOrEmpty(httpsCertificateName))
                                 throw new Exception("HTTPS certificate name not found");
 
-                            httpsCertificatePassword = hostingConfig["HttpsCertificatePassword"];
+                            httpsCertificatePassword = hostingConfig["WebServer:Https:Certificate:Password"];
 
                             if (string.IsNullOrEmpty(httpsCertificatePassword))
                                 throw new Exception("HTTPS certificate password not found");
@@ -155,7 +155,7 @@ namespace ReinhardHolzner.Core.Startup
                     if (options.AllowedHosts == null || options.AllowedHosts.Count == 0)
                     {
                         // "AllowedHosts": "localhost;127.0.0.1;[::1]"
-                        var hosts = configuration["AllowedHosts"]?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        var hosts = configuration["WebServer:AllowedHosts"]?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                         // Fall back to "*" to disable.
                         options.AllowedHosts = (hosts?.Length > 0 ? hosts : new[] { "*" });
                     }
@@ -174,7 +174,7 @@ namespace ReinhardHolzner.Core.Startup
 
             string serverUrl = useHttps ? "https://" : "http://";
 
-            string domain = hostingConfig["Domain"];
+            string domain = hostingConfig["WebServer:Domain"];
             if (string.IsNullOrEmpty(domain))
                 throw new Exception("Domain not found in application settings");
 
@@ -182,6 +182,8 @@ namespace ReinhardHolzner.Core.Startup
             serverUrl += ":" + port;
 
             builder.UseUrls(new string[] { serverUrl });
+
+            builder.UseApplicationInsights();
 
             builder.UseStartup(startupType);
 
