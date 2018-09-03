@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace ReinhardHolzner.HCore.Result
+namespace ReinhardHolzner.Core.Result
 {
     public partial class ApiResult
     {

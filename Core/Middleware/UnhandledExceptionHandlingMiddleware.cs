@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using ReinhardHolzner.HCore.Exceptions;
+using ReinhardHolzner.Core.Exceptions;
 using System;
 using System.Threading.Tasks;
 
-namespace ReinhardHolzner.HCore.Middleware
+namespace ReinhardHolzner.Core.Middleware
 {
     public class UnhandledExceptionHandlingMiddleware
     {

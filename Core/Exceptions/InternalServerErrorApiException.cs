@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace ReinhardHolzner.HCore.Exceptions
+namespace ReinhardHolzner.Core.Exceptions
 {
     public class InternalServerErrorApiException : ApiException
     {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
-namespace ReinhardHolzner.HCore.Exceptions
+namespace ReinhardHolzner.Core.Exceptions
 {
     public abstract class ApiException : Exception
     {       

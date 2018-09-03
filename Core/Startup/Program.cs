@@ -8,14 +8,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 
-namespace ReinhardHolzner.HCore.Startup
+namespace ReinhardHolzner.Core.Startup
 {
     // Inspired from https://github.com/aspnet/MetaPackages/blob/2.1.3/src/Microsoft.AspNetCore/WebHost.cs
 
     public class Program
     {
-        protected static void LaunchHCore<TStartup>(string[] args)
+        protected static void Launch<TStartup>(string[] args)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -42,15 +45,74 @@ namespace ReinhardHolzner.HCore.Startup
                 builder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build());
             }
 
+            var hostingConfig = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            bool useHttps = hostingConfig.GetValue<bool>("UseHttps");
+            int port = hostingConfig.GetValue<int>("Port");
+
             if (useWebListener)
             {
                 // see https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/httpsys
 
+                // do not forget to install the SSL certificate before, see SETUP.txt
                 builder.UseHttpSys();
             } else {
                 builder.UseKestrel((builderContext, options) =>
                 {
                     options.Configure(builderContext.Configuration.GetSection("Kestrel"));
+
+                    if (useHttps)
+                    {
+                        string httpsCertificateAssembly = null;
+                        string httpsCertificateName = null;
+                        string httpsCertificatePassword = null;
+
+                        if (useHttps)
+                        {
+                            httpsCertificateAssembly = hostingConfig["HttpsCertificateAssembly"];
+                            if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                                throw new Exception("HTTPS certificate assembly not found");
+
+                            httpsCertificateName = hostingConfig["HttpsCertificateName"];
+
+                            if (string.IsNullOrEmpty(httpsCertificateName))
+                                throw new Exception("HTTPS certificate name not found");
+
+                            httpsCertificatePassword = hostingConfig["HttpsCertificatePassword"];
+
+                            if (string.IsNullOrEmpty(httpsCertificatePassword))
+                                throw new Exception("HTTPS certificate password not found");
+                        }
+
+                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                        X509Certificate2 certificate = null;
+
+                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                        if (httpsAssembly == null)
+                            throw new Exception("HTTPS certificate assembly is not present in the list of assemblies");
+
+                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                        if (resourceStream == null)
+                            throw new Exception("HTTPS certificate resource not found");
+
+                        using (var memory = new MemoryStream((int)resourceStream.Length))
+                        {
+                            resourceStream.CopyTo(memory);
+
+                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                        }
+
+                        options.Listen(IPAddress.Any, port, listenOptions =>
+                            listenOptions.UseHttps(certificate));
+                    }
                 });
             }
             
@@ -110,14 +172,6 @@ namespace ReinhardHolzner.HCore.Startup
                 options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
             });
 
-            var hostingConfig = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-               .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-                .Build();
-
-            bool useHttps = hostingConfig.GetValue<bool>("UseHttps");
-
             string serverUrl = useHttps ? "https://" : "http://";
 
             string domain = hostingConfig["Domain"];
@@ -125,9 +179,6 @@ namespace ReinhardHolzner.HCore.Startup
                 throw new Exception("Domain not found in application settings");
 
             serverUrl += domain;
-
-            int port = hostingConfig.GetValue<int>("Port");
-
             serverUrl += ":" + port;
 
             builder.UseUrls(new string[] { serverUrl });

@@ -3,15 +3,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SmintIo.CLAPI.Consumer.Generated.Controllers;
-using SmintIo.CLAPI.Consumer.Controllers.Impl;
-using ReinhardHolzner.HCore.Middleware;
+using ReinhardHolzner.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using System;
 
-namespace SmintIo.CLAPI.Consumer
+namespace ReinhardHolzner.Core.Startup
 {
-    public class Startup
+    public abstract class Startup
     {
         private bool _useHttps;
         private int _port;
@@ -23,12 +21,14 @@ namespace SmintIo.CLAPI.Consumer
 
         public IConfiguration Configuration { get; }
 
+        protected abstract void ConfigureCoreServices(IServiceCollection services);
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<IConnectionsApiController, ConnectionsApiImpl>();
-
+            ConfigureCoreServices(services);
+            
             _useHttps = Configuration.GetValue<bool>("UseHttps");
             _port = Configuration.GetValue<int>("Port");
 
