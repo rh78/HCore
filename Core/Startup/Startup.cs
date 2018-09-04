@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using ReinhardHolzner.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using System;
-using System.Reflection;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
@@ -30,7 +29,7 @@ namespace ReinhardHolzner.Core.Startup
         protected abstract void ConfigureCoreServices(IServiceCollection services);
 
         public void ConfigureServices(IServiceCollection services)
-        {
+        {            
             ConfigureLocalization(services);
             ConfigureDataProtection(services);
             ConfigureWebServer(services);
