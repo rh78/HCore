@@ -20,20 +20,27 @@ namespace ReinhardHolzner.Core.Models
     /// </summary>
     [DataContract]
     public partial class ApiException : IEquatable<ApiException>
-    { 
+    {
         /// <summary>
         /// The error code
         /// </summary>
         /// <value>The error code</value>
-        [DataMember(Name="errorCode")]
+        [DataMember(Name = "errorCode")]
         public string ErrorCode { get; set; }
 
         /// <summary>
         /// The error message
         /// </summary>
         /// <value>The error message</value>
-        [DataMember(Name="errorMessage")]
+        [DataMember(Name = "errorMessage")]
         public string ErrorMessage { get; set; }
+
+        /// <summary>
+        /// More details about the error, if available
+        /// </summary>
+        /// <value>More details about the error, if available</value>
+        [DataMember(Name = "details")]
+        public string Details { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -45,6 +52,7 @@ namespace ReinhardHolzner.Core.Models
             sb.Append("class ApiException {\n");
             sb.Append("  ErrorCode: ").Append(ErrorCode).Append("\n");
             sb.Append("  ErrorMessage: ").Append(ErrorMessage).Append("\n");
+            sb.Append("  Details: ").Append(Details).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -80,16 +88,21 @@ namespace ReinhardHolzner.Core.Models
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     ErrorCode == other.ErrorCode ||
                     ErrorCode != null &&
                     ErrorCode.Equals(other.ErrorCode)
-                ) && 
+                ) &&
                 (
                     ErrorMessage == other.ErrorMessage ||
                     ErrorMessage != null &&
                     ErrorMessage.Equals(other.ErrorMessage)
+                ) &&
+                (
+                    Details == other.Details ||
+                    Details != null &&
+                    Details.Equals(other.Details)
                 );
         }
 
@@ -103,16 +116,18 @@ namespace ReinhardHolzner.Core.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (ErrorCode != null)
+                if (ErrorCode != null)
                     hashCode = hashCode * 59 + ErrorCode.GetHashCode();
-                    if (ErrorMessage != null)
+                if (ErrorMessage != null)
                     hashCode = hashCode * 59 + ErrorMessage.GetHashCode();
+                if (Details != null)
+                    hashCode = hashCode * 59 + Details.GetHashCode();
                 return hashCode;
             }
         }
 
         #region Operators
-        #pragma warning disable 1591
+#pragma warning disable 1591
 
         public static bool operator ==(ApiException left, ApiException right)
         {
@@ -124,7 +139,7 @@ namespace ReinhardHolzner.Core.Models
             return !Equals(left, right);
         }
 
-        #pragma warning restore 1591
+#pragma warning restore 1591
         #endregion Operators
     }
 }

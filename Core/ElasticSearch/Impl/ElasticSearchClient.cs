@@ -9,7 +9,11 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 {
     public class ElasticSearchClient : IElasticSearchClient
     {
-        private const string INDEX_VERSIONS_INDEX_NAME = "indexversions";
+        // search will become expensive above 500 records
+        public const int MaxOffset = 500;
+        public const int MaxPagingSize = 50;
+
+        private const string IndexVersionsIndexName = "indexversions";
 
         private bool _isProduction;
 
@@ -96,17 +100,17 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 
         private void CreateIndexVersionsIndex()
         {
-            var indexVersionsIndexExists = ElasticClient.IndexExists(INDEX_VERSIONS_INDEX_NAME).Exists;
+            var indexVersionsIndexExists = ElasticClient.IndexExists(IndexVersionsIndexName).Exists;
             
             if (!indexVersionsIndexExists)
             {
                 Console.WriteLine("Creating index versions index...");
 
-                var createIndexResponse = ElasticClient.CreateIndex(INDEX_VERSIONS_INDEX_NAME, indexVersionsIndex => indexVersionsIndex
+                var createIndexResponse = ElasticClient.CreateIndex(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
                     .Mappings(indexVersionMapping => indexVersionMapping
                         .Map<IndexVersion>(indexVersion => indexVersion
                             .Properties(indexVersionProperty => indexVersionProperty
-                                .Text(element => element.Name(n => n.Name))
+                                .Keyword(element => element.Name(n => n.Name))
                                 .Number(element => element.Name(n => n.Version).Type(NumberType.Long))
                             )
                             .Dynamic(false)
@@ -260,7 +264,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
         private IndexVersion GetIndexVersion(string indexName)
         {
             bool indexVersionExists = ElasticClient.DocumentExists<IndexVersion>(indexName, get => get
-                .Index(INDEX_VERSIONS_INDEX_NAME)).Exists;
+                .Index(IndexVersionsIndexName)).Exists;
 
             if (!indexVersionExists)
             {
@@ -276,7 +280,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
             } else
             {
                 var getIndexVersionResponse = ElasticClient.Get<IndexVersion>(indexName, get => get
-                    .Index(INDEX_VERSIONS_INDEX_NAME));
+                    .Index(IndexVersionsIndexName));
 
                 return getIndexVersionResponse.Source;
             }
@@ -285,7 +289,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
         private void UpdateIndexVersion(IndexVersion indexVersion)
         {
             ElasticClient.Index(indexVersion, index => index
-                .Index(INDEX_VERSIONS_INDEX_NAME)
+                .Index(IndexVersionsIndexName)
                 .Id(indexVersion.Name));
         }
     }

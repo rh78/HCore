@@ -19,6 +19,11 @@ namespace ReinhardHolzner.Core.Exceptions
         public override string GetErrorCode()
         {
             return "internalServerError";
-        }        
+        }
+
+        public override object GetObject()
+        {
+            return null;
+        }
     }
 }

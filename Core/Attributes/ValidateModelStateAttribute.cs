@@ -1,17 +1,23 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ReinhardHolzner.Core.Exceptions;
 
 namespace ReinhardHolzner.Core.Attributes
 {
     /// <summary>
     /// Model state validation attribute
     /// </summary>
-    public class ValidateModelStateAttribute : ActionFilterAttribute
+    public class ValidateModelStateAttribute : ActionFilterAttribute, IOrderedFilter
     {
+        // Setting the order to int.MinValue, using IOrderedFilter, to attempt executing
+        // this filter *before* the BaseController's OnActionExecuting.
+        public new int Order => int.MinValue;
+
         /// <summary>
         /// Called before the action method is invoked
         /// </summary>
@@ -38,7 +44,12 @@ namespace ReinhardHolzner.Core.Attributes
 
             if (!context.ModelState.IsValid)
             {
-                context.Result = new BadRequestObjectResult(context.ModelState);
+                InvalidArgumentApiException invalidArgumentApiException = null;
+
+                invalidArgumentApiException = new InvalidArgumentApiException(
+                      InvalidArgumentApiException.InvalidArgument, context.ModelState.Values.First().Errors.First().ErrorMessage);
+            
+                context.Result = new BadRequestObjectResult(invalidArgumentApiException.SerializeException());
             }
         }
 

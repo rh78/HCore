@@ -17,19 +17,31 @@ namespace ReinhardHolzner.Core.Exceptions
 
         public abstract int GetStatusCode();
         public abstract string GetErrorCode();
+        public abstract object GetObject();
 
         internal async Task WriteResponseAsync(HttpContext context)
         {
             context.Response.StatusCode = GetStatusCode();
 
+            await context.Response.WriteAsync(SerializeException());
+        }
+
+        public string SerializeException()
+        {           
             Models.ApiException apiExceptionResult = new Models.ApiException()
             {
                 ErrorCode = GetErrorCode(),
                 ErrorMessage = Message
             };
 
-            await context.Response.WriteAsync(
-                JsonConvert.SerializeObject(apiExceptionResult));
+            object o = GetObject();
+            if (o != null)
+            {
+                apiExceptionResult.Details = JsonConvert.SerializeObject(o);
+            }
+
+            return JsonConvert.SerializeObject(apiExceptionResult, Formatting.None,
+                new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
     }
 }
