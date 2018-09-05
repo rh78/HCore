@@ -31,7 +31,7 @@ namespace ReinhardHolzner.Core.Middleware
             }
             catch (Exception e)
             {
-                _logger.LogError("Unexpected server error: {}", e);
+                _logger.LogError($"Unexpected server error: {e}");
 
                 resultException = new InternalServerErrorApiException();                
             }            

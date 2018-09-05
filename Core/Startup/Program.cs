@@ -25,16 +25,16 @@ namespace ReinhardHolzner.Core.Startup
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             if (environment == EnvironmentName.Development)
-                CreateWebHostBuilder(environment, false, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, mappingInterface).Build().Run();
             else if (environment == EnvironmentName.Staging)
-                CreateWebHostBuilder(environment, true, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, mappingInterface).Build().Run();
             else if (environment == EnvironmentName.Production)
-                CreateWebHostBuilder(environment, true, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, mappingInterface).Build().Run();
             else
-                throw new Exception("Invalid environment name found: " + environment);
+                throw new Exception($"Invalid environment name found: {environment}");
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool useWebListener, Type startupType, string[] args, IElasticSearchMappingInterface mappingInterface)
+        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchMappingInterface mappingInterface)
         {
             var builder = new WebHostBuilder();
 
@@ -44,23 +44,23 @@ namespace ReinhardHolzner.Core.Startup
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            ConfigureServiceProviders(builder, hostingConfig, mappingInterface);
+            ConfigureServiceProviders(builder, isProduction, hostingConfig, mappingInterface);
             ConfigureLogging(builder);
             ConfigureContentRoot(builder);
             ConfigureConfiguration(builder, args);
 
             string serverUrl = ConfigureWebServer(builder, hostingConfig, useWebListener, startupType);
 
-            Console.WriteLine("Launching using server URL: " + serverUrl);
+            Console.WriteLine($"Launching using server URL {serverUrl}");
 
             return builder;
         }
 
-        private static void ConfigureServiceProviders(WebHostBuilder builder, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
+        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
         {
             ConfigureDefaultServiceProvider(builder);
 
-            ConfigureElasticSearch(builder, hostingConfig, mappingInterface);            
+            ConfigureElasticSearch(builder, isProduction, hostingConfig, mappingInterface);            
         }
 
         private static void ConfigureDefaultServiceProvider(WebHostBuilder builder)
@@ -71,7 +71,7 @@ namespace ReinhardHolzner.Core.Startup
             });
         }
 
-        private static void ConfigureElasticSearch(WebHostBuilder builder, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
+        private static void ConfigureElasticSearch(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
         {
             bool useElasticSearch = hostingConfig.GetValue<bool>("UseElasticSearch");
 
@@ -89,7 +89,8 @@ namespace ReinhardHolzner.Core.Startup
                 if (string.IsNullOrEmpty(hosts))
                     throw new Exception("ElasticSearch hosts not found");
 
-                IElasticSearchClient elasticSearchClient = new ElasticSearchClient(numberOfShards, numberOfReplicas, hosts, mappingInterface);
+                IElasticSearchClient elasticSearchClient = new ElasticSearchClient(
+                    isProduction, numberOfShards, numberOfReplicas, hosts, mappingInterface);
 
                 Console.WriteLine("Initializing ElasticSearch client...");
 

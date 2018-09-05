@@ -1,4 +1,4 @@
-﻿using ReinhardHolzner.HCore.ElasticSearch.Impl;
+﻿using Nest;
 
 namespace ReinhardHolzner.HCore.ElasticSearch
 {
@@ -6,7 +6,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch
     {
         string[] IndexNames { get; }
 
-        void CreateIndex(IElasticSearchClient elasticSearchClient, string indexName);
-        long UpdateIndex(IElasticSearchClient elasticSearchClient, string indexName, long indexVersion);
+        CreateIndexDescriptor GetCreateIndexDescriptor(IElasticSearchClient elasticSearchClient, string indexName);
+        long GetIndexVersion(string indexName);
     }
 }

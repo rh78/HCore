@@ -9,18 +9,22 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 {
     public class ElasticSearchClient : IElasticSearchClient
     {
-        private const string INDEX_VERSIONS_INDEX_NAME = "indexVersions";
+        private const string INDEX_VERSIONS_INDEX_NAME = "indexversions";
+
+        private bool _isProduction;
 
         private int _numberOfShards;
         private int _numberOfReplicas;
         private string _hosts;        
 
-        private ElasticClient _elasticClient;
+        public ElasticClient ElasticClient { get; private set; }
 
         private IElasticSearchMappingInterface _mappingInterface;
 
-        public ElasticSearchClient(int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchMappingInterface mappingInterface)
+        public ElasticSearchClient(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchMappingInterface mappingInterface)
         {
+            _isProduction = isProduction;
+
             _numberOfShards = numberOfShards;
             _numberOfReplicas = numberOfReplicas;
             _hosts = hosts;            
@@ -39,7 +43,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
             hosts.ToList().ForEach(originalHost =>
             {
                 string host = originalHost;
-                int port = 9300;
+                int port = 9200;
 
                 string[] splittedHost = host.Split(':');
                 if (splittedHost.Length > 1)
@@ -54,15 +58,20 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
                         throw new Exception("ElasticSearch host port is invalid");
                 }
 
-                Uri uri = new Uri("http://" + host + ":" + port);
+                Uri uri = new Uri($"http://{host}:{port}");
                 uriList.Add(uri);
             });
 
-            var connectionPool = new SniffingConnectionPool(uriList);
-            var settings = new ConnectionSettings(connectionPool)
-                .DisableAutomaticProxyDetection();
+            IConnectionPool connectionPool = 
+                uriList.Count > 1 ? 
+                    (IConnectionPool) new SniffingConnectionPool(uriList) :
+                    (IConnectionPool) new SingleNodeConnectionPool(uriList[0]);
 
-            _elasticClient = new ElasticClient(settings);
+            var settings = new ConnectionSettings(connectionPool)
+                .DisableAutomaticProxyDetection()
+                .ThrowExceptions();
+
+            ElasticClient = new ElasticClient(settings);
 
             CreateIndexVersionsIndex();
 
@@ -70,35 +79,30 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
             
             indexNames.ToList().ForEach(indexName =>
             {
-                bool indexExists = _elasticClient.IndexExists(indexName).Exists;
-                if (!indexExists)
+                long newestIndexVersion = _mappingInterface.GetIndexVersion(indexName);
+
+                IndexVersion indexVersion = GetIndexVersion(indexName);
+
+                if (indexVersion.Version < 1)
                 {
-                    _mappingInterface.CreateIndex(this, indexName);
+                    CreateIndexVersion(indexName, 0, newestIndexVersion);                    
                 } else
                 {
-                    IndexVersion indexVersion = GetIndexVersion(indexName);
-
-                    long newIndexVersion = _mappingInterface.UpdateIndex(this, indexName, indexVersion.Version);
-
-                    if (newIndexVersion > indexVersion.Version)
-                    {
-                        indexVersion.Version = newIndexVersion;
-
-                        UpdateIndexVersion(indexVersion);
-                    }
+                    if (newestIndexVersion > indexVersion.Version)                    
+                        CreateIndexVersion(indexName, indexVersion.Version, newestIndexVersion);                                           
                 }
             });
         }
 
         private void CreateIndexVersionsIndex()
         {
-            bool indexVersionsIndexExists = _elasticClient.IndexExists(INDEX_VERSIONS_INDEX_NAME).Exists;
-
+            var indexVersionsIndexExists = ElasticClient.IndexExists(INDEX_VERSIONS_INDEX_NAME).Exists;
+            
             if (!indexVersionsIndexExists)
             {
                 Console.WriteLine("Creating index versions index...");
 
-                var createIndexResponse = _elasticClient.CreateIndex(INDEX_VERSIONS_INDEX_NAME, indexVersionsIndex => indexVersionsIndex
+                var createIndexResponse = ElasticClient.CreateIndex(INDEX_VERSIONS_INDEX_NAME, indexVersionsIndex => indexVersionsIndex
                     .Mappings(indexVersionMapping => indexVersionMapping
                         .Map<IndexVersion>(indexVersion => indexVersion
                             .Properties(indexVersionProperty => indexVersionProperty
@@ -112,20 +116,114 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
                 );
 
                 if (!createIndexResponse.Acknowledged)
-                    throw new Exception("Cannot create index versions index: " + createIndexResponse.ServerError);
+                    throw new Exception($"Cannot create index versions index: {createIndexResponse.ServerError}");
 
                 Console.WriteLine("Index versions index created");
             }
         }
 
-        private IPromise<IIndexSettings> ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
+        private void CreateIndexVersion(string indexName, long oldVersion, long newVersion)
+        {
+            var createIndexDescriptor = _mappingInterface.GetCreateIndexDescriptor(this, indexName);
+
+            string oldIndexNameWithVersion = indexName + "_v" + oldVersion;
+            string newIndexNameWithVersion = indexName + "_v" + newVersion;
+            
+            Console.WriteLine($"Creating index {newIndexNameWithVersion}...");
+
+            createIndexDescriptor = createIndexDescriptor.Index(newIndexNameWithVersion);
+
+            var createIndexResponse = ElasticClient.CreateIndex(newIndexNameWithVersion, index => createIndexDescriptor);
+
+            Console.WriteLine($"Index {newIndexNameWithVersion} created");
+            
+            if (oldVersion > 0)
+            {
+                // we have an old index, reindex
+
+                Console.WriteLine($"Reindexing from {oldIndexNameWithVersion} to {newIndexNameWithVersion}...");
+
+                var reindexOnServerResult = ElasticClient.ReindexOnServer(reindex => reindex
+                    .Source(source => source
+                        .Index(oldIndexNameWithVersion)
+                    )
+                    .Destination(destination => destination
+                        .Index(newIndexNameWithVersion)
+                        .VersionType(VersionType.Internal)
+                    ));
+
+                Console.WriteLine($"Reindexed from {oldIndexNameWithVersion} to {newIndexNameWithVersion} " +
+                    $"({reindexOnServerResult.Created} created, {reindexOnServerResult.Updated} updated)");
+            }
+
+            var aliasExists = ElasticClient.AliasExists(indexName).Exists;
+
+            if (aliasExists)
+            {
+                // we need to remove the old alias
+
+                Console.WriteLine($"Deleting alias {indexName} -> {oldIndexNameWithVersion}...");
+
+                ElasticClient.DeleteAlias(oldIndexNameWithVersion, indexName);
+
+                Console.WriteLine($"Deleted alias {indexName} -> {oldIndexNameWithVersion}");
+            }
+
+            // we need to add the new alias
+
+            Console.WriteLine($"Creating alias {indexName} -> {newIndexNameWithVersion}...");
+
+            var createAliasResponse = ElasticClient.Alias(alias => alias
+                .Add(action => action
+                    .Index(newIndexNameWithVersion)
+                    .Alias(indexName)
+                )
+            );
+
+            if (!createAliasResponse.Acknowledged)
+                throw new Exception($"Cannot create alias {indexName} -> {newIndexNameWithVersion}");
+
+            Console.WriteLine($"Created alias {indexName} -> {newIndexNameWithVersion}");
+
+            var newIndexVersion = new IndexVersion()
+            {
+                Name = indexName,
+                Version = newVersion
+            };
+
+            UpdateIndexVersion(newIndexVersion);
+
+            if (oldVersion > 0)
+            {
+                if (!_isProduction)
+                {
+                    // if everything succeeded, remove the old index
+
+                    // do not delete old index data in production because it is just too dangerous
+
+                    Console.WriteLine($"Deleting old index {oldIndexNameWithVersion}");
+
+                    var deleteIndexResponse = ElasticClient.DeleteIndex(oldIndexNameWithVersion);
+
+                    if (!deleteIndexResponse.Acknowledged)
+                        throw new Exception($"Cannot delete old index {oldIndexNameWithVersion}");
+
+                    Console.WriteLine($"Deleted old index {oldIndexNameWithVersion}");
+                } else
+                {
+                    Console.WriteLine($"WARNING: do not forget to delete old index {oldIndexNameWithVersion} if everything is all right!");
+                }
+            }
+        }
+
+        public IPromise<IIndexSettings> ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
         {
             return setting
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas);
         }
 
-        private IPromise<IIndexSettings> ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
+        public IPromise<IIndexSettings> ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
         {
             return setting
                 .NumberOfShards(_numberOfShards)
@@ -133,7 +231,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
                 .Analysis(analysis => ConfigureConcatenateAndAutocompleteAnalysis(analysis));
         }
 
-        public IAnalysis ConfigureConcatenateAndAutocompleteAnalysis(AnalysisDescriptor analysis)
+        private IAnalysis ConfigureConcatenateAndAutocompleteAnalysis(AnalysisDescriptor analysis)
         {
             return analysis
                 .TokenFilters(filter => filter
@@ -161,15 +259,15 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 
         private IndexVersion GetIndexVersion(string indexName)
         {
-            var getIndexVersionResponse = _elasticClient.Get<IndexVersion>(indexName, get => get
-                .Index(INDEX_VERSIONS_INDEX_NAME));
+            bool indexVersionExists = ElasticClient.DocumentExists<IndexVersion>(indexName, get => get
+                .Index(INDEX_VERSIONS_INDEX_NAME)).Exists;
 
-            if (!getIndexVersionResponse.Found)
+            if (!indexVersionExists)
             {
                 var newIndexVersion = new IndexVersion()
                 {
                     Name = indexName,
-                    Version = 1
+                    Version = 0
                 };
 
                 UpdateIndexVersion(newIndexVersion);
@@ -177,15 +275,18 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
                 return newIndexVersion;
             } else
             {
+                var getIndexVersionResponse = ElasticClient.Get<IndexVersion>(indexName, get => get
+                    .Index(INDEX_VERSIONS_INDEX_NAME));
+
                 return getIndexVersionResponse.Source;
             }
         }
 
         private void UpdateIndexVersion(IndexVersion indexVersion)
         {
-            _elasticClient.Index(indexVersion, index => index
+            ElasticClient.Index(indexVersion, index => index
                 .Index(INDEX_VERSIONS_INDEX_NAME)
-                .Index(indexVersion.Name));
+                .Id(indexVersion.Name));
         }
     }
 }
