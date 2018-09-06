@@ -51,6 +51,7 @@ namespace {{packageName}}.Controllers
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
         [Route("{{{basePathWithoutHost}}}{{{path}}}")]
+        [ProtectApi]
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}

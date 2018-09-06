@@ -158,7 +158,7 @@ namespace ReinhardHolzner.Core.Startup
         private static string ConfigureWebServer(WebHostBuilder builder, IConfigurationRoot hostingConfig, bool useWebListener, Type startupType)
         {
             bool useHttps = hostingConfig.GetValue<bool>("WebServer:UseHttps");
-            int port = hostingConfig.GetValue<int>("WebServer:Port");
+            bool useApiWebDomainSplit = hostingConfig.GetValue<bool>("WebServer:UseApiWebDomainSplit");
 
             if (useWebListener)
             {
@@ -218,8 +218,25 @@ namespace ReinhardHolzner.Core.Startup
                             certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
                         }
 
-                        options.Listen(IPAddress.Any, port, listenOptions =>
-                            listenOptions.UseHttps(certificate));
+                        if (useApiWebDomainSplit)
+                        {
+                            int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
+
+                            options.Listen(IPAddress.Any, webPort, listenOptions =>
+                                listenOptions.UseHttps(certificate));
+
+                            int apiPort = hostingConfig.GetValue<int>("WebServer:ApiPort");
+
+                            options.Listen(IPAddress.Any, apiPort, listenOptions =>
+                                listenOptions.UseHttps(certificate));
+                        }
+                        else
+                        {
+                            int port = hostingConfig.GetValue<int>("WebServer:Port");
+
+                            options.Listen(IPAddress.Any, port, listenOptions =>
+                                listenOptions.UseHttps(certificate));
+                        }
                     }
                 });
             }
@@ -248,16 +265,51 @@ namespace ReinhardHolzner.Core.Startup
 
             builder.UseIISIntegration();
 
-            string serverUrl = useHttps ? "https://" : "http://";
+            string serverUrl = "";
 
-            string domain = hostingConfig["WebServer:Domain"];
-            if (string.IsNullOrEmpty(domain))
-                throw new Exception("Domain not found in application settings");
+            if (useApiWebDomainSplit)
+            {
+                string webServerUrl = useHttps ? "https://" : "http://";
 
-            serverUrl += domain;
-            serverUrl += ":" + port;
+                string webDomain = hostingConfig["WebServer:WebDomain"];
+                if (string.IsNullOrEmpty(webDomain))
+                    throw new Exception("Web domain not found in application settings");
 
-            builder.UseUrls(new string[] { serverUrl });
+                int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
+                
+                webServerUrl += webDomain;
+                webServerUrl += ":" + webPort;
+
+                string apiServerUrl = useHttps ? "https://" : "http://";
+
+                string apiDomain = hostingConfig["WebServer:ApiDomain"];
+                if (string.IsNullOrEmpty(apiDomain))
+                    throw new Exception("API domain not found in application settings");
+
+                int apiPort = hostingConfig.GetValue<int>("WebServer:ApiPort");
+
+                apiServerUrl += apiDomain;
+                apiServerUrl += ":" + apiPort;
+
+                builder.UseUrls(new string[] { webServerUrl, apiServerUrl });
+
+                serverUrl = $"Web: {webServerUrl} / API: {apiServerUrl}";
+            }
+            else
+            {
+                serverUrl = useHttps ? "https://" : "http://";
+
+                string domain = hostingConfig["WebServer:Domain"];
+                if (string.IsNullOrEmpty(domain))
+                    throw new Exception("Domain not found in application settings");
+
+                int port = hostingConfig.GetValue<int>("WebServer:Port");
+
+                serverUrl += domain;
+                serverUrl += ":" + port;
+
+                builder.UseUrls(new string[] { serverUrl });
+            }
 
             builder.UseApplicationInsights();
 
