@@ -15,6 +15,15 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string MaxPagingLimitExceeded = "maxPagingLimitExceeded";
         public const string PagingOffsetInvalid = "pagingOffsetInvalid";
         public const string PagingLimitInvalid = "pagingLimitInvalid";
+        public const string ApiCredentialsMissing = "apiCredentialsMissing";
+        public const string ClientIdMissing = "clientIdMissing";
+        public const string ClientIdInvalid = "clientIdInvalid";
+        public const string ClientSecretMissing = "clientSecretMissing";
+        public const string ClientSecretInvalid = "clientSecretInvalid";
+        public const string RedirectUrlNotRequired = "redirectUrlNotRequired";
+        public const string RedirectUrlMissing = "redirectUrlMissing";
+        public const string RedirectUrlInvalid = "redirectUrlInvalid";
+        public const string ProviderMissing = "providerMissing";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)

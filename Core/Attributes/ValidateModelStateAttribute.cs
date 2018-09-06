@@ -46,9 +46,27 @@ namespace ReinhardHolzner.Core.Attributes
             {
                 InvalidArgumentApiException invalidArgumentApiException = null;
 
-                invalidArgumentApiException = new InvalidArgumentApiException(
-                      InvalidArgumentApiException.InvalidArgument, context.ModelState.Values.First().Errors.First().ErrorMessage);
-            
+                string errorMessage = null;
+
+                foreach (var value in context.ModelState.Values)
+                {
+                    var errors = value.Errors;
+                    if (errors == null || errors.Count == 0)
+                        continue;
+
+                    var error = errors.First();
+                    if (!string.IsNullOrEmpty(error.ErrorMessage))
+                    {
+                        errorMessage = error.ErrorMessage;
+                        break;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(errorMessage))
+                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.InvalidArgument, errorMessage);
+                else
+                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.InvalidArgument, "The parameter validation failed with unknown reason");
+
                 context.Result = new BadRequestObjectResult(invalidArgumentApiException.SerializeException());
             }
         }

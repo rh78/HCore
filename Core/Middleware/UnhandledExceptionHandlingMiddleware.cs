@@ -29,6 +29,12 @@ namespace ReinhardHolzner.Core.Middleware
             {
                 resultException = e;
             }
+            catch (NotImplementedException e)
+            {
+                _logger.LogError($"Not implemented exception: {e}");
+
+                resultException = new NotImplementedApiException();
+            }
             catch (Exception e)
             {
                 _logger.LogError($"Unexpected server error: {e}");
