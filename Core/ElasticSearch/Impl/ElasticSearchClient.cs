@@ -224,7 +224,8 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
         {
             return setting
                 .NumberOfShards(_numberOfShards)
-                .NumberOfReplicas(_numberOfReplicas);
+                .NumberOfReplicas(_numberOfReplicas)
+                .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
         public IPromise<IIndexSettings> ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
@@ -232,7 +233,8 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
             return setting
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas)
-                .Analysis(analysis => ConfigureConcatenateAndAutocompleteAnalysis(analysis));
+                .Analysis(analysis => ConfigureConcatenateAndAutocompleteAnalysis(analysis))
+                .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
         private IAnalysis ConfigureConcatenateAndAutocompleteAnalysis(AnalysisDescriptor analysis)
