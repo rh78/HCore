@@ -7,7 +7,7 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
         private ModelStateDictionary _modelState;
-
+        
         public const string InvalidArgument = "invalidArgument";
         public const string MandateUuidInvalid = "mandateUuidInvalid";
         public const string CustomerUuidInvalid = "customerUuidInvalid";
@@ -24,6 +24,9 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string RedirectUrlMissing = "redirectUrlMissing";
         public const string RedirectUrlInvalid = "redirectUrlInvalid";
         public const string ProviderMissing = "providerMissing";
+        public const string AccountConfigurationUuidInvalid = "accountConfigurationUuidInvalid";
+        public const string ContractUuidInvalid = "contractUuidInvalid";
+        public const string OfferingUuidInvalid = "offeringUuidInvalid";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
