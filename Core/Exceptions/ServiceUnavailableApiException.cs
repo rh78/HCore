@@ -6,6 +6,7 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
 
+        public const string ContentProviderMediaTypeUnknown = "contentProviderMediaTypeUnknown";
         public const string ContentProviderNoAccessToken = "contentProviderNoAccessToken";
         public const string ContentProviderCompatibilityIssue = "contentProviderCompatibilityIssue";
         public const string ContentProviderForbidden = "contentProviderForbidden";
