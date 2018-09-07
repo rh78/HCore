@@ -39,8 +39,8 @@ namespace ReinhardHolzner.Core.Models
         /// More details about the error, if available
         /// </summary>
         /// <value>More details about the error, if available</value>
-        [DataMember(Name = "details")]
-        public string Details { get; set; }
+        [DataMember(Name = "errorDetails")]
+        public string ErrorDetails { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -52,7 +52,7 @@ namespace ReinhardHolzner.Core.Models
             sb.Append("class ApiException {\n");
             sb.Append("  ErrorCode: ").Append(ErrorCode).Append("\n");
             sb.Append("  ErrorMessage: ").Append(ErrorMessage).Append("\n");
-            sb.Append("  Details: ").Append(Details).Append("\n");
+            sb.Append("  ErrorDetails: ").Append(ErrorDetails).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -100,9 +100,9 @@ namespace ReinhardHolzner.Core.Models
                     ErrorMessage.Equals(other.ErrorMessage)
                 ) &&
                 (
-                    Details == other.Details ||
-                    Details != null &&
-                    Details.Equals(other.Details)
+                    ErrorDetails == other.ErrorDetails ||
+                    ErrorDetails != null &&
+                    ErrorDetails.Equals(other.ErrorDetails)
                 );
         }
 
@@ -120,8 +120,8 @@ namespace ReinhardHolzner.Core.Models
                     hashCode = hashCode * 59 + ErrorCode.GetHashCode();
                 if (ErrorMessage != null)
                     hashCode = hashCode * 59 + ErrorMessage.GetHashCode();
-                if (Details != null)
-                    hashCode = hashCode * 59 + Details.GetHashCode();
+                if (ErrorDetails != null)
+                    hashCode = hashCode * 59 + ErrorDetails.GetHashCode();
                 return hashCode;
             }
         }

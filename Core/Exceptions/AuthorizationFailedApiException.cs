@@ -3,24 +3,23 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ReinhardHolzner.Core.Exceptions
 {
-    public class NotFoundApiException : ApiException
+    public class AuthorizationFailedApiException : ApiException
     {
         private string _errorCode;
 
-        public const string AccountConfigurationNotFound = "accountConfigurationNotFound";
-        public const string ContractNotFound = "contractNotFound";
-        public const string OfferingNotFound = "offeringNotFound";
-        public const string NotFound = "notFound";
+        public const string AccessDeniedByUser = "accessDeniedByUser";
+        public const string AccessDeniedExternalReason = "accessDeniedExternalReason";
+        public const string AuthorizationAlreadyProcessed = "authorizationAlreadyProcessed";
 
-        public NotFoundApiException(string errorCode, string message) : 
+        public AuthorizationFailedApiException(string errorCode, string message) : 
             base(message)
         {
             _errorCode = errorCode;            
         }
-       
+
         public override int GetStatusCode()
         {
-            return StatusCodes.Status404NotFound;
+            return StatusCodes.Status401Unauthorized;
         }
 
         public override string GetErrorCode()

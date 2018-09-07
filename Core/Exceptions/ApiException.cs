@@ -23,7 +23,7 @@ namespace ReinhardHolzner.Core.Exceptions
         {
             context.Response.StatusCode = GetStatusCode();
 
-            await context.Response.WriteAsync(SerializeException());
+            await context.Response.WriteAsync(SerializeException()).ConfigureAwait(false);
         }
 
         public string SerializeException()
@@ -37,7 +37,7 @@ namespace ReinhardHolzner.Core.Exceptions
             object o = GetObject();
             if (o != null)
             {
-                apiExceptionResult.Details = JsonConvert.SerializeObject(o);
+                apiExceptionResult.ErrorDetails = JsonConvert.SerializeObject(o);
             }
 
             return JsonConvert.SerializeObject(apiExceptionResult, Formatting.None,

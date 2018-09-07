@@ -13,6 +13,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using ReinhardHolzner.HCore.ElasticSearch.Impl;
 using ReinhardHolzner.HCore.ElasticSearch;
+using ReinhardHolzner.Core.RestSharp;
+using ReinhardHolzner.Core.RestSharp.Impl;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -261,6 +263,8 @@ namespace ReinhardHolzner.Core.Startup
                     new ConfigurationChangeTokenSource<HostFilteringOptions>(configuration));
 
                 services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();
+
+                services.AddScoped<IRestSharpClientProvider, RestSharpClientProviderImpl>();
             });
 
             builder.UseIISIntegration();

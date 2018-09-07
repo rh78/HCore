@@ -57,7 +57,7 @@ namespace {{packageName}}.Controllers
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}
         public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, CancellationToken cancellationToken = default(CancellationToken))
         { 	
-			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, cancellationToken);
+			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, cancellationToken).ConfigureAwait(false);
 					
 			IActionResult response = StatusCode(result.StatusCode, result.Result);            
 			
