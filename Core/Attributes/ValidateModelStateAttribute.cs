@@ -16,7 +16,7 @@ namespace ReinhardHolzner.Core.Attributes
     {
         // Setting the order to int.MinValue, using IOrderedFilter, to attempt executing
         // this filter *before* the BaseController's OnActionExecuting.
-        public new int Order => int.MinValue;
+        public new int Order => int.MinValue + 1;
 
         /// <summary>
         /// Called before the action method is invoked

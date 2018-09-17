@@ -15,6 +15,7 @@ using ReinhardHolzner.HCore.ElasticSearch.Impl;
 using ReinhardHolzner.HCore.ElasticSearch;
 using ReinhardHolzner.Core.RestSharp;
 using ReinhardHolzner.Core.RestSharp.Impl;
+using System.Collections.Generic;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -160,7 +161,11 @@ namespace ReinhardHolzner.Core.Startup
         private static string ConfigureWebServer(WebHostBuilder builder, IConfigurationRoot hostingConfig, bool useWebListener, Type startupType)
         {
             bool useHttps = hostingConfig.GetValue<bool>("WebServer:UseHttps");
-            bool useApiWebDomainSplit = hostingConfig.GetValue<bool>("WebServer:UseApiWebDomainSplit");
+            bool useWeb = hostingConfig.GetValue<bool>("WebServer:UseWeb");
+            bool useApi = hostingConfig.GetValue<bool>("WebServer:UseApi");
+
+            if (!useWeb && !useApi)
+                throw new Exception("Please specify which kind of service (web or API) you want to use");
 
             if (useWebListener)
             {
@@ -220,25 +225,21 @@ namespace ReinhardHolzner.Core.Startup
                             certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
                         }
 
-                        if (useApiWebDomainSplit)
+                        if (useWeb)
                         {
                             int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
 
                             options.Listen(IPAddress.Any, webPort, listenOptions =>
                                 listenOptions.UseHttps(certificate));
+                        }
 
+                        if (useApi)
+                        { 
                             int apiPort = hostingConfig.GetValue<int>("WebServer:ApiPort");
 
                             options.Listen(IPAddress.Any, apiPort, listenOptions =>
                                 listenOptions.UseHttps(certificate));
-                        }
-                        else
-                        {
-                            int port = hostingConfig.GetValue<int>("WebServer:Port");
-
-                            options.Listen(IPAddress.Any, port, listenOptions =>
-                                listenOptions.UseHttps(certificate));
-                        }
+                        }                        
                     }
                 });
             }
@@ -269,9 +270,9 @@ namespace ReinhardHolzner.Core.Startup
 
             builder.UseIISIntegration();
 
-            string serverUrl = "";
-
-            if (useApiWebDomainSplit)
+            List<string> urls = new List<string>();
+            
+            if (useWeb)
             {
                 string webServerUrl = useHttps ? "https://" : "http://";
 
@@ -280,10 +281,15 @@ namespace ReinhardHolzner.Core.Startup
                     throw new Exception("Web domain not found in application settings");
 
                 int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
-                
+
                 webServerUrl += webDomain;
                 webServerUrl += ":" + webPort;
 
+                urls.Add(webServerUrl);
+            }
+
+            if (useApi)
+            { 
                 string apiServerUrl = useHttps ? "https://" : "http://";
 
                 string apiDomain = hostingConfig["WebServer:ApiDomain"];
@@ -295,31 +301,18 @@ namespace ReinhardHolzner.Core.Startup
                 apiServerUrl += apiDomain;
                 apiServerUrl += ":" + apiPort;
 
-                builder.UseUrls(new string[] { webServerUrl, apiServerUrl });
-
-                serverUrl = $"Web: {webServerUrl} / API: {apiServerUrl}";
-            }
-            else
-            {
-                serverUrl = useHttps ? "https://" : "http://";
-
-                string domain = hostingConfig["WebServer:Domain"];
-                if (string.IsNullOrEmpty(domain))
-                    throw new Exception("Domain not found in application settings");
-
-                int port = hostingConfig.GetValue<int>("WebServer:Port");
-
-                serverUrl += domain;
-                serverUrl += ":" + port;
-
-                builder.UseUrls(new string[] { serverUrl });
+                urls.Add(apiServerUrl);
             }
 
+            string[] urlsArray = urls.ToArray<string>();
+
+            builder.UseUrls(urlsArray);
+            
             builder.UseApplicationInsights();
 
             builder.UseStartup(startupType);
 
-            return serverUrl;
+            return string.Join(" / ", urlsArray);
         }
     }
 

@@ -18,7 +18,7 @@ namespace ReinhardHolzner.Core.Exceptions
 
         public override string GetErrorCode()
         {
-            return "notImplemented";
+            return "not_implemented";
         }
 
         public override object GetObject()

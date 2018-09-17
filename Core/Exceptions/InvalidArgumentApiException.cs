@@ -8,28 +8,29 @@ namespace ReinhardHolzner.Core.Exceptions
         private string _errorCode;
         private ModelStateDictionary _modelState;
 
-        public const string InvalidArgument = "invalidArgument";
-        public const string MandateUuidInvalid = "mandateUuidInvalid";
-        public const string CustomerUuidInvalid = "customerUuidInvalid";
-        public const string MaxPagingOffsetExceeded = "maxPagingOffsetExceeded";
-        public const string MaxPagingLimitExceeded = "maxPagingLimitExceeded";
-        public const string PagingOffsetInvalid = "pagingOffsetInvalid";
-        public const string PagingLimitInvalid = "pagingLimitInvalid";
-        public const string ApiCredentialsMissing = "apiCredentialsMissing";
-        public const string ClientIdMissing = "clientIdMissing";
-        public const string ClientIdInvalid = "clientIdInvalid";
-        public const string ClientSecretMissing = "clientSecretMissing";
-        public const string ClientSecretInvalid = "clientSecretInvalid";
-        public const string RedirectUrlNotRequired = "redirectUrlNotRequired";
-        public const string RedirectUrlMissing = "redirectUrlMissing";
-        public const string RedirectUrlInvalid = "redirectUrlInvalid";
-        public const string ProviderMissing = "providerMissing";
-        public const string AccountConfigurationUuidInvalid = "accountConfigurationUuidInvalid";
-        public const string ContractUuidInvalid = "contractUuidInvalid";
-        public const string OfferingUuidInvalid = "offeringUuidInvalid";
-        public const string UuidInvalid = "uuidInvalid";
-        public const string StateInvalid = "stateInvalid";
-        public const string CodeInvalid = "codeInvalid";
+        public const string InvalidArgument = "invalid_argument";
+        public const string MandateUuidInvalid = "mandate_uuid_invalid";
+        public const string CustomerUuidInvalid = "customer_uuid_invalid";
+        public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";
+        public const string MaxPagingLimitExceeded = "max_paging_limit_exceeded";
+        public const string PagingOffsetInvalid = "paging_offset_invalid";
+        public const string PagingLimitInvalid = "paging_limit_invalid";
+        public const string ApiCredentialsMissing = "api_credentials_missing";
+        public const string ClientIdMissing = "client_id_missing";
+        public const string ClientIdInvalid = "client_id_invalid";
+        public const string ClientSecretMissing = "client_secret_missing";
+        public const string ClientSecretInvalid = "client_secret_invalid";
+        public const string RedirectUrlNotRequired = "redirect_url_not_required";
+        public const string RedirectUrlMissing = "redirect_url_missing";
+        public const string RedirectUrlInvalid = "redirect_url_invalid";
+        public const string ProviderMissing = "provider_missing";
+        public const string ProviderNotSupported = "provider_not_supported";
+        public const string AccountConfigurationUuidInvalid = "account_configuration_uuid_invalid";
+        public const string ContractUuidInvalid = "contract_uuid_invalid";
+        public const string OfferingUuidInvalid = "offering_uuid_invalid";
+        public const string UuidInvalid = "uuid_invalid";
+        public const string StateInvalid = "state_invalid";
+        public const string CodeInvalid = "code_invalid";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)

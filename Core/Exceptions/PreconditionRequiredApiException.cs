@@ -7,7 +7,7 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
 
-        public const string AccountConfigurationNotSetup = "accountConfigurationNotSetup";
+        public const string AccountConfigurationNotSetup = "account_configuration_not_setup";
         
         public PreconditionRequiredApiException(string errorCode, string message) : 
             base(message)

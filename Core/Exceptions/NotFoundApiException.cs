@@ -7,10 +7,10 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
 
-        public const string AccountConfigurationNotFound = "accountConfigurationNotFound";
-        public const string ContractNotFound = "contractNotFound";
-        public const string OfferingNotFound = "offeringNotFound";
-        public const string NotFound = "notFound";
+        public const string AccountConfigurationNotFound = "account_configuration_not_found";
+        public const string ContractNotFound = "contract_not_found";
+        public const string OfferingNotFound = "offering_not_found";
+        public const string NotFound = "not_found";
 
         public NotFoundApiException(string errorCode, string message) : 
             base(message)

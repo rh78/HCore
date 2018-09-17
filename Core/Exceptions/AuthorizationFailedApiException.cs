@@ -7,9 +7,9 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
 
-        public const string AccessDeniedByUser = "accessDeniedByUser";
-        public const string AccessDeniedExternalReason = "accessDeniedExternalReason";
-        public const string AuthorizationAlreadyProcessed = "authorizationAlreadyProcessed";
+        public const string AccessDeniedByUser = "access_denied_by_user";
+        public const string AccessDeniedExternalReason = "access_denied_external_reason";
+        public const string AuthorizationAlreadyProcessed = "authorization_already_processed";
 
         public AuthorizationFailedApiException(string errorCode, string message) : 
             base(message)
