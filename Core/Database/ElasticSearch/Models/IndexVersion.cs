@@ -1,4 +1,4 @@
-﻿namespace ReinhardHolzner.HCore.ElasticSearch.Models
+﻿namespace ReinhardHolzner.HCore.Database.ElasticSearch.Models
 {
     class IndexVersion
     {

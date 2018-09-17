@@ -11,33 +11,34 @@ using Microsoft.Extensions.Options;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
-using ReinhardHolzner.HCore.ElasticSearch.Impl;
-using ReinhardHolzner.HCore.ElasticSearch;
 using ReinhardHolzner.Core.RestSharp;
 using ReinhardHolzner.Core.RestSharp.Impl;
 using System.Collections.Generic;
+using ReinhardHolzner.HCore.Database.ElasticSearch;
+using ReinhardHolzner.HCore.Database.ElasticSearch.Impl;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReinhardHolzner.Core.Startup
 {
     // Inspired from https://github.com/aspnet/MetaPackages/blob/2.1.3/src/Microsoft.AspNetCore/WebHost.cs
 
-    public class Program
+    public class Program<TStartup, TSqlServerDbContext> where TSqlServerDbContext: DbContext
     {
-        protected static void Launch<TStartup>(string[] args, IElasticSearchMappingInterface mappingInterface)
+        protected static void Launch(string[] args, IElasticSearchDbContext elasticSearchDbContext)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             if (environment == EnvironmentName.Development)
-                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
             else if (environment == EnvironmentName.Staging)
-                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
             else if (environment == EnvironmentName.Production)
-                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, mappingInterface).Build().Run();
+                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
             else
                 throw new Exception($"Invalid environment name found: {environment}");
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchMappingInterface mappingInterface)
+        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchDbContext elasticSearchDbContext)
         {
             var builder = new WebHostBuilder();
 
@@ -47,7 +48,7 @@ namespace ReinhardHolzner.Core.Startup
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            ConfigureServiceProviders(builder, isProduction, hostingConfig, mappingInterface);
+            ConfigureServiceProviders(builder, isProduction, hostingConfig, elasticSearchDbContext);
             ConfigureLogging(builder);
             ConfigureContentRoot(builder);
             ConfigureConfiguration(builder, args);
@@ -59,11 +60,12 @@ namespace ReinhardHolzner.Core.Startup
             return builder;
         }
 
-        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
+        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext)
         {
             ConfigureDefaultServiceProvider(builder);
 
-            ConfigureElasticSearch(builder, isProduction, hostingConfig, mappingInterface);            
+            ConfigureSqlServer(builder, isProduction, hostingConfig);
+            ConfigureElasticSearch(builder, isProduction, hostingConfig, elasticSearchDbContext);                       
         }
 
         private static void ConfigureDefaultServiceProvider(WebHostBuilder builder)
@@ -74,7 +76,31 @@ namespace ReinhardHolzner.Core.Startup
             });
         }
 
-        private static void ConfigureElasticSearch(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchMappingInterface mappingInterface)
+        private static void ConfigureSqlServer(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig)
+        {
+            bool useSqlServer = hostingConfig.GetValue<bool>("UseSqlServer");
+
+            if (useSqlServer)
+            {
+                string connectionString = hostingConfig["SqlServer:ConnectionString"];
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new Exception("SQL Server connection string is empty");
+
+                Console.WriteLine("Initializing SQL Server DB context...");
+
+                builder.ConfigureServices(services =>
+                {
+                    services.AddDbContext<TSqlServerDbContext>(options =>
+                    {
+                        options.UseSqlServer(connectionString);
+                    });
+                });                
+
+                Console.WriteLine("Initialized SQL Server DB context");
+            }
+        }
+
+        private static void ConfigureElasticSearch(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext)
         {
             bool useElasticSearch = hostingConfig.GetValue<bool>("UseElasticSearch");
 
@@ -92,8 +118,8 @@ namespace ReinhardHolzner.Core.Startup
                 if (string.IsNullOrEmpty(hosts))
                     throw new Exception("ElasticSearch hosts not found");
 
-                IElasticSearchClient elasticSearchClient = new ElasticSearchClient(
-                    isProduction, numberOfShards, numberOfReplicas, hosts, mappingInterface);
+                IElasticSearchClient elasticSearchClient = new ElasticSearchClientImpl(
+                    isProduction, numberOfShards, numberOfReplicas, hosts, elasticSearchDbContext);
 
                 Console.WriteLine("Initializing ElasticSearch client...");
 

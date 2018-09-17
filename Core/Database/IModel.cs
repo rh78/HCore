@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ReinhardHolzner.HCore.ElasticSearch.Models
+namespace ReinhardHolzner.HCore.Database
 {
     public interface IModel<TJsonModel>
     {

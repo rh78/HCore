@@ -1,13 +1,13 @@
 ﻿using Elasticsearch.Net;
 using Nest;
-using ReinhardHolzner.HCore.ElasticSearch.Models;
+using ReinhardHolzner.HCore.Database.ElasticSearch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReinhardHolzner.HCore.ElasticSearch.Impl
+namespace ReinhardHolzner.HCore.Database.ElasticSearch.Impl
 {
-    public class ElasticSearchClient : IElasticSearchClient
+    public class ElasticSearchClientImpl : IElasticSearchClient
     {
         // search will become expensive above 500 records
         public const int MaxOffset = 500;
@@ -23,17 +23,17 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 
         public ElasticClient ElasticClient { get; private set; }
 
-        private IElasticSearchMappingInterface _mappingInterface;
+        private IElasticSearchDbContext _elasticSearchDbContext;
 
-        public ElasticSearchClient(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchMappingInterface mappingInterface)
+        public ElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchDbContext elasticSearchDbContext)
         {
             _isProduction = isProduction;
 
             _numberOfShards = numberOfShards;
             _numberOfReplicas = numberOfReplicas;
-            _hosts = hosts;            
+            _hosts = hosts;
 
-            _mappingInterface = mappingInterface;
+            _elasticSearchDbContext = elasticSearchDbContext;
         }
 
         public void Initialize()
@@ -79,11 +79,11 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 
             CreateIndexVersionsIndex();
 
-            string[] indexNames = _mappingInterface.IndexNames;
+            string[] indexNames = _elasticSearchDbContext.IndexNames;
             
             indexNames.ToList().ForEach(indexName =>
             {
-                long newestIndexVersion = _mappingInterface.GetIndexVersion(indexName);
+                long newestIndexVersion = _elasticSearchDbContext.GetIndexVersion(indexName);
 
                 IndexVersion indexVersion = GetIndexVersion(indexName);
 
@@ -128,7 +128,7 @@ namespace ReinhardHolzner.HCore.ElasticSearch.Impl
 
         private void CreateIndexVersion(string indexName, long oldVersion, long newVersion)
         {
-            var createIndexDescriptor = _mappingInterface.GetCreateIndexDescriptor(this, indexName);
+            var createIndexDescriptor = _elasticSearchDbContext.GetCreateIndexDescriptor(this, indexName);
 
             string oldIndexNameWithVersion = indexName + "_v" + oldVersion;
             string newIndexNameWithVersion = indexName + "_v" + newVersion;

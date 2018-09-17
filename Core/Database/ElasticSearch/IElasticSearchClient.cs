@@ -1,6 +1,6 @@
 ﻿using Nest;
 
-namespace ReinhardHolzner.HCore.ElasticSearch
+namespace ReinhardHolzner.HCore.Database.ElasticSearch
 {
     public interface IElasticSearchClient
     {

@@ -1,8 +1,8 @@
 ﻿using Nest;
 
-namespace ReinhardHolzner.HCore.ElasticSearch
+namespace ReinhardHolzner.HCore.Database.ElasticSearch
 {
-    public interface IElasticSearchMappingInterface
+    public interface IElasticSearchDbContext
     {
         string[] IndexNames { get; }
 

@@ -1,10 +1,7 @@
 ﻿using Nest;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace ReinhardHolzner.HCore.ElasticSearch.Models
+namespace ReinhardHolzner.HCore.Database.ElasticSearch.Impl
 {
     public interface IConcatenateTokenFilter : ITokenFilter
     {
