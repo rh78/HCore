@@ -63,7 +63,7 @@ namespace ReinhardHolzner.Core.Models
         /// <returns>JSON string presentation of the object</returns>
         public string ToJson()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return JsonConvert.SerializeObject(this);
         }
 
         /// <summary>

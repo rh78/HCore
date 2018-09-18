@@ -30,7 +30,19 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string UuidInvalid = "uuid_invalid";
         public const string StateInvalid = "state_invalid";
         public const string CodeInvalid = "code_invalid";
-
+        public const string CertificateAuthenticationMissing = "certificate_authentication_data_missing";
+        public const string IssuerMissing = "issuer_missing";
+        public const string IssuerInvalid = "issuer_invalid";
+        public const string SubjectMissing = "subject_missing";
+        public const string SubjectInvalid = "subject_invalid";
+        public const string PrivateKeyMissing = "private_key_missing";
+        public const string PrivateKeyInvalid = "private_key_invalid";
+        public const string UserCredentialsMissing = "user_credentials_missing";
+        public const string UserNameMissing = "user_name_missing";
+        public const string UserNameInvalid = "user_name_invalid";
+        public const string PasswordMissing = "password_missing";
+        public const string PasswordInvalid = "password_invalid";
+        
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
         {
