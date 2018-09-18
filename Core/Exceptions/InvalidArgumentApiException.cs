@@ -10,7 +10,6 @@ namespace ReinhardHolzner.Core.Exceptions
 
         public const string InvalidArgument = "invalid_argument";
         public const string MandateUuidInvalid = "mandate_uuid_invalid";
-        public const string CustomerUuidInvalid = "customer_uuid_invalid";
         public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";
         public const string MaxPagingLimitExceeded = "max_paging_limit_exceeded";
         public const string PagingOffsetInvalid = "paging_offset_invalid";
