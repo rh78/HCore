@@ -23,7 +23,7 @@ namespace ReinhardHolzner.Core.Middleware
 
             try
             {
-                await _next.Invoke(context);
+                await _next.Invoke(context).ConfigureAwait(false);
             }
             catch (ApiException e)
             {
@@ -43,7 +43,7 @@ namespace ReinhardHolzner.Core.Middleware
             }            
 
             if (resultException != null)            
-                await resultException.WriteResponseAsync(context);            
+                await resultException.WriteResponseAsync(context).ConfigureAwait(false);            
         }
     }
 }

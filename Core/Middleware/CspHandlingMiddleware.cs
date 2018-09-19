@@ -27,7 +27,7 @@ namespace ReinhardHolzner.HCore.Middleware
                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com " +
                    "font-src 'self' https://fonts.gstatic.com");
 
-            await _next.Invoke(context);
+            await _next.Invoke(context).ConfigureAwait(false);
         }            
     }
 }
