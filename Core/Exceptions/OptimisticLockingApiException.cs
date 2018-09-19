@@ -7,7 +7,9 @@ namespace ReinhardHolzner.Core.Exceptions
     {
         private string _errorCode;
 
-        public const string AccountConfigurationOptimisticLockViolated = "account_configuration_optimistic_lock_violated";        
+        public const string AccountConfigurationOptimisticLockViolated = "account_configuration_optimistic_lock_violated";
+        public const string ContractOptimisticLockViolated = "contract_optimistic_lock_violated";
+        public const string OfferingOptimisticLockViolated = "offering_optimistic_lock_violated";
 
         public OptimisticLockingApiException(string errorCode, string message) : 
             base(message)
