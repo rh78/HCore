@@ -19,22 +19,31 @@ namespace {{packageName}}.Models
     [NotMapped]
 	public partial class {{classname}} : {{#parent}}{{{parent}}}, {{/parent}}IEquatable<{{classname}}>
     { {{#vars}}{{#isEnum}}{{>enumClass}}{{/isEnum}}{{#items.isEnum}}{{#items}}{{>enumClass}}{{/items}}{{/items.isEnum}}
-        /// <summary>
+        {{#isEnum}}
+		private {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} _{{name}};
+		{{/isEnum}}
+        {{^isEnum}}
+		private {{{dataType}}} _{{name}};
+		{{/isEnum}}		
+		
+		/// <summary>
         /// {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{description}}{{/description}}
         /// </summary>
         {{#description}}
         /// <value>{{description}}</value>
-        {{/description}}
-        {{#required}}
+        {{/description}}        
+		{{#required}}
         [Required]
         {{/required}}
         [DataMember(Name="{{baseName}}")]
         {{#isEnum}}
-        public {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} {{name}} { get; set; }
+		public {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
         {{/isEnum}}
         {{^isEnum}}
-        public {{{dataType}}} {{name}} { get; set; }
+		public {{{dataType}}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
         {{/isEnum}}
+		
+		public bool {{name}}Set = false;		
         {{#hasMore}}
         {{/hasMore}}
         {{/vars}}

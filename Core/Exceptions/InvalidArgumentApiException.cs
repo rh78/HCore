@@ -42,7 +42,8 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string UserNameInvalid = "user_name_invalid";
         public const string PasswordMissing = "password_missing";
         public const string PasswordInvalid = "password_invalid";
-        
+        public const string NameInvalid = "name_invalid";
+
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
         {
