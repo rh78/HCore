@@ -14,8 +14,8 @@ using System.Linq;
 using ReinhardHolzner.Core.RestSharp;
 using ReinhardHolzner.Core.RestSharp.Impl;
 using System.Collections.Generic;
-using ReinhardHolzner.HCore.Database.ElasticSearch;
-using ReinhardHolzner.HCore.Database.ElasticSearch.Impl;
+using ReinhardHolzner.Core.Database.ElasticSearch;
+using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using Microsoft.EntityFrameworkCore;
 
 namespace ReinhardHolzner.Core.Startup

@@ -1,4 +1,4 @@
-﻿namespace ReinhardHolzner.HCore.Database.SqlServer
+﻿namespace ReinhardHolzner.Core.Database.SqlServer
 {
     public interface ISqlServerDbContext
     {

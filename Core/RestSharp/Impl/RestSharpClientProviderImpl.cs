@@ -1,7 +1,4 @@
-﻿using ReinhardHolzner.HCore.RestSharp;
-using ReinhardHolzner.HCore.RestSharp.Impl;
-
-namespace ReinhardHolzner.Core.RestSharp.Impl
+﻿namespace ReinhardHolzner.Core.RestSharp.Impl
 {
     public class RestSharpClientProviderImpl : IRestSharpClientProvider
     {

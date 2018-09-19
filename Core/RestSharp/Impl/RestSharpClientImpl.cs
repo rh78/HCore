@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace ReinhardHolzner.HCore.RestSharp.Impl
+namespace ReinhardHolzner.Core.RestSharp.Impl
 {
     public class RestSharpClientImpl : IRestSharpClient
     {

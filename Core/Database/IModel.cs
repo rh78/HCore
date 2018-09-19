@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ReinhardHolzner.HCore.Database
+﻿namespace ReinhardHolzner.Core.Database
 {
     public interface IModel<TJsonModel>
     {

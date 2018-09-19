@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace ReinhardHolzner.HCore.Database.SqlServer.Impl
+namespace ReinhardHolzner.Core.Database.SqlServer.Impl
 {
     public class SqlServerDbContextImpl : DbContext, ISqlServerDbContext
     {

@@ -1,11 +1,11 @@
 ﻿using Elasticsearch.Net;
 using Nest;
-using ReinhardHolzner.HCore.Database.ElasticSearch.Models;
+using ReinhardHolzner.Core.Database.ElasticSearch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ReinhardHolzner.HCore.Database.ElasticSearch.Impl
+namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
 {
     public class ElasticSearchClientImpl : IElasticSearchClient
     {

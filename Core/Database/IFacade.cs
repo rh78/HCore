@@ -1,4 +1,4 @@
-﻿namespace ReinhardHolzner.HCore.Database
+﻿namespace ReinhardHolzner.Core.Database
 {
     public interface IFacade
     {

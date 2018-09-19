@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ReinhardHolzner.Core.Exceptions
 {
-    public class PreconditionRequiredApiException : ApiException
+    public class ExternalServiceApiException : ApiException
     {
         private string _errorCode;
 
-        public PreconditionRequiredApiException(string errorCode, string message) : 
+        public ExternalServiceApiException(string errorCode, string message) : 
             base(message)
         {
             _errorCode = errorCode;            
         }
-       
+
         public override int GetStatusCode()
         {
-            return StatusCodes.Status428PreconditionRequired;
+            return StatusCodes.Status424FailedDependency;
         }
 
         public override string GetErrorCode()

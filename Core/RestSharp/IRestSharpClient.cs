@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace ReinhardHolzner.HCore.RestSharp
+namespace ReinhardHolzner.Core.RestSharp
 {
     public interface IRestSharpClient
     {

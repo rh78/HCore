@@ -22,15 +22,9 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string RedirectUrlNotRequired = "redirect_url_not_required";
         public const string RedirectUrlMissing = "redirect_url_missing";
         public const string RedirectUrlInvalid = "redirect_url_invalid";
-        public const string ProviderMissing = "provider_missing";
-        public const string ProviderNotSupported = "provider_not_supported";
-        public const string AccountConfigurationUuidInvalid = "account_configuration_uuid_invalid";
-        public const string ContractUuidInvalid = "contract_uuid_invalid";
-        public const string OfferingUuidInvalid = "offering_uuid_invalid";
         public const string UuidInvalid = "uuid_invalid";
         public const string StateInvalid = "state_invalid";
         public const string CodeInvalid = "code_invalid";
-        public const string CertificateAuthenticationMissing = "certificate_authentication_data_missing";
         public const string IssuerMissing = "issuer_missing";
         public const string IssuerInvalid = "issuer_invalid";
         public const string SubjectMissing = "subject_missing";
