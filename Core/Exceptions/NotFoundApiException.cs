@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ReinhardHolzner.Core.Exceptions
 {
@@ -8,6 +7,8 @@ namespace ReinhardHolzner.Core.Exceptions
         private string _errorCode;
 
         public const string NotFound = "not_found";
+        public const string UserNotFound = "user_not_found";
+        public const string UserGroupNotFound = "user_group_not_found";
 
         public NotFoundApiException(string errorCode, string message) : 
             base(message)

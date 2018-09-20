@@ -37,6 +37,10 @@ namespace ReinhardHolzner.Core.Exceptions
         public const string PasswordMissing = "password_missing";
         public const string PasswordInvalid = "password_invalid";
         public const string NameInvalid = "name_invalid";
+        public const string TooManyUpdateRecords = "too_many_update_records";
+        public const string NoRecordsSpecified = "no_records_specified";
+        public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
+        public const string UserUuidInvalid = "user_uuid_invalid";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
