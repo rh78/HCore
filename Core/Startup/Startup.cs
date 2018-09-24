@@ -13,6 +13,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ReinhardHolzner.HCore.Providers;
 using ReinhardHolzner.HCore.Providers.Impl;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.Routing;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -20,6 +22,7 @@ namespace ReinhardHolzner.Core.Startup
     {
         private bool _useHttps;
         private int _port;
+        private bool _useSpa;
 
         public Startup(IConfiguration configuration)
         {
@@ -29,6 +32,9 @@ namespace ReinhardHolzner.Core.Startup
         public IConfiguration Configuration { get; }
 
         protected abstract void ConfigureCoreServices(IServiceCollection services);
+        protected abstract void ConfigureCore(IApplicationBuilder app, IHostingEnvironment env);
+
+        protected abstract void ConfigureCoreRoutes(IRouteBuilder routes);
 
         public void ConfigureServices(IServiceCollection services)
         {            
@@ -68,6 +74,21 @@ namespace ReinhardHolzner.Core.Startup
 
         private void ConfigureWebServer(IServiceCollection services)
         {
+            bool useWeb = Configuration.GetValue<bool>("UseWeb");
+
+            if (useWeb)
+            {
+                // configure cookie policies
+
+                services.Configure<CookiePolicyOptions>(options =>
+                {
+                    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+
+                    options.CheckConsentNeeded = context => true;
+                    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
+                });
+            }
+
             _useHttps = Configuration.GetValue<bool>("UseHttps");
             _port = Configuration.GetValue<int>("Port");
 
@@ -91,7 +112,17 @@ namespace ReinhardHolzner.Core.Startup
             {
                 options.EnableForHttps = true;
             });
-        }
+
+            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+
+            if (_useSpa)
+            {
+                services.AddSpaStaticFiles(configuration =>
+                {
+                    configuration.RootPath = "ClientApp/build";
+                });
+            }            
+        }        
 
         private void ConfigureCors(IServiceCollection services)
         {
@@ -149,6 +180,9 @@ namespace ReinhardHolzner.Core.Startup
             ConfigureCsp(app, env);
             ConfigureRequestLocalization(app, env);
             ConfigureExceptionHandling(app, env);
+
+            ConfigureCore(app, env);
+
             ConfigureMvc(app, env);
         }
 
@@ -176,7 +210,7 @@ namespace ReinhardHolzner.Core.Startup
 
         private void ConfigureStaticFiles(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseStaticFiles(new StaticFileOptions
+            var staticFileOptions = new StaticFileOptions
             {
                 OnPrepareResponse = context =>
                 {
@@ -188,7 +222,12 @@ namespace ReinhardHolzner.Core.Startup
 
                     context.Context.Response.GetTypedHeaders().CacheControl = cacheControlHeaderValue;
                 }
-            });
+            };
+
+            app.UseStaticFiles(staticFileOptions);
+
+            if (_useSpa)            
+                app.UseSpaStaticFiles(staticFileOptions);            
         }
 
         private void ConfigureCors(IApplicationBuilder app, IHostingEnvironment env)
@@ -233,7 +272,26 @@ namespace ReinhardHolzner.Core.Startup
 
         private void ConfigureMvc(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                ConfigureCoreRoutes(routes);
+            });
+        }        
+
+        private void ConfigureSpa(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            if (_useSpa)
+            {
+                app.UseSpa(spa =>
+                {
+                    spa.Options.SourcePath = "ClientApp";
+
+                    if (env.IsDevelopment())
+                    {
+                        spa.UseReactDevelopmentServer(npmScript: "start");
+                    }
+                });
+            }
         }
 
         private void ConfigureGenericServices(IServiceCollection services)
