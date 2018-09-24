@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ReinhardHolzner.HCore.Providers;
+using ReinhardHolzner.HCore.Providers.Impl;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -37,7 +39,8 @@ namespace ReinhardHolzner.Core.Startup
             ConfigureJwt(services);
             ConfigureMvc(services);
 
-            ConfigureCoreServices(services);
+            ConfigureGenericServices(services);
+            ConfigureCoreServices(services);            
         }
 
         private void ConfigureLocalization(IServiceCollection services)
@@ -231,6 +234,11 @@ namespace ReinhardHolzner.Core.Startup
         private void ConfigureMvc(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseMvc();
+        }
+
+        private void ConfigureGenericServices(IServiceCollection services)
+        {
+            services.AddSingleton<IUrlProvider, UrlProviderImpl>();
         }
     }
 }
