@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using ReinhardHolzner.Core.Database.ElasticSearch;
 using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using Microsoft.EntityFrameworkCore;
+using ReinhardHolzner.HCore.AMQP;
+using Amqp;
+using ReinhardHolzner.HCore.AMQP.Impl;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -24,21 +27,21 @@ namespace ReinhardHolzner.Core.Startup
 
     public class Program<TStartup, TSqlServerDbContext> where TSqlServerDbContext: DbContext
     {
-        protected static void Launch(string[] args, IElasticSearchDbContext elasticSearchDbContext)
+        protected static void Launch(string[] args, IElasticSearchDbContext elasticSearchDbContext = null, AMQPMessenger amqpMessenger = null)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
             if (environment == EnvironmentName.Development)
-                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
+                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
             else if (environment == EnvironmentName.Staging)
-                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
+                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
             else if (environment == EnvironmentName.Production)
-                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, elasticSearchDbContext).Build().Run();
+                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
             else
                 throw new Exception($"Invalid environment name found: {environment}");
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchDbContext elasticSearchDbContext)
+        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchDbContext elasticSearchDbContext, AMQPMessenger amqpMessenger)
         {
             var builder = new WebHostBuilder();
 
@@ -48,7 +51,7 @@ namespace ReinhardHolzner.Core.Startup
                 .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            ConfigureServiceProviders(builder, isProduction, hostingConfig, elasticSearchDbContext);
+            ConfigureServiceProviders(builder, isProduction, hostingConfig, elasticSearchDbContext, amqpMessenger);
             ConfigureLogging(builder);
             ConfigureContentRoot(builder);
             ConfigureConfiguration(builder, args);
@@ -60,12 +63,13 @@ namespace ReinhardHolzner.Core.Startup
             return builder;
         }
 
-        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext)
+        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext, AMQPMessenger amqpMessenger)
         {
             ConfigureDefaultServiceProvider(builder);
 
             ConfigureSqlServer(builder, isProduction, hostingConfig);
-            ConfigureElasticSearch(builder, isProduction, hostingConfig, elasticSearchDbContext);                       
+            ConfigureElasticSearch(builder, isProduction, hostingConfig, elasticSearchDbContext);
+            ConfigureAmqp(builder, hostingConfig, amqpMessenger);
         }
 
         private static void ConfigureDefaultServiceProvider(WebHostBuilder builder)
@@ -133,6 +137,71 @@ namespace ReinhardHolzner.Core.Startup
                 });               
             }            
         }
+
+        private static void ConfigureAmqp(WebHostBuilder builder, IConfigurationRoot hostingConfig, AMQPMessenger amqpMessenger)
+        {
+            bool useAmqpListener = hostingConfig.GetValue<bool>("UseAmqpListener");
+            bool useAmqpSender = hostingConfig.GetValue<bool>("UseAmqpSender");
+
+            if (useAmqpListener || useAmqpSender)
+            {
+                Console.WriteLine("Initializing AMQP...");
+
+                string connectionString = hostingConfig["Amqp:ConnectionString"];
+
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new Exception("AMQP connection string is empty");
+
+                string addresses = hostingConfig["Amqp:Addresses"];
+
+                if (string.IsNullOrEmpty(addresses))
+                    throw new Exception("AMQP addresses are missing");
+
+                string[] addressesSplit = addresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (addressesSplit.Length == 0)
+                    throw new Exception("AMQP addresses are empty");
+
+                ConnectionFactory connectionFactory = new ConnectionFactory();
+                Connection connection = connectionFactory.CreateAsync(new Address(connectionString)).Result;
+                Session session = new Session(connection);
+
+                if (useAmqpListener)
+                {
+                    Console.WriteLine("Initializing AMQP receiver...");
+
+                    foreach (string address in addressesSplit)
+                    {
+                        ReceiverLink receiverLink = new ReceiverLink(session, $"{address}-receiver", address);
+
+                        amqpMessenger.AddReceiverLink(address, receiverLink);
+                    }
+                    
+                    Console.WriteLine($"AMQP receiver initialized successfully");
+                }
+
+                if (useAmqpSender)
+                {
+                    Console.WriteLine("Initializing AMQP sender...");
+
+                    foreach (string address in addressesSplit)
+                    {
+                        SenderLink senderLink = new SenderLink(session, $"{address}-sender", address);
+
+                        amqpMessenger.AddSenderLink(address, senderLink);
+                    }
+
+                    Console.WriteLine("AMQP sender initialized successfully");
+                }
+
+                builder.ConfigureServices(services =>
+                {
+                    services.AddSingleton<IAMQPMessenger>(amqpMessenger);
+                });
+
+                Console.WriteLine("AMQP initialized sucessfully");
+            }
+        }        
 
         private static void ConfigureLogging(WebHostBuilder builder)
         {
