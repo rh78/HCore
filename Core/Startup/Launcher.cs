@@ -17,8 +17,9 @@ using System.Collections.Generic;
 using ReinhardHolzner.Core.Database.ElasticSearch;
 using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using Microsoft.EntityFrameworkCore;
-using Amqp;
 using ReinhardHolzner.Core.AMQP;
+using ReinhardHolzner.Core.AMQP.Internal;
+using ReinhardHolzner.Core.AMQP.Internal.Impl;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -36,8 +37,7 @@ namespace ReinhardHolzner.Core.Startup
         private string _serverUrl;
 
         public IElasticSearchDbContext ElasticSearchDbContext { get; set; }
-        public IAMQPMessenger AMQPMessenger { get; set; }
-
+        
         public string[] Args { get; set; }
 
         public Launcher(string[] args)
@@ -120,21 +120,21 @@ namespace ReinhardHolzner.Core.Startup
 
             if (useSqlServer)
             {
-                string connectionString = _configuration["SqlServer:ConnectionString"];
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception("SQL Server connection string is empty");
-
-                Console.WriteLine("Initializing SQL Server DB context...");
-
                 _builder.ConfigureServices(services =>
                 {
+                    Console.WriteLine("Initializing SQL Server DB context...");
+
+                    string connectionString = _configuration["SqlServer:ConnectionString"];
+                    if (string.IsNullOrEmpty(connectionString))
+                        throw new Exception("SQL Server connection string is empty");
+
                     services.AddDbContext<TSqlServerDbContext>(options =>
                     {
                         options.UseSqlServer(connectionString);
                     });
-                });                
 
-                Console.WriteLine("Initialized SQL Server DB context");
+                    Console.WriteLine("Initialized SQL Server DB context");
+                });
             }
         }
 
@@ -144,33 +144,33 @@ namespace ReinhardHolzner.Core.Startup
 
             if (useElasticSearch)
             {
-                if (ElasticSearchDbContext == null)
-                    throw new Exception("ElasticSearch DB context is not set up");
-
-                int numberOfShards = _configuration.GetValue<int>("ElasticSearch:Shards");
-                if (numberOfShards < 1)
-                    throw new Exception("ElasticSearch number of shards is invalid");
-
-                int numberOfReplicas = _configuration.GetValue<int>("ElasticSearch:Replicas");
-                if (numberOfReplicas < 1)
-                    throw new Exception("ElasticSearch number of replicas is invalid");
-
-                string hosts = _configuration["ElasticSearch:Hosts"];
-                if (string.IsNullOrEmpty(hosts))
-                    throw new Exception("ElasticSearch hosts not found");
-
-                IElasticSearchClient elasticSearchClient = new ElasticSearchClientImpl(
-                    _isProduction, numberOfShards, numberOfReplicas, hosts, ElasticSearchDbContext);
-
-                Console.WriteLine("Initializing ElasticSearch client...");
-
-                elasticSearchClient.Initialize();
-
-                Console.WriteLine("Initialized ElasticSearch client");
-
                 _builder.ConfigureServices(services =>
                 {
+                    Console.WriteLine("Initializing ElasticSearch client...");
+
+                    if (ElasticSearchDbContext == null)
+                        throw new Exception("ElasticSearch DB context is not set up");
+
+                    int numberOfShards = _configuration.GetValue<int>("ElasticSearch:Shards");
+                    if (numberOfShards < 1)
+                        throw new Exception("ElasticSearch number of shards is invalid");
+
+                    int numberOfReplicas = _configuration.GetValue<int>("ElasticSearch:Replicas");
+                    if (numberOfReplicas < 1)
+                        throw new Exception("ElasticSearch number of replicas is invalid");
+
+                    string hosts = _configuration["ElasticSearch:Hosts"];
+                    if (string.IsNullOrEmpty(hosts))
+                        throw new Exception("ElasticSearch hosts not found");
+
+                    IElasticSearchClient elasticSearchClient = new ElasticSearchClientImpl(
+                        _isProduction, numberOfShards, numberOfReplicas, hosts, ElasticSearchDbContext);                    
+
+                    elasticSearchClient.Initialize();                    
+
                     services.AddSingleton(elasticSearchClient);
+
+                    Console.WriteLine("Initialized ElasticSearch client");
                 });               
             }            
         }
@@ -182,64 +182,59 @@ namespace ReinhardHolzner.Core.Startup
 
             if (useAmqpListener || useAmqpSender)
             {
-                if (AMQPMessenger == null)
-                    throw new Exception("AMQP messenger is not set up");
-
-                Console.WriteLine("Initializing AMQP...");
-
-                string connectionString = _configuration["Amqp:ConnectionString"];
-
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception("AMQP connection string is empty");
-
-                string addresses = _configuration["Amqp:Addresses"];
-
-                if (string.IsNullOrEmpty(addresses))
-                    throw new Exception("AMQP addresses are missing");
-
-                string[] addressesSplit = addresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (addressesSplit.Length == 0)
-                    throw new Exception("AMQP addresses are empty");
-
-                ConnectionFactory connectionFactory = new ConnectionFactory();
-                Connection connection = connectionFactory.CreateAsync(new Address(connectionString)).Result;
-                Session session = new Session(connection);
-
-                if (useAmqpListener)
-                {
-                    Console.WriteLine("Initializing AMQP receiver...");
-
-                    foreach (string address in addressesSplit)
-                    {
-                        ReceiverLink receiverLink = new ReceiverLink(session, $"{address}-receiver", address);
-
-                        AMQPMessenger.AddReceiverLink(address, receiverLink);
-                    }
-                    
-                    Console.WriteLine($"AMQP receiver initialized successfully");
-                }
-
-                if (useAmqpSender)
-                {
-                    Console.WriteLine("Initializing AMQP sender...");
-
-                    foreach (string address in addressesSplit)
-                    {
-                        SenderLink senderLink = new SenderLink(session, $"{address}-sender", address);
-
-                        AMQPMessenger.AddSenderLink(address, senderLink);
-                    }
-
-                    Console.WriteLine("AMQP sender initialized successfully");
-                }
-
                 _builder.ConfigureServices(services =>
                 {
-                    services.AddSingleton<IAMQPMessenger>(AMQPMessenger);
-                });
+                    Console.WriteLine("Initializing AMQP...");
 
-                Console.WriteLine("AMQP initialized sucessfully");
+                    string connectionString = _configuration["Amqp:ConnectionString"];
+
+                    if (string.IsNullOrEmpty(connectionString))
+                        throw new Exception("AMQP connection string is empty");
+
+                    string addresses = _configuration["Amqp:Addresses"];
+
+                    if (string.IsNullOrEmpty(addresses))
+                        throw new Exception("AMQP addresses are missing");
+
+                    string[] addressesSplit = addresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (addressesSplit.Length == 0)
+                        throw new Exception("AMQP addresses are empty");                    
+
+                    services.AddSingleton(factory =>
+                    {
+                        IAMQPMessageProcessor messageProcessor = factory.GetService<IAMQPMessageProcessor>();
+
+                        IAMQPMessenger amqpMessenger = new AMQPMessengerImpl(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+
+                        if (useAmqpListener)
+                        {
+                            Console.WriteLine("Initializing AMQP receiver...");
+
+                            if (messageProcessor == null)
+                                throw new Exception("AMQP message processor service is not available");
+
+                            foreach (string address in addressesSplit)
+                                amqpMessenger.AddReceiverLinkAsync(address).Wait();
+
+                            Console.WriteLine($"AMQP receiver initialized successfully");
+                        }
+
+                        if (useAmqpSender)
+                        {
+                            Console.WriteLine("Initializing AMQP sender...");
+
+                            foreach (string address in addressesSplit)
+                                amqpMessenger.AddSenderLinkAsync(address).Wait();
+
+                            Console.WriteLine("AMQP sender initialized successfully");
+                        }
+
+                        return amqpMessenger;
+                    });
+
+                    Console.WriteLine("AMQP initialized successfully");
+                });                
             }
         }        
 
@@ -444,10 +439,10 @@ namespace ReinhardHolzner.Core.Startup
             _builder.UseUrls(urlsArray);
             
             _builder.UseApplicationInsights();
-
+            
             _builder.UseStartup(typeof(TStartup));
 
-            _serverUrl = string.Join(" / ", urlsArray);
+            _serverUrl = string.Join(" / ", urlsArray);            
         }
     }
 

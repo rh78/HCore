@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 
-namespace ReinhardHolzner.HCore.Providers.Impl
+namespace ReinhardHolzner.Core.Providers.Impl
 {
     class UrlProviderImpl : IUrlProvider
     {

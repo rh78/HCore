@@ -11,12 +11,11 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using ReinhardHolzner.HCore.Providers;
-using ReinhardHolzner.HCore.Providers.Impl;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
 using ReinhardHolzner.Core.Providers.Impl;
 using ReinhardHolzner.Core.Providers;
+using ReinhardHolzner.Core.AMQP.Internal;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -174,6 +173,8 @@ namespace ReinhardHolzner.Core.Startup
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            ConfigureAmqp(app, env);
+
             ConfigureLogging(app, env);
             ConfigureHttps(app, env);
             ConfigureResponseCompression(app, env);
@@ -186,6 +187,17 @@ namespace ReinhardHolzner.Core.Startup
             ConfigureCore(app, env);
 
             ConfigureMvc(app, env);
+        }
+
+        private void ConfigureAmqp(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            bool useAmqpListener = Configuration.GetValue<bool>("UseAmqpListener");
+            bool useAmqpSender = Configuration.GetValue<bool>("UseAmqpSender");
+
+            if (useAmqpListener || useAmqpSender)
+            {
+                app.ApplicationServices.GetRequiredService<IAMQPMessenger>();
+            }
         }
 
         private void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)

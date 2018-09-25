@@ -1,4 +1,4 @@
-﻿namespace ReinhardHolzner.HCore.Providers
+﻿namespace ReinhardHolzner.Core.Providers
 {
     public interface IUrlProvider
     {
