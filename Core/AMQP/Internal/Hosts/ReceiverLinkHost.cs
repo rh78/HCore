@@ -25,7 +25,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 
             MessageProcessorTask = Task.Run(async () =>
             {
-                await RunMessageProcessorAsync();
+                await RunMessageProcessorAsync().ConfigureAwait(false);
             });            
         }
 
@@ -37,32 +37,32 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
                     break;
 
                 if ((_receiverLink == null || _receiverLink.IsClosed))
-                    await InitializeAsync();
+                    await InitializeAsync().ConfigureAwait(false);
 
                 try
                 {
-                    Message message = await _receiverLink.ReceiveAsync(TimeSpan.FromSeconds(10));
+                    Message message = await _receiverLink.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 
                     if (message != null && message.Body != null)
-                        await _messageProcessor.ProcessMessageAsync(Address, message.Body);
+                        await _messageProcessor.ProcessMessageAsync(Address, message.Body).ConfigureAwait(false);
                 }
                 catch (AmqpException e)
                 {
                     if (!CancellationToken.IsCancellationRequested)                    
                         Console.WriteLine($"AMQP exception in receiver link for address {Address}: {e}");
 
-                    await CloseAsync();                   
+                    await CloseAsync().ConfigureAwait(false);                   
                 }                 
             } while (!CancellationToken.IsCancellationRequested);
 
             // normal end
 
-            await CloseAsync();            
+            await CloseAsync().ConfigureAwait(false);            
         }
 
         public override async Task CloseAsync()
         {
-            await base.CloseAsync();
+            await base.CloseAsync().ConfigureAwait(false);
 
             _receiverLink = null;
             MessageProcessorTask = null;            

@@ -62,7 +62,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Impl
             
             _senderLinks.Add(address, senderLinkHost);
 
-            await senderLinkHost.InitializeAsync();
+            await senderLinkHost.InitializeAsync().ConfigureAwait(false);
         }
 
         public async Task AddReceiverLinkAsync(string address)
@@ -71,7 +71,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Impl
 
             _receiverLinks.Add(address, receiverLinkHost);
 
-            await receiverLinkHost.InitializeAsync();
+            await receiverLinkHost.InitializeAsync().ConfigureAwait(false);
 
             _messageProcessorTasks.Add(receiverLinkHost.MessageProcessorTask);
         }
@@ -81,12 +81,12 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Impl
             if (!_senderLinks.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
 
-            await _senderLinks[address].SendMessageAsync(new Message(body));
+            await _senderLinks[address].SendMessageAsync(new Message(body)).ConfigureAwait(false);
         }
 
         public async Task ProcessMessageAsync(string address, object body)
         {
-            await _messageProcessor.ProcessMessageAsync(address, body);
+            await _messageProcessor.ProcessMessageAsync(address, body).ConfigureAwait(false);
         }
     }
 }

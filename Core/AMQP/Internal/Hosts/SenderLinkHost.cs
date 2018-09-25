@@ -28,24 +28,24 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
                     throw new Exception("AMQP cancellation is requested, can not send message");
 
                 if (_senderLink == null || _senderLink.IsClosed)
-                    await InitializeAsync();
+                    await InitializeAsync().ConfigureAwait(false);
 
-                await _senderLink.SendAsync(message, TimeSpan.FromSeconds(10));                
+                await _senderLink.SendAsync(message, TimeSpan.FromSeconds(10)).ConfigureAwait(false);                
             } catch (AmqpException e)
             {
                 if (!CancellationToken.IsCancellationRequested)
                     Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
 
-                await CloseAsync();
+                await CloseAsync().ConfigureAwait(false);
 
                 if (!CancellationToken.IsCancellationRequested)
-                    await SendMessageAsync(message);                
+                    await SendMessageAsync(message).ConfigureAwait(false);                
             }
         }
 
         public override async Task CloseAsync()
         {
-            await base.CloseAsync();
+            await base.CloseAsync().ConfigureAwait(false);
 
             _senderLink = null;
         }

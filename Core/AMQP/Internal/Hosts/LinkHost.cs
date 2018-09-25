@@ -28,9 +28,9 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 
         public async Task InitializeAsync()
         {
-            await CloseAsync();
+            await CloseAsync().ConfigureAwait(false);
 
-            _connection = await _connectionFactory.CreateAsync(new Address(_connectionString));
+            _connection = await _connectionFactory.CreateAsync(new Address(_connectionString)).ConfigureAwait(false);
             _session = new Session(_connection);
 
             InitializeLink(_session);            
@@ -40,7 +40,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
         {
             if (_connection != null)
             {
-                await _connection.CloseAsync();
+                await _connection.CloseAsync().ConfigureAwait(false);
 
                 _connection = null;
                 _session = null;                
