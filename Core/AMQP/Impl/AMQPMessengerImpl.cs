@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amqp;
 
-namespace ReinhardHolzner.HCore.AMQP.Impl
+namespace ReinhardHolzner.Core.AMQP.Impl
 {
     public abstract class AMQPMessenger : IAMQPMessenger
     {
@@ -11,12 +11,12 @@ namespace ReinhardHolzner.HCore.AMQP.Impl
         private Dictionary<string, ReceiverLink> _receiverLinks = new Dictionary<string, ReceiverLink>();
         private Dictionary<string, Task> _receiverLinkTasks = new Dictionary<string, Task>();
 
-        internal void AddSenderLink(string address, SenderLink senderLink)
+        public void AddSenderLink(string address, SenderLink senderLink)
         {
             _senderLinks.Add(address, senderLink);
         }
 
-        internal void AddReceiverLink(string address, ReceiverLink receiverLink)
+        public void AddReceiverLink(string address, ReceiverLink receiverLink)
         {
             _receiverLinks.Add(address, receiverLink);
 

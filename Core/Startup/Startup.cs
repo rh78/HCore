@@ -15,6 +15,8 @@ using ReinhardHolzner.HCore.Providers;
 using ReinhardHolzner.HCore.Providers.Impl;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
+using ReinhardHolzner.Core.Providers.Impl;
+using ReinhardHolzner.Core.Providers;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -297,6 +299,7 @@ namespace ReinhardHolzner.Core.Startup
         private void ConfigureGenericServices(IServiceCollection services)
         {
             services.AddSingleton<IUrlProvider, UrlProviderImpl>();
+            services.AddScoped<INowProvider, NowProviderImpl>();
         }
     }
 }

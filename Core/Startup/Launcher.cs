@@ -17,82 +17,116 @@ using System.Collections.Generic;
 using ReinhardHolzner.Core.Database.ElasticSearch;
 using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using Microsoft.EntityFrameworkCore;
-using ReinhardHolzner.HCore.AMQP;
 using Amqp;
-using ReinhardHolzner.HCore.AMQP.Impl;
+using ReinhardHolzner.Core.AMQP;
 
 namespace ReinhardHolzner.Core.Startup
 {
     // Inspired from https://github.com/aspnet/MetaPackages/blob/2.1.3/src/Microsoft.AspNetCore/WebHost.cs
 
-    public class Program<TStartup, TSqlServerDbContext> where TSqlServerDbContext: DbContext
+    public class Launcher<TStartup, TSqlServerDbContext> where TSqlServerDbContext : DbContext
     {
-        protected static void Launch(string[] args, IElasticSearchDbContext elasticSearchDbContext = null, AMQPMessenger amqpMessenger = null)
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        private string _environment;
+        private bool _isProduction;
+        private bool _useWebListener;
 
-            if (environment == EnvironmentName.Development)
-                CreateWebHostBuilder(environment, false, false, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
-            else if (environment == EnvironmentName.Staging)
-                CreateWebHostBuilder(environment, false, true, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
-            else if (environment == EnvironmentName.Production)
-                CreateWebHostBuilder(environment, true, true, typeof(TStartup), args, elasticSearchDbContext, amqpMessenger).Build().Run();
-            else
-                throw new Exception($"Invalid environment name found: {environment}");
+        private WebHostBuilder _builder;
+        private IConfigurationRoot _configuration;
+
+        private string _serverUrl;
+
+        public IElasticSearchDbContext ElasticSearchDbContext { get; set; }
+        public IAMQPMessenger AMQPMessenger { get; set; }
+
+        public string[] Args { get; set; }
+
+        public Launcher(string[] args)
+        {
+            Args = args;
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder(string environment, bool isProduction, bool useWebListener, Type startupType, string[] args, IElasticSearchDbContext elasticSearchDbContext, AMQPMessenger amqpMessenger)
+        public void Launch()
         {
-            var builder = new WebHostBuilder();
+            _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-            var hostingConfig = new ConfigurationBuilder()
+            _isProduction = false;
+            _useWebListener = true;
+
+            if (_environment == EnvironmentName.Development)
+            {
+                _useWebListener = false;
+
+                CreateWebHostBuilder();
+            }
+            else if (_environment == EnvironmentName.Staging)
+            {
+                CreateWebHostBuilder();
+            }
+            else if (_environment == EnvironmentName.Production)
+            {
+                _isProduction = true;
+
+                CreateWebHostBuilder();
+            }
+            else
+            {
+                throw new Exception($"Invalid environment name found: {_environment}");
+            }
+
+            Console.WriteLine($"Launching using server URL {_serverUrl}");
+
+            _builder.Build().Run();
+        }
+
+        private void CreateWebHostBuilder()
+        {
+            _builder = new WebHostBuilder();
+
+            _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: true)
                 .Build();
 
-            ConfigureServiceProviders(builder, isProduction, hostingConfig, elasticSearchDbContext, amqpMessenger);
-            ConfigureLogging(builder);
-            ConfigureContentRoot(builder);
-            ConfigureConfiguration(builder, args);
 
-            string serverUrl = ConfigureWebServer(builder, hostingConfig, useWebListener, startupType);
+            ConfigureServiceProviders();
+            ConfigureLogging();
+            ConfigureContentRoot();
+            ConfigureConfiguration();
 
-            Console.WriteLine($"Launching using server URL {serverUrl}");
+            ConfigureWebServer();                        
+        }
+    
+        private void ConfigureServiceProviders()
+        {
+            ConfigureDefaultServiceProvider();
 
-            return builder;
+            ConfigureSqlServer();
+            ConfigureElasticSearch();
+            ConfigureAmqp();            
         }
 
-        private static void ConfigureServiceProviders(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext, AMQPMessenger amqpMessenger)
+        private void ConfigureDefaultServiceProvider()
         {
-            ConfigureDefaultServiceProvider(builder);
-
-            ConfigureSqlServer(builder, isProduction, hostingConfig);
-            ConfigureElasticSearch(builder, isProduction, hostingConfig, elasticSearchDbContext);
-            ConfigureAmqp(builder, hostingConfig, amqpMessenger);
-        }
-
-        private static void ConfigureDefaultServiceProvider(WebHostBuilder builder)
-        {
-            builder.UseDefaultServiceProvider((context, options) =>
+            _builder.UseDefaultServiceProvider((context, options) =>
             {
                 options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
             });
         }
 
-        private static void ConfigureSqlServer(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig)
+        private void ConfigureSqlServer()
         {
-            bool useSqlServer = hostingConfig.GetValue<bool>("UseSqlServer");
+            bool useSqlServer = _configuration.GetValue<bool>("UseSqlServer");
 
             if (useSqlServer)
             {
-                string connectionString = hostingConfig["SqlServer:ConnectionString"];
+                string connectionString = _configuration["SqlServer:ConnectionString"];
                 if (string.IsNullOrEmpty(connectionString))
                     throw new Exception("SQL Server connection string is empty");
 
                 Console.WriteLine("Initializing SQL Server DB context...");
 
-                builder.ConfigureServices(services =>
+                _builder.ConfigureServices(services =>
                 {
                     services.AddDbContext<TSqlServerDbContext>(options =>
                     {
@@ -104,26 +138,29 @@ namespace ReinhardHolzner.Core.Startup
             }
         }
 
-        private static void ConfigureElasticSearch(WebHostBuilder builder, bool isProduction, IConfigurationRoot hostingConfig, IElasticSearchDbContext elasticSearchDbContext)
+        private void ConfigureElasticSearch()
         {
-            bool useElasticSearch = hostingConfig.GetValue<bool>("UseElasticSearch");
+            bool useElasticSearch = _configuration.GetValue<bool>("UseElasticSearch");
 
             if (useElasticSearch)
             {
-                int numberOfShards = hostingConfig.GetValue<int>("ElasticSearch:Shards");
+                if (ElasticSearchDbContext == null)
+                    throw new Exception("ElasticSearch DB context is not set up");
+
+                int numberOfShards = _configuration.GetValue<int>("ElasticSearch:Shards");
                 if (numberOfShards < 1)
                     throw new Exception("ElasticSearch number of shards is invalid");
 
-                int numberOfReplicas = hostingConfig.GetValue<int>("ElasticSearch:Replicas");
+                int numberOfReplicas = _configuration.GetValue<int>("ElasticSearch:Replicas");
                 if (numberOfReplicas < 1)
                     throw new Exception("ElasticSearch number of replicas is invalid");
 
-                string hosts = hostingConfig["ElasticSearch:Hosts"];
+                string hosts = _configuration["ElasticSearch:Hosts"];
                 if (string.IsNullOrEmpty(hosts))
                     throw new Exception("ElasticSearch hosts not found");
 
                 IElasticSearchClient elasticSearchClient = new ElasticSearchClientImpl(
-                    isProduction, numberOfShards, numberOfReplicas, hosts, elasticSearchDbContext);
+                    _isProduction, numberOfShards, numberOfReplicas, hosts, ElasticSearchDbContext);
 
                 Console.WriteLine("Initializing ElasticSearch client...");
 
@@ -131,28 +168,31 @@ namespace ReinhardHolzner.Core.Startup
 
                 Console.WriteLine("Initialized ElasticSearch client");
 
-                builder.ConfigureServices(services =>
+                _builder.ConfigureServices(services =>
                 {
                     services.AddSingleton(elasticSearchClient);
                 });               
             }            
         }
 
-        private static void ConfigureAmqp(WebHostBuilder builder, IConfigurationRoot hostingConfig, AMQPMessenger amqpMessenger)
+        private void ConfigureAmqp()
         {
-            bool useAmqpListener = hostingConfig.GetValue<bool>("UseAmqpListener");
-            bool useAmqpSender = hostingConfig.GetValue<bool>("UseAmqpSender");
+            bool useAmqpListener = _configuration.GetValue<bool>("UseAmqpListener");
+            bool useAmqpSender = _configuration.GetValue<bool>("UseAmqpSender");
 
             if (useAmqpListener || useAmqpSender)
             {
+                if (AMQPMessenger == null)
+                    throw new Exception("AMQP messenger is not set up");
+
                 Console.WriteLine("Initializing AMQP...");
 
-                string connectionString = hostingConfig["Amqp:ConnectionString"];
+                string connectionString = _configuration["Amqp:ConnectionString"];
 
                 if (string.IsNullOrEmpty(connectionString))
                     throw new Exception("AMQP connection string is empty");
 
-                string addresses = hostingConfig["Amqp:Addresses"];
+                string addresses = _configuration["Amqp:Addresses"];
 
                 if (string.IsNullOrEmpty(addresses))
                     throw new Exception("AMQP addresses are missing");
@@ -174,7 +214,7 @@ namespace ReinhardHolzner.Core.Startup
                     {
                         ReceiverLink receiverLink = new ReceiverLink(session, $"{address}-receiver", address);
 
-                        amqpMessenger.AddReceiverLink(address, receiverLink);
+                        AMQPMessenger.AddReceiverLink(address, receiverLink);
                     }
                     
                     Console.WriteLine($"AMQP receiver initialized successfully");
@@ -188,24 +228,24 @@ namespace ReinhardHolzner.Core.Startup
                     {
                         SenderLink senderLink = new SenderLink(session, $"{address}-sender", address);
 
-                        amqpMessenger.AddSenderLink(address, senderLink);
+                        AMQPMessenger.AddSenderLink(address, senderLink);
                     }
 
                     Console.WriteLine("AMQP sender initialized successfully");
                 }
 
-                builder.ConfigureServices(services =>
+                _builder.ConfigureServices(services =>
                 {
-                    services.AddSingleton<IAMQPMessenger>(amqpMessenger);
+                    services.AddSingleton<IAMQPMessenger>(AMQPMessenger);
                 });
 
                 Console.WriteLine("AMQP initialized sucessfully");
             }
         }        
 
-        private static void ConfigureLogging(WebHostBuilder builder)
+        private void ConfigureLogging()
         {
-            builder.ConfigureLogging((hostingContext, logging) =>
+            _builder.ConfigureLogging((hostingContext, logging) =>
             {
                 logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                 logging.AddConsole();
@@ -213,22 +253,22 @@ namespace ReinhardHolzner.Core.Startup
             });
         }
 
-        private static void ConfigureContentRoot(WebHostBuilder builder)
+        private void ConfigureContentRoot()
         {
-            if (string.IsNullOrEmpty(builder.GetSetting(WebHostDefaults.ContentRootKey)))
+            if (string.IsNullOrEmpty(_builder.GetSetting(WebHostDefaults.ContentRootKey)))
             {
-                builder.UseContentRoot(Directory.GetCurrentDirectory());
+                _builder.UseContentRoot(Directory.GetCurrentDirectory());
             }
         }
 
-        private static void ConfigureConfiguration(WebHostBuilder builder, string[] args)
+        private void ConfigureConfiguration()
         {
-            if (args != null)
+            if (Args != null)
             {
-                builder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args).Build());
+                _builder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(Args).Build());
             }
 
-            builder.ConfigureAppConfiguration((hostingContext, config) =>
+            _builder.ConfigureAppConfiguration((hostingContext, config) =>
             {
                 var env = hostingContext.HostingEnvironment;
 
@@ -246,32 +286,32 @@ namespace ReinhardHolzner.Core.Startup
 
                 config.AddEnvironmentVariables();
 
-                if (args != null)
+                if (Args != null)
                 {
-                    config.AddCommandLine(args);
+                    config.AddCommandLine(Args);
                 }
             });
         }
 
-        private static string ConfigureWebServer(WebHostBuilder builder, IConfigurationRoot hostingConfig, bool useWebListener, Type startupType)
+        private void ConfigureWebServer()
         {
-            bool useHttps = hostingConfig.GetValue<bool>("WebServer:UseHttps");
-            bool useWeb = hostingConfig.GetValue<bool>("WebServer:UseWeb");
-            bool useApi = hostingConfig.GetValue<bool>("WebServer:UseApi");
+            bool useHttps = _configuration.GetValue<bool>("WebServer:UseHttps");
+            bool useWeb = _configuration.GetValue<bool>("WebServer:UseWeb");
+            bool useApi = _configuration.GetValue<bool>("WebServer:UseApi");
 
             if (!useWeb && !useApi)
                 throw new Exception("Please specify which kind of service (web or API) you want to use");
 
-            if (useWebListener)
+            if (_useWebListener)
             {
                 // see https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/httpsys
 
                 // do not forget to install the SSL certificate before, see SETUP.txt
-                builder.UseHttpSys();
+                _builder.UseHttpSys();
             }
             else
             {
-                builder.UseKestrel((builderContext, options) =>
+                _builder.UseKestrel((builderContext, options) =>
                 {
                     options.Configure(builderContext.Configuration.GetSection("Kestrel"));
 
@@ -283,16 +323,16 @@ namespace ReinhardHolzner.Core.Startup
 
                         if (useHttps)
                         {
-                            httpsCertificateAssembly = hostingConfig["WebServer:Https:Certificate:Assembly"];
+                            httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
                             if (string.IsNullOrEmpty(httpsCertificateAssembly))
                                 throw new Exception("HTTPS certificate assembly not found");
 
-                            httpsCertificateName = hostingConfig["WebServer:Https:Certificate:Name"];
+                            httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
 
                             if (string.IsNullOrEmpty(httpsCertificateName))
                                 throw new Exception("HTTPS certificate name not found");
 
-                            httpsCertificatePassword = hostingConfig["WebServer:Https:Certificate:Password"];
+                            httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
 
                             if (string.IsNullOrEmpty(httpsCertificatePassword))
                                 throw new Exception("HTTPS certificate password not found");
@@ -322,7 +362,7 @@ namespace ReinhardHolzner.Core.Startup
 
                         if (useWeb)
                         {
-                            int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
+                            int webPort = _configuration.GetValue<int>("WebServer:WebPort");
 
                             options.Listen(IPAddress.Any, webPort, listenOptions =>
                                 listenOptions.UseHttps(certificate));
@@ -330,7 +370,7 @@ namespace ReinhardHolzner.Core.Startup
 
                         if (useApi)
                         { 
-                            int apiPort = hostingConfig.GetValue<int>("WebServer:ApiPort");
+                            int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
                             options.Listen(IPAddress.Any, apiPort, listenOptions =>
                                 listenOptions.UseHttps(certificate));
@@ -339,7 +379,7 @@ namespace ReinhardHolzner.Core.Startup
                 });
             }
 
-            builder.ConfigureServices((hostingContext, services) =>
+            _builder.ConfigureServices((hostingContext, services) =>
             {
                 var configuration = hostingContext.Configuration;
 
@@ -363,7 +403,7 @@ namespace ReinhardHolzner.Core.Startup
                 services.AddScoped<IRestSharpClientProvider, RestSharpClientProviderImpl>();
             });
 
-            builder.UseIISIntegration();
+            _builder.UseIISIntegration();
 
             List<string> urls = new List<string>();
             
@@ -371,11 +411,11 @@ namespace ReinhardHolzner.Core.Startup
             {
                 string webServerUrl = useHttps ? "https://" : "http://";
 
-                string webDomain = hostingConfig["WebServer:WebDomain"];
+                string webDomain = _configuration["WebServer:WebDomain"];
                 if (string.IsNullOrEmpty(webDomain))
                     throw new Exception("Web domain not found in application settings");
 
-                int webPort = hostingConfig.GetValue<int>("WebServer:WebPort");
+                int webPort = _configuration.GetValue<int>("WebServer:WebPort");
 
                 webServerUrl += webDomain;
                 webServerUrl += ":" + webPort;
@@ -387,11 +427,11 @@ namespace ReinhardHolzner.Core.Startup
             { 
                 string apiServerUrl = useHttps ? "https://" : "http://";
 
-                string apiDomain = hostingConfig["WebServer:ApiDomain"];
+                string apiDomain = _configuration["WebServer:ApiDomain"];
                 if (string.IsNullOrEmpty(apiDomain))
                     throw new Exception("API domain not found in application settings");
 
-                int apiPort = hostingConfig.GetValue<int>("WebServer:ApiPort");
+                int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
                 apiServerUrl += apiDomain;
                 apiServerUrl += ":" + apiPort;
@@ -401,13 +441,13 @@ namespace ReinhardHolzner.Core.Startup
 
             string[] urlsArray = urls.ToArray<string>();
 
-            builder.UseUrls(urlsArray);
+            _builder.UseUrls(urlsArray);
             
-            builder.UseApplicationInsights();
+            _builder.UseApplicationInsights();
 
-            builder.UseStartup(startupType);
+            _builder.UseStartup(typeof(TStartup));
 
-            return string.Join(" / ", urlsArray);
+            _serverUrl = string.Join(" / ", urlsArray);
         }
     }
 
