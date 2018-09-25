@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 {
-    internal class SenderLinkHost : LinkHost
+    internal class SenderLinkHost<TMessage> : LinkHost
     {
         private SenderLink _senderLink;
 
@@ -20,7 +20,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
             _senderLink = new SenderLink(session, $"{Address}-sender", Address);
         }
 
-        public async Task SendMessageAsync(Message message)
+        public async Task SendMessageAsync(TMessage messageBody)
         {
             try
             {
@@ -29,6 +29,10 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 
                 if (_senderLink == null || _senderLink.IsClosed)
                     await InitializeAsync().ConfigureAwait(false);
+
+                Message message = new Message(messageBody);
+
+                message.Header.Durable = true;
 
                 await _senderLink.SendAsync(message, TimeSpan.FromSeconds(10)).ConfigureAwait(false);                
             } catch (AmqpException e)
@@ -39,7 +43,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
                 await CloseAsync().ConfigureAwait(false);
 
                 if (!CancellationToken.IsCancellationRequested)
-                    await SendMessageAsync(message).ConfigureAwait(false);                
+                    await SendMessageAsync(messageBody).ConfigureAwait(false);                
             }
         }
 

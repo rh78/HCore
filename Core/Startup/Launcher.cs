@@ -25,7 +25,7 @@ namespace ReinhardHolzner.Core.Startup
 {
     // Inspired from https://github.com/aspnet/MetaPackages/blob/2.1.3/src/Microsoft.AspNetCore/WebHost.cs
 
-    public class Launcher<TStartup, TSqlServerDbContext> where TSqlServerDbContext : DbContext
+    public class Launcher<TStartup, TSqlServerDbContext, TMessage> where TSqlServerDbContext : DbContext
     {
         private string _environment;
         private bool _isProduction;
@@ -186,6 +186,13 @@ namespace ReinhardHolzner.Core.Startup
                 {
                     Console.WriteLine("Initializing AMQP...");
 
+                    string implementation = _configuration["Amqp:Implementation"];
+
+                    if (string.IsNullOrEmpty(implementation))
+                        throw new Exception("AMQP implementation specification is empty");
+
+                    bool useServiceBus = string.Equals(implementation, "ServiceBus");
+
                     string connectionString = _configuration["Amqp:ConnectionString"];
 
                     if (string.IsNullOrEmpty(connectionString))
@@ -203,33 +210,38 @@ namespace ReinhardHolzner.Core.Startup
 
                     services.AddSingleton(factory =>
                     {
-                        IAMQPMessageProcessor messageProcessor = factory.GetService<IAMQPMessageProcessor>();
+                        IAMQPMessageProcessor<TMessage> messageProcessor = factory.GetService<IAMQPMessageProcessor<TMessage>>();
 
-                        IAMQPMessenger amqpMessenger = new AMQPMessengerImpl(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                        if (useAmqpListener && messageProcessor == null)
+                            throw new Exception("AMQP message processor service is not available");
 
-                        if (useAmqpListener)
+                        IAMQPMessenger<TMessage> amqpMessenger;
+
+                        if (useServiceBus)
                         {
-                            Console.WriteLine("Initializing AMQP receiver...");
+                            // Service Bus
+                            amqpMessenger = new ServiceBusMessengerImpl<TMessage>(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                        }
+                        else
+                        {
+                            // AMQP 1.0
 
-                            if (messageProcessor == null)
-                                throw new Exception("AMQP message processor service is not available");
-
-                            foreach (string address in addressesSplit)
-                                amqpMessenger.AddReceiverLinkAsync(address).Wait();
-
-                            Console.WriteLine($"AMQP receiver initialized successfully");
+                            amqpMessenger = new AMQP10MessengerImpl<TMessage>(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
                         }
 
-                        if (useAmqpSender)
+                        int[] amqpListenerCounts = new int[addressesSplit.Length];
+                        
+                        for (int i = 0; i < addressesSplit.Length; i++)
                         {
-                            Console.WriteLine("Initializing AMQP sender...");
+                            int amqpListenerCount = _configuration.GetValue<int>($"Amqp:{addressesSplit[i]}ListenerCount");
+                            if (amqpListenerCount <= 0)
+                                amqpListenerCount = 1;
 
-                            foreach (string address in addressesSplit)
-                                amqpMessenger.AddSenderLinkAsync(address).Wait();
-
-                            Console.WriteLine("AMQP sender initialized successfully");
+                            amqpListenerCounts[i] = amqpListenerCount;
                         }
 
+                        amqpMessenger.InitializeAddressesAsync(useAmqpListener, useAmqpSender, addressesSplit, amqpListenerCounts).Wait();
+                        
                         return amqpMessenger;
                     });
 

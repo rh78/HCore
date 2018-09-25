@@ -1,22 +1,26 @@
 ﻿using Amqp;
+using Newtonsoft.Json;
+using ReinhardHolzner.Core.AMQP.Internal.Impl;
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 {
-    internal class ReceiverLinkHost : LinkHost
+    internal class ReceiverLinkHost<TMessage> : LinkHost
     {
         private ReceiverLink _receiverLink;
+        private int _maxConcurrentCalls;
 
-        private IReceiverLinkHostMessageProcessor _messageProcessor;
+        private AMQP10MessengerImpl<TMessage> _messenger;
 
         public Task MessageProcessorTask { get; private set; }
 
-        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, IReceiverLinkHostMessageProcessor messageProcessor, CancellationToken cancellationToken)
+        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, AMQP10MessengerImpl<TMessage> messenger, CancellationToken cancellationToken)
             : base(connectionFactory, connectionString, address, cancellationToken)
         {
-            _messageProcessor = messageProcessor;
+            _messenger = messenger;
         }
         
         protected override void InitializeLink(Session session)
@@ -41,10 +45,23 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
 
                 try
                 {
-                    Message message = await _receiverLink.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+                    using (var message = await _receiverLink.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false))
+                    {                    
+                        try
+                        {
+                            TMessage messageBody = (TMessage) message.Body;
 
-                    if (message != null && message.Body != null)
-                        await _messageProcessor.ProcessMessageAsync(Address, message.Body).ConfigureAwait(false);
+                            await _messenger.ProcessMessageAsync(Address, messageBody).ConfigureAwait(false);
+
+                            _receiverLink.Accept(message);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
+
+                            _receiverLink.Reject(message);
+                        }                        
+                    }
                 }
                 catch (AmqpException e)
                 {

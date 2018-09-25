@@ -19,7 +19,7 @@ using ReinhardHolzner.Core.AMQP.Internal;
 
 namespace ReinhardHolzner.Core.Startup
 {
-    public abstract class Startup
+    public abstract class Startup<TMessage>
     {
         private bool _useHttps;
         private int _port;
@@ -196,7 +196,7 @@ namespace ReinhardHolzner.Core.Startup
 
             if (useAmqpListener || useAmqpSender)
             {
-                app.ApplicationServices.GetRequiredService<IAMQPMessenger>();
+                app.ApplicationServices.GetRequiredService<IAMQPMessenger<TMessage>>();
             }
         }
 
