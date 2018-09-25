@@ -16,10 +16,12 @@ using Microsoft.AspNetCore.Routing;
 using ReinhardHolzner.Core.Providers.Impl;
 using ReinhardHolzner.Core.Providers;
 using ReinhardHolzner.Core.AMQP.Internal;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReinhardHolzner.Core.Startup
 {
-    public abstract class Startup<TMessage>
+    public abstract class Startup<TMessage, TSqlServerDbContext> where TSqlServerDbContext : DbContext
     {
         private bool _useHttps;
         private int _port;
@@ -173,7 +175,7 @@ namespace ReinhardHolzner.Core.Startup
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            ConfigureAmqp(app, env);
+            InstantiateAddonServices(app, env);
 
             ConfigureLogging(app, env);
             ConfigureHttps(app, env);
@@ -189,14 +191,28 @@ namespace ReinhardHolzner.Core.Startup
             ConfigureMvc(app, env);
         }
 
-        private void ConfigureAmqp(IApplicationBuilder app, IHostingEnvironment env)
+        private void InstantiateAddonServices(IApplicationBuilder app, IHostingEnvironment env)
         {
+            bool useSqlServer = Configuration.GetValue<bool>("UseSqlServer");
+
+            if (useSqlServer)
+            {
+                app.ApplicationServices.GetRequiredService<TSqlServerDbContext>();
+            }
+
             bool useAmqpListener = Configuration.GetValue<bool>("UseAmqpListener");
             bool useAmqpSender = Configuration.GetValue<bool>("UseAmqpSender");
 
             if (useAmqpListener || useAmqpSender)
             {
                 app.ApplicationServices.GetRequiredService<IAMQPMessenger<TMessage>>();
+            }
+
+            bool useRedis = Configuration.GetValue<bool>("UseRedis");
+
+            if (useRedis)
+            {
+                app.ApplicationServices.GetRequiredService<IDistributedCache>();
             }
         }
 

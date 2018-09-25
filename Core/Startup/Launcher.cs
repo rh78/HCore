@@ -103,7 +103,8 @@ namespace ReinhardHolzner.Core.Startup
 
             ConfigureSqlServer();
             ConfigureElasticSearch();
-            ConfigureAmqp();            
+            ConfigureAmqp();
+            ConfigureRedis();
         }
 
         private void ConfigureDefaultServiceProvider()
@@ -248,7 +249,38 @@ namespace ReinhardHolzner.Core.Startup
                     Console.WriteLine("AMQP initialized successfully");
                 });                
             }
-        }        
+        }
+
+        private void ConfigureRedis()
+        {
+            bool useRedis = _configuration.GetValue<bool>("UseRedis");
+
+            if (useRedis)
+            {
+                _builder.ConfigureServices(services =>
+                {
+                    Console.WriteLine("Initializing Redis distributed cache...");
+
+                    string connectionString = _configuration["Redis:ConnectionString"];
+
+                    if (string.IsNullOrEmpty(connectionString))
+                        throw new Exception("Redis connection string is empty");
+
+                    string instanceName = _configuration["Redis:InstanceName"];
+
+                    if (string.IsNullOrEmpty(instanceName))
+                        throw new Exception("Redis instance name is empty");
+
+                    services.AddDistributedRedisCache(options =>
+                    {
+                        options.Configuration = connectionString;
+                        options.InstanceName = instanceName;                                                
+                    });
+
+                    Console.WriteLine("Redis distributed cache initialized successfully");
+                });
+            }
+        }
 
         private void ConfigureLogging()
         {

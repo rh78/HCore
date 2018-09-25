@@ -11,8 +11,7 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
     internal class ReceiverLinkHost<TMessage> : LinkHost
     {
         private ReceiverLink _receiverLink;
-        private int _maxConcurrentCalls;
-
+        
         private AMQP10MessengerImpl<TMessage> _messenger;
 
         public Task MessageProcessorTask { get; private set; }
