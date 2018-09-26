@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>ReinhardHolzner.Core</AssemblyName>
-    <RootNamespace>ReinhardHolzner.HCore</RootNamespace>
+    <RootNamespace>ReinhardHolzner.Core</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

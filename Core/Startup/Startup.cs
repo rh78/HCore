@@ -214,8 +214,14 @@ namespace ReinhardHolzner.Core.Startup
             bool useRedis = Configuration.GetValue<bool>("UseRedis");
 
             if (useRedis)
-                app.ApplicationServices.GetRequiredService<IDistributedCache>();
-            
+            {
+                IDistributedCache distributedCache = app.ApplicationServices.GetRequiredService<IDistributedCache>();
+
+                // test the cache
+
+                distributedCache.GetString("Test");
+            }
+
             app.ApplicationServices.GetRequiredService<IEmailSender>();
         }
 
