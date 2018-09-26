@@ -5,7 +5,7 @@ using RestSharp;
 
 namespace ReinhardHolzner.Core.RestSharp.Impl
 {
-    public class RestSharpClientImpl : IRestSharpClient
+    internal class RestSharpClientImpl : IRestSharpClient
     {
         private RestClient _restClient;
 

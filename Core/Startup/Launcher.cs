@@ -18,8 +18,12 @@ using ReinhardHolzner.Core.Database.ElasticSearch;
 using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using Microsoft.EntityFrameworkCore;
 using ReinhardHolzner.Core.AMQP;
-using ReinhardHolzner.Core.AMQP.Internal;
-using ReinhardHolzner.Core.AMQP.Internal.Impl;
+using ReinhardHolzner.Core.AMQP.Processor;
+using ReinhardHolzner.Core.AMQP.Processor.Impl;
+using ReinhardHolzner.Core.Templating.Generic;
+using ReinhardHolzner.Core.Templating.Generic.Impl;
+using ReinhardHolzner.Core.Emailing;
+using ReinhardHolzner.Core.Emailing.Impl;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -105,13 +109,15 @@ namespace ReinhardHolzner.Core.Startup
             ConfigureElasticSearch();
             ConfigureAmqp();
             ConfigureRedis();
+            ConfigureEmailing();
+            ConfigureTemplating();
         }
 
         private void ConfigureDefaultServiceProvider()
         {
             _builder.UseDefaultServiceProvider((context, options) =>
             {
-                options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+                options.ValidateScopes = true;
             });
         }
 
@@ -251,6 +257,14 @@ namespace ReinhardHolzner.Core.Startup
             }
         }
 
+        private void ConfigureEmailing()
+        {
+            _builder.ConfigureServices(services =>
+            {
+                services.AddSingleton<IEmailSender, EmailSenderImpl>();
+            });
+        }
+
         private void ConfigureRedis()
         {
             bool useRedis = _configuration.GetValue<bool>("UseRedis");
@@ -280,6 +294,14 @@ namespace ReinhardHolzner.Core.Startup
                     Console.WriteLine("Redis distributed cache initialized successfully");
                 });
             }
+        }
+
+        private void ConfigureTemplating()
+        {
+            _builder.ConfigureServices(services =>
+            {
+                services.AddScoped<ITemplateRenderer, TemplateRendererImpl>();
+            });
         }
 
         private void ConfigureLogging()

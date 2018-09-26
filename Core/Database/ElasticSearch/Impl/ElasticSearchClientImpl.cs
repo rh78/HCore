@@ -7,12 +7,8 @@ using System.Linq;
 
 namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
 {
-    public class ElasticSearchClientImpl : IElasticSearchClient
+    internal class ElasticSearchClientImpl : IElasticSearchClient
     {
-        // search will become expensive above 500 records
-        public const int MaxOffset = 500;
-        public const int MaxPagingSize = 50;
-
         private const string IndexVersionsIndexName = "indexversions";
 
         private bool _isProduction;

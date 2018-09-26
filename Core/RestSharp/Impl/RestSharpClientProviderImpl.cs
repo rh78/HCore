@@ -1,6 +1,6 @@
 ﻿namespace ReinhardHolzner.Core.RestSharp.Impl
 {
-    public class RestSharpClientProviderImpl : IRestSharpClientProvider
+    internal class RestSharpClientProviderImpl : IRestSharpClientProvider
     {
         private IRestSharpClient _restSharpClient;
 

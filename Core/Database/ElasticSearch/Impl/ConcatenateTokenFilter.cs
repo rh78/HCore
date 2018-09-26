@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
 {
-    public interface IConcatenateTokenFilter : ITokenFilter
+    internal interface IConcatenateTokenFilter : ITokenFilter
     {
         [JsonProperty("token_separator")]
         string TokenSeparator { get; set; }
@@ -12,7 +12,7 @@ namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
         int? IncrementGap { get; set; }
     }
 
-    public class ConcatenateTokenFilter : TokenFilterBase, IConcatenateTokenFilter
+    internal class ConcatenateTokenFilter : TokenFilterBase, IConcatenateTokenFilter
     {
         public ConcatenateTokenFilter() : base("concatenate") { }
 
@@ -21,7 +21,7 @@ namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
         public int? IncrementGap { get; set; }
     }
 
-    public class ConcatenateTokenFilterDescriptor
+    internal class ConcatenateTokenFilterDescriptor
         : TokenFilterDescriptorBase<ConcatenateTokenFilterDescriptor, IConcatenateTokenFilter>, IConcatenateTokenFilter
     {
         protected override string Type => "concatenate";

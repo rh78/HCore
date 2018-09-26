@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.Middleware
 {
-    public class UnhandledExceptionHandlingMiddleware
+    internal class UnhandledExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<UnhandledExceptionHandlingMiddleware> _logger;

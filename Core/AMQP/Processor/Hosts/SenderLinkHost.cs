@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
+namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
     internal class SenderLinkHost<TMessage> : LinkHost
     {

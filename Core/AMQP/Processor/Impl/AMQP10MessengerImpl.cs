@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amqp;
 using Microsoft.AspNetCore.Hosting;
-using ReinhardHolzner.Core.AMQP.Internal.Hosts;
+using ReinhardHolzner.Core.AMQP.Processor.Hosts;
 
-namespace ReinhardHolzner.Core.AMQP.Internal.Impl
+namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
     internal class AMQP10MessengerImpl<TMessage> : IAMQPMessenger<TMessage>
     {
@@ -70,16 +70,22 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Impl
         {
             Console.WriteLine("Shutting down AMQP...");
 
-            _cancellationTokenSource.Cancel();
+            try
+            {
+                _cancellationTokenSource.Cancel();
 
-            if (_messageProcessorTasks.Count > 0)
-                Task.WaitAll(_messageProcessorTasks.ToArray());
+                if (_messageProcessorTasks.Count > 0)
+                    Task.WaitAll(_messageProcessorTasks.ToArray());
 
-            foreach (ReceiverLinkHost<TMessage> receiverLinkHost in _receiverLinks)
-                receiverLinkHost.CloseAsync().Wait();            
+                foreach (ReceiverLinkHost<TMessage> receiverLinkHost in _receiverLinks)
+                    receiverLinkHost.CloseAsync().Wait();
 
-            foreach (SenderLinkHost<TMessage> senderLinkHost in _senderLinks.Values)            
-                senderLinkHost.CloseAsync().Wait();                            
+                foreach (SenderLinkHost<TMessage> senderLinkHost in _senderLinks.Values)
+                    senderLinkHost.CloseAsync().Wait();
+            } catch (Exception)
+            {
+                // ignore all shutdown faults
+            }
 
             Console.WriteLine("AMQP shut down successfully");
         }

@@ -3,7 +3,7 @@ using System;
 
 namespace ReinhardHolzner.Core.Providers.Impl
 {
-    class UrlProviderImpl : IUrlProvider
+    internal class UrlProviderImpl : IUrlProvider
     {
         public string ApiDomain { get; private set; }
         public string WebDomain { get; private set; }

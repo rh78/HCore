@@ -15,9 +15,10 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
 using ReinhardHolzner.Core.Providers.Impl;
 using ReinhardHolzner.Core.Providers;
-using ReinhardHolzner.Core.AMQP.Internal;
+using ReinhardHolzner.Core.AMQP.Processor;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
+using ReinhardHolzner.Core.Emailing;
 
 namespace ReinhardHolzner.Core.Startup
 {
@@ -197,7 +198,12 @@ namespace ReinhardHolzner.Core.Startup
 
             if (useSqlServer)
             {
-                app.ApplicationServices.GetRequiredService<TSqlServerDbContext>();
+                var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+
+                using (var scope = scopeFactory.CreateScope())
+                {
+                    scope.ServiceProvider.GetRequiredService<TSqlServerDbContext>();
+                }
             }
 
             bool useAmqpListener = Configuration.GetValue<bool>("UseAmqpListener");
@@ -214,6 +220,8 @@ namespace ReinhardHolzner.Core.Startup
             {
                 app.ApplicationServices.GetRequiredService<IDistributedCache>();
             }
+
+            app.ApplicationServices.GetRequiredService<IEmailSender>();
         }
 
         private void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)

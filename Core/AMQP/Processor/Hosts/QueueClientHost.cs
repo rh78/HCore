@@ -1,12 +1,12 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using Newtonsoft.Json;
-using ReinhardHolzner.Core.AMQP.Internal.Impl;
+using ReinhardHolzner.Core.AMQP.Processor.Impl;
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ReinhardHolzner.Core.AMQP.Internal.Hosts
+namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
     internal class QueueClientHost<TMessage>
     {

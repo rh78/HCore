@@ -2,7 +2,7 @@
 
 namespace ReinhardHolzner.Core.Providers.Impl
 {
-    public class NowProviderImpl : INowProvider
+    internal class NowProviderImpl : INowProvider
     {
         public DateTimeOffset Now { get; private set; }
 

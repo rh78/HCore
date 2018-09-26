@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ReinhardHolzner.Core.AMQP.Internal
+namespace ReinhardHolzner.Core.AMQP.Processor
 {
     internal interface IAMQPMessenger<TMessage>
     {

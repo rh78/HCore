@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.Middleware
 {
-    class CspHandlingMiddleware
+    internal class CspHandlingMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<CspHandlingMiddleware> _logger;

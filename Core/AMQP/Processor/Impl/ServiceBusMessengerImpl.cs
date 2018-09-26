@@ -4,9 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.ServiceBus.Management;
-using ReinhardHolzner.Core.AMQP.Internal.Hosts;
+using ReinhardHolzner.Core.AMQP.Processor.Hosts;
 
-namespace ReinhardHolzner.Core.AMQP.Internal.Impl
+namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
     internal class ServiceBusMessengerImpl<TMessage> : IAMQPMessenger<TMessage>
     {
@@ -78,11 +78,17 @@ namespace ReinhardHolzner.Core.AMQP.Internal.Impl
         {
             Console.WriteLine("Shutting down AMQP...");
 
-            _cancellationTokenSource.Cancel();
+            try { 
+                _cancellationTokenSource.Cancel();
 
-            foreach (QueueClientHost<TMessage> queueClientHost in _queueClientHosts.Values)
-                queueClientHost.CloseAsync().Wait();
-            
+                foreach (QueueClientHost<TMessage> queueClientHost in _queueClientHosts.Values)
+                    queueClientHost.CloseAsync().Wait();
+            }
+            catch (Exception)
+            {
+                // ignore all shutdown faults
+            }
+
             Console.WriteLine("AMQP shut down successfully");
         }
 
