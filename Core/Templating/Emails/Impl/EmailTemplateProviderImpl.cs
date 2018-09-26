@@ -9,7 +9,7 @@ namespace ReinhardHolzner.Core.Templating.Emails.Impl
 {
     public abstract class EmailTemplateProviderImpl : IEmailTemplateProvider
     {
-        private ITemplateRenderer _templateRenderer;
+        private readonly ITemplateRenderer _templateRenderer;
 
         public EmailTemplateProviderImpl(ITemplateRenderer templateRenderer)
         {

@@ -270,6 +270,8 @@ namespace ReinhardHolzner.Core.Startup
                 {
                     Console.WriteLine("Initializing AMQP email sender...");
 
+                    DirectEmailSenderImpl.LoadEmailSenderConfiguration(EmailSenderConstants.EmptyConfigurationKeyDefaultKey, _configuration);
+
                     services.AddSingleton<IEmailSender, AMQPEmailSenderImpl>();
 
                     Console.WriteLine("AMQP email sender initialized successfully");
@@ -277,6 +279,8 @@ namespace ReinhardHolzner.Core.Startup
                 else
                 {
                     Console.WriteLine("Initializing direct email sender...");
+
+                    DirectEmailSenderImpl.LoadEmailSenderConfiguration(EmailSenderConstants.EmptyConfigurationKeyDefaultKey, _configuration);
 
                     services.AddSingleton<IEmailSender, DirectEmailSenderImpl>();
 

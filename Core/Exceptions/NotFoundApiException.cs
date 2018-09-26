@@ -4,7 +4,7 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class NotFoundApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
 
         public const string NotFound = "not_found";
         public const string UserNotFound = "user_not_found";

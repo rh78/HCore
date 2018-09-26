@@ -1,6 +1,6 @@
 ﻿namespace ReinhardHolzner.Core.Emailing.Impl
 {
-    internal abstract class EmailSenderImpl
+    public abstract class EmailSenderImpl
     {
         public EmailSenderImpl()
         {

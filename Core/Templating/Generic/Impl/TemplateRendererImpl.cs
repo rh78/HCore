@@ -18,9 +18,9 @@ namespace ReinhardHolzner.Core.Templating.Generic.Impl
 {
     internal class TemplateRendererImpl : ITemplateRenderer
     {
-        private IRazorViewEngine _viewEngine;
-        private ITempDataProvider _tempDataProvider;
-        private IServiceProvider _serviceProvider;
+        private readonly IRazorViewEngine _viewEngine;
+        private readonly ITempDataProvider _tempDataProvider;
+        private readonly IServiceProvider _serviceProvider;
 
         public TemplateRendererImpl(
             IRazorViewEngine viewEngine,

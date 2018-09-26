@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ReinhardHolzner.Core.Exceptions
 {
     public class PreconditionRequiredApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
 
         public PreconditionRequiredApiException(string errorCode, string message) : 
             base(message)

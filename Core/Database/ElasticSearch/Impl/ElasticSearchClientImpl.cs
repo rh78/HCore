@@ -11,15 +11,15 @@ namespace ReinhardHolzner.Core.Database.ElasticSearch.Impl
     {
         private const string IndexVersionsIndexName = "indexversions";
 
-        private bool _isProduction;
+        private readonly bool _isProduction;
 
-        private int _numberOfShards;
-        private int _numberOfReplicas;
-        private string _hosts;        
+        private readonly int _numberOfShards;
+        private readonly int _numberOfReplicas;
+        private readonly string _hosts;        
 
         public ElasticClient ElasticClient { get; private set; }
 
-        private IElasticSearchDbContext _elasticSearchDbContext;
+        private readonly IElasticSearchDbContext _elasticSearchDbContext;
 
         public ElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchDbContext elasticSearchDbContext)
         {

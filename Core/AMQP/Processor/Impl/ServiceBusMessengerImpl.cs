@@ -10,17 +10,17 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
     internal class ServiceBusMessengerImpl : IAMQPMessenger
     {
-        private Dictionary<string, QueueClientHost> _queueClientHosts = new Dictionary<string, QueueClientHost>();
+        private readonly Dictionary<string, QueueClientHost> _queueClientHosts = new Dictionary<string, QueueClientHost>();
 
-        private string _connectionString;       
+        private readonly string _connectionString;       
 
-        private CancellationTokenSource _cancellationTokenSource;
-        private CancellationToken _cancellationToken;
+        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly CancellationToken _cancellationToken;
 
-        private IAMQPMessageProcessor _messageProcessor;
+        private readonly IAMQPMessageProcessor _messageProcessor;
 
-        private string[] _addresses;
-        private int[] _addressListenerCounts;
+        private readonly string[] _addresses;
+        private readonly int[] _addressListenerCounts;
 
         public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {

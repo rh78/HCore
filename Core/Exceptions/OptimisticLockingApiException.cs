@@ -4,7 +4,7 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class OptimisticLockingApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
 
         public OptimisticLockingApiException(string errorCode, string message) : 
             base(message)

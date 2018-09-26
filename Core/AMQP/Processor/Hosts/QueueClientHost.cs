@@ -10,19 +10,20 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
     internal class QueueClientHost
     {
-        private string _connectionString;
-        private int _amqpListenerCount;
+        private readonly string _connectionString;
+        private readonly int _amqpListenerCount;
 
-        private string _lowLevelAddress;
+        private readonly string _lowLevelAddress;
+
         protected string Address { get; set; }
 
         private QueueClient _queueClient;
 
-        private ServiceBusMessengerImpl _messenger;
+        private readonly ServiceBusMessengerImpl _messenger;
 
-        protected CancellationToken CancellationToken;
+        protected readonly CancellationToken CancellationToken;
 
-        private static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
 
         public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken)
         {

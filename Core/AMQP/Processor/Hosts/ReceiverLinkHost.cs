@@ -12,7 +12,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
     {
         private ReceiverLink _receiverLink;
         
-        private AMQP10MessengerImpl _messenger;
+        private readonly AMQP10MessengerImpl _messenger;
 
         public Task MessageProcessorTask { get; private set; }
 

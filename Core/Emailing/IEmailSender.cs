@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.Emailing
 {
     public interface IEmailSender
     {
-        Task SendEmailAsync(string email, string subject, string htmlMessage);
+        Task SendEmailAsync(string configurationKey, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage);
     }
 }

@@ -6,15 +6,15 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
     internal abstract class LinkHost
     {
-        private string _connectionString;
+        private readonly string _connectionString;
 
-        protected string Address { get; set; }
+        protected string Address { get; }
 
-        private ConnectionFactory _connectionFactory;
+        private readonly ConnectionFactory _connectionFactory;
         private Connection _connection;
         private Session _session;
 
-        protected CancellationToken CancellationToken;
+        protected readonly CancellationToken CancellationToken;
 
         protected LinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken)
         {

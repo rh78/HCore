@@ -11,21 +11,21 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
     internal class AMQP10MessengerImpl : IAMQPMessenger
     {
-        private Dictionary<string, SenderLinkHost> _senderLinks = new Dictionary<string, SenderLinkHost>();
-        private List<ReceiverLinkHost> _receiverLinks = new List<ReceiverLinkHost>();
-        private HashSet<Task> _messageProcessorTasks = new HashSet<Task>();
+        private readonly Dictionary<string, SenderLinkHost> _senderLinks = new Dictionary<string, SenderLinkHost>();
+        private readonly List<ReceiverLinkHost> _receiverLinks = new List<ReceiverLinkHost>();
+        private readonly HashSet<Task> _messageProcessorTasks = new HashSet<Task>();
 
-        private string _connectionString;
+        private readonly string _connectionString;
         
-        private ConnectionFactory _connectionFactory;
+        private readonly ConnectionFactory _connectionFactory;
 
-        private CancellationTokenSource _cancellationTokenSource;
-        private CancellationToken _cancellationToken;
+        private readonly CancellationTokenSource _cancellationTokenSource;
+        private readonly CancellationToken _cancellationToken;
 
-        private IAMQPMessageProcessor _messageProcessor;
+        private readonly IAMQPMessageProcessor _messageProcessor;
 
-        private string[] _addresses;
-        private int[] _addressListenerCounts;
+        private readonly string[] _addresses;
+        private readonly int[] _addressListenerCounts;
 
         public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {

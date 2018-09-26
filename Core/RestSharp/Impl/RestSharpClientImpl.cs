@@ -7,7 +7,7 @@ namespace ReinhardHolzner.Core.RestSharp.Impl
 {
     internal class RestSharpClientImpl : IRestSharpClient
     {
-        private RestClient _restClient;
+        private readonly RestClient _restClient;
 
         private const int RequestRetryCount = 5;
         private const int BackoffRate = 100; // ms

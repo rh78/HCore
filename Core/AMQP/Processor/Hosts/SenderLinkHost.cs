@@ -10,7 +10,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
     {
         private SenderLink _senderLink;
 
-        private static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
 
         public SenderLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken)
             : base(connectionFactory, connectionString, address, cancellationToken)

@@ -5,8 +5,8 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class InvalidArgumentApiException : ApiException
     {
-        private string _errorCode;
-        private ModelStateDictionary _modelState;
+        private readonly string _errorCode;
+        private readonly ModelStateDictionary _modelState;
 
         public const string InvalidArgument = "invalid_argument";
         public const string MandateUuidInvalid = "mandate_uuid_invalid";

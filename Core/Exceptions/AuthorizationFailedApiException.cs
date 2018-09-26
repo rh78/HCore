@@ -4,7 +4,7 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class AuthorizationFailedApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
 
         public const string AccessTokenExpired = "access_token_expired";
 

@@ -10,6 +10,8 @@ namespace ReinhardHolzner.Core.Emailing
         {
         }
 
+        public string ConfigurationKey { get; set; }
+
         public List<string> To { get; set; }
         public List<string> Cc { get; set; }
         public List<string> Bcc { get; set; }

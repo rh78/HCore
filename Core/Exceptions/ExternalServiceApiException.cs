@@ -4,7 +4,7 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class ExternalServiceApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
 
         public ExternalServiceApiException(string errorCode, string message) : 
             base(message)

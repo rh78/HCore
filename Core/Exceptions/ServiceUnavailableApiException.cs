@@ -4,7 +4,7 @@ namespace ReinhardHolzner.Core.Exceptions
 {
     public class ServiceUnavailableApiException : ApiException
     {
-        private string _errorCode;
+        private readonly string _errorCode;
         
         public ServiceUnavailableApiException(string errorCode, string message) : 
             base(message)
