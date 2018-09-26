@@ -1,13 +1,16 @@
 ﻿using Amqp;
+using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
-    internal class SenderLinkHost<TMessage> : LinkHost
+    internal class SenderLinkHost : LinkHost
     {
         private SenderLink _senderLink;
+
+        private static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
 
         public SenderLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken)
             : base(connectionFactory, connectionString, address, cancellationToken)
@@ -20,31 +23,52 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
             _senderLink = new SenderLink(session, $"{Address}-sender", Address);
         }
 
-        public async Task SendMessageAsync(TMessage messageBody)
+        public async Task SendMessageAsync(AMQPMessage messageBody)
         {
-            try
+            SenderLink senderLink;
+            bool error;
+
+            do
             {
+                senderLink = _senderLink;
+                error = false;
+
                 if (CancellationToken.IsCancellationRequested)
                     throw new Exception("AMQP cancellation is requested, can not send message");
 
-                if (_senderLink == null || _senderLink.IsClosed)
-                    await InitializeAsync().ConfigureAwait(false);
+                try
+                {
+                    if (senderLink == null || senderLink.IsClosed)
+                        await InitializeAsync().ConfigureAwait(false);
 
-                Message message = new Message(messageBody);
+                    Message message = new Message(JsonConvert.SerializeObject(messageBody));
 
-                message.Header.Durable = true;
+                    message.Header = new Amqp.Framing.Header()
+                    {                    
+                        Durable = true
+                    };
 
-                await _senderLink.SendAsync(message, TimeSpan.FromSeconds(10)).ConfigureAwait(false);                
-            } catch (AmqpException e)
-            {
-                if (!CancellationToken.IsCancellationRequested)
-                    Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                    await senderLink.SendAsync(message, TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+                }
+                catch (AmqpException e)
+                {
+                    error = true;
 
-                await CloseAsync().ConfigureAwait(false);
+                    await semaphore.WaitAsync().ConfigureAwait(false);
 
-                if (!CancellationToken.IsCancellationRequested)
-                    await SendMessageAsync(messageBody).ConfigureAwait(false);                
-            }
+                    if (senderLink == _senderLink)
+                    {
+                        // nobody else handled this before
+
+                        if (!CancellationToken.IsCancellationRequested)
+                            Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+
+                        await CloseAsync().ConfigureAwait(false);
+                    }
+
+                    semaphore.Release();
+                }
+            } while (error);
         }
 
         public override async Task CloseAsync()

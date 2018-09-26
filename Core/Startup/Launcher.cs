@@ -184,10 +184,13 @@ namespace ReinhardHolzner.Core.Startup
 
         private void ConfigureAmqp()
         {
-            bool useAmqpListener = _configuration.GetValue<bool>("UseAmqpListener");
-            bool useAmqpSender = _configuration.GetValue<bool>("UseAmqpSender");
+            bool useAmqp = _configuration.GetValue<bool>("UseAmqp");
+            bool useAmqpEmailSender = _configuration.GetValue<bool>("UseAmqpEmailSender");
 
-            if (useAmqpListener || useAmqpSender)
+            if (useAmqpEmailSender && !useAmqp)
+                throw new Exception("AMQP is a prerequisite for using the AMQP email sender");
+            
+            if (useAmqp)
             {
                 _builder.ConfigureServices(services =>
                 {
@@ -213,42 +216,42 @@ namespace ReinhardHolzner.Core.Startup
                     string[] addressesSplit = addresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                     if (addressesSplit.Length == 0)
-                        throw new Exception("AMQP addresses are empty");                    
+                        throw new Exception("AMQP addresses are empty");
+
+                    if (!addressesSplit.Contains(EmailSenderConstants.Address))
+                        throw new Exception($"AMQP email sender requires the AMQP address '{EmailSenderConstants.Address}' to be defined");
+
+                    int[] amqpListenerCounts = new int[addressesSplit.Length];
+
+                    for (int i = 0; i < addressesSplit.Length; i++)
+                    {
+                        int amqpListenerCount = _configuration.GetValue<int>($"Amqp:{addressesSplit[i]}ListenerCount");
+                        if (amqpListenerCount <= 0)
+                            amqpListenerCount = 1;
+
+                        amqpListenerCounts[i] = amqpListenerCount;
+                    }
 
                     services.AddSingleton(factory =>
                     {
-                        IAMQPMessageProcessor<TMessage> messageProcessor = factory.GetService<IAMQPMessageProcessor<TMessage>>();
+                        IAMQPMessageProcessor messageProcessor = factory.GetRequiredService<IAMQPMessageProcessor>();
 
-                        if (useAmqpListener && messageProcessor == null)
-                            throw new Exception("AMQP message processor service is not available");
-
-                        IAMQPMessenger<TMessage> amqpMessenger;
+                        IAMQPMessenger amqpMessenger;
 
                         if (useServiceBus)
                         {
                             // Service Bus
-                            amqpMessenger = new ServiceBusMessengerImpl<TMessage>(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                            amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
                         }
                         else
                         {
                             // AMQP 1.0
 
-                            amqpMessenger = new AMQP10MessengerImpl<TMessage>(connectionString, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                            amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
                         }
 
-                        int[] amqpListenerCounts = new int[addressesSplit.Length];
-                        
-                        for (int i = 0; i < addressesSplit.Length; i++)
-                        {
-                            int amqpListenerCount = _configuration.GetValue<int>($"Amqp:{addressesSplit[i]}ListenerCount");
-                            if (amqpListenerCount <= 0)
-                                amqpListenerCount = 1;
+                        amqpMessenger.InitializeAsync().Wait();
 
-                            amqpListenerCounts[i] = amqpListenerCount;
-                        }
-
-                        amqpMessenger.InitializeAddressesAsync(useAmqpListener, useAmqpSender, addressesSplit, amqpListenerCounts).Wait();
-                        
                         return amqpMessenger;
                     });
 
@@ -261,7 +264,24 @@ namespace ReinhardHolzner.Core.Startup
         {
             _builder.ConfigureServices(services =>
             {
-                services.AddSingleton<IEmailSender, EmailSenderImpl>();
+                bool useAmqpEmailSender = _configuration.GetValue<bool>("UseAmqpEmailSender");
+
+                if (useAmqpEmailSender)
+                {
+                    Console.WriteLine("Initializing AMQP email sender...");
+
+                    services.AddSingleton<IEmailSender, AMQPEmailSenderImpl>();
+
+                    Console.WriteLine("AMQP email sender initialized successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Initializing direct email sender...");
+
+                    services.AddSingleton<IEmailSender, DirectEmailSenderImpl>();
+
+                    Console.WriteLine("Direct email sender initialized successfully");
+                }
             });
         }
 

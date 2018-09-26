@@ -9,10 +9,10 @@ using ReinhardHolzner.Core.AMQP.Processor.Hosts;
 
 namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
-    internal class AMQP10MessengerImpl<TMessage> : IAMQPMessenger<TMessage>
+    internal class AMQP10MessengerImpl : IAMQPMessenger
     {
-        private Dictionary<string, SenderLinkHost<TMessage>> _senderLinks = new Dictionary<string, SenderLinkHost<TMessage>>();
-        private List<ReceiverLinkHost<TMessage>> _receiverLinks = new List<ReceiverLinkHost<TMessage>>();
+        private Dictionary<string, SenderLinkHost> _senderLinks = new Dictionary<string, SenderLinkHost>();
+        private List<ReceiverLinkHost> _receiverLinks = new List<ReceiverLinkHost>();
         private HashSet<Task> _messageProcessorTasks = new HashSet<Task>();
 
         private string _connectionString;
@@ -22,11 +22,17 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        private IAMQPMessageProcessor<TMessage> _messageProcessor;
+        private IAMQPMessageProcessor _messageProcessor;
 
-        public AMQP10MessengerImpl(string connectionString, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor<TMessage> messageProcessor)
+        private string[] _addresses;
+        private int[] _addressListenerCounts;
+
+        public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {
-            _connectionString = connectionString;            
+            _connectionString = connectionString;
+
+            _addresses = addresses;
+            _addressListenerCounts = addressListenerCount;
 
             _connectionFactory = new ConnectionFactory();
 
@@ -38,32 +44,26 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
 
-        public async Task InitializeAddressesAsync(bool useAmqpListener, bool useAmqpSender, string[] addresses, int[] addressListenerCounts)
+        public async Task InitializeAsync()
         {
-            if (useAmqpListener)
+            Console.WriteLine("Initializing AMQP receiver...");
+
+            for (int i = 0; i < _addresses.Length; i++)
             {
-                Console.WriteLine("Initializing AMQP receiver...");
+                string address = _addresses[i];
 
-                for (int i = 0; i < addresses.Length; i++)
-                {
-                    string address = addresses[i];
-
-                    for (int y = 0; y < addressListenerCounts[i]; y++)                    
-                        await AddReceiverLinkAsync(address).ConfigureAwait(false);                    
-                }
-
-                Console.WriteLine($"AMQP receiver initialized successfully");
+                for (int y = 0; y < _addressListenerCounts[i]; y++)                    
+                    await AddReceiverLinkAsync(address).ConfigureAwait(false);                    
             }
 
-            if (useAmqpSender)
-            {
-                Console.WriteLine("Initializing AMQP sender...");
+            Console.WriteLine($"AMQP receiver initialized successfully");            
 
-                foreach (string address in addresses)
-                    await AddSenderLinkAsync(address).ConfigureAwait(false);
+            Console.WriteLine("Initializing AMQP sender...");
 
-                Console.WriteLine("AMQP sender initialized successfully");
-            }
+            foreach (string address in _addresses)
+                await AddSenderLinkAsync(address).ConfigureAwait(false);
+
+            Console.WriteLine("AMQP sender initialized successfully");            
         }
 
         private void OnShutdown()
@@ -77,10 +77,10 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
                 if (_messageProcessorTasks.Count > 0)
                     Task.WaitAll(_messageProcessorTasks.ToArray());
 
-                foreach (ReceiverLinkHost<TMessage> receiverLinkHost in _receiverLinks)
+                foreach (ReceiverLinkHost receiverLinkHost in _receiverLinks)
                     receiverLinkHost.CloseAsync().Wait();
 
-                foreach (SenderLinkHost<TMessage> senderLinkHost in _senderLinks.Values)
+                foreach (SenderLinkHost senderLinkHost in _senderLinks.Values)
                     senderLinkHost.CloseAsync().Wait();
             } catch (Exception)
             {
@@ -92,7 +92,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 
         private async Task AddSenderLinkAsync(string address)
         {
-            var senderLinkHost = new SenderLinkHost<TMessage>(_connectionFactory, _connectionString, address, _cancellationToken);
+            var senderLinkHost = new SenderLinkHost(_connectionFactory, _connectionString, address, _cancellationToken);
             
             _senderLinks.Add(address, senderLinkHost);
 
@@ -101,7 +101,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 
         private async Task AddReceiverLinkAsync(string address)
         {
-            var receiverLinkHost = new ReceiverLinkHost<TMessage>(_connectionFactory, _connectionString, address, this, _cancellationToken);
+            var receiverLinkHost = new ReceiverLinkHost(_connectionFactory, _connectionString, address, this, _cancellationToken);
 
             _receiverLinks.Add(receiverLinkHost);
 
@@ -110,7 +110,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             _messageProcessorTasks.Add(receiverLinkHost.MessageProcessorTask);
         }
 
-        public async Task SendMessageAsync(string address, TMessage body)
+        public async Task SendMessageAsync(string address, AMQPMessage body)
         {
             if (!_senderLinks.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
@@ -118,9 +118,9 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             await _senderLinks[address].SendMessageAsync(body).ConfigureAwait(false);
         }
 
-        public async Task ProcessMessageAsync(string address, TMessage body)
+        public async Task ProcessMessageAsync(string address, string messageBodyJson)
         {
-            await _messageProcessor.ProcessMessageAsync(address, body).ConfigureAwait(false);
+            await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
         }        
     }
 }

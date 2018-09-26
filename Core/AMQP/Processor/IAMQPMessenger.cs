@@ -2,10 +2,10 @@
 
 namespace ReinhardHolzner.Core.AMQP.Processor
 {
-    internal interface IAMQPMessenger<TMessage>
+    internal interface IAMQPMessenger
     {
-        Task InitializeAddressesAsync(bool useAmqpListener, bool useAmqpSender, string[] addresses, int[] addressListenerCount);
+        Task InitializeAsync();
 
-        Task SendMessageAsync(string address, TMessage body);              
+        Task SendMessageAsync(string address, AMQPMessage body);              
     }
 }

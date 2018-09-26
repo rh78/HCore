@@ -8,20 +8,26 @@ using ReinhardHolzner.Core.AMQP.Processor.Hosts;
 
 namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 {
-    internal class ServiceBusMessengerImpl<TMessage> : IAMQPMessenger<TMessage>
+    internal class ServiceBusMessengerImpl : IAMQPMessenger
     {
-        private Dictionary<string, QueueClientHost<TMessage>> _queueClientHosts = new Dictionary<string, QueueClientHost<TMessage>>();
+        private Dictionary<string, QueueClientHost> _queueClientHosts = new Dictionary<string, QueueClientHost>();
 
         private string _connectionString;       
 
         private CancellationTokenSource _cancellationTokenSource;
         private CancellationToken _cancellationToken;
 
-        private IAMQPMessageProcessor<TMessage> _messageProcessor;
+        private IAMQPMessageProcessor _messageProcessor;
 
-        public ServiceBusMessengerImpl(string connectionString, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor<TMessage> messageProcessor)
+        private string[] _addresses;
+        private int[] _addressListenerCounts;
+
+        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {
-            _connectionString = connectionString;            
+            _connectionString = connectionString;
+
+            _addresses = addresses;
+            _addressListenerCounts = addressListenerCount;
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -31,16 +37,16 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
 
-        public async Task InitializeAddressesAsync(bool useAmqpListener, bool useAmqpSender, string[] addresses, int[] addressListenerCount)
+        public async Task InitializeAsync()
         {
             Console.WriteLine("Initializing AMQP...");
 
             var managementClient = new ManagementClient(_connectionString);
 
-            for (int i = 0; i < addresses.Length; i++)
+            for (int i = 0; i < _addresses.Length; i++)
             {
-                string address = addresses[i];
-                int listenerCount = addressListenerCount[i];
+                string address = _addresses[i];
+                int listenerCount = _addressListenerCounts[i];
 
                 if (!await managementClient.QueueExistsAsync(address).ConfigureAwait(false))
                 {
@@ -67,7 +73,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
 
         private async Task AddQueueClientAsync(int amqpListenerCount, string address)
         {
-            var queueClientHost = new QueueClientHost<TMessage>(_connectionString, amqpListenerCount, address, this, _cancellationToken);
+            var queueClientHost = new QueueClientHost(_connectionString, amqpListenerCount, address, this, _cancellationToken);
 
             _queueClientHosts.Add(address, queueClientHost);
 
@@ -81,7 +87,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             try { 
                 _cancellationTokenSource.Cancel();
 
-                foreach (QueueClientHost<TMessage> queueClientHost in _queueClientHosts.Values)
+                foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
                     queueClientHost.CloseAsync().Wait();
             }
             catch (Exception)
@@ -92,7 +98,7 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             Console.WriteLine("AMQP shut down successfully");
         }
 
-        public async Task SendMessageAsync(string address, TMessage body)
+        public async Task SendMessageAsync(string address, AMQPMessage body)
         {
             if (!_queueClientHosts.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
@@ -100,9 +106,9 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Impl
             await _queueClientHosts[address].SendMessageAsync(body).ConfigureAwait(false);
         }
 
-        public async Task ProcessMessageAsync(string address, TMessage body)
+        public async Task ProcessMessageAsync(string address, string messageBodyJson)
         {
-            await _messageProcessor.ProcessMessageAsync(address, body).ConfigureAwait(false);
+            await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
         }
     }
 }

@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
-    internal class ReceiverLinkHost<TMessage> : LinkHost
+    internal class ReceiverLinkHost : LinkHost
     {
         private ReceiverLink _receiverLink;
         
-        private AMQP10MessengerImpl<TMessage> _messenger;
+        private AMQP10MessengerImpl _messenger;
 
         public Task MessageProcessorTask { get; private set; }
 
-        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, AMQP10MessengerImpl<TMessage> messenger, CancellationToken cancellationToken)
+        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, AMQP10MessengerImpl messenger, CancellationToken cancellationToken)
             : base(connectionFactory, connectionString, address, cancellationToken)
         {
             _messenger = messenger;
@@ -45,21 +45,22 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
                 try
                 {
                     using (var message = await _receiverLink.ReceiveAsync(TimeSpan.FromSeconds(10)).ConfigureAwait(false))
-                    {                    
-                        try
+                    {
+                        if (message != null)
                         {
-                            TMessage messageBody = (TMessage) message.Body;
+                            try
+                            {
+                                await _messenger.ProcessMessageAsync(Address, (string) message.Body).ConfigureAwait(false);
 
-                            await _messenger.ProcessMessageAsync(Address, messageBody).ConfigureAwait(false);
+                                _receiverLink.Accept(message);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
 
-                            _receiverLink.Accept(message);
+                                _receiverLink.Reject(message);
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
-
-                            _receiverLink.Reject(message);
-                        }                        
                     }
                 }
                 catch (AmqpException e)

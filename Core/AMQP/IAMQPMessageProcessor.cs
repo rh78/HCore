@@ -2,8 +2,8 @@
 
 namespace ReinhardHolzner.Core.AMQP
 {
-    public interface IAMQPMessageProcessor<TMessage>
+    public interface IAMQPMessageProcessor
     {
-        Task ProcessMessageAsync(string address, TMessage body);
+        Task<bool> ProcessMessageAsync(string address, string messageBodyJson);
     }
 }

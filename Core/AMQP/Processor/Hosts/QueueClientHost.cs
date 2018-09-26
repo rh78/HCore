@@ -8,25 +8,29 @@ using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
 {
-    internal class QueueClientHost<TMessage>
+    internal class QueueClientHost
     {
         private string _connectionString;
         private int _amqpListenerCount;
 
+        private string _lowLevelAddress;
         protected string Address { get; set; }
 
         private QueueClient _queueClient;
 
-        private ServiceBusMessengerImpl<TMessage> _messenger;
+        private ServiceBusMessengerImpl _messenger;
 
         protected CancellationToken CancellationToken;
 
-        public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl<TMessage> messenger, CancellationToken cancellationToken)
+        private static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+
+        public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken)
         {
             _connectionString = connectionString;
             _amqpListenerCount = amqpListenerCount;
 
             Address = address;
+            _lowLevelAddress = Address.ToLower();
 
             _messenger = messenger;
 
@@ -37,33 +41,33 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
         {
             await CloseAsync().ConfigureAwait(false);
 
-            _queueClient = new QueueClient(_connectionString, Address);
+            _queueClient = new QueueClient(_connectionString, _lowLevelAddress);
 
             _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandler)
             {
                 MaxConcurrentCalls = _amqpListenerCount,
                 AutoComplete = false,
-                MaxAutoRenewDuration = TimeSpan.MaxValue                 
+                MaxAutoRenewDuration = TimeSpan.FromHours(2)               
             });            
         }
 
         private async Task ProcessMessageAsync(Message message, CancellationToken token)
         {
+            QueueClient queueClient = _queueClient;
+
             try
             {
                 if (!string.Equals(message.ContentType, "application/json"))
                     throw new Exception($"Invalid content type for AMQP message: {message.ContentType}");
 
-                TMessage messageBody = JsonConvert.DeserializeObject<TMessage>(Encoding.UTF8.GetString(message.Body));
-                
-                await _messenger.ProcessMessageAsync(Address, messageBody).ConfigureAwait(false);
+                await _messenger.ProcessMessageAsync(Address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
 
-                await _queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
             } catch (Exception e)
             {
                 Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
 
-                await _queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
             }
         }
 
@@ -92,34 +96,51 @@ namespace ReinhardHolzner.Core.AMQP.Processor.Hosts
             }
         }
 
-        public async Task SendMessageAsync(TMessage messageBody)
+        public async Task SendMessageAsync(AMQPMessage messageBody)
         {
-            try
+            QueueClient queueClient;
+            bool error;
+
+            do
             {
+                queueClient = _queueClient;
+                error = false;
+
                 if (CancellationToken.IsCancellationRequested)
                     throw new Exception("AMQP cancellation is requested, can not send message");
 
-                if (_queueClient == null || _queueClient.IsClosedOrClosing)
-                    await InitializeAsync().ConfigureAwait(false);
-
-                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
+                try
                 {
-                    ContentType = "application/json",
-                    MessageId = Guid.NewGuid().ToString()
-                };
+                    if (queueClient == null || queueClient.IsClosedOrClosing)
+                        await InitializeAsync().ConfigureAwait(false);
 
-                await _queueClient.SendAsync(message).ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                if (!CancellationToken.IsCancellationRequested)
-                    Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                    var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
+                    {
+                        ContentType = "application/json",
+                        MessageId = Guid.NewGuid().ToString()
+                    };
 
-                await CloseAsync().ConfigureAwait(false);
+                    await queueClient.SendAsync(message).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    error = true;
 
-                if (!CancellationToken.IsCancellationRequested)
-                    await SendMessageAsync(messageBody).ConfigureAwait(false);
-            }
+                    await semaphore.WaitAsync().ConfigureAwait(false);
+
+                    if (queueClient == _queueClient)
+                    {
+                        // nobody else handled this before
+
+                        if (!CancellationToken.IsCancellationRequested)
+                            Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+
+                        await CloseAsync().ConfigureAwait(false);
+                    }
+
+                    semaphore.Release();
+                }
+            } while (error);
         }        
     }
 }

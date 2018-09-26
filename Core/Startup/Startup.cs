@@ -206,21 +206,16 @@ namespace ReinhardHolzner.Core.Startup
                 }
             }
 
-            bool useAmqpListener = Configuration.GetValue<bool>("UseAmqpListener");
-            bool useAmqpSender = Configuration.GetValue<bool>("UseAmqpSender");
-
-            if (useAmqpListener || useAmqpSender)
-            {
-                app.ApplicationServices.GetRequiredService<IAMQPMessenger<TMessage>>();
-            }
-
+            bool useAmqp = Configuration.GetValue<bool>("UseAmqp");
+            
+            if (useAmqp)
+                app.ApplicationServices.GetRequiredService<IAMQPMessenger>();
+            
             bool useRedis = Configuration.GetValue<bool>("UseRedis");
 
             if (useRedis)
-            {
                 app.ApplicationServices.GetRequiredService<IDistributedCache>();
-            }
-
+            
             app.ApplicationServices.GetRequiredService<IEmailSender>();
         }
 
