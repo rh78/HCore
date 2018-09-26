@@ -219,7 +219,7 @@ namespace ReinhardHolzner.Core.Startup
 
                 // test the cache
 
-                distributedCache.GetString("Test");
+                distributedCache.GetString("dummy:1");
             }
 
             app.ApplicationServices.GetRequiredService<IEmailSender>();
