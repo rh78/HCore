@@ -1,7 +1,7 @@
 /*
- * RHCore Authentication API
+ * RHCore Identity Auth API
  *
- * The RHCore Authentication API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
+ * The RHCore Identity Auth API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
  *
  * OpenAPI spec version: 1.0.0-s2
  * Contact: holzner@invest-fit.at
