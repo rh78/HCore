@@ -1,0 +1,131 @@
+swagger: "2.0"
+
+info:
+  description: The RHCore Authentication API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
+  version: "1.0.0-s2"
+  title: RHCore Authentication API
+  contact:
+    email: holzner@invest-fit.at
+  license:
+    name: ReinhardHolzner Core Commercial License
+    url: 'https://www.linkedin.com/in/reinhardholzner'
+    
+host: subdomain.domain.com
+basePath: /auth/v1
+schemes:
+  - https
+  
+tags:
+  - name: Secure
+    description: Secured calls
+    
+paths:
+  /users:
+    post:
+      tags:
+        - Secure
+      summary: Registers a new user
+      operationId: registerUser
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user_spec
+          required: true
+          schema:
+            $ref: '#/definitions/UserSpec'
+      responses:
+        '201':
+          $ref: '#/responses/UserCreated'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+  
+definitions:
+  UserSpec:
+    type: object
+    description: The information required to register the new user
+    properties:
+      email:
+        type: string
+        description: The e-mail address of the user
+        minLength: 1
+        example: user@domain.com
+      password:
+        type: string
+        description: The password of the user
+        minLength: 6
+      passwordConfirmation:
+        type: string
+        description: The password confirmation
+        minLength: 6
+    required:
+    - email
+    - password
+    - passwordConfirmation
+  
+  ApiException:
+    type: object
+    properties:
+      error_code:
+        type: string
+        description: The error code
+        readOnly: true
+      error_message:
+        type: string
+        description: The error message
+        readOnly: true
+      error_details:
+        type: string
+        description: More details about the error, if available
+        readOnly: true
+    description: If the API call returns HTTP status codes indicating errors, the response body will contain an *ApiException* object providing more information about the error that occured
+    readOnly: true
+      
+responses:
+  UserCreated:
+    description: An user has been successfully created, the response contains the secure cookies. You should refresh the page.
+      
+  InvalidArgumentApiException:
+    description: An issue occured when validating the arguments. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+      
+  NotFoundApiException:
+    description: The desired record was not found. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+      
+  PreconditionRequiredApiException:
+    description: Some precondition is required to complete the operation. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+      
+  AuthorizationFailedApiException:
+    description: Authorization for the operation failed. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+  
+  ExternalServiceApiException:
+    description: |
+      An external service (e.g. the external content provider service) reported an error. Check the response for more details about the issue
+    
+      Currently this error codes explicitely can and will occur:
+            
+      * `content_provider_access_denied_by_user`
+      * `content_provider_access_denied_external_reason`
+      * `content_provider_authorization_already_processed`
+      * `content_provider_service_not_available`
+      
+      Note: also other error codes can occur if there is some internal error conditions, or if someone messed up the redirect URL
+    schema:
+      $ref: '#/definitions/ApiException'
+  
+  OptimisticLockingApiException:
+    description: An optimistic locking violation occured. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+      
+  ServiceUnavailableApiException:
+    description: The service is temporarily unavailable. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'

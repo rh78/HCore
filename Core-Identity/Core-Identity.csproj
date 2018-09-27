@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>ReinhardHolzner.Core.Identity</RootNamespace>
+    <AssemblyName>ReinhardHolzner.Core.Identity</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core-Emailing\Core-Emailing.csproj" />
+  </ItemGroup>
+
+</Project>

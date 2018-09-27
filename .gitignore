@@ -12,4 +12,10 @@
 /Core-Templating/obj
 /Core-Web/bin
 /Core-Web/obj
+/Core-Identity/bin
+/Core-Identity/obj
+/Core-Identity-PagesUI-Classes/bin
+/Core-Identity-PagesUI-Classes/obj
+/Core-Identity-PagesUI-Views/bin
+/Core-Identity-PagesUI-Views/obj
 /.vs
