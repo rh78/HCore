@@ -44,12 +44,12 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddSqlServer<TSqlServerDbContext>(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddSqlServer<TSqlServerDbContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
             where TSqlServerDbContext : DbContext
         {
-            Console.WriteLine("Initializing SQL Server DB context...");
+            Console.WriteLine($"Initializing SQL Server DB context with key {configurationKey}...");
 
-            string connectionString = configuration["SqlServer:ConnectionString"];
+            string connectionString = configuration[$"SqlServer:{configurationKey}:ConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("SQL Server connection string is empty");
 
@@ -58,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.UseSqlServer(connectionString);
             });
 
-            Console.WriteLine("Initialized SQL Server DB context");
+            Console.WriteLine($"Initialized SQL Server DB context with key {configurationKey}");
 
             return services;
         }
