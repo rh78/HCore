@@ -25,7 +25,7 @@ namespace {{packageName}}.Controllers
         /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
-        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, CancellationToken cancellationToken = default(CancellationToken));        
+        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken));        
 	  {{/operation}}
     }
 	
@@ -56,10 +56,10 @@ namespace {{packageName}}.Controllers
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}
-        public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken))
         { 	
 			{{#returnType}}
-			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, cancellationToken).ConfigureAwait(false);
+			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
 			
 			IActionResult response = StatusCode(result.StatusCode, result.Result);            
 			
@@ -67,7 +67,7 @@ namespace {{packageName}}.Controllers
                 Request.HttpContext.Response.Headers.Add(header.Key, header.Value.ToString());
 			{{/returnType}}
 			{{^returnType}}
-			await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}, cancellationToken).ConfigureAwait(false);
+			await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
 			
 			IActionResult response = StatusCode((int)HttpStatusCode.NoContent);
 			{{/returnType}}

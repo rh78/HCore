@@ -20,7 +20,7 @@ tags:
     description: Secured calls
     
 paths:
-  /users:
+  /users/register:
     post:
       tags:
         - Secure
@@ -40,6 +40,16 @@ paths:
         '400':
           $ref: '#/responses/InvalidArgumentApiException'
   
+  /users/signout:
+    post:
+      tags:
+        - Secure
+      summary: Signs out the currently signed in user, if applicable
+      operationId: signOutUser
+      responses:
+        '200':
+          $ref: '#/responses/UserSignedOut'
+          
 definitions:
   UserSpec:
     type: object
@@ -83,7 +93,10 @@ definitions:
       
 responses:
   UserCreated:
-    description: An user has been successfully created, the response contains the secure cookies. You should refresh the page.
+    description: An user has been successfully created, the response contains the secure cookies. You should refresh the page
+    
+  UserSignedOut:
+    description: The user has been signed out, if a user was signed in. You should refresh the page
       
   InvalidArgumentApiException:
     description: An issue occured when validating the arguments. Check the response for more details about the issue
@@ -108,15 +121,6 @@ responses:
   ExternalServiceApiException:
     description: |
       An external service (e.g. the external content provider service) reported an error. Check the response for more details about the issue
-    
-      Currently this error codes explicitely can and will occur:
-            
-      * `content_provider_access_denied_by_user`
-      * `content_provider_access_denied_external_reason`
-      * `content_provider_authorization_already_processed`
-      * `content_provider_service_not_available`
-      
-      Note: also other error codes can occur if there is some internal error conditions, or if someone messed up the redirect URL
     schema:
       $ref: '#/definitions/ApiException'
   

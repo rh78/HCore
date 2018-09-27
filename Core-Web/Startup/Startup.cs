@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
 using ReinhardHolzner.Core.Web.Providers.Impl;
 using ReinhardHolzner.Core.Web.Providers;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace ReinhardHolzner.Core.Web.Startup
 {
@@ -41,6 +43,7 @@ namespace ReinhardHolzner.Core.Web.Startup
         public void ConfigureServices(IServiceCollection services)
         {            
             ConfigureLocalization(services);
+            ConfigureUrlHelper(services);
             ConfigureDataProtection(services);
             ConfigureWebServer(services);
             ConfigureCors(services);
@@ -57,6 +60,17 @@ namespace ReinhardHolzner.Core.Web.Startup
             services.AddLocalization(options =>
             {
                 options.ResourcesPath = "Resources";
+            });
+        }
+
+        private void ConfigureUrlHelper(IServiceCollection services)
+        {
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+            services.AddScoped(x => {
+                var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+                var factory = x.GetRequiredService<IUrlHelperFactory>();
+                return factory.GetUrlHelper(actionContext);
             });
         }
 

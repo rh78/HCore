@@ -1,0 +1,5 @@
+{
+	"packageName": "ReinhardHolzner.Core.Identity.AuthAPI.Generated",
+	"useSwashbuckle": false,
+	"useDateTimeOffset": true
+}

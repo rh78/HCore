@@ -1,40 +1,31 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LogoutModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<LogoutModel> _logger;
-
-        public LogoutModel(SignInManager<IdentityUser> signInManager, ILogger<LogoutModel> logger)
+        private readonly ISecureApiController _secureApiController;
+        
+        public LogoutModel(
+             ISecureApiController secureApiController)
         {
-            _signInManager = signInManager;
-            _logger = logger;
+            _secureApiController = secureApiController;
         }
 
         public void OnGet()
         {
         }
 
-        public async Task<IActionResult> OnPost(string returnUrl = null)
+        public async Task<IActionResult> OnPost()
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
-            if (returnUrl != null)
-            {
-                return LocalRedirect(returnUrl);
-            }
-            else
-            {
-                return Page();
-            }
+            await _secureApiController.SignOutUserAsync().ConfigureAwait(false);
+
+            return LocalRedirect("~/");            
         }
     }
 }
