@@ -172,7 +172,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                     }
 
                     var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
@@ -309,7 +309,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                     }
 
                     var changePasswordResult = await _userManager.ChangePasswordAsync(user, setUserPasswordSpec.OldPassword, setUserPasswordSpec.NewPassword).ConfigureAwait(false);
@@ -355,7 +355,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                 if (user == null)
                 {
-                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                 }
 
                 return new ApiResult<User>(new User
@@ -393,7 +393,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     if (oldUser == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                     }
 
                     bool changed = false;
@@ -460,7 +460,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                     }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
