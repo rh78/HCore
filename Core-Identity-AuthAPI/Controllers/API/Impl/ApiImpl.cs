@@ -1,18 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using ReinhardHolzner.Core.Identity.AuthAPI.Exceptions;
 using ReinhardHolzner.Core.Web.Exceptions;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 
 namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 {
-    public abstract class ApiImpl : ReinhardHolzner.Core.Web.API.Impl.ApiImpl
+    public abstract class ApiImpl : Web.API.Impl.ApiImpl
     {
-        public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9_.-]+$");
-        public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_-]+$");
-
         public const int MaxUserUuidLength = 50;
         public const int MaxUserNameLength = 50;
         public const int MinPasswordLength = 6;
@@ -81,10 +76,10 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password contains invalid characters");
 
             if (password.Length < MinPasswordLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password is too short");
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooShort, "The password is too short");
 
             if (password.Length > MaxPasswordLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password is too long");
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooLong, "The password is too long");
 
             return password;
         }
@@ -109,7 +104,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code contains invalid characters");
 
             if (code.Length > MaxCodeLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code is too long");
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeTooLong, "The code is too long");
 
             return code;
         }
@@ -123,13 +118,13 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                 var error = enumerator.Current;
 
                 if (Equals(error.Code, "DuplicateUserName"))
-                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.DuplicateUserName, "This user name already exists");
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.DuplicateUserName, "This user name already exists");
                 else if (Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
-                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
                 else if (Equals(error.Code, "InvalidToken"))
-                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
                 else if (Equals(error.Code, "PasswordMismatch"))
-                    throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The password does not match our records");
+                    throw new UnauthorizedApiException(UnauthorizedApiException.PasswordDoesNotMatch, "The password does not match our records");
 
                 _logger.LogWarning($"Identity error was not covered: {error.Code}");
             } else

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
 using ReinhardHolzner.Core.Templating.Emails.ViewModels;
@@ -16,19 +17,19 @@ namespace ReinhardHolzner.Core.Templating.Emails.Impl
             _templateRenderer = templateRenderer;
         }
 
-        public abstract string GetConfirmAccountEmailView();
-        public abstract string GetConfirmAccountEmailSubject();
+        public abstract string GetConfirmAccountEmailView(CultureInfo cultureInfo);
+        public abstract string GetConfirmAccountEmailSubject(CultureInfo cultureInfo);
 
-        public abstract string GetForgotPasswordEmailView();
-        public abstract string GetForgotPasswordEmailSubject();
+        public abstract string GetForgotPasswordEmailView(CultureInfo cultureInfo);
+        public abstract string GetForgotPasswordEmailSubject(CultureInfo cultureInfo);
 
-        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel)
+        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, CultureInfo cultureInfo)
         {
-            string view = GetConfirmAccountEmailView();
+            string view = GetConfirmAccountEmailView(cultureInfo);
             if (string.IsNullOrEmpty(view))
                 throw new Exception("Confirm account email view model path is empty");
 
-            string subject = GetConfirmAccountEmailSubject();
+            string subject = GetConfirmAccountEmailSubject(cultureInfo);
             if (string.IsNullOrEmpty(subject))
                 throw new Exception("Confirm account email subject is empty");
 
@@ -37,13 +38,13 @@ namespace ReinhardHolzner.Core.Templating.Emails.Impl
             return new EmailTemplate(subject, body);
         }
 
-        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel)
+        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, CultureInfo cultureInfo)
         {
-            string view = GetForgotPasswordEmailView();
+            string view = GetForgotPasswordEmailView(cultureInfo);
             if (string.IsNullOrEmpty(view))
                 throw new Exception("Forgot password email view model path is empty");
 
-            string subject = GetForgotPasswordEmailSubject();
+            string subject = GetForgotPasswordEmailSubject(cultureInfo);
             if (string.IsNullOrEmpty(subject))
                 throw new Exception("Forgot password email subject is empty");
 

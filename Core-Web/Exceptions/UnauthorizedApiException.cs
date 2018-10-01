@@ -9,6 +9,7 @@ namespace ReinhardHolzner.Core.Web.Exceptions
         public const string AccessTokenExpired = "access_token_expired";
         public const string AccountLockedOut = "account_locked_out";
         public const string InvalidCredentials = "invalid_credentials";
+        public const string PasswordDoesNotMatch = "password_does_not_match";
 
         public UnauthorizedApiException(string errorCode, string message) : 
             base(message)

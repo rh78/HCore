@@ -65,14 +65,16 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
+                        var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+
                         var callbackUrl = _urlHelper.Page(
                             "/Account/ConfirmEmail",
                             pageHandler: null,
-                            values: new { userUuid = user.Id, code },
+                            values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
                             protocol: "https");
 
                         EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                            new ConfirmAccountEmailViewModel(callbackUrl)).ConfigureAwait(false);
+                            new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
                         await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
@@ -150,7 +152,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error when signin in user: {e}");
+                _logger.LogError($"Error when signing in user: {e}");
 
                 throw new InternalServerErrorApiException();
             }
@@ -170,7 +172,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"The user with UUID {userUuid} was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
                     }
 
                     var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
@@ -217,14 +219,16 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
 
+                    var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+
                     var callbackUrl = _urlHelper.Page(
                         "/Account/ResetPassword",
                         pageHandler: null,
-                        values: new { code },
+                        values: new { code, culture = currentCultureInfo.ToString() },
                         protocol: "https");
 
                     EmailTemplate emailTemplate = await _emailTemplateProvider.GetForgotPasswordEmailAsync(
-                            new ForgotPasswordEmailViewModel(callbackUrl)).ConfigureAwait(false);
+                            new ForgotPasswordEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(userForgotPasswordSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
@@ -461,14 +465,16 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
+                    var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+
                     var callbackUrl = _urlHelper.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { userUuid = user.Id, code },
+                        values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
                         protocol: "https");
 
                     EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                        new ConfirmAccountEmailViewModel(callbackUrl)).ConfigureAwait(false);
+                        new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(user.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
