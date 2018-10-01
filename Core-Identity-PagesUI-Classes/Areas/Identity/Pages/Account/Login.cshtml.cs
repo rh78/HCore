@@ -8,98 +8,49 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
+using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
+using ReinhardHolzner.Core.Web.Exceptions;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly ISecureApiController _secureApiController;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(
+            ISecureApiController secureApiController)
         {
-            _signInManager = signInManager;
-            _logger = logger;
+            _secureApiController = secureApiController;
         }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public UserSignInSpec Input { get; set; }
 
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
-
-        public string ReturnUrl { get; set; }
-
-        [TempData]
-        public string ErrorMessage { get; set; }
-
-        public class InputModel
+        public async Task OnGetAsync()
         {
-            [Required]
-            [EmailAddress]
-            [Display(Name = "E-Mail")]
-            public string Email { get; set; }
-
-            [Required]
-            [DataType(DataType.Password)]
-            [Display(Name = "Passwort")]
-            public string Password { get; set; }
-
-            [Display(Name = "Anmeldung merken")]
-            public bool RememberMe { get; set; }
-        }
-
-        public async Task OnGetAsync(string returnUrl = null)
-        {
-            if (!string.IsNullOrEmpty(ErrorMessage))
-            {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
-            }
-
-            returnUrl = returnUrl ?? Url.Content("~/");
-
             // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            ReturnUrl = returnUrl;
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme).ConfigureAwait(false);
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync()
         {
-            returnUrl = returnUrl ?? Url.Content("~/");
+            ModelState.Clear();
 
-            if (ModelState.IsValid)
+            try
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in");
+                await _secureApiController.SignInUserAsync(Input).ConfigureAwait(false);
 
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out");
-
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Ihre Anmeldedaten sind leider nicht korrekt. Bitte versuchen Sie es noch einmal!");
-                    return Page();
-                }
+                return LocalRedirect("~/");
+            }
+            catch (ApiException e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
             }
 
-            // If we got this far, something failed, redisplay form
-            return Page();
+            return Page();            
         }
     }
 }

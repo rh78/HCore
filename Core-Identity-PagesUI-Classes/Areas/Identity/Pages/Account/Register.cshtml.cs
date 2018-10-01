@@ -33,7 +33,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Areas.Identity.Pages.Acc
 
             try
             {
-                await _secureApiController.RegisterUserAsync(Input).ConfigureAwait(false);
+                await _secureApiController.CreateUserAsync(Input).ConfigureAwait(false);
 
                 return LocalRedirect("~/");
             } catch (ApiException e)
