@@ -4,11 +4,21 @@ using ReinhardHolzner.Core.Identity.AuthAPI.Exceptions;
 using ReinhardHolzner.Core.Web.Exceptions;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 {
-    public abstract class ApiImpl
+    public abstract class ApiImpl : ReinhardHolzner.Core.Web.API.Impl.ApiImpl
     {
+        public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9_.-]+$");
+        public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_-]+$");
+
+        public const int MaxUserUuidLength = 50;
+        public const int MaxUserNameLength = 50;
+        public const int MinPasswordLength = 6;
+        public const int MaxPasswordLength = 50;
+        public const int MaxCodeLength = 50;
+
         private ILogger _logger;
 
         public ApiImpl(ILoggerFactory loggerFactory)
@@ -16,23 +26,92 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             _logger = loggerFactory.CreateLogger<ApiImpl>();
         }
 
-        protected void ValidateModel(object model)
+        public static string ProcessUserUuid(string userUuid)
         {
-            var context = new ValidationContext(model, serviceProvider: null, items: null);
-            var validationResults = new List<ValidationResult>();
+            if (string.IsNullOrEmpty(userUuid))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidMissing, "The user UUID is missing");
 
-            bool isValid = Validator.TryValidateObject(model, context, validationResults, true);
+            if (!Uuid.IsMatch(userUuid))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
 
-            if (!isValid)
+            if (userUuid.Length > MaxUserUuidLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+
+            return userUuid;
+        }
+
+        public static string ProcessEmail(string email, bool required)
+        {
+            if (string.IsNullOrEmpty(email))
             {
-                var validationResult = validationResults[0];
+                if (required)
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
 
-                string reason = "The validation of the user data failed";
-                if (validationResults.Count > 0 && !string.IsNullOrEmpty(validationResults[0].ErrorMessage))
-                    reason = validationResults[0].ErrorMessage;
-
-                throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.ValidationFailed, reason);
+                return null;
             }
+
+            if (!new EmailAddressAttribute().IsValid(email))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is invalid");
+
+            return email;
+        }
+
+        public static string ProcessPhoneNumber(string phoneNumber, bool required)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+            {
+                if (required)
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberMissing, "The phone number is missing");
+
+                return null;
+            }
+
+            if (!new PhoneAttribute().IsValid(phoneNumber))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberInvalid, "The phone number is invalid");
+
+            return phoneNumber;
+        }
+
+        public static string ProcessPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordMissing, "The password is missing");
+
+            if (!SafeString.IsMatch(password))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password contains invalid characters");
+
+            if (password.Length < MinPasswordLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password is too short");
+
+            if (password.Length > MaxPasswordLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password is too long");
+
+            return password;
+        }
+
+        public static string ProcessPasswordConfirmation(string password, string passwordConfirmation)
+        {
+            if (string.IsNullOrEmpty(passwordConfirmation))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationMissing, "The password confirmation is missing");
+
+            if (!Equals(password, passwordConfirmation))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationNoMatch, "The password confirmation is not matching the password");
+
+            return password;
+        }
+
+        public static string ProcessCode(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeMissing, "The code is missing");
+
+            if (!SafeString.IsMatch(code))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code contains invalid characters");
+
+            if (code.Length > MaxCodeLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code is too long");
+
+            return code;
         }
 
         protected void HandleIdentityError(IEnumerable<IdentityError> errors)
@@ -44,17 +123,21 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                 var error = enumerator.Current;
 
                 if (Equals(error.Code, "DuplicateUserName"))
-                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.DuplicateUserName, error.Description);
+                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.DuplicateUserName, "This user name already exists");
                 else if (Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
-                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.PasswordRequiresNonAlphanumeric, error.Description);
+                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
+                else if (Equals(error.Code, "InvalidToken"))
+                    throw new AuthAPIInvalidArgumentApiException(AuthAPIInvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
+                else if (Equals(error.Code, "PasswordMismatch"))
+                    throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The password does not match our records");
 
-                _logger.LogWarning($"Identity error was not covered: {error}");
+                _logger.LogWarning($"Identity error was not covered: {error.Code}");
             } else
             {
                 _logger.LogWarning("Unknown identity error occured");
             }
 
             throw new InternalServerErrorApiException();            
-        }
+        }        
     }
 }

@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Core-Web\Core-Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Generated\Models\" />
+  </ItemGroup>
+
 </Project>

@@ -20,11 +20,11 @@ using Newtonsoft.Json;
 namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
 { 
     /// <summary>
-    /// The information required to register the new user
+    /// Information about an user
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class UserSpec : IEquatable<UserSpec>
+	public partial class User : IEquatable<User>
     { 
 		private string _Email;
 		
@@ -32,35 +32,43 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required]
         [DataMember(Name="email")]
 		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
 		public bool EmailSet = false;		
 
-		private string _Password;
+		private bool? _EmailConfirmed;
 		
 		/// <summary>
-        /// The password of the user
+        /// Indicates if the email address of the user has already been confirmed
         /// </summary>
-        /// <value>The password of the user</value>
-        [Required]
-        [DataMember(Name="password")]
-		public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
+        /// <value>Indicates if the email address of the user has already been confirmed</value>
+        [DataMember(Name="email_confirmed")]
+		public bool? EmailConfirmed { get => _EmailConfirmed; set { _EmailConfirmed = value; EmailConfirmedSet = true; } }
 		
-		public bool PasswordSet = false;		
+		public bool EmailConfirmedSet = false;		
 
-		private string _PasswordConfirmation;
+		private string _PhoneNumber;
 		
 		/// <summary>
-        /// The password confirmation
+        /// The phone number of the user
         /// </summary>
-        /// <value>The password confirmation</value>
-        [Required]
-        [DataMember(Name="password_confirmation")]
-		public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
+        /// <value>The phone number of the user</value>
+        [DataMember(Name="phone_number")]
+		public string PhoneNumber { get => _PhoneNumber; set { _PhoneNumber = value; PhoneNumberSet = true; } }
 		
-		public bool PasswordConfirmationSet = false;		
+		public bool PhoneNumberSet = false;		
+
+		private bool? _PhoneNumberConfirmed;
+		
+		/// <summary>
+        /// Indicates if the phone number of the user has already been confirmed
+        /// </summary>
+        /// <value>Indicates if the phone number of the user has already been confirmed</value>
+        [DataMember(Name="phone_number_confirmed")]
+		public bool? PhoneNumberConfirmed { get => _PhoneNumberConfirmed; set { _PhoneNumberConfirmed = value; PhoneNumberConfirmedSet = true; } }
+		
+		public bool PhoneNumberConfirmedSet = false;		
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -69,10 +77,11 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class UserSpec {\n");
+            sb.Append("class User {\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
-            sb.Append("  Password: ").Append(Password).Append("\n");
-            sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
+            sb.Append("  EmailConfirmed: ").Append(EmailConfirmed).Append("\n");
+            sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
+            sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -95,15 +104,15 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((UserSpec)obj);
+            return obj.GetType() == GetType() && Equals((User)obj);
         }
 
         /// <summary>
-        /// Returns true if UserSpec instances are equal
+        /// Returns true if User instances are equal
         /// </summary>
-        /// <param name="other">Instance of UserSpec to be compared</param>
+        /// <param name="other">Instance of User to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(UserSpec other)
+        public bool Equals(User other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -115,14 +124,19 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
                     Email.Equals(other.Email)
                 ) && 
                 (
-                    Password == other.Password ||
-                    Password != null &&
-                    Password.Equals(other.Password)
+                    EmailConfirmed == other.EmailConfirmed ||
+                    EmailConfirmed != null &&
+                    EmailConfirmed.Equals(other.EmailConfirmed)
                 ) && 
                 (
-                    PasswordConfirmation == other.PasswordConfirmation ||
-                    PasswordConfirmation != null &&
-                    PasswordConfirmation.Equals(other.PasswordConfirmation)
+                    PhoneNumber == other.PhoneNumber ||
+                    PhoneNumber != null &&
+                    PhoneNumber.Equals(other.PhoneNumber)
+                ) && 
+                (
+                    PhoneNumberConfirmed == other.PhoneNumberConfirmed ||
+                    PhoneNumberConfirmed != null &&
+                    PhoneNumberConfirmed.Equals(other.PhoneNumberConfirmed)
                 );
         }
 
@@ -138,10 +152,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
                 // Suitable nullity checks etc, of course :)
                     if (Email != null)
                     hashCode = hashCode * 59 + Email.GetHashCode();
-                    if (Password != null)
-                    hashCode = hashCode * 59 + Password.GetHashCode();
-                    if (PasswordConfirmation != null)
-                    hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
+                    if (EmailConfirmed != null)
+                    hashCode = hashCode * 59 + EmailConfirmed.GetHashCode();
+                    if (PhoneNumber != null)
+                    hashCode = hashCode * 59 + PhoneNumber.GetHashCode();
+                    if (PhoneNumberConfirmed != null)
+                    hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
                 return hashCode;
             }
         }
@@ -149,12 +165,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(UserSpec left, UserSpec right)
+        public static bool operator ==(User left, User right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(UserSpec left, UserSpec right)
+        public static bool operator !=(User left, User right)
         {
             return !Equals(left, right);
         }

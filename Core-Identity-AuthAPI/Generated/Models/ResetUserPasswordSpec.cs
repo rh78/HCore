@@ -20,11 +20,11 @@ using Newtonsoft.Json;
 namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
 { 
     /// <summary>
-    /// The information required to register the new user
+    /// The information required to reset the password for the user
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class UserSpec : IEquatable<UserSpec>
+	public partial class ResetUserPasswordSpec : IEquatable<ResetUserPasswordSpec>
     { 
 		private string _Email;
 		
@@ -56,11 +56,22 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
-        [Required]
         [DataMember(Name="password_confirmation")]
 		public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
 		
 		public bool PasswordConfirmationSet = false;		
+
+		private string _Code;
+		
+		/// <summary>
+        /// The password reset code sent by e-mail to the user
+        /// </summary>
+        /// <value>The password reset code sent by e-mail to the user</value>
+        [Required]
+        [DataMember(Name="code")]
+		public string Code { get => _Code; set { _Code = value; CodeSet = true; } }
+		
+		public bool CodeSet = false;		
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -69,10 +80,11 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class UserSpec {\n");
+            sb.Append("class ResetUserPasswordSpec {\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
+            sb.Append("  Code: ").Append(Code).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -95,15 +107,15 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((UserSpec)obj);
+            return obj.GetType() == GetType() && Equals((ResetUserPasswordSpec)obj);
         }
 
         /// <summary>
-        /// Returns true if UserSpec instances are equal
+        /// Returns true if ResetUserPasswordSpec instances are equal
         /// </summary>
-        /// <param name="other">Instance of UserSpec to be compared</param>
+        /// <param name="other">Instance of ResetUserPasswordSpec to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(UserSpec other)
+        public bool Equals(ResetUserPasswordSpec other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -123,6 +135,11 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
                     PasswordConfirmation == other.PasswordConfirmation ||
                     PasswordConfirmation != null &&
                     PasswordConfirmation.Equals(other.PasswordConfirmation)
+                ) && 
+                (
+                    Code == other.Code ||
+                    Code != null &&
+                    Code.Equals(other.Code)
                 );
         }
 
@@ -142,6 +159,8 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
                     hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)
                     hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
+                    if (Code != null)
+                    hashCode = hashCode * 59 + Code.GetHashCode();
                 return hashCode;
             }
         }
@@ -149,12 +168,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(UserSpec left, UserSpec right)
+        public static bool operator ==(ResetUserPasswordSpec left, ResetUserPasswordSpec right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(UserSpec left, UserSpec right)
+        public static bool operator !=(ResetUserPasswordSpec left, ResetUserPasswordSpec right)
         {
             return !Equals(left, right);
         }

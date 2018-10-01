@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +12,7 @@ using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
 using ReinhardHolzner.Core.Templating.Emails;
 using ReinhardHolzner.Core.Templating.Emails.ViewModels;
 using ReinhardHolzner.Core.Web.Exceptions;
+using ReinhardHolzner.Core.Web.Result;
 
 namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 {
@@ -22,7 +24,6 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
         private readonly IEmailSender _emailSender;
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
-
         private readonly IdentityDbContext _identityDbContext;
 
         public SecureApiImpl(
@@ -45,14 +46,17 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             _identityDbContext = identityDbContext;
         }
 
-        public async Task RegisterUserAsync([FromBody] UserSpec userSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiResult<User>> CreateUserAsync([FromBody]UserSpec userSpec, CancellationToken cancellationToken = default(CancellationToken))
         {
-            ValidateModel(userSpec);
+            userSpec.Email = ProcessEmail(userSpec.Email, true);
+            userSpec.Password = ProcessPassword(userSpec.Password);
 
-            try {
+            try
+            {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
                     var user = new IdentityUser { UserName = userSpec.Email, Email = userSpec.Email };
+
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 
                     if (result.Succeeded)
@@ -64,7 +68,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                         var callbackUrl = _urlHelper.Page(
                             "/Account/ConfirmEmail",
                             pageHandler: null,
-                            values: new { userId = user.Id, code },
+                            values: new { userUuid = user.Id, code },
                             protocol: "https");
 
                         EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
@@ -77,13 +81,25 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                         transaction.Commit();
 
                         await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+
+                        return new ApiResult<User>(new User()
+                        {
+                            Email = user.Email,
+                            EmailConfirmed = user.EmailConfirmed,
+                            PhoneNumber = user.PhoneNumber,
+                            PhoneNumberConfirmed = user.PhoneNumberConfirmed
+                        });
                     }
                     else
                     {
                         HandleIdentityError(result.Errors);
+                        
+                        // to satisfy the compiler
+                        throw new InternalServerErrorApiException();
                     }
-                }            
-            } catch (ApiException e)
+                }
+            }
+            catch (ApiException e)
             {
                 throw e;
             }
@@ -92,7 +108,230 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
                 _logger.LogError($"Error when registering user: {e}");
 
                 throw new InternalServerErrorApiException();
-            }            
+            }
+        }
+
+        public async Task SignInUserAsync([FromBody] UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userSignInSpec.Email = ProcessEmail(userSignInSpec.Email, true);
+            userSignInSpec.Password = ProcessPassword(userSignInSpec.Password);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    bool remember = userSignInSpec.RememberSet && userSignInSpec.Remember;
+
+                    var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, remember, lockoutOnFailure: true).ConfigureAwait(false);
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User signed in");
+                    }
+                    else if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account is locked out");
+
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountLockedOut, "The user account is locked out");
+                    }
+                    else
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
+                    }
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when signin in user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task ConfirmUserEmailAddressAsync([FromRoute][Required]string userUuid, [FromBody]UserConfirmEmailSpec userConfirmEmailSpec, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            userConfirmEmailSpec.Code = ProcessCode(userConfirmEmailSpec.Code);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"The user with UUID {userUuid} was not found");
+                    }
+
+                    var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
+
+                    if (result.Succeeded)
+                    {
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        HandleIdentityError(result.Errors);
+                    }
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when confirming user email address: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task UserForgotPasswordAsync([FromBody] UserForgotPasswordSpec userForgotPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email, true);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByEmailAsync(userForgotPasswordSpec.Email).ConfigureAwait(false);
+
+                    if (user == null || !await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
+                    {
+                        // Don't reveal that the user does not exist or is not confirmed
+                        return;
+                    }
+
+                    var code = await _userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
+
+                    var callbackUrl = _urlHelper.Page(
+                        "/Account/ResetPassword",
+                        pageHandler: null,
+                        values: new { code },
+                        protocol: "https");
+
+                    EmailTemplate emailTemplate = await _emailTemplateProvider.GetForgotPasswordEmailAsync(
+                            new ForgotPasswordEmailViewModel(callbackUrl)).ConfigureAwait(false);
+
+                    await _emailSender.SendEmailAsync(userForgotPasswordSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when initiating user 'forgot password' flow: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task ResetUserPasswordAsync([FromBody] ResetUserPasswordSpec resetUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            resetUserPasswordSpec.Email = ProcessEmail(resetUserPasswordSpec.Email, true);
+            resetUserPasswordSpec.Password = ProcessPassword(resetUserPasswordSpec.Password);
+            resetUserPasswordSpec.PasswordConfirmation = ProcessPasswordConfirmation(resetUserPasswordSpec.Password, resetUserPasswordSpec.PasswordConfirmation);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByEmailAsync(resetUserPasswordSpec.Email).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        // Don't reveal that the user does not exist
+                        return;
+                    }
+
+                    var result = await _userManager.ResetPasswordAsync(user, resetUserPasswordSpec.Code, resetUserPasswordSpec.Password).ConfigureAwait(false);
+
+                    if (result.Succeeded)
+                    {
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        HandleIdentityError(result.Errors);
+                    }
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when resetting user password: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task SetUserPasswordAsync([FromRoute, Required] string userUuid, [FromBody] SetUserPasswordSpec setUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            setUserPasswordSpec.OldPassword = ProcessPassword(setUserPasswordSpec.OldPassword);
+            setUserPasswordSpec.NewPassword = ProcessPassword(setUserPasswordSpec.NewPassword);
+            setUserPasswordSpec.NewPasswordConfirmation = ProcessPasswordConfirmation(setUserPasswordSpec.NewPassword, setUserPasswordSpec.NewPasswordConfirmation);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                    }
+
+                    var changePasswordResult = await _userManager.ChangePasswordAsync(user, setUserPasswordSpec.OldPassword, setUserPasswordSpec.NewPassword).ConfigureAwait(false);
+
+                    if (!changePasswordResult.Succeeded)
+                    {
+                        HandleIdentityError(changePasswordResult.Errors);
+                    }
+
+                    await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when setting password: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
         }
 
         public async Task SignOutUserAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -100,6 +339,154 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             await _signInManager.SignOutAsync().ConfigureAwait(false);
 
             _logger.LogInformation("User logged out");
+        }
+
+        public async Task<ApiResult<User>> GetUserAsync([FromRoute, Required] string userUuid, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                if (user == null)
+                {
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                }
+
+                return new ApiResult<User>(new User
+                {
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed
+                });
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when getting user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task<ApiResult<User>> UpdateUserAsync([FromRoute, Required] string userUuid, [FromBody] User user, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            user.Email = ProcessEmail(user.Email, false);
+            user.PhoneNumber = ProcessPhoneNumber(user.PhoneNumber, false);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var oldUser = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    if (oldUser == null)
+                    {
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                    }
+
+                    bool changed = false;
+
+                    if (user.PhoneNumberSet)
+                    {
+                        if (!string.Equals(oldUser.PhoneNumber, user.PhoneNumber))
+                        {
+                            var setPhoneNumberResult = await _userManager.SetPhoneNumberAsync(oldUser, user.PhoneNumber).ConfigureAwait(false);
+
+                            if (!setPhoneNumberResult.Succeeded)
+                            {
+                                HandleIdentityError(setPhoneNumberResult.Errors);
+                            }
+
+                            changed = true;
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        await _signInManager.RefreshSignInAsync(oldUser).ConfigureAwait(false);
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+                    }
+                }
+
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var newUser = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    return new ApiResult<User>(new User
+                    {
+                        Email = newUser.Email,
+                        EmailConfirmed = newUser.EmailConfirmed,
+                        PhoneNumber = newUser.PhoneNumber,
+                        PhoneNumberConfirmed = newUser.PhoneNumberConfirmed
+                    });
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when updating user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task ResendUserEmailConfirmationEmailAsync([FromRoute, Required] string userUuid, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, "The user was not found");
+                    }
+
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
+
+                    var callbackUrl = _urlHelper.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new { userUuid = user.Id, code },
+                        protocol: "https");
+
+                    EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
+                        new ConfirmAccountEmailViewModel(callbackUrl)).ConfigureAwait(false);
+
+                    await _emailSender.SendEmailAsync(user.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when resetting user password: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
         }
     }
 }
