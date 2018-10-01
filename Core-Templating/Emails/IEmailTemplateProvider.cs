@@ -6,5 +6,6 @@ namespace ReinhardHolzner.Core.Templating.Emails
     public interface IEmailTemplateProvider
     {
         Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel);
+        Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel);
     }
 }

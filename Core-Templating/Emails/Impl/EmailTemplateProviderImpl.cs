@@ -18,7 +18,10 @@ namespace ReinhardHolzner.Core.Templating.Emails.Impl
 
         public abstract string GetConfirmAccountEmailView();
         public abstract string GetConfirmAccountEmailSubject();
-        
+
+        public abstract string GetForgotPasswordEmailView();
+        public abstract string GetForgotPasswordEmailSubject();
+
         public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel)
         {
             string view = GetConfirmAccountEmailView();
@@ -30,6 +33,21 @@ namespace ReinhardHolzner.Core.Templating.Emails.Impl
                 throw new Exception("Confirm account email subject is empty");
 
             string body = await _templateRenderer.RenderViewAsync(view, confirmAccountEmailViewModel).ConfigureAwait(false);
+
+            return new EmailTemplate(subject, body);
+        }
+
+        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel)
+        {
+            string view = GetForgotPasswordEmailView();
+            if (string.IsNullOrEmpty(view))
+                throw new Exception("Forgot password email view model path is empty");
+
+            string subject = GetForgotPasswordEmailSubject();
+            if (string.IsNullOrEmpty(subject))
+                throw new Exception("Forgot password email subject is empty");
+
+            string body = await _templateRenderer.RenderViewAsync(view, forgotPasswordEmailViewModel).ConfigureAwait(false);
 
             return new EmailTemplate(subject, body);
         }
