@@ -2,13 +2,15 @@
 
 namespace ReinhardHolzner.Core.Web.Exceptions
 {
-    public class AuthorizationFailedApiException : ApiException
+    public class UnauthorizedApiException : ApiException
     {
         private readonly string _errorCode;
 
         public const string AccessTokenExpired = "access_token_expired";
+        public const string AccountLockedOut = "account_locked_out";
+        public const string InvalidCredentials = "invalid_credentials";
 
-        public AuthorizationFailedApiException(string errorCode, string message) : 
+        public UnauthorizedApiException(string errorCode, string message) : 
             base(message)
         {
             _errorCode = errorCode;            

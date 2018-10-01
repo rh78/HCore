@@ -22,9 +22,11 @@ namespace ReinhardHolzner.Core.Web.Exceptions
         public const string RedirectUrlNotRequired = "redirect_url_not_required";
         public const string RedirectUrlMissing = "redirect_url_missing";
         public const string RedirectUrlInvalid = "redirect_url_invalid";
+        public const string UuidMissing = "uuid_missing";
         public const string UuidInvalid = "uuid_invalid";
         public const string StateInvalid = "state_invalid";
-        public const string CodeInvalid = "code_invalid";
+        public const string CodeMissing = "code_missing";
+        public const string CodeInvalid = "code_invalid";        
         public const string IssuerMissing = "issuer_missing";
         public const string IssuerInvalid = "issuer_invalid";
         public const string SubjectMissing = "subject_missing";
@@ -36,11 +38,20 @@ namespace ReinhardHolzner.Core.Web.Exceptions
         public const string UserNameInvalid = "user_name_invalid";
         public const string PasswordMissing = "password_missing";
         public const string PasswordInvalid = "password_invalid";
+        public const string PasswordConfirmationMissing = "password_confirmation_missing";
+        public const string PasswordConfirmationNoMatch = "password_confirmation_no_match";
+        public const string NameMissing= "name_missing";
         public const string NameInvalid = "name_invalid";
         public const string TooManyUpdateRecords = "too_many_update_records";
         public const string NoRecordsSpecified = "no_records_specified";
+        public const string UserGroupUuidMissing = "user_group_uuid_missing";
         public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
+        public const string UserUuidMissing = "user_uuid_missing";
         public const string UserUuidInvalid = "user_uuid_invalid";
+        public const string EmailMissing = "email_missing";
+        public const string EmailInvalid = "email_invalid";
+        public const string PhoneNumberMissing = "phone_number_missing";
+        public const string PhoneNumberInvalid = "phone_number_invalid";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
