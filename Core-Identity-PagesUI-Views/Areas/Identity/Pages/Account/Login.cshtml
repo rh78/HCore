@@ -25,9 +25,9 @@
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
-                        <label asp-for="Input.RememberMe">
-                            <input asp-for="Input.RememberMe" />
-                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        <label asp-for="Input.Remember">
+                            <input asp-for="Input.Remember" />
+                            @Html.DisplayNameFor(m => m.Input.Remember)
                         </label>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                         <a asp-page="./ForgotPassword">Passwort vergessen?</a>
                     </p>
                     <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Als neuer Benutzer registrieren</a>
+                        <a asp-page="./Register">Als neuer Benutzer registrieren</a>
                     </p>
                 </div>
             </form>

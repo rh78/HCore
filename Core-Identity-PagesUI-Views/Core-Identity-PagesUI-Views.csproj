@@ -8,15 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Areas\Identity\Pages\Account\AccessDenied.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Include="Areas\Identity\Pages\Account\ConfirmEmail.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\ExternalLogin.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -28,19 +20,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Lockout.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Include="Areas\Identity\Pages\Account\Login.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\LoginWith2fa.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\LoginWithRecoveryCode.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -52,47 +32,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\DeletePersonalData.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\Disable2fa.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\DownloadPersonalData.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\EnableAuthenticator.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\ExternalLogins.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\GenerateRecoveryCodes.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Include="Areas\Identity\Pages\Account\Manage\Index.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\PersonalData.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\ResetAuthenticator.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\SetPassword.cshtml">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\TwoFactorAuthentication.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
