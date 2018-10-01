@@ -20,23 +20,208 @@ tags:
     description: Secured calls
     
 paths:
-  /users/register:
+  /users:
     post:
       tags:
         - Secure
-      summary: Registers a new user
-      operationId: registerUser
+      summary: Creates a new user
+      operationId: createUser
       consumes:
         - application/json
       parameters:
         - in: body
-          name: user_spec
+          name: createUserSpec
           required: true
           schema:
             $ref: '#/definitions/UserSpec'
       responses:
         '201':
-          $ref: '#/responses/UserCreated'
+          $ref: '#/responses/UserRegistered'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+         
+  /users/{userUuid}:
+    parameters:
+      - in: path 
+        name: userUuid
+        description: The UUID of the user
+        required: true
+        type: string
+      
+    get:
+      tags:
+        - Secure
+      summary: Gets an user
+      operationId: getUser
+      responses:
+        '200':
+          $ref: '#/responses/User'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '403':
+          $ref: '#/responses/ForbiddenApiException'
+        '404':
+          $ref: '#/responses/NotFoundApiException'
+          
+    put:
+      tags:
+        - Secure
+      summary: Updates a user
+      operationId: updateUser
+      parameters:
+        - in: body
+          name: updatedUser
+          required: true
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          $ref: '#/responses/User'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '403':
+          $ref: '#/responses/ForbiddenApiException'
+        '404':
+          $ref: '#/responses/NotFoundApiException'
+  
+  /users/{userUuid}/confirmEmail:
+    parameters:
+      - in: path 
+        name: userUuid
+        description: The UUID of the user
+        required: true
+        type: string
+        
+    post:
+      tags:
+        - Secure
+      summary: Confirms the email address of an user
+      operationId: confirmUserEmailAddress
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: userConfirmEmailSpec
+          required: true
+          schema:
+            $ref: '#/definitions/UserConfirmEmailSpec'
+      responses:
+        '200':
+          $ref: '#/responses/UserEmailAddressConfirmed'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '401':
+          $ref: '#/responses/UnauthorizedApiException'
+          
+  /users/{userUuid}/resendEmailConfirmationEmail:
+    parameters:
+      - in: path 
+        name: userUuid
+        description: The UUID of the user
+        required: true
+        type: string
+        
+    post:
+      tags:
+        - Secure
+      summary: Resends the email confirmation email for an user
+      operationId: resendUserEmailConfirmationEmail
+      responses:
+        '200':
+          $ref: '#/responses/UserEmailConfirmationEmailResent'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '401':
+          $ref: '#/responses/UnauthorizedApiException'
+          
+  /users/{userUuid}/setPassword:
+    parameters:
+      - in: path 
+        name: userUuid
+        description: The UUID of the user
+        required: true
+        type: string
+        
+    post:
+      tags:
+        - Secure
+      summary: Resets the password for an user
+      operationId: setUserPassword
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: userSetPasswordSpec
+          required: true
+          schema:
+            $ref: '#/definitions/SetUserPasswordSpec'
+      responses:
+        '200':
+          $ref: '#/responses/UserPasswordSet'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '401':
+          $ref: '#/responses/UnauthorizedApiException'
+          
+  /users/signin:
+    post:
+      tags:
+        - Secure
+      summary: Signs in an user
+      operationId: signInUser
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: userSigninSpec
+          required: true
+          schema:
+            $ref: '#/definitions/UserSignInSpec'
+      responses:
+        '200':
+          $ref: '#/responses/UserSignedIn'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+        '401':
+          $ref: '#/responses/UnauthorizedApiException'
+    
+  /users/forgotPassword:
+    post:
+      tags:
+        - Secure
+      summary: Initiates the "forgot password" flow for an user
+      operationId: userForgotPassword
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: userForgotPasswordSpec
+          required: true
+          schema:
+            $ref: '#/definitions/UserForgotPasswordSpec'
+      responses:
+        '200':
+          $ref: '#/responses/UserForgotPasswordFlowInitiated'
+        '400':
+          $ref: '#/responses/InvalidArgumentApiException'
+  
+  /users/resetPassword:
+    post:
+      tags:
+        - Secure
+      summary: Resets the password for an user
+      operationId: resetUserPassword
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: userResetPasswordSpec
+          required: true
+          schema:
+            $ref: '#/definitions/ResetUserPasswordSpec'
+      responses:
+        '200':
+          $ref: '#/responses/UserPasswordReset'
         '400':
           $ref: '#/responses/InvalidArgumentApiException'
   
@@ -51,28 +236,138 @@ paths:
           $ref: '#/responses/UserSignedOut'
           
 definitions:
+  UserUuid:
+    type: string
+    description: The UUID of the user
+    example: 154e3441-cbb4-46ae-aeab-88301d66b5a0
+    
+  Email:
+    type: string
+    description: The email address of the user
+    example: user@domain.com
+    
+  EmailReadOnly:
+    type: string
+    description: The email address of the user
+    example: user@domain.com
+    readOnly: true
+  
+  PhoneNumber:
+    type: string
+    description: The phone number of the user
+    example: +43598620202
+    
+  Password:
+    type: string
+    description: The password of the user
+    minLength: 6
+  
+  PasswordConfirmation:
+    type: string
+    description: The password confirmation
+    minLength: 6
+    
+  User:
+    type: object
+    description: Information about an user
+    properties:
+      email:
+        $ref: '#/definitions/EmailReadOnly'
+      email_confirmed:
+        type: boolean
+        description: Indicates if the email address of the user has already been confirmed
+        readOnly: true
+      phone_number:
+        $ref: '#/definitions/PhoneNumber'
+      phone_number_confirmed:
+        type: boolean
+        description: Indicates if the phone number of the user has already been confirmed
+        readOnly: true
+  
   UserSpec:
     type: object
     description: The information required to register the new user
     properties:
       email:
-        type: string
-        description: The e-mail address of the user
-        minLength: 1
-        example: user@domain.com
+        $ref: '#/definitions/Email'
       password:
+        $ref: '#/definitions/Password'
+      password_confirmation:
+        $ref: '#/definitions/PasswordConfirmation'
+    required:
+    - email
+    - password
+    - password_confirmation
+  
+  UserSignInSpec:
+    type: object
+    description: The information required to sign in the user
+    properties:
+      email:
+        $ref: '#/definitions/Email'
+      password:
+        $ref: '#/definitions/Password'
+      remember:
+        type: boolean
+        description: Flag to indicate if the user sign in should be remembered or not
+    required:
+    - email
+    - password
+    
+  UserConfirmEmailSpec:
+    type: object
+    description: The information required to confirm the email address of the user
+    properties:
+      code:
         type: string
-        description: The password of the user
-        minLength: 6
-      passwordConfirmation:
+        description: The confirmation code sent by e-mail to the user        
+    required:
+    - user_uuid
+    - code
+  
+  UserForgotPasswordSpec:
+    type: object
+    description: The information required to initiate the "forgot password" flow for the user
+    properties:
+      email:
+        $ref: '#/definitions/Email'
+    required:
+    - email
+  
+  ResetUserPasswordSpec:
+    type: object
+    description: The information required to reset the password for the user
+    properties:
+      email:
+        $ref: '#/definitions/Email'
+      password:
+        $ref: '#/definitions/Password'
+      password_confirmation:
+        $ref: '#/definitions/PasswordConfirmation'
+      code:
         type: string
-        description: The password confirmation
-        minLength: 6
+        description: The password reset code sent by e-mail to the user
     required:
     - email
     - password
     - passwordConfirmation
-  
+    - code
+    
+  SetUserPasswordSpec:
+    type: object
+    description: The information required to set the password of the user
+    properties:
+      old_password:
+        $ref: '#/definitions/Password'
+      new_password:
+        $ref: '#/definitions/Password'
+      new_password_confirmation:
+        $ref: '#/definitions/PasswordConfirmation'
+    required:
+    - old_password
+    - password
+    - password_confirmation
+    
   ApiException:
     type: object
     properties:
@@ -92,12 +387,37 @@ definitions:
     readOnly: true
       
 responses:
-  UserCreated:
-    description: An user has been successfully created, the response contains the secure cookies. You should refresh the page
+  UserRegistered:
+    description: An user has been successfully registered, the response contains the secure cookies. You should refresh the page
+    schema:
+      $ref: '#/definitions/User'
+      
+  User:
+    schema:
+      $ref: '#/definitions/User'
+    description: An user
+  
+  UserSignedIn:
+    description: The user has been signed in, the response contains the secure cookies. You should refresh the page
+    
+  UserEmailAddressConfirmed:
+    description: The user's email address has been confirmed
+    
+  UserEmailConfirmationEmailResent:
+    description: The user's email confirmation email has been resent
+    
+  UserForgotPasswordFlowInitiated:
+    description: The forgot password flow has been initiated
+    
+  UserPasswordReset:
+    description: The password of the user has been reset
+    
+  UserPasswordSet:
+    description: The password of the user has been set
     
   UserSignedOut:
     description: The user has been signed out, if a user was signed in. You should refresh the page
-      
+    
   InvalidArgumentApiException:
     description: An issue occured when validating the arguments. Check the response for more details about the issue
     schema:
@@ -113,7 +433,12 @@ responses:
     schema:
       $ref: '#/definitions/ApiException'
       
-  AuthorizationFailedApiException:
+  ForbiddenApiException:
+    description: Access to the resource was forbidden. Check the response for more details about the issue
+    schema:
+      $ref: '#/definitions/ApiException'
+      
+  UnauthorizedApiException:
     description: Authorization for the operation failed. Check the response for more details about the issue
     schema:
       $ref: '#/definitions/ApiException'
