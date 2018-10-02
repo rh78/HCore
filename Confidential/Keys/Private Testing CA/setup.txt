@@ -1,0 +1,12 @@
+See https://blogs.msdn.microsoft.com/benjaminperkins/2014/05/05/make-your-own-ssl-certificate-for-testing-and-learning/
+
+Password f23089f98h498fh8ff
+
+"C:\Program Files (x86)\Windows Kits\8.1\bin\x86\makecert" -n "CN=reinhard-holzner.me" -r -sv ReinhardHolznerSslCA.pvk ReinhardHolznerSslCA.cer
+
+AS ADMIN (from Dev Prompt Console)
+certmgr.exe -add -all -c "ReinhardHolznerSslCA.cer" -s -r localMachine Root
+
+"C:\Program Files (x86)\Windows Kits\8.1\bin\x86\pvk2pfx" -pvk ReinhardHolznerSslCA.pvk -spc ReinhardHolznerSslCA.cer -po "f23089f98h498fh8ff" -pfx ReinhardHolznerSslCA.pfx
+
+Import the PFX file also to the My certificates for later signing

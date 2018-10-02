@@ -44,10 +44,8 @@ namespace ReinhardHolzner.Core.Web.Startup
         {            
             ConfigureLocalization(services);
             ConfigureUrlHelper(services);
-            ConfigureDataProtection(services);
             ConfigureWebServer(services);
             ConfigureCors(services);
-            ConfigureJwt(services);
             ConfigureMvc(services);
 
             ConfigureGenericServices(services);
@@ -72,21 +70,7 @@ namespace ReinhardHolzner.Core.Web.Startup
                 var factory = x.GetRequiredService<IUrlHelperFactory>();
                 return factory.GetUrlHelper(actionContext);
             });
-        }
-
-        private void ConfigureDataProtection(IServiceCollection services)
-        {
-            /* Not necessary for now as we do not generate cookies in the backend
-            
-            // see https://docs.microsoft.com/en-us/aspnet/core/security/data-protection
-
-            string assemblyName = Assembly.GetEntryAssembly().FullName;
-            
-            services.AddDataProtection()
-                .SetApplicationName(assemblyName)
-                .PersistKeysToAzureBlobStorage(new Uri(""))               
-                .ProtectKeysWithAzureKeyVault("", "", ""); */
-        }
+        }        
 
         private void ConfigureWebServer(IServiceCollection services)
         {
@@ -105,8 +89,8 @@ namespace ReinhardHolzner.Core.Web.Startup
                 });
             }
 
-            _useHttps = Configuration.GetValue<bool>("UseHttps");
-            _port = Configuration.GetValue<int>("Port");
+            _useHttps = Configuration.GetValue<bool>("WebServer:UseHttps");
+            _port = Configuration.GetValue<int>("WebServer:WebPort");
 
             if (_useHttps)
             {
@@ -147,38 +131,6 @@ namespace ReinhardHolzner.Core.Web.Startup
             // see: https://docs.microsoft.com/en-us/aspnet/core/security/cors
 
             services.AddCors(); */
-        }
-
-        private void ConfigureJwt(IServiceCollection services)
-        {
-            bool useJwt = Configuration.GetValue<bool>("WebServer:UseJwt");
-
-            if (useJwt)
-            {
-                JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-
-                string jwtAuthority = Configuration["WebServer:Jwt:Authority"];
-                if (string.IsNullOrEmpty(jwtAuthority))
-                    throw new Exception("JWT authority not found");
-
-                string jwtAudience = Configuration["WebServer:Jwt:Audience"];
-                if (string.IsNullOrEmpty(jwtAudience))
-                    throw new Exception("JWT audience not found");
-
-                services
-                    .AddAuthentication(options =>
-                    {
-                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    })
-                    .AddJwtBearer(options =>
-                    {
-                        // see https://developer.okta.com/blog/2018/03/23/token-authentication-aspnetcore-complete-guide
-
-                        options.Authority = jwtAuthority;
-                        options.Audience = jwtAudience;                        
-                    });
-            }           
         }
 
         private void ConfigureMvc(IServiceCollection services)

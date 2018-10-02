@@ -5,7 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityApiServiceCollectionExtensions
     {
-        public static IServiceCollection AddIdentityApi(this IServiceCollection services)
+        public static IServiceCollection AddCoreIdentityApi(this IServiceCollection services)
         {
             services.AddScoped<ISecureApiController, SecureApiImpl>();
 

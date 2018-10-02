@@ -12,7 +12,6 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 
 namespace ReinhardHolzner.Core.Web.Startup
 {

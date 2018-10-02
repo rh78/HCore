@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using ReinhardHolzner.Core.Database.ElasticSearch;
 using ReinhardHolzner.Core.Database.ElasticSearch.Impl;
 using System;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -44,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddSqlServer<TSqlServerDbContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
+        public static IServiceCollection AddSqlServer<TStartup, TSqlServerDbContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
             where TSqlServerDbContext : DbContext
         {
             Console.WriteLine($"Initializing SQL Server DB context with key {configurationKey}...");
@@ -53,9 +54,12 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("SQL Server connection string is empty");
 
+            var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
+
             services.AddDbContext<TSqlServerDbContext>(options =>
             {
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString, 
+                    sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             });
 
             Console.WriteLine($"Initialized SQL Server DB context with key {configurationKey}");

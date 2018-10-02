@@ -39,11 +39,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             for (int i = 0; i < addressesSplit.Length; i++)
             {
-                int amqpListenerCount = configuration.GetValue<int>($"Amqp:{addressesSplit[i]}ListenerCount");
-                if (amqpListenerCount <= 0)
-                    amqpListenerCount = 1;
+                int? amqpListenerCount = configuration.GetValue<int?>($"Amqp:AddressDetails:{addressesSplit[i]}:ListenerCount");
+                if (amqpListenerCount == null)
+                    throw new Exception($"AMQP listener count for address {addressesSplit[i]} is not defined");
 
-                amqpListenerCounts[i] = amqpListenerCount;
+                amqpListenerCounts[i] = (int)amqpListenerCount;
             }
 
             services.AddSingleton(factory =>

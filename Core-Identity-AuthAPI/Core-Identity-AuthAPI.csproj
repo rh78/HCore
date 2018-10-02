@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core-Identity\Core-Identity.csproj" />
     <ProjectReference Include="..\Core-Templating\Core-Templating.csproj" />
     <ProjectReference Include="..\Core-Web\Core-Web.csproj" />
   </ItemGroup>

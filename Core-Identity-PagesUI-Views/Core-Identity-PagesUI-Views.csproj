@@ -8,79 +8,79 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Areas\Identity\Pages\Account\ConfirmEmail.cshtml">
+    <Content Include="Pages\Account\ConfirmEmail.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\ForgotPassword.cshtml">
+    <Content Include="Pages\Account\ForgotPassword.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\ForgotPasswordConfirmation.cshtml">
+    <Content Include="Pages\Account\ForgotPasswordConfirmation.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Login.cshtml">
+    <Content Include="Pages\Account\Login.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Logout.cshtml">
+    <Content Include="Pages\Account\Logout.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\ChangePassword.cshtml">
+    <Content Include="Pages\Account\Manage\ChangePassword.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\Index.cshtml">
+    <Content Include="Pages\Account\Manage\Index.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\_Layout.cshtml">
+    <Content Include="Pages\Account\Manage\_Layout.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\_ManageNav.cshtml">
+    <Content Include="Pages\Account\Manage\_ManageNav.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\_StatusMessage.cshtml">
+    <Content Include="Pages\Account\Manage\_StatusMessage.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Manage\_ViewImports.cshtml">
+    <Content Include="Pages\Account\Manage\_ViewImports.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\Register.cshtml">
+    <Content Include="Pages\Account\Register.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\ResetPassword.cshtml">
+    <Content Include="Pages\Account\ResetPassword.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\ResetPasswordConfirmation.cshtml">
+    <Content Include="Pages\Account\ResetPasswordConfirmation.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Account\_ViewImports.cshtml">
+    <Content Include="Pages\Account\_ViewImports.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\Error.cshtml">
+    <Content Include="Pages\Account\Error.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\_ValidationScriptsPartial.cshtml">
+    <Content Include="Pages\_ValidationScriptsPartial.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\_ViewImports.cshtml">
+    <Content Include="Pages\_ViewImports.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Include="Areas\Identity\Pages\_ViewStart.cshtml">
+    <Content Include="Pages\_ViewStart.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

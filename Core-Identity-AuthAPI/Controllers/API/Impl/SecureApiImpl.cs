@@ -3,12 +3,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
+using ReinhardHolzner.Core.Identity.Database.SqlServer;
+using ReinhardHolzner.Core.Identity.Database.SqlServer.Models.Impl;
 using ReinhardHolzner.Core.Templating.Emails;
 using ReinhardHolzner.Core.Templating.Emails.ViewModels;
 using ReinhardHolzner.Core.Web.Exceptions;
@@ -18,22 +19,22 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 {
     public class SecureApiImpl : ApiImpl, ISecureApiController
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<UserModel> _signInManager;
+        private readonly UserManager<UserModel> _userManager;
         private readonly ILogger<SecureApiImpl> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
-        private readonly IdentityDbContext _identityDbContext;
+        private readonly SqlServerIdentityDbContext _identityDbContext;
 
         public SecureApiImpl(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<UserModel> userManager,
+            SignInManager<UserModel> signInManager,
             ILogger<SecureApiImpl> logger,
             IEmailSender emailSender,
             IEmailTemplateProvider emailTemplateProvider,
             IUrlHelper urlHelper,
-            IdentityDbContext identityDbContext,
+            SqlServerIdentityDbContext identityDbContext,
             ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
@@ -55,7 +56,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var user = new IdentityUser { UserName = userSpec.Email, Email = userSpec.Email };
+                    var user = new UserModel { UserName = userSpec.Email, Email = userSpec.Email };
 
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 
