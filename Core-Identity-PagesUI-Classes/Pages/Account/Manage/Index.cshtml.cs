@@ -1,13 +1,17 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ReinhardHolzner.Core.Identity.Attributes;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
 using ReinhardHolzner.Core.Web.Exceptions;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 {
+    [Authorize]
+    [SecurityHeaders]
     public partial class IndexModel : PageModel
     {
         private readonly ISecureApiController _secureApiController;
@@ -27,9 +31,9 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
-        {
-            var userUuid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        public async Task OnGetAsync()
+        {            
+            var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
             var apiResult = await _secureApiController.GetUserAsync(userUuid).ConfigureAwait(false);
 
@@ -37,8 +41,6 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 
             Email = Input.Email;
             EmailConfirmed = Input.EmailConfirmed != null && (bool)Input.EmailConfirmed;
-
-            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -47,7 +49,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 
             try
             {
-                var userUuid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
                 await _secureApiController.UpdateUserAsync(userUuid, Input).ConfigureAwait(false);
 
@@ -65,7 +67,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
         {
-            var userUuid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
             try
             {

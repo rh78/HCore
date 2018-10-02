@@ -26,6 +26,17 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
     [NotMapped]
 	public partial class User : IEquatable<User>
     { 
+		private string _Uuid;
+		
+		/// <summary>
+        /// The UUID of the user
+        /// </summary>
+        /// <value>The UUID of the user</value>
+        [DataMember(Name="uuid")]
+		public string Uuid { get => _Uuid; set { _Uuid = value; UuidSet = true; } }
+		
+		public bool UuidSet = false;		
+
 		private string _Email;
 		
 		/// <summary>
@@ -78,6 +89,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         {
             var sb = new StringBuilder();
             sb.Append("class User {\n");
+            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  EmailConfirmed: ").Append(EmailConfirmed).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
@@ -119,6 +131,11 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
 
             return 
                 (
+                    Uuid == other.Uuid ||
+                    Uuid != null &&
+                    Uuid.Equals(other.Uuid)
+                ) && 
+                (
                     Email == other.Email ||
                     Email != null &&
                     Email.Equals(other.Email)
@@ -150,6 +167,8 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (Uuid != null)
+                    hashCode = hashCode * 59 + Uuid.GetHashCode();
                     if (Email != null)
                     hashCode = hashCode * 59 + Email.GetHashCode();
                     if (EmailConfirmed != null)

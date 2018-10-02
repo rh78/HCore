@@ -87,6 +87,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                         return new ApiResult<User>(new User()
                         {
+                            Uuid = user.Id,
                             Email = user.Email,
                             EmailConfirmed = user.EmailConfirmed,
                             PhoneNumber = user.PhoneNumber,
@@ -114,7 +115,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
             }
         }
 
-        public async Task SignInUserAsync([FromBody] UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ApiResult<User>> SignInUserAsync([FromBody] UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
         {
             userSignInSpec.Email = ProcessEmail(userSignInSpec.Email, true);
             userSignInSpec.Password = ProcessPassword(userSignInSpec.Password);
@@ -127,15 +128,42 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, remember, lockoutOnFailure: true).ConfigureAwait(false);
 
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User signed in");
+
+                        var user = await _userManager.FindByEmailAsync(userSignInSpec.Email).ConfigureAwait(false);
+
+                        if (user == null)
+                        {
+                            // This should not happen as we authorized
+
+                            _logger.LogError("Invalid state reached when signing in user");
+
+                            throw new InternalServerErrorApiException();
+                        }
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+
+                        return new ApiResult<User>(new User()
+                        {
+                            Uuid = user.Id,
+                            Email = user.Email,
+                            EmailConfirmed = user.EmailConfirmed,
+                            PhoneNumber = user.PhoneNumber,
+                            PhoneNumberConfirmed = user.PhoneNumberConfirmed
+                        });
+                    }
+
+                    // authorization failed 
+
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                     transaction.Commit();
 
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("User signed in");
-                    }
-                    else if (result.IsLockedOut)
+                    if (result.IsLockedOut)
                     {
                         _logger.LogWarning("User account is locked out");
 
@@ -361,6 +389,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                 return new ApiResult<User>(new User
                 {
+                    Uuid = user.Id,
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
@@ -430,6 +459,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
 
                     return new ApiResult<User>(new User
                     {
+                        Uuid = newUser.Id,
                         Email = newUser.Email,
                         EmailConfirmed = newUser.EmailConfirmed,
                         PhoneNumber = newUser.PhoneNumber,

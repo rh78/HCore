@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Authorization;
 using IdentityServer4.Services;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
+using ReinhardHolzner.Core.Identity.Attributes;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
     [AllowAnonymous]
+    [SecurityHeaders]
     public class ErrorModel : PageModel
     {
         public ErrorMessage Error { get; set; }

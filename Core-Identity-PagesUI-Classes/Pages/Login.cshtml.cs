@@ -2,14 +2,15 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReinhardHolzner.Core.Identity.Attributes;
 
-namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
+namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages
 {
-    [AllowAnonymous]
+    [Authorize]
     [SecurityHeaders]
-    public class ForgotPasswordConfirmation : PageModel
+    public class LoginModel : PageModel
     {
         public void OnGet()
         {
+
         }
     }
 }

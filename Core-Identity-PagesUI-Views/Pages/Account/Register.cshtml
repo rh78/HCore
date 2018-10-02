@@ -18,12 +18,12 @@
             </div>
             <div class="form-group">
                 <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
+                <input type="password" autocomplete="off" asp-for="Input.Password" class="form-control" />
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.PasswordConfirmation"></label>
-                <input asp-for="Input.PasswordConfirmation" class="form-control" />
+                <input type="password" autocomplete="off" asp-for="Input.PasswordConfirmation" class="form-control" />
                 <span asp-validation-for="Input.PasswordConfirmation" class="text-danger"></span>
             </div>
             <button type="submit" class="btn btn-default">Register</button>

@@ -48,7 +48,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
         /// Gets an user
         /// </summary>
         /// <param name="userUuid">The UUID of the user</param>
-        /// <response code="200">An user</response>
+        /// <response code="200">The user has been signed in, the response contains the secure cookies. You should refresh the page</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="403">Access to the resource was forbidden. Check the response for more details about the issue</response>
         /// <response code="404">The desired record was not found. Check the response for more details about the issue</response>
@@ -85,10 +85,10 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
         /// Signs in an user
         /// </summary>
         /// <param name="userSignInSpec"></param>
-        /// <response code="200">The user has been signed in, the response contains the secure cookies. You should refresh the page</response>
+        /// <response code="200">An user</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
-        Task SignInUserAsync([FromBody]UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken));        
+        Task<ApiResult<User>> SignInUserAsync([FromBody]UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken));        
 
 		/// <summary>
         /// Signs out the currently signed in user, if applicable
@@ -174,7 +174,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
         /// Gets an user
         /// </summary>
         /// <param name="userUuid">The UUID of the user</param>
-        /// <response code="200">An user</response>
+        /// <response code="200">The user has been signed in, the response contains the secure cookies. You should refresh the page</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="403">Access to the resource was forbidden. Check the response for more details about the issue</response>
         /// <response code="404">The desired record was not found. Check the response for more details about the issue</response>
@@ -254,7 +254,7 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
         /// Signs in an user
         /// </summary>
         /// <param name="userSignInSpec"></param>
-        /// <response code="200">The user has been signed in, the response contains the secure cookies. You should refresh the page</response>
+        /// <response code="200">An user</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
         [HttpPost]
@@ -263,9 +263,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
         [ValidateModelState]
         public async Task<IActionResult> SignInUserAsync([FromBody]UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
-			await _implementation.SignInUserAsync(userSignInSpec, cancellationToken).ConfigureAwait(false);
+			var result = await _implementation.SignInUserAsync(userSignInSpec, cancellationToken).ConfigureAwait(false);
 			
-			IActionResult response = StatusCode((int)HttpStatusCode.NoContent);
+			IActionResult response = StatusCode(result.StatusCode, result.Result);            
+			
+			foreach (var header in result.Headers)
+                Request.HttpContext.Response.Headers.Add(header.Key, header.Value.ToString());
 			
             return response;								
         }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using ReinhardHolzner.Core.Identity.Attributes;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
 using ReinhardHolzner.Core.Web.Exceptions;
@@ -9,6 +10,7 @@ using ReinhardHolzner.Core.Web.Exceptions;
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
     [AllowAnonymous]
+    [SecurityHeaders]
     public class ResetPasswordModel : PageModel
     {
         private readonly ISecureApiController _secureApiController;
@@ -38,7 +40,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
                 return Page();
             }
         }
-
+       
         public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Clear();

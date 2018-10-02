@@ -93,6 +93,7 @@ namespace Microsoft.AspNetCore.Builder
                 AllowedGrantTypes = GrantTypes.Implicit,
                 AllowedScopes = scopes,
                 AllowOfflineAccess = true,
+                RequireConsent = false,
                 ClientSecrets =
                 {
                     new IdentityServer4.Models.Secret(defaultClientSecret.Sha256())
@@ -100,6 +101,11 @@ namespace Microsoft.AspNetCore.Builder
                 RedirectUris =
                 {
                     $"{oidcAuthority}signin-oidc"
+                },
+                PostLogoutRedirectUris =
+                {
+                    $"{oidcAuthority}",
+                    $"{oidcAuthority}signout-callback-oidc"
                 }
             };
 

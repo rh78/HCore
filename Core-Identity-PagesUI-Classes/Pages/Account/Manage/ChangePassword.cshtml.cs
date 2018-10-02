@@ -1,16 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
+using ReinhardHolzner.Core.Identity.Attributes;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
 using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
 using ReinhardHolzner.Core.Web.Exceptions;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 {
+    [Authorize]
+    [SecurityHeaders]
     public class ChangePasswordModel : PageModel
     {
         private readonly ISecureApiController _secureApiController;
@@ -27,13 +28,11 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
         [TempData]
         public string StatusMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task OnGetAsync()
         {
-            var userUuid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
-            var apiResult = await _secureApiController.GetUserAsync(userUuid).ConfigureAwait(false);
-
-            return Page();           
+            var apiResult = await _secureApiController.GetUserAsync(userUuid).ConfigureAwait(false);            
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -42,7 +41,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account.Manage
 
             try
             {
-                var userUuid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
                 await _secureApiController.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 

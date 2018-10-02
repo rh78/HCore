@@ -55,7 +55,7 @@ paths:
       operationId: getUser
       responses:
         '200':
-          $ref: '#/responses/User'
+          $ref: '#/responses/UserSignedIn'
         '400':
           $ref: '#/responses/InvalidArgumentApiException'
         '403':
@@ -179,7 +179,7 @@ paths:
             $ref: '#/definitions/UserSignInSpec'
       responses:
         '200':
-          $ref: '#/responses/UserSignedIn'
+          $ref: '#/responses/User'
         '400':
           $ref: '#/responses/InvalidArgumentApiException'
         '401':
@@ -271,6 +271,8 @@ definitions:
     type: object
     description: Information about an user
     properties:
+      uuid:
+        $ref: '#/definitions/UserUuid'
       email:
         $ref: '#/definitions/EmailReadOnly'
       email_confirmed:
@@ -399,6 +401,8 @@ responses:
   
   UserSignedIn:
     description: The user has been signed in, the response contains the secure cookies. You should refresh the page
+    schema:
+      $ref: '#/definitions/User'
     
   UserEmailAddressConfirmed:
     description: The user's email address has been confirmed

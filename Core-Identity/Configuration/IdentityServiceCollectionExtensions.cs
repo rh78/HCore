@@ -1,11 +1,14 @@
 ﻿using AspNetCore.DataProtection.SqlServer;
 using IdentityServer4;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using ReinhardHolzner.Core.Identity.Database.SqlServer;
 using ReinhardHolzner.Core.Identity.Database.SqlServer.Models.Impl;
 using System;
@@ -14,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -66,14 +70,19 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
 
             services.AddDataProtection()
-                .PersistKeysToSqlServer(connectionString)
+                .PersistKeysToSqlServer(connectionString, "dbo", "DataProtectionKeys")
                 .SetApplicationName(applicationName);
+            
+            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
+
+            identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
+            identityBuilder.AddDefaultTokenProviders();
 
             services.ConfigureApplicationCookie(options =>
-            {
+            {                
                 options.Cookie.Domain = cookieDomain;
-                options.Cookie.Name = cookieName;                
-            });            
+                options.Cookie.Name = "RH.Code.Identity.session";
+            });
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -84,18 +93,14 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Password.RequireUppercase = false;
             });
 
-            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
-
-            identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
-            identityBuilder.AddDefaultTokenProviders();
-
             var identityServerBuilder = services.AddIdentityServer(options =>
             {
                 options.Events.RaiseErrorEvents = true;
                 options.Events.RaiseInformationEvents = true;
                 options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseSuccessEvents = true;
+                options.Events.RaiseSuccessEvents = true;                
                 options.UserInteraction.ErrorUrl = "/Account/Error";
+                options.UserInteraction.ConsentUrl = "/Account/Consent";
             });
 
             // see http://amilspage.com/signing-certificates-idsv4/
@@ -126,7 +131,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var authenticationBuilder = services.AddAuthentication(options =>
             {
-                options.DefaultScheme = "Cookies";
+                options.DefaultScheme = "Cookies";                               
                 options.DefaultChallengeScheme = "oidc";
             });
 
@@ -142,7 +147,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     jwt.RequireHttpsMetadata = true;
                     jwt.Audience = oidcAuthority;
                 });
-            }            
+            }
 
             authenticationBuilder.AddCookie("Cookies", cookie =>
             {
@@ -161,7 +166,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 oidc.ResponseType = "id_token token";
 
                 oidc.SaveTokens = true;
-                oidc.GetClaimsFromUserInfoEndpoint = true;
+                // oidc.GetClaimsFromUserInfoEndpoint = true;
 
                 oidc.Scope.Add(IdentityServerConstants.StandardScopes.OpenId);
                 oidc.Scope.Add(IdentityServerConstants.StandardScopes.Profile);
@@ -172,6 +177,34 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     oidc.Scope.Add(apiResourcesSplit[i]);
                 }
+
+                // handle access_denied and such...
+                oidc.Events = new OpenIdConnectEvents()
+                {
+                    OnRemoteFailure = context =>
+                    {
+                        context.Response.Redirect("/");
+                        context.HandleResponse();
+
+                        return Task.FromResult(0);
+                    }
+                };
+
+                // see https://github.com/IdentityServer/IdentityServer4/issues/1786
+
+                oidc.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "name",
+                    RoleClaimType = "role"
+                };
+            });
+
+            // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
+
+            services.Configure<IISOptions>(iis =>
+            {
+                iis.AuthenticationDisplayName = "Windows";
+                iis.AutomaticAuthentication = false;
             });
 
             services.AddSingleton<IEmailSender, ReinhardHolzner.Core.Identity.EmailSender.Impl.EmailSenderImpl>();
