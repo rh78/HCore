@@ -7,9 +7,9 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddCoreTranslations(this IServiceCollection services)
         {            
-            services.AddScoped<ITranslationsProvider, TranslationsProviderImpl>();
+            services.AddSingleton<ITranslationsProvider, TranslationsProviderImpl>();
 
-            services.AddScoped<IStringLocalizerProvider, ErrorCodesStringLocalizerProviderImpl>();
+            services.AddSingleton<IStringLocalizerProvider, ErrorCodesStringLocalizerProviderImpl>();
 
             return services;
         }
