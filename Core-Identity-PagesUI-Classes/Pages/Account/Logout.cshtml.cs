@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReinhardHolzner.Core.Identity.Attributes;
-using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
+using ReinhardHolzner.Core.Identity.Generated.Controllers;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {

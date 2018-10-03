@@ -17,7 +17,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
+namespace ReinhardHolzner.Core.Identity.Generated.Models
 { 
     /// <summary>
     /// Information about an user

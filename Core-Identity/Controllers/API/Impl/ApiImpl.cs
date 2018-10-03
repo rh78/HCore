@@ -4,7 +4,7 @@ using ReinhardHolzner.Core.Web.Exceptions;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
+namespace ReinhardHolzner.Core.Identity.Controllers.API.Impl
 {
     public abstract class ApiImpl : Web.API.Impl.ApiImpl
     {

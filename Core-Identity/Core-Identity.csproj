@@ -17,6 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Core-Database\Core-Database.csproj" />
     <ProjectReference Include="..\Core-Emailing\Core-Emailing.csproj" />
+    <ProjectReference Include="..\Core-Templating\Core-Templating.csproj" />
+    <ProjectReference Include="..\Core-Web\Core-Web.csproj" />
   </ItemGroup>
 
 </Project>

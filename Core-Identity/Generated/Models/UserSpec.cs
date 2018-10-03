@@ -17,48 +17,50 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
+namespace ReinhardHolzner.Core.Identity.Generated.Models
 { 
     /// <summary>
-    /// The information required to set the password of the user
+    /// The information required to register the new user
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class SetUserPasswordSpec : IEquatable<SetUserPasswordSpec>
+	public partial class UserSpec : IEquatable<UserSpec>
     { 
-		private string _OldPassword;
+		private string _Email;
+		
+		/// <summary>
+        /// The email address of the user
+        /// </summary>
+        /// <value>The email address of the user</value>
+        [Required]
+        [DataMember(Name="email")]
+		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
+		
+		public bool EmailSet = false;		
+
+		private string _Password;
 		
 		/// <summary>
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
         [Required]
-        [DataMember(Name="old_password")]
-		public string OldPassword { get => _OldPassword; set { _OldPassword = value; OldPasswordSet = true; } }
+        [DataMember(Name="password")]
+		public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
 		
-		public bool OldPasswordSet = false;		
+		public bool PasswordSet = false;		
 
-		private string _NewPassword;
-		
-		/// <summary>
-        /// The password of the user
-        /// </summary>
-        /// <value>The password of the user</value>
-        [DataMember(Name="new_password")]
-		public string NewPassword { get => _NewPassword; set { _NewPassword = value; NewPasswordSet = true; } }
-		
-		public bool NewPasswordSet = false;		
-
-		private string _NewPasswordConfirmation;
+		private string _PasswordConfirmation;
 		
 		/// <summary>
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
-        [DataMember(Name="new_password_confirmation")]
-		public string NewPasswordConfirmation { get => _NewPasswordConfirmation; set { _NewPasswordConfirmation = value; NewPasswordConfirmationSet = true; } }
+        [Required]
+        [DataMember(Name="password_confirmation")]
+		public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
 		
-		public bool NewPasswordConfirmationSet = false;		
+		public bool PasswordConfirmationSet = false;		
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -67,10 +69,10 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class SetUserPasswordSpec {\n");
-            sb.Append("  OldPassword: ").Append(OldPassword).Append("\n");
-            sb.Append("  NewPassword: ").Append(NewPassword).Append("\n");
-            sb.Append("  NewPasswordConfirmation: ").Append(NewPasswordConfirmation).Append("\n");
+            sb.Append("class UserSpec {\n");
+            sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("  Password: ").Append(Password).Append("\n");
+            sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -93,34 +95,34 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((SetUserPasswordSpec)obj);
+            return obj.GetType() == GetType() && Equals((UserSpec)obj);
         }
 
         /// <summary>
-        /// Returns true if SetUserPasswordSpec instances are equal
+        /// Returns true if UserSpec instances are equal
         /// </summary>
-        /// <param name="other">Instance of SetUserPasswordSpec to be compared</param>
+        /// <param name="other">Instance of UserSpec to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(SetUserPasswordSpec other)
+        public bool Equals(UserSpec other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    OldPassword == other.OldPassword ||
-                    OldPassword != null &&
-                    OldPassword.Equals(other.OldPassword)
+                    Email == other.Email ||
+                    Email != null &&
+                    Email.Equals(other.Email)
                 ) && 
                 (
-                    NewPassword == other.NewPassword ||
-                    NewPassword != null &&
-                    NewPassword.Equals(other.NewPassword)
+                    Password == other.Password ||
+                    Password != null &&
+                    Password.Equals(other.Password)
                 ) && 
                 (
-                    NewPasswordConfirmation == other.NewPasswordConfirmation ||
-                    NewPasswordConfirmation != null &&
-                    NewPasswordConfirmation.Equals(other.NewPasswordConfirmation)
+                    PasswordConfirmation == other.PasswordConfirmation ||
+                    PasswordConfirmation != null &&
+                    PasswordConfirmation.Equals(other.PasswordConfirmation)
                 );
         }
 
@@ -134,12 +136,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (OldPassword != null)
-                    hashCode = hashCode * 59 + OldPassword.GetHashCode();
-                    if (NewPassword != null)
-                    hashCode = hashCode * 59 + NewPassword.GetHashCode();
-                    if (NewPasswordConfirmation != null)
-                    hashCode = hashCode * 59 + NewPasswordConfirmation.GetHashCode();
+                    if (Email != null)
+                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (Password != null)
+                    hashCode = hashCode * 59 + Password.GetHashCode();
+                    if (PasswordConfirmation != null)
+                    hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
                 return hashCode;
             }
         }
@@ -147,12 +149,12 @@ namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(SetUserPasswordSpec left, SetUserPasswordSpec right)
+        public static bool operator ==(UserSpec left, UserSpec right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(SetUserPasswordSpec left, SetUserPasswordSpec right)
+        public static bool operator !=(UserSpec left, UserSpec right)
         {
             return !Equals(left, right);
         }

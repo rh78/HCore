@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using ReinhardHolzner.Core.Identity.Controllers.API.Impl;
 using ReinhardHolzner.Core.Identity.Database.SqlServer;
 using ReinhardHolzner.Core.Identity.Database.SqlServer.Models.Impl;
+using ReinhardHolzner.Core.Identity.Generated.Controllers;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -208,6 +210,8 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddSingleton<IEmailSender, ReinhardHolzner.Core.Identity.EmailSender.Impl.EmailSenderImpl>();
+
+            services.AddScoped<ISecureApiController, SecureApiImpl>();
 
             return services;
         }        

@@ -17,9 +17,9 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using ReinhardHolzner.Core.Web.Attributes;
 using ReinhardHolzner.Core.Web.Result;
-using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
+using ReinhardHolzner.Core.Identity.Generated.Models;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers
+namespace ReinhardHolzner.Core.Identity.Generated.Controllers
 { 
 	/// <summary>
     /// 

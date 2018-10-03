@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Controllers;
-using ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models;
+using ReinhardHolzner.Core.Identity.Generated.Controllers;
+using ReinhardHolzner.Core.Identity.Generated.Models;
 using ReinhardHolzner.Core.Identity.Database.SqlServer;
 using ReinhardHolzner.Core.Identity.Database.SqlServer.Models.Impl;
 using ReinhardHolzner.Core.Templating.Emails;
@@ -15,7 +15,7 @@ using ReinhardHolzner.Core.Templating.Emails.ViewModels;
 using ReinhardHolzner.Core.Web.Exceptions;
 using ReinhardHolzner.Core.Web.Result;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Controllers.API.Impl
+namespace ReinhardHolzner.Core.Identity.Controllers.API.Impl
 {
     public class SecureApiImpl : ApiImpl, ISecureApiController
     {

@@ -11,7 +11,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Core-Identity-AuthAPI\Core-Identity-AuthAPI.csproj" />
+    <ProjectReference Include="..\Core-Identity\Core-Identity.csproj" />
   </ItemGroup>
 
 </Project>

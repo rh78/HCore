@@ -17,7 +17,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace ReinhardHolzner.Core.Identity.AuthAPI.Generated.Models
+namespace ReinhardHolzner.Core.Identity.Generated.Models
 { 
     /// <summary>
     /// If the API call returns HTTP status codes indicating errors, the response body will contain an *ApiException* object providing more information about the error that occured
