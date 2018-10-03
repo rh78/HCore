@@ -78,10 +78,10 @@ namespace ReinhardHolzner.Core.Web.Startup
             ConfigureLogging();
             ConfigureContentRoot();
             ConfigureConfiguration();
-
+        
             ConfigureWebServer();                        
         }
-    
+
         private void ConfigureDefaultServiceProvider()
         {
             _builder.UseDefaultServiceProvider((context, options) =>

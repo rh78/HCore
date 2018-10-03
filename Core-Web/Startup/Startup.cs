@@ -59,6 +59,8 @@ namespace ReinhardHolzner.Core.Web.Startup
             {
                 options.ResourcesPath = "Resources";
             });
+
+            services.AddCoreTranslations();
         }
 
         private void ConfigureUrlHelper(IServiceCollection services)
@@ -143,6 +145,7 @@ namespace ReinhardHolzner.Core.Web.Startup
             ConfigureCore(app);
 
             ConfigureLogging(app, env);
+            ConfigureLocalization(app, env);
             ConfigureHttps(app, env);
             ConfigureResponseCompression(app, env);
             ConfigureStaticFiles(app, env);
@@ -158,6 +161,11 @@ namespace ReinhardHolzner.Core.Web.Startup
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();            
+        }
+
+        private void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)
+        {
+            app.UseCoreTranslations();
         }
 
         public void ConfigureHttps(IApplicationBuilder app, IHostingEnvironment env)

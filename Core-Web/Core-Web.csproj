@@ -14,4 +14,8 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Core-Translations\Core-Translations.csproj" />
+  </ItemGroup>
+
 </Project>
