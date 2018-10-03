@@ -28,6 +28,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 
         [BindProperty]
         public string ClientName { get; set; }
+        public bool IsLocalLogout { get; set; }
 
         [BindProperty]
         public string PostLogoutRedirectUri { get; set; }
@@ -71,7 +72,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
         {
             LogoutId = logoutId;
             ShowLogoutPrompt = true;
-            
+           
             if (User?.Identity.IsAuthenticated != true)
             {
                 // if the user is not authenticated, then just show logged out page
@@ -83,7 +84,16 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 
             var context = await _interaction.GetLogoutContextAsync(logoutId);
 
-            if (context?.ShowSignoutPrompt == false)
+            if (context == null || string.IsNullOrEmpty(context.SessionId))
+            {
+                IsLocalLogout = true;
+
+                PostLogoutRedirectUri = "/";
+
+                return;
+            }
+
+            if (context.ShowSignoutPrompt == false)
             {
                 // it's safe to automatically sign-out
 
@@ -100,7 +110,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
         {
             // build a model so the logged out page knows what to display
 
-            await BuildLoggedOutModelAsync(LogoutId).ConfigureAwait(false);
+            await PrepareLoggedOutModelAsync(LogoutId).ConfigureAwait(false);
 
             if (User?.Identity.IsAuthenticated == true)
             {
@@ -109,7 +119,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
                 await _secureApiController.SignOutUserAsync().ConfigureAwait(false);
 
                 // raise the logout event
-
+                
                 await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             }
 
@@ -118,16 +128,26 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-        private async Task BuildLoggedOutModelAsync(string logoutId)
+        private async Task PrepareLoggedOutModelAsync(string logoutId)
         {
+            AutomaticRedirectAfterSignOut = true;
+
             // get context information (client name, post logout redirect URI and iframe for federated signout)
 
-            var logout = await _interaction.GetLogoutContextAsync(logoutId);
+            var context = await _interaction.GetLogoutContextAsync(logoutId);
 
-            AutomaticRedirectAfterSignOut = true;
-            PostLogoutRedirectUri = logout?.PostLogoutRedirectUri;
-            ClientName = string.IsNullOrEmpty(logout?.ClientName) ? logout?.ClientId : logout?.ClientName;
-            SignOutIframeUrl = logout?.SignOutIFrameUrl;
+            if (context == null || string.IsNullOrEmpty(context.SessionId))
+            {
+                IsLocalLogout = true;
+
+                PostLogoutRedirectUri = "/";
+
+                return;
+            }
+            
+            PostLogoutRedirectUri = context.PostLogoutRedirectUri;
+            ClientName = string.IsNullOrEmpty(context.ClientName) ? context.ClientId : context.ClientName;
+            SignOutIframeUrl = context.SignOutIFrameUrl;
             LogoutId = logoutId;        
         }
     }

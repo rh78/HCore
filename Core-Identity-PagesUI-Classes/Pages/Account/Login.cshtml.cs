@@ -11,7 +11,6 @@ using ReinhardHolzner.Core.Identity.Attributes;
 using IdentityServer4.Models;
 using ReinhardHolzner.Core.Web.Result;
 using IdentityServer4.Events;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
@@ -40,7 +39,8 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
         }
 
         public string UserName { get; set; }
-        public bool EnableLocalLogin { get; set; }        
+        public bool EnableLocalLogin { get; set; } 
+        public bool IsLocalAuthorization { get; set; }
 
         [BindProperty]
         public string ReturnUrl { get; set; }
@@ -55,9 +55,15 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
         
         public async Task<IActionResult> OnPostAsync(string action = null)
         {
+            await PrepareModelAsync(ReturnUrl);
+
             if (!string.Equals(action, "submit"))
             {
                 // the user clicked the "cancel" button
+
+                if (IsLocalAuthorization)
+                    return LocalRedirect(ReturnUrl);
+
                 var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl);
 
                 if (context != null)
@@ -76,7 +82,7 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
                 {
                     // Since we don't have a valid context, then we just go back to the home page
 
-                    return LocalRedirect("~/");
+                    return LocalRedirect("~/");                    
                 }
             }
 
@@ -90,19 +96,22 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Uuid, user.Email)).ConfigureAwait(false);
 
+                if (IsLocalAuthorization)
+                    return LocalRedirect(ReturnUrl);
+
                 if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
                 {
                     return Redirect(ReturnUrl);
                 }
 
-                return LocalRedirect("~/");
+                return LocalRedirect("~/");                
             }
             catch (ApiException e)
             {
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
 
                 ModelState.AddModelError(string.Empty, e.Message);
-            }            
+            }
 
             await PrepareModelAsync(ReturnUrl);
 
@@ -111,9 +120,21 @@ namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 
         private async Task PrepareModelAsync(string returnUrl)
         {
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            if (string.IsNullOrEmpty(returnUrl))
+                returnUrl = "~/";
 
             EnableLocalLogin = false;
+            bool isLocalUrl = Url.IsLocalUrl(returnUrl);
+
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+
+            if (context == null && isLocalUrl)
+            {
+                IsLocalAuthorization = true;
+                EnableLocalLogin = true;
+
+                return;
+            }
 
             if (context?.ClientId != null)
             {

@@ -38,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             ConfigureDataProtection(services, connectionString, configuration);
             ConfigureAspNetIdentity(services, configuration);
             ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration);
-            ConfigureClientAuthentication(services, configuration);
+            ConfigureJwtAuthentication(services, configuration);
 
             // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
 
@@ -74,16 +74,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .SetApplicationName(applicationName);
         }
 
-        private static void ConfigureClientAuthentication(IServiceCollection services, IConfiguration configuration)
+        private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration)
         {
-            string clientCookieDomain = configuration[$"Identity:ClientCookie:Domain"];
-            if (string.IsNullOrEmpty(clientCookieDomain))
-                throw new Exception("Identity client cookie domain is empty");
-
-            string clientCookieName = configuration[$"Identity:ClientCookie:Name"];
-            if (string.IsNullOrEmpty(clientCookieName))
-                throw new Exception("Identity client cookie name is empty");
-
             string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
             if (string.IsNullOrEmpty(oidcAuthority))
                 throw new Exception("Identity OIDC authority string is empty");
@@ -92,30 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(oidcAudience))
                 throw new Exception("Identity audience string is empty");
 
-            string defaultClientId = configuration[$"Identity:Client:DefaultClientId"];
-            if (string.IsNullOrEmpty(defaultClientId))
-                throw new Exception("Identity default client ID is empty");
-
-            string defaultClientSecret = configuration[$"Identity:Client:DefaultClientSecret"];
-            if (string.IsNullOrEmpty(defaultClientSecret))
-                throw new Exception("Identity default client secret is empty");
-
-            string apiResources = configuration["Identity:ApiResources"];
-            if (string.IsNullOrEmpty(apiResources))
-                throw new Exception("Identity API resources are empty");
-
-            string[] apiResourcesSplit = apiResources.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (apiResourcesSplit.Length == 0)
-                throw new Exception("Identity API resources are empty");
-
-            // default authentication scheme -> should take priority over "identity"!
-
-            var authenticationBuilder = services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = IdentityCoreConstants.CookieScheme;
-                options.DefaultChallengeScheme = IdentityCoreConstants.OidcScheme;
-            });
+            var authenticationBuilder = services.AddAuthentication();
 
             bool useJwt = configuration.GetValue<bool>("WebServer:UseJwt");
 
@@ -129,57 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     jwt.RequireHttpsMetadata = true;
                     jwt.Audience = oidcAudience;
                 });
-            }
-
-            /* authenticationBuilder.AddCookie("Identity.Application", options =>
-            {
-                options.Cookie.Domain = clientCookieDomain;
-                options.Cookie.Name = clientCookieName;
-            }); */
-
-            authenticationBuilder.AddOpenIdConnect(IdentityCoreConstants.OidcScheme, oidc =>
-            {
-                oidc.SignInScheme = "Identity.Application";
-
-                oidc.Authority = oidcAuthority;
-
-                oidc.ClientId = defaultClientId;
-                oidc.ClientSecret = defaultClientSecret;
-                oidc.ResponseType = "id_token token";
-
-                // oidc.SaveTokens = true;
-                // oidc.GetClaimsFromUserInfoEndpoint = true;
-
-                oidc.Scope.Add(IdentityServerConstants.StandardScopes.OpenId);
-                oidc.Scope.Add(IdentityServerConstants.StandardScopes.Profile);
-                oidc.Scope.Add(IdentityServerConstants.StandardScopes.Email);
-                oidc.Scope.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
-
-                for (int i = 0; i < apiResourcesSplit.Length; i++)
-                {
-                    oidc.Scope.Add(apiResourcesSplit[i]);
-                }
-
-                // handle access_denied and such...
-                oidc.Events = new OpenIdConnectEvents()
-                {
-                    OnRemoteFailure = context =>
-                    {
-                        context.Response.Redirect("/");
-                        context.HandleResponse();
-
-                        return Task.FromResult(0);
-                    }
-                };
-
-                // see https://github.com/IdentityServer/IdentityServer4/issues/1786
-
-                oidc.TokenValidationParameters = new TokenValidationParameters
-                {
-                    NameClaimType = "name",
-                    RoleClaimType = "role"
-                };
-            });
+            }            
         }
 
         private static void ConfigureAspNetIdentity(IServiceCollection services, IConfiguration configuration)
@@ -198,7 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Domain = authCookieDomain;
-                options.Cookie.Name = "RH.Code.Identity.session";
+                options.Cookie.Name = "RH.Core.Identity.session";
             });
 
             services.Configure<IdentityOptions>(options =>
