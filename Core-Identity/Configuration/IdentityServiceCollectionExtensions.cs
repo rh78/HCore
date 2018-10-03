@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using ReinhardHolzner.Core.Identity;
 using ReinhardHolzner.Core.Identity.Controllers.API.Impl;
 using ReinhardHolzner.Core.Identity.Database.SqlServer;
 using ReinhardHolzner.Core.Identity.Database.SqlServer.Models.Impl;
@@ -24,7 +25,7 @@ using System.Threading.Tasks;
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
-    {
+    {        
         public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
@@ -33,21 +34,63 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("SQL Server connection string is empty");
 
-            string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
-            if (string.IsNullOrEmpty(oidcAuthority))
-                throw new Exception("Identity OIDC authority string is empty");
+            ConfigureSqlServer<TStartup>(services, configuration);
+            ConfigureDataProtection(services, connectionString, configuration);
+            ConfigureAspNetIdentity(services, configuration);
+            ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration);
+            ConfigureClientAuthentication(services, configuration);
 
+            // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
+
+            services.Configure<IISOptions>(iis =>
+            {
+                iis.AuthenticationDisplayName = "Windows";
+                iis.AutomaticAuthentication = false;
+            });
+
+            services.AddSingleton<IEmailSender, ReinhardHolzner.Core.Identity.EmailSender.Impl.EmailSenderImpl>();
+
+            services.AddScoped<ISecureApiController, SecureApiImpl>();
+
+            return services;
+        }
+
+        private static void ConfigureSqlServer<TStartup>(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSqlServer<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
+
+            // lightweight one for default UI implementations
+            services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
+        }
+
+        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration)
+        {
             string applicationName = configuration[$"Identity:Application:Name"];
             if (string.IsNullOrEmpty(applicationName))
                 throw new Exception("Identity application name is empty");
 
-            string cookieDomain = configuration[$"Identity:Cookie:Domain"];
-            if (string.IsNullOrEmpty(cookieDomain))
-                throw new Exception("Identity cookie domain is empty");
+            services.AddDataProtection()
+                .PersistKeysToSqlServer(connectionString, "dbo", "DataProtectionKeys")
+                .SetApplicationName(applicationName);
+        }
 
-            string cookieName = configuration[$"Identity:Cookie:Name"];
-            if (string.IsNullOrEmpty(cookieName))
-                throw new Exception("Identity cookie name is empty");
+        private static void ConfigureClientAuthentication(IServiceCollection services, IConfiguration configuration)
+        {
+            string clientCookieDomain = configuration[$"Identity:ClientCookie:Domain"];
+            if (string.IsNullOrEmpty(clientCookieDomain))
+                throw new Exception("Identity client cookie domain is empty");
+
+            string clientCookieName = configuration[$"Identity:ClientCookie:Name"];
+            if (string.IsNullOrEmpty(clientCookieName))
+                throw new Exception("Identity client cookie name is empty");
+
+            string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
+            if (string.IsNullOrEmpty(oidcAuthority))
+                throw new Exception("Identity OIDC authority string is empty");
+
+            string oidcAudience = configuration[$"Identity:Oidc:Audience"];
+            if (string.IsNullOrEmpty(oidcAudience))
+                throw new Exception("Identity audience string is empty");
 
             string defaultClientId = configuration[$"Identity:Client:DefaultClientId"];
             if (string.IsNullOrEmpty(defaultClientId))
@@ -65,76 +108,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (apiResourcesSplit.Length == 0)
                 throw new Exception("Identity API resources are empty");
-            
-            services.AddSqlServer<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
 
-            // lightweight one for default UI implementations
-            services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
-
-            services.AddDataProtection()
-                .PersistKeysToSqlServer(connectionString, "dbo", "DataProtectionKeys")
-                .SetApplicationName(applicationName);
-            
-            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
-
-            identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
-            identityBuilder.AddDefaultTokenProviders();
-
-            services.ConfigureApplicationCookie(options =>
-            {                
-                options.Cookie.Domain = cookieDomain;
-                options.Cookie.Name = "RH.Code.Identity.session";
-            });
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-            });
-
-            var identityServerBuilder = services.AddIdentityServer(options =>
-            {
-                options.Events.RaiseErrorEvents = true;
-                options.Events.RaiseInformationEvents = true;
-                options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseSuccessEvents = true;                
-                options.UserInteraction.ErrorUrl = "/Account/Error";
-                options.UserInteraction.ConsentUrl = "/Account/Consent";
-            });
-
-            // see http://amilspage.com/signing-certificates-idsv4/
-
-            identityServerBuilder.AddSigningCredential(GetSigningKeyCertificate(configuration));
-
-            identityServerBuilder.AddAspNetIdentity<UserModel>();
-
-            // this adds the config data from DB (clients, resources)
-            identityServerBuilder.AddConfigurationStore(options =>
-            {
-                options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.UseSqlServer(connectionString,
-                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
-            });
-
-            // this adds the operational data from DB (codes, tokens, consents)
-            identityServerBuilder.AddOperationalStore(options =>
-            {
-                options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.UseSqlServer(connectionString,
-                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
-
-                // this enables automatic token cleanup. this is optional.
-                options.EnableTokenCleanup = true;
-                // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
-            });
+            // default authentication scheme -> should take priority over "identity"!
 
             var authenticationBuilder = services.AddAuthentication(options =>
             {
-                options.DefaultScheme = "Cookies";                               
-                options.DefaultChallengeScheme = "oidc";
+                options.DefaultScheme = IdentityCoreConstants.CookieScheme;
+                options.DefaultChallengeScheme = IdentityCoreConstants.OidcScheme;
             });
 
             bool useJwt = configuration.GetValue<bool>("WebServer:UseJwt");
@@ -143,31 +123,31 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-                authenticationBuilder.AddJwtBearer("Jwt", jwt =>
+                authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
                 {
                     jwt.Authority = oidcAuthority;
                     jwt.RequireHttpsMetadata = true;
-                    jwt.Audience = oidcAuthority;
+                    jwt.Audience = oidcAudience;
                 });
             }
 
-            authenticationBuilder.AddCookie("Cookies", cookie =>
+            /* authenticationBuilder.AddCookie("Identity.Application", options =>
             {
-                cookie.Cookie.Domain = cookieDomain;
-                cookie.Cookie.Name = cookieName;
-            });
+                options.Cookie.Domain = clientCookieDomain;
+                options.Cookie.Name = clientCookieName;
+            }); */
 
-            authenticationBuilder.AddOpenIdConnect("oidc", oidc =>
+            authenticationBuilder.AddOpenIdConnect(IdentityCoreConstants.OidcScheme, oidc =>
             {
-                oidc.SignInScheme = "Cookies";
+                oidc.SignInScheme = "Identity.Application";
 
                 oidc.Authority = oidcAuthority;
-                
+
                 oidc.ClientId = defaultClientId;
                 oidc.ClientSecret = defaultClientSecret;
                 oidc.ResponseType = "id_token token";
 
-                oidc.SaveTokens = true;
+                // oidc.SaveTokens = true;
                 // oidc.GetClaimsFromUserInfoEndpoint = true;
 
                 oidc.Scope.Add(IdentityServerConstants.StandardScopes.OpenId);
@@ -200,21 +180,75 @@ namespace Microsoft.Extensions.DependencyInjection
                     RoleClaimType = "role"
                 };
             });
+        }
 
-            // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
+        private static void ConfigureAspNetIdentity(IServiceCollection services, IConfiguration configuration)
+        {
+            // now, on second priority, comes the identity which we tweaked
 
-            services.Configure<IISOptions>(iis =>
+            string authCookieDomain = configuration[$"Identity:AuthCookie:Domain"];
+            if (string.IsNullOrEmpty(authCookieDomain))
+                throw new Exception("Identity auth cookie domain is empty");
+
+            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
+            
+            identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
+            identityBuilder.AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(options =>
             {
-                iis.AuthenticationDisplayName = "Windows";
-                iis.AutomaticAuthentication = false;
+                options.Cookie.Domain = authCookieDomain;
+                options.Cookie.Name = "RH.Code.Identity.session";
             });
 
-            services.AddSingleton<IEmailSender, ReinhardHolzner.Core.Identity.EmailSender.Impl.EmailSenderImpl>();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
+        }
 
-            services.AddScoped<ISecureApiController, SecureApiImpl>();
+        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration)
+        {
+            var identityServerBuilder = services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+                options.UserInteraction.ErrorUrl = "/Account/Error";
+                options.UserInteraction.ConsentUrl = "/Account/Consent";
+            });
 
-            return services;
-        }        
+            // see http://amilspage.com/signing-certificates-idsv4/
+
+            identityServerBuilder.AddSigningCredential(GetSigningKeyCertificate(configuration));
+
+            identityServerBuilder.AddAspNetIdentity<UserModel>();
+
+            // this adds the config data from DB (clients, resources)
+            identityServerBuilder.AddConfigurationStore(options =>
+            {
+                options.ConfigureDbContext = dbContextBuilder =>
+                    dbContextBuilder.UseSqlServer(connectionString,
+                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+            });
+
+            // this adds the operational data from DB (codes, tokens, consents)
+            identityServerBuilder.AddOperationalStore(options =>
+            {
+                options.ConfigureDbContext = dbContextBuilder =>
+                    dbContextBuilder.UseSqlServer(connectionString,
+                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+
+                // this enables automatic token cleanup. this is optional.
+                options.EnableTokenCleanup = true;
+                // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
+            });            
+        }
 
         private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
         {
@@ -248,5 +282,5 @@ namespace Microsoft.Extensions.DependencyInjection
                 return new X509Certificate2(memory.ToArray(), signingKeyPassword);
             }
         }
-    }
+    }    
 }

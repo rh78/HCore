@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
-    [AllowAnonymous]
     [SecurityHeaders]
     public class LoginModel : PageModel
     {

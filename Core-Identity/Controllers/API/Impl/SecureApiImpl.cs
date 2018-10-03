@@ -28,8 +28,8 @@ namespace ReinhardHolzner.Core.Identity.Controllers.API.Impl
         private readonly SqlServerIdentityDbContext _identityDbContext;
 
         public SecureApiImpl(
-            UserManager<UserModel> userManager,
             SignInManager<UserModel> signInManager,
+            UserManager<UserModel> userManager,
             ILogger<SecureApiImpl> logger,
             IEmailSender emailSender,
             IEmailTemplateProvider emailTemplateProvider,
@@ -38,8 +38,8 @@ namespace ReinhardHolzner.Core.Identity.Controllers.API.Impl
             ILoggerFactory loggerFactory)
             : base(loggerFactory)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
             _emailSender = emailSender;
             _emailTemplateProvider = emailTemplateProvider;
@@ -524,6 +524,6 @@ namespace ReinhardHolzner.Core.Identity.Controllers.API.Impl
 
                 throw new InternalServerErrorApiException();
             }
-        }
+        }                
     }
 }

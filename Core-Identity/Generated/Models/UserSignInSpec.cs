@@ -57,7 +57,7 @@ namespace ReinhardHolzner.Core.Identity.Generated.Models
         /// </summary>
         /// <value>Flag to indicate if the user sign in should be remembered or not</value>
         [DataMember(Name="remember")]
-		public bool Remember { get => _Remember != null ? Remember : false; set { _Remember = value; RememberSet = true; } }
+		public bool Remember { get => _Remember != null ? (bool)_Remember : false; set { _Remember = value; RememberSet = true; } }
 		
 		public bool RememberSet = false;		
 

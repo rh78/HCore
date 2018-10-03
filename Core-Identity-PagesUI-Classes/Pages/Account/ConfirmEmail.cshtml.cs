@@ -8,7 +8,6 @@ using ReinhardHolzner.Core.Web.Exceptions;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
-    [AllowAnonymous]
     [SecurityHeaders]
     public class ConfirmEmailModel : PageModel
     {

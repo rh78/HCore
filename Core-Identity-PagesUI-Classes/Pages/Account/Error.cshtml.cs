@@ -8,7 +8,6 @@ using ReinhardHolzner.Core.Identity.Attributes;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
-    [AllowAnonymous]
     [SecurityHeaders]
     public class ErrorModel : PageModel
     {

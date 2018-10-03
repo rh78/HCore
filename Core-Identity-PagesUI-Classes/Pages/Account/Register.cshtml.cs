@@ -12,7 +12,6 @@ using ReinhardHolzner.Core.Web.Result;
 
 namespace ReinhardHolzner.Core.Identity.PagesUI.Classes.Pages.Account
 {
-    [AllowAnonymous]
     [SecurityHeaders]
     public class RegisterModel : PageModel
     {

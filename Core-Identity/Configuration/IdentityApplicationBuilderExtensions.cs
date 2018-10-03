@@ -1,13 +1,15 @@
 ﻿using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -15,6 +17,8 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UseCoreIdentity(this IApplicationBuilder app)
         {
+            app.Validate();
+
             var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
 
             using (var scope = scopeFactory.CreateScope())
@@ -27,14 +31,15 @@ namespace Microsoft.AspNetCore.Builder
 
             app.UseIdentityServer();
 
+
             return app;
         }
 
         private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
-            string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
-            if (string.IsNullOrEmpty(oidcAuthority))
-                throw new Exception("Identity OIDC authority string is empty");
+            string oidcAudience = configuration[$"Identity:Oidc:Audience"];
+            if (string.IsNullOrEmpty(oidcAudience))
+                throw new Exception("Identity audience string is empty");
 
             string defaultClientId = configuration[$"Identity:Client:DefaultClientId"];
             if (string.IsNullOrEmpty(defaultClientId))
@@ -67,7 +72,7 @@ namespace Microsoft.AspNetCore.Builder
             scopes.Add(IdentityServerConstants.StandardScopes.Email);
             scopes.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
             
-            List<IdentityServer4.Models.ApiResource> apiResourcesList = new List<IdentityServer4.Models.ApiResource>();
+            List<ApiResource> apiResourcesList = new List<ApiResource>();
 
             for (int i = 0; i < apiResourcesSplit.Length; i++)
             {
@@ -77,10 +82,10 @@ namespace Microsoft.AspNetCore.Builder
                 if (string.IsNullOrEmpty(apiResourceName))
                     throw new Exception($"Identity API resource name for API resource {apiResourcesSplit[i]} is empty");
 
-                apiResourcesList.Add(new IdentityServer4.Models.ApiResource(apiResourcesSplit[i], apiResourceName));
+                apiResourcesList.Add(new ApiResource(apiResourcesSplit[i], apiResourceName));
             }
             
-            var defaultClient = new IdentityServer4.Models.Client
+            var defaultClient = new Client
             {
                 ClientId = defaultClientId,
                 ClientName = defaultClientName,
@@ -96,16 +101,16 @@ namespace Microsoft.AspNetCore.Builder
                 RequireConsent = false,
                 ClientSecrets =
                 {
-                    new IdentityServer4.Models.Secret(defaultClientSecret.Sha256())
+                    new Secret(defaultClientSecret.Sha256())
                 },
                 RedirectUris =
                 {
-                    $"{oidcAuthority}signin-oidc"
+                    $"{oidcAudience}signin-oidc"
                 },
                 PostLogoutRedirectUris =
                 {
-                    $"{oidcAuthority}",
-                    $"{oidcAuthority}signout-callback-oidc"
+                    $"{oidcAudience}",
+                    $"{oidcAudience}signout-callback-oidc"
                 }
             };
 
@@ -146,6 +151,45 @@ namespace Microsoft.AspNetCore.Builder
                 configurationDbContext.SaveChanges();
 
                 Console.WriteLine("Identity resources populated successfully");
+            }
+        }
+
+        internal static void Validate(this IApplicationBuilder app)
+        {
+            var loggerFactory = app.ApplicationServices.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
+            if (loggerFactory == null) throw new ArgumentNullException(nameof(loggerFactory));
+
+            var scopeFactory = app.ApplicationServices.GetService<IServiceScopeFactory>();
+
+            using (var scope = scopeFactory.CreateScope())
+            {
+                var serviceProvider = scope.ServiceProvider;
+
+                ValidateAsync(serviceProvider).GetAwaiter().GetResult();
+            }
+        }
+
+        private static async Task ValidateAsync(IServiceProvider services)
+        {
+            var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
+
+            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null)
+            {
+                Console.WriteLine("No authentication scheme has been set");
+            }
+            else
+            {
+                string defaultAuthenticationScheme = (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name;
+                string defaultSignInScheme = (await schemes.GetDefaultSignInSchemeAsync())?.Name;
+                string defaultSignOutScheme = (await schemes.GetDefaultSignOutSchemeAsync())?.Name;
+                string defaultChallengeScheme = (await schemes.GetDefaultChallengeSchemeAsync())?.Name;
+                string defaultForbidScheme = (await schemes.GetDefaultForbidSchemeAsync())?.Name;
+
+                Console.WriteLine($"Using {defaultAuthenticationScheme} as default ASP.NET Core scheme for authentication");
+                Console.WriteLine($"Using {defaultSignInScheme} as default ASP.NET Core scheme for sign-in");
+                Console.WriteLine($"Using {defaultSignOutScheme} as default ASP.NET Core scheme for sign-out");
+                Console.WriteLine($"Using {defaultChallengeScheme} as default ASP.NET Core scheme for challenge");
+                Console.WriteLine($"Using {defaultForbidScheme} as default ASP.NET Core scheme for forbid");
             }
         }
     }
