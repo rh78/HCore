@@ -22,7 +22,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ErrorCodes {
+    public class ErrorCodes {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         ///   Gibt die zwischengespeicherte ResourceManager-Instanz zurück, die von dieser Klasse verwendet wird.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ReinhardHolzner.Core.Translations.Resources.ErrorCodes", typeof(ErrorCodes).Assembly);
@@ -51,7 +51,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         ///   Ressourcenzuordnungen, die diese stark typisierte Ressourcenklasse verwenden.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The access token is invalid or expired ähnelt.
         /// </summary>
-        internal static string access_token_expired {
+        public static string access_token_expired {
             get {
                 return ResourceManager.GetString("access_token_expired", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user account is locked out ähnelt.
         /// </summary>
-        internal static string account_locked_out {
+        public static string account_locked_out {
             get {
                 return ResourceManager.GetString("account_locked_out", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The API credentials are missing ähnelt.
         /// </summary>
-        internal static string api_credentials_missing {
+        public static string api_credentials_missing {
             get {
                 return ResourceManager.GetString("api_credentials_missing", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID contains invalid characters ähnelt.
         /// </summary>
-        internal static string client_id_invalid {
+        public static string client_id_invalid {
             get {
                 return ResourceManager.GetString("client_id_invalid", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID is missing ähnelt.
         /// </summary>
-        internal static string client_id_missing {
+        public static string client_id_missing {
             get {
                 return ResourceManager.GetString("client_id_missing", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID is too long ähnelt.
         /// </summary>
-        internal static string client_id_too_long {
+        public static string client_id_too_long {
             get {
                 return ResourceManager.GetString("client_id_too_long", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client secret contains invalid characters ähnelt.
         /// </summary>
-        internal static string client_secret_invalid {
+        public static string client_secret_invalid {
             get {
                 return ResourceManager.GetString("client_secret_invalid", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client secret is missing ähnelt.
         /// </summary>
-        internal static string client_secret_missing {
+        public static string client_secret_missing {
             get {
                 return ResourceManager.GetString("client_secret_missing", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client secret is too long ähnelt.
         /// </summary>
-        internal static string client_secret_too_long {
+        public static string client_secret_too_long {
             get {
                 return ResourceManager.GetString("client_secret_too_long", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The code contains invalid characters ähnelt.
         /// </summary>
-        internal static string code_invalid {
+        public static string code_invalid {
             get {
                 return ResourceManager.GetString("code_invalid", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The code is missing ähnelt.
         /// </summary>
-        internal static string code_missing {
+        public static string code_missing {
             get {
                 return ResourceManager.GetString("code_missing", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The code is too long ähnelt.
         /// </summary>
-        internal static string code_too_long {
+        public static string code_too_long {
             get {
                 return ResourceManager.GetString("code_too_long", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die This user name already exists ähnelt.
         /// </summary>
-        internal static string duplicate_user_name {
+        public static string duplicate_user_name {
             get {
                 return ResourceManager.GetString("duplicate_user_name", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The email address is invalid ähnelt.
         /// </summary>
-        internal static string email_invalid {
+        public static string email_invalid {
             get {
                 return ResourceManager.GetString("email_invalid", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The email address is missing ähnelt.
         /// </summary>
-        internal static string email_missing {
+        public static string email_missing {
             get {
                 return ResourceManager.GetString("email_missing", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die An unexpected server error occured ähnelt.
         /// </summary>
-        internal static string internal_server_error {
+        public static string internal_server_error {
             get {
                 return ResourceManager.GetString("internal_server_error", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user credentials are not valid ähnelt.
         /// </summary>
-        internal static string invalid_credentials {
+        public static string invalid_credentials {
             get {
                 return ResourceManager.GetString("invalid_credentials", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The issuer is invalid ähnelt.
         /// </summary>
-        internal static string issuer_invalid {
+        public static string issuer_invalid {
             get {
                 return ResourceManager.GetString("issuer_invalid", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The issuer is missing ähnelt.
         /// </summary>
-        internal static string issuer_missing {
+        public static string issuer_missing {
             get {
                 return ResourceManager.GetString("issuer_missing", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The issuer is too long ähnelt.
         /// </summary>
-        internal static string issuer_too_long {
+        public static string issuer_too_long {
             get {
                 return ResourceManager.GetString("issuer_too_long", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The mandate UUID is invalid ähnelt.
         /// </summary>
-        internal static string mandate_uuid_invalid {
+        public static string mandate_uuid_invalid {
             get {
                 return ResourceManager.GetString("mandate_uuid_invalid", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The mandate UUID is too long ähnelt.
         /// </summary>
-        internal static string mandate_uuid_too_long {
+        public static string mandate_uuid_too_long {
             get {
                 return ResourceManager.GetString("mandate_uuid_too_long", resourceCulture);
             }
@@ -261,7 +261,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging limit must not exceed 50 records ähnelt.
         /// </summary>
-        internal static string max_paging_limit_exceeded {
+        public static string max_paging_limit_exceeded {
             get {
                 return ResourceManager.GetString("max_paging_limit_exceeded", resourceCulture);
             }
@@ -270,7 +270,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging offset must not exceed 500 records ähnelt.
         /// </summary>
-        internal static string max_paging_offset_exceeded {
+        public static string max_paging_offset_exceeded {
             get {
                 return ResourceManager.GetString("max_paging_offset_exceeded", resourceCulture);
             }
@@ -279,7 +279,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The name contains invalid characters ähnelt.
         /// </summary>
-        internal static string name_invalid {
+        public static string name_invalid {
             get {
                 return ResourceManager.GetString("name_invalid", resourceCulture);
             }
@@ -288,7 +288,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The name is missing ähnelt.
         /// </summary>
-        internal static string name_missing {
+        public static string name_missing {
             get {
                 return ResourceManager.GetString("name_missing", resourceCulture);
             }
@@ -297,7 +297,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The name is too long ähnelt.
         /// </summary>
-        internal static string name_too_long {
+        public static string name_too_long {
             get {
                 return ResourceManager.GetString("name_too_long", resourceCulture);
             }
@@ -306,7 +306,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please provide records for the update operation ähnelt.
         /// </summary>
-        internal static string no_records_specified {
+        public static string no_records_specified {
             get {
                 return ResourceManager.GetString("no_records_specified", resourceCulture);
             }
@@ -315,7 +315,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The record was not found ähnelt.
         /// </summary>
-        internal static string not_found {
+        public static string not_found {
             get {
                 return ResourceManager.GetString("not_found", resourceCulture);
             }
@@ -324,7 +324,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die This functionality is not yet implemented ähnelt.
         /// </summary>
-        internal static string not_implemented {
+        public static string not_implemented {
             get {
                 return ResourceManager.GetString("not_implemented", resourceCulture);
             }
@@ -333,7 +333,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging limit must be equal to or greater than zero ähnelt.
         /// </summary>
-        internal static string paging_limit_invalid {
+        public static string paging_limit_invalid {
             get {
                 return ResourceManager.GetString("paging_limit_invalid", resourceCulture);
             }
@@ -342,7 +342,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging offset must be equal to or greater than zero ähnelt.
         /// </summary>
-        internal static string paging_offset_invalid {
+        public static string paging_offset_invalid {
             get {
                 return ResourceManager.GetString("paging_offset_invalid", resourceCulture);
             }
@@ -351,7 +351,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password confirmation is missing ähnelt.
         /// </summary>
-        internal static string password_confirmation_missing {
+        public static string password_confirmation_missing {
             get {
                 return ResourceManager.GetString("password_confirmation_missing", resourceCulture);
             }
@@ -360,7 +360,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password confirmation is not matching the password ähnelt.
         /// </summary>
-        internal static string password_confirmation_no_match {
+        public static string password_confirmation_no_match {
             get {
                 return ResourceManager.GetString("password_confirmation_no_match", resourceCulture);
             }
@@ -369,7 +369,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password does not match our records ähnelt.
         /// </summary>
-        internal static string password_does_not_match {
+        public static string password_does_not_match {
             get {
                 return ResourceManager.GetString("password_does_not_match", resourceCulture);
             }
@@ -378,7 +378,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password contains invalid characters ähnelt.
         /// </summary>
-        internal static string password_invalid {
+        public static string password_invalid {
             get {
                 return ResourceManager.GetString("password_invalid", resourceCulture);
             }
@@ -387,7 +387,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password is missing ähnelt.
         /// </summary>
-        internal static string password_missing {
+        public static string password_missing {
             get {
                 return ResourceManager.GetString("password_missing", resourceCulture);
             }
@@ -396,7 +396,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password requires non alphanumeric characters ähnelt.
         /// </summary>
-        internal static string password_requires_non_alphanumeric {
+        public static string password_requires_non_alphanumeric {
             get {
                 return ResourceManager.GetString("password_requires_non_alphanumeric", resourceCulture);
             }
@@ -405,7 +405,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password is too long ähnelt.
         /// </summary>
-        internal static string password_too_long {
+        public static string password_too_long {
             get {
                 return ResourceManager.GetString("password_too_long", resourceCulture);
             }
@@ -414,7 +414,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password is too short ähnelt.
         /// </summary>
-        internal static string password_too_short {
+        public static string password_too_short {
             get {
                 return ResourceManager.GetString("password_too_short", resourceCulture);
             }
@@ -423,7 +423,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The permission to access this location was denied ähnelt.
         /// </summary>
-        internal static string permission_denied {
+        public static string permission_denied {
             get {
                 return ResourceManager.GetString("permission_denied", resourceCulture);
             }
@@ -432,7 +432,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The phone number is invalid ähnelt.
         /// </summary>
-        internal static string phone_number_invalid {
+        public static string phone_number_invalid {
             get {
                 return ResourceManager.GetString("phone_number_invalid", resourceCulture);
             }
@@ -441,7 +441,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The phone number is missing ähnelt.
         /// </summary>
-        internal static string phone_number_missing {
+        public static string phone_number_missing {
             get {
                 return ResourceManager.GetString("phone_number_missing", resourceCulture);
             }
@@ -450,7 +450,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The private key is invalid, decoding failed ähnelt.
         /// </summary>
-        internal static string private_key_invalid {
+        public static string private_key_invalid {
             get {
                 return ResourceManager.GetString("private_key_invalid", resourceCulture);
             }
@@ -459,7 +459,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The private key is missing ähnelt.
         /// </summary>
-        internal static string private_key_missing {
+        public static string private_key_missing {
             get {
                 return ResourceManager.GetString("private_key_missing", resourceCulture);
             }
@@ -468,7 +468,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The private key string contains no private key delimiters ähnelt.
         /// </summary>
-        internal static string private_key_no_delimiters {
+        public static string private_key_no_delimiters {
             get {
                 return ResourceManager.GetString("private_key_no_delimiters", resourceCulture);
             }
@@ -477,7 +477,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The private key data given does not contain private key data ähnelt.
         /// </summary>
-        internal static string private_key_no_private_key {
+        public static string private_key_no_private_key {
             get {
                 return ResourceManager.GetString("private_key_no_private_key", resourceCulture);
             }
@@ -486,7 +486,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The private key is too long ähnelt.
         /// </summary>
-        internal static string private_key_too_long {
+        public static string private_key_too_long {
             get {
                 return ResourceManager.GetString("private_key_too_long", resourceCulture);
             }
@@ -495,7 +495,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The redirect URL is invalid ähnelt.
         /// </summary>
-        internal static string redirect_url_invalid {
+        public static string redirect_url_invalid {
             get {
                 return ResourceManager.GetString("redirect_url_invalid", resourceCulture);
             }
@@ -504,7 +504,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The redirect URL is missing ähnelt.
         /// </summary>
-        internal static string redirect_url_missing {
+        public static string redirect_url_missing {
             get {
                 return ResourceManager.GetString("redirect_url_missing", resourceCulture);
             }
@@ -513,7 +513,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The redirect URL must be absolute ähnelt.
         /// </summary>
-        internal static string redirect_url_must_be_absolute {
+        public static string redirect_url_must_be_absolute {
             get {
                 return ResourceManager.GetString("redirect_url_must_be_absolute", resourceCulture);
             }
@@ -522,7 +522,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The redirect URL is not required ähnelt.
         /// </summary>
-        internal static string redirect_url_not_required {
+        public static string redirect_url_not_required {
             get {
                 return ResourceManager.GetString("redirect_url_not_required", resourceCulture);
             }
@@ -531,7 +531,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The redirect URL is too long ähnelt.
         /// </summary>
-        internal static string redirect_url_too_long {
+        public static string redirect_url_too_long {
             get {
                 return ResourceManager.GetString("redirect_url_too_long", resourceCulture);
             }
@@ -540,7 +540,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The security token is invalid or expired ähnelt.
         /// </summary>
-        internal static string security_token_invalid {
+        public static string security_token_invalid {
             get {
                 return ResourceManager.GetString("security_token_invalid", resourceCulture);
             }
@@ -549,7 +549,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The state is invalid ähnelt.
         /// </summary>
-        internal static string state_invalid {
+        public static string state_invalid {
             get {
                 return ResourceManager.GetString("state_invalid", resourceCulture);
             }
@@ -558,7 +558,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The subject is invalid ähnelt.
         /// </summary>
-        internal static string subject_invalid {
+        public static string subject_invalid {
             get {
                 return ResourceManager.GetString("subject_invalid", resourceCulture);
             }
@@ -567,7 +567,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The subject is missing ähnelt.
         /// </summary>
-        internal static string subject_missing {
+        public static string subject_missing {
             get {
                 return ResourceManager.GetString("subject_missing", resourceCulture);
             }
@@ -576,7 +576,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The subject is too long ähnelt.
         /// </summary>
-        internal static string subject_too_long {
+        public static string subject_too_long {
             get {
                 return ResourceManager.GetString("subject_too_long", resourceCulture);
             }
@@ -585,7 +585,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please only update up to 50 records at once ähnelt.
         /// </summary>
-        internal static string too_many_update_records {
+        public static string too_many_update_records {
             get {
                 return ResourceManager.GetString("too_many_update_records", resourceCulture);
             }
@@ -594,7 +594,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user credentials are missing ähnelt.
         /// </summary>
-        internal static string user_credentials_missing {
+        public static string user_credentials_missing {
             get {
                 return ResourceManager.GetString("user_credentials_missing", resourceCulture);
             }
@@ -603,7 +603,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user group was not found ähnelt.
         /// </summary>
-        internal static string user_group_not_found {
+        public static string user_group_not_found {
             get {
                 return ResourceManager.GetString("user_group_not_found", resourceCulture);
             }
@@ -612,7 +612,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user group UUID is invalid ähnelt.
         /// </summary>
-        internal static string user_group_uuid_invalid {
+        public static string user_group_uuid_invalid {
             get {
                 return ResourceManager.GetString("user_group_uuid_invalid", resourceCulture);
             }
@@ -621,7 +621,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user group UUID is missing ähnelt.
         /// </summary>
-        internal static string user_group_uuid_missing {
+        public static string user_group_uuid_missing {
             get {
                 return ResourceManager.GetString("user_group_uuid_missing", resourceCulture);
             }
@@ -630,7 +630,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user name contains invalid characters ähnelt.
         /// </summary>
-        internal static string user_name_invalid {
+        public static string user_name_invalid {
             get {
                 return ResourceManager.GetString("user_name_invalid", resourceCulture);
             }
@@ -639,7 +639,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user name is missing ähnelt.
         /// </summary>
-        internal static string user_name_missing {
+        public static string user_name_missing {
             get {
                 return ResourceManager.GetString("user_name_missing", resourceCulture);
             }
@@ -648,16 +648,25 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user name is too long ähnelt.
         /// </summary>
-        internal static string user_name_too_long {
+        public static string user_name_too_long {
             get {
                 return ResourceManager.GetString("user_name_too_long", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user is no member of the user group ähnelt.
+        /// </summary>
+        public static string user_no_member_of_user_group {
+            get {
+                return ResourceManager.GetString("user_no_member_of_user_group", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user was not found ähnelt.
         /// </summary>
-        internal static string user_not_found {
+        public static string user_not_found {
             get {
                 return ResourceManager.GetString("user_not_found", resourceCulture);
             }
@@ -666,7 +675,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user UUID is invalid ähnelt.
         /// </summary>
-        internal static string user_uuid_invalid {
+        public static string user_uuid_invalid {
             get {
                 return ResourceManager.GetString("user_uuid_invalid", resourceCulture);
             }
@@ -675,7 +684,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user UUID is missing ähnelt.
         /// </summary>
-        internal static string user_uuid_missing {
+        public static string user_uuid_missing {
             get {
                 return ResourceManager.GetString("user_uuid_missing", resourceCulture);
             }
@@ -684,7 +693,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The UUID is invalid ähnelt.
         /// </summary>
-        internal static string uuid_invalid {
+        public static string uuid_invalid {
             get {
                 return ResourceManager.GetString("uuid_invalid", resourceCulture);
             }
@@ -693,7 +702,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The UUID is missing ähnelt.
         /// </summary>
-        internal static string uuid_missing {
+        public static string uuid_missing {
             get {
                 return ResourceManager.GetString("uuid_missing", resourceCulture);
             }
@@ -702,7 +711,7 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Validation of the submitted data failed ähnelt.
         /// </summary>
-        internal static string validation_failed {
+        public static string validation_failed {
             get {
                 return ResourceManager.GetString("validation_failed", resourceCulture);
             }
