@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
+using ReinhardHolzner.Core.Redis;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -7,11 +8,11 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UseRedis(this IApplicationBuilder app)
         {
-            IDistributedCache distributedCache = app.ApplicationServices.GetRequiredService<IDistributedCache>();
+            IRedisCache redisCache = app.ApplicationServices.GetRequiredService<IRedisCache>();
 
             // test the cache
 
-            distributedCache.GetString("dummy:1");
+            redisCache.GetIntArrayAsync("dummy:1");
 
             return app;
         }

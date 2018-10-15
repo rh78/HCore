@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using ReinhardHolzner.Core.Redis;
+using ReinhardHolzner.Core.Redis.Impl;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -24,6 +26,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.Configuration = connectionString;
                 options.InstanceName = instanceName;
             });
+
+            services.AddSingleton<IRedisCache, RedisCacheImpl>();
 
             Console.WriteLine("Redis distributed cache initialized successfully");
 
