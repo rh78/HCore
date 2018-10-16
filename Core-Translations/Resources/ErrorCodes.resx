@@ -336,4 +336,10 @@
   <data name="user_no_member_of_user_group" xml:space="preserve">
     <value>The user is no member of the user group</value>
   </data>
+  <data name="scroll_uuid_invalid" xml:space="preserve">
+    <value>The scroll UUID contains invalid characters</value>
+  </data>
+  <data name="scroll_uuid_too_long" xml:space="preserve">
+    <value>The scroll UUID is too long</value>
+  </data>
 </root>

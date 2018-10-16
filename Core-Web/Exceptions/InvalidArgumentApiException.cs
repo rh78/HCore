@@ -71,6 +71,8 @@ namespace ReinhardHolzner.Core.Web.Exceptions
         public const string DuplicateUserName = "duplicate_user_name";
         public const string PasswordRequiresNonAlphanumeric = "password_requires_non_alphanumeric";
         public const string SecurityTokenInvalid = "security_token_invalid";
+        public const string ScrollUuidInvalid = "scroll_uuid_invalid";
+        public const string ScrollUuidTooLong = "scroll_uuid_too_long";        
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)

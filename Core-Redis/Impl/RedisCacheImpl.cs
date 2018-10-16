@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ReinhardHolzner.Core.Redis.Impl
@@ -18,36 +15,21 @@ namespace ReinhardHolzner.Core.Redis.Impl
             _distributedCache = distributedCache;
         }
 
-        public async Task StoreAsync(string key, int[] values)
+        public async Task StoreAsync(string key, object value)
         {
-            await _distributedCache.SetAsync(key, ToByteArray(values.ToList())).ConfigureAwait(false);
+            await _distributedCache.SetAsync(key, ToByteArray(value)).ConfigureAwait(false);
         }
-
-        public async Task StoreAsync(string key, long[] values)
-        {
-            await _distributedCache.SetAsync(key, ToByteArray(values.ToList())).ConfigureAwait(false);
-        }
-
-        public async Task<int[]> GetIntArrayAsync(string key)
+        
+        public async Task<T> GetAsync<T>(string key) where T : class
         {
             byte[] value = await _distributedCache.GetAsync(key).ConfigureAwait(false);
 
             if (value == null)
                 return null;
 
-            return FromByteArray<List<int>>(value).ToArray();
+            return FromByteArray<T>(value);
         }
-
-        public async Task<long[]> GetLongArrayAsync(string key)
-        {
-            byte[] value = await _distributedCache.GetAsync(key).ConfigureAwait(false);
-
-            if (value == null)
-                return null;
-
-            return FromByteArray<List<long>>(value).ToArray();
-        }
-
+        
         private byte[] ToByteArray<T>(T value)
         {
             if (value == null)

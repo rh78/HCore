@@ -538,6 +538,24 @@ namespace ReinhardHolzner.Core.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The scroll UUID contains invalid characters ähnelt.
+        /// </summary>
+        public static string scroll_uuid_invalid {
+            get {
+                return ResourceManager.GetString("scroll_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The scroll UUID is too long ähnelt.
+        /// </summary>
+        public static string scroll_uuid_too_long {
+            get {
+                return ResourceManager.GetString("scroll_uuid_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The security token is invalid or expired ähnelt.
         /// </summary>
         public static string security_token_invalid {

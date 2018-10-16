@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Builder
 
             // test the cache
 
-            redisCache.GetIntArrayAsync("dummy:1");
+            redisCache.GetAsync<object>("dummy:1");
 
             return app;
         }
