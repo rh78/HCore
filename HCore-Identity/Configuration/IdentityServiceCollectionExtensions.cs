@@ -117,7 +117,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.Domain = authCookieDomain;
-                options.Cookie.Name = "RH.Core.Identity.session";
+                options.Cookie.Name = "HCore.Identity.session";
             });
 
             services.Configure<IdentityOptions>(options =>
