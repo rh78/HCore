@@ -8,9 +8,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages
     [SecurityHeaders]
     public class LoginModel : PageModel
     {
-        public void OnGet()
+        public IActionResult OnGet()
         {
-
+            return LocalRedirect("~/");
         }
     }
 }
