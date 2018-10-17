@@ -8,7 +8,7 @@ info:
     email: holzner@invest-fit.at
   license:
     name: MIT
-    url: 'https://www.linkedin.com/in/reinhardholzner'
+    url: 'https://github.com/rh78/HCore/blob/master/LICENSE'
     
 host: subdomain.domain.com
 basePath: /auth/v1
