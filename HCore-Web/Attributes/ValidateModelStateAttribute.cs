@@ -61,9 +61,9 @@ namespace HCore.Web.Attributes
                 }
 
                 if (!string.IsNullOrEmpty(errorMessage))
-                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.InvalidArgument, errorMessage);
+                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, errorMessage);
                 else
-                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.InvalidArgument, "The parameter validation failed with unknown reason");
+                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");
 
                 context.Result = new BadRequestObjectResult(invalidArgumentApiException.SerializeException());
             }

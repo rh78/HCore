@@ -88,6 +88,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The argument is invalid ähnelt.
+        /// </summary>
+        public static string argument_invalid {
+            get {
+                return ResourceManager.GetString("argument_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The argument is missing ähnelt.
+        /// </summary>
+        public static string argument_missing {
+            get {
+                return ResourceManager.GetString("argument_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID contains invalid characters ähnelt.
         /// </summary>
         public static string client_id_invalid {

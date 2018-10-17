@@ -8,7 +8,8 @@ namespace HCore.Web.Exceptions
         private readonly string _errorCode;
         private readonly ModelStateDictionary _modelState;
 
-        public const string InvalidArgument = "invalid_argument";
+        public const string ArgumentInvalid = "argument_invalid";
+        public const string ArgumentMissing = "argument_missing";
         public const string MandateUuidInvalid = "mandate_uuid_invalid";
         public const string MandateUuidTooLong = "mandate_uuid_too_long";
         public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";

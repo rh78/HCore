@@ -2,6 +2,6 @@
 {
     public interface IRestSharpClientProvider
     {
-        IRestSharpClient GetRestSharpClient();
+        IRestSharpClient GetRestSharpClient(string baseUrl);
     }
 }
