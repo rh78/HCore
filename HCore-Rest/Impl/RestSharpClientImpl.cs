@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using HCore.Rest.Impl.Serializer;
 using RestSharp;
 
 namespace HCore.Rest.Impl
@@ -15,6 +16,12 @@ namespace HCore.Rest.Impl
         public RestSharpClientImpl()
         {
             _restClient = new RestClient();
+
+            _restClient.AddHandler("application/json", NewtonsoftJsonSerializer.Default);
+            _restClient.AddHandler("text/json", NewtonsoftJsonSerializer.Default);
+            _restClient.AddHandler("text/x-json", NewtonsoftJsonSerializer.Default);
+            _restClient.AddHandler("text/javascript", NewtonsoftJsonSerializer.Default);
+            _restClient.AddHandler("*+json", NewtonsoftJsonSerializer.Default);
         }
 
         public Uri BaseUrl { get => _restClient.BaseUrl; set => _restClient.BaseUrl = value; }
