@@ -1,7 +1,7 @@
 /*
- * RHCore Identity Auth API
+ * HCore Identity Auth API
  *
- * The RHCore Identity Auth API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
+ * The HCore Identity Auth API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
  *
  * OpenAPI spec version: 1.0.0-s2
  * Contact: holzner@invest-fit.at
@@ -15,11 +15,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using ReinhardHolzner.Core.Web.Attributes;
-using ReinhardHolzner.Core.Web.Result;
-using ReinhardHolzner.Core.Identity.Generated.Models;
+using HCore.Web.Attributes;
+using HCore.Web.Result;
+using HCore.Identity.Generated.Models;
 
-namespace ReinhardHolzner.Core.Identity.Generated.Controllers
+namespace HCore.Identity.Generated.Controllers
 { 
 	/// <summary>
     /// 

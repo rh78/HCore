@@ -1,13 +1,13 @@
 swagger: "2.0"
 
 info:
-  description: The RHCore Identity Auth API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
+  description: The HCore Identity Auth API provides the most common methods to handle authentication server side using ASP.NET Identity Core.
   version: "1.0.0-s2"
-  title: RHCore Identity Auth API
+  title: HCore Identity Auth API
   contact:
     email: holzner@invest-fit.at
   license:
-    name: ReinhardHolzner Core Commercial License
+    name: MIT
     url: 'https://www.linkedin.com/in/reinhardholzner'
     
 host: subdomain.domain.com
