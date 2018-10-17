@@ -1,0 +1,65 @@
+﻿@page
+@model HCore.Identity.PagesUI.Classes.Pages.Account.LogoutModel
+@{
+    if (Model.LoggedOut)
+    {
+        // set this so the layout rendering sees an anonymous user
+
+        ViewData["signed-out"] = true;
+    }
+
+    ViewData["Title"] = "Log out";
+}
+
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        @if (!Model.LoggedOut)
+        {
+            <h4>Would you like to log out?</h4> 
+            <p>Please click the button below to confirm.</p>
+            <hr />
+            <form asp-page="/Account/Logout" method="post">
+                <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+                <fieldset>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Yes</button>
+                    </div>
+                </fieldset>
+            </form>
+        }
+        else
+        {
+            <h4>You are now logged out.</h4>
+            <p>Hope to see you back again soon!</p>
+
+            @if (Model.PostLogoutRedirectUri != null)
+            {
+                <hr/>
+                <p>
+                    Click <a class="PostLogoutRedirectUri" href="@Model.PostLogoutRedirectUri">here</a> to return to the
+                    <span>@Model.ClientName</span> application.
+                </p>
+            }
+
+            @if (Model.SignOutIframeUrl != null)
+            {
+                <iframe width="0" height="0" class="signout" style="display:none;" src="@Model.SignOutIframeUrl"></iframe>
+            }
+
+            @section scripts
+            {
+                @if (Model.AutomaticRedirectAfterSignOut && Model.PostLogoutRedirectUri != null)
+                {
+                    <script language="JavaScript">  
+                        var a = document.querySelector("a.PostLogoutRedirectUri");
+
+                        if (a) {
+                            window.location = a.href;
+                        }                        
+                    </script>
+                }
+            }
+        }
+    </div>
+</div>

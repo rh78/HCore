@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>HCore.Identity</RootNamespace>
+    <AssemblyName>HCore.Identity</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.DataProtection.SqlServer" Version="1.0.2" />
+    <PackageReference Include="IdentityServer4" Version="2.2.0" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.1.0" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />    
+    <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />
+    <ProjectReference Include="..\HCore-Templating\HCore-Templating.csproj" />
+    <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
+  </ItemGroup>
+
+</Project>
