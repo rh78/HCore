@@ -62,7 +62,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 // the user clicked the "cancel" button
 
                 if (IsLocalAuthorization)
-                    return LocalRedirect(ReturnUrl);
+                {
+                    if (!string.IsNullOrEmpty(ReturnUrl))
+                        return LocalRedirect(ReturnUrl);
+                    else
+                        LocalRedirect("~/");
+                }
 
                 var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl);
 
@@ -97,7 +102,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Uuid, user.Email)).ConfigureAwait(false);
 
                 if (IsLocalAuthorization)
-                    return LocalRedirect(ReturnUrl);
+                {
+                    if (!string.IsNullOrEmpty(ReturnUrl))
+                        return LocalRedirect(ReturnUrl);
+                    else
+                        LocalRedirect("~/");
+                }
 
                 if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
                 {
