@@ -24,8 +24,8 @@ namespace HCore.Web.Exceptions
             await context.Response.WriteAsync(SerializeException()).ConfigureAwait(false);
         }
 
-        public string SerializeException()
-        {           
+        public Models.ApiException GetApiExceptionModel()
+        {
             Models.ApiException apiExceptionResult = new Models.ApiException()
             {
                 ErrorCode = GetErrorCode(),
@@ -38,7 +38,12 @@ namespace HCore.Web.Exceptions
                 apiExceptionResult.ErrorDetails = JsonConvert.SerializeObject(o);
             }
 
-            return JsonConvert.SerializeObject(apiExceptionResult, Formatting.None,
+            return apiExceptionResult;
+        }
+
+        public string SerializeException()
+        {           
+            return JsonConvert.SerializeObject(GetApiExceptionModel(), Formatting.None,
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
     }
