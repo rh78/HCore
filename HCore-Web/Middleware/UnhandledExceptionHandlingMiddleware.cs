@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using HCore.Web.Exceptions;
 using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace HCore.Web.Middleware
 {
@@ -28,6 +29,10 @@ namespace HCore.Web.Middleware
             catch (ApiException e)
             {
                 resultException = e;
+            }
+            catch (JsonSerializationException e)
+            {
+                resultException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, e.Message);
             }
             catch (NotImplementedException e)
             {
