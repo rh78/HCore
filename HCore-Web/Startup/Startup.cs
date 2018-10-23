@@ -9,8 +9,6 @@ using System;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
 using HCore.Web.Providers.Impl;

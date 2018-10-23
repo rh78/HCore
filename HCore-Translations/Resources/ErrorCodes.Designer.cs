@@ -259,20 +259,20 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The mandate UUID is invalid ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is invalid ähnelt.
         /// </summary>
-        public static string mandate_uuid_invalid {
+        public static string tenant_uuid_invalid {
             get {
-                return ResourceManager.GetString("mandate_uuid_invalid", resourceCulture);
+                return ResourceManager.GetString("tenant_uuid_invalid", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The mandate UUID is too long ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is too long ähnelt.
         /// </summary>
-        public static string mandate_uuid_too_long {
+        public static string tenant_uuid_too_long {
             get {
-                return ResourceManager.GetString("mandate_uuid_too_long", resourceCulture);
+                return ResourceManager.GetString("tenant_uuid_too_long", resourceCulture);
             }
         }
         
