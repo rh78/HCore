@@ -153,6 +153,8 @@ namespace HCore.Web.Startup
             ConfigureExceptionHandling(app, env);            
 
             ConfigureMvc(app, env);
+
+            ConfigureSpa(app, env);
         }
 
         private void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
@@ -249,7 +251,14 @@ namespace HCore.Web.Startup
             app.UseMvc(routes =>
             {
                 ConfigureCoreRoutes(routes);
-            });
+
+                if (_useSpa)
+                {
+                    routes.MapSpaFallbackRoute(
+                        name: "spa-fallback",
+                        defaults: new { controller = "Home", action = "Index" });
+                }
+            });        
         }        
 
         private void ConfigureSpa(IApplicationBuilder app, IHostingEnvironment env)
@@ -260,7 +269,9 @@ namespace HCore.Web.Startup
                 {
                     spa.Options.SourcePath = "ClientApp";
 
-                    if (env.IsDevelopment())
+                    bool useSpaDevelopmentServer = Configuration.GetValue<bool>("WebServer:UseSpaDevelopmentServer");
+
+                    if (useSpaDevelopmentServer && env.IsDevelopment())
                     {
                         spa.UseReactDevelopmentServer(npmScript: "start");
                     }

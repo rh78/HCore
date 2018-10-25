@@ -1,6 +1,5 @@
-﻿using HCore.Amqp;
-using HCore.Amqp.Processor;
-using HCore.Emailing;
+﻿using HCore.Amqp.Processor;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +11,23 @@ namespace HCore.Emailing.Impl
     {
         private readonly IAMQPMessenger _amqpMessenger;
 
-        public AMQPEmailSenderImpl(IAMQPMessenger amqpMessenger)            
+        private readonly string _emailSenderAddress;
+
+        public AMQPEmailSenderImpl(IAMQPMessenger amqpMessenger, IConfiguration configuration)            
         {
             _amqpMessenger = amqpMessenger;
+
+            string addresses = configuration["Amqp:Addresses"];
+
+            if (string.IsNullOrEmpty(addresses))
+                throw new Exception("AMQP addresses are missing");
+
+            string[] addressesSplit = addresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            _emailSenderAddress = addressesSplit.FirstOrDefault(address => address.EndsWith(EmailSenderConstants.AddressSuffix));
+
+            if (_emailSenderAddress == null)
+                throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
         }
 
         public async Task SendEmailAsync(string configurationKey, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
@@ -29,7 +42,7 @@ namespace HCore.Emailing.Impl
                 HtmlMessage = htmlMessage
             };
         
-            await _amqpMessenger.SendMessageAsync(EmailSenderConstants.Address, 
+            await _amqpMessenger.SendMessageAsync(_emailSenderAddress, 
                 emailSenderTask).ConfigureAwait(false);         
         }
     }

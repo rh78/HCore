@@ -20,4 +20,6 @@
 /HCore-Identity-PagesUI-Views/obj
 /HCore-Translations/bin
 /HCore-Translations/obj
+/HCore-Tenants/bin
+/HCore-Tenants/obj
 /.vs

@@ -18,7 +18,7 @@ namespace HCore.Emailing.Impl
 
         public virtual async Task<bool> ProcessMessageAsync(string address, string messageBodyJson)
         {
-            if (!string.Equals(address, EmailSenderConstants.Address))
+            if (!address.EndsWith(EmailSenderConstants.AddressSuffix))
                 return false;
 
             EmailSenderTask emailSenderTask = JsonConvert.DeserializeObject<EmailSenderTask>(messageBodyJson);
