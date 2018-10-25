@@ -7,5 +7,6 @@
         }
         
         public string Title { get; set; }
+        public string PreHeader { get; set; }
     }
 }
