@@ -17,7 +17,7 @@ namespace HCore.Web.Exceptions
         public abstract string GetErrorCode();
         public abstract object GetObject();
 
-        internal async Task WriteResponseAsync(HttpContext context)
+        public async Task WriteResponseAsync(HttpContext context)
         {
             context.Response.StatusCode = GetStatusCode();
 

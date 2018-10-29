@@ -259,24 +259,6 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is invalid ähnelt.
-        /// </summary>
-        public static string tenant_uuid_invalid {
-            get {
-                return ResourceManager.GetString("tenant_uuid_invalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is too long ähnelt.
-        /// </summary>
-        public static string tenant_uuid_too_long {
-            get {
-                return ResourceManager.GetString("tenant_uuid_too_long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging limit must not exceed 50 records ähnelt.
         /// </summary>
         public static string max_paging_limit_exceeded {
@@ -615,6 +597,33 @@ namespace HCore.Translations.Resources {
         public static string subject_too_long {
             get {
                 return ResourceManager.GetString("subject_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant was not found ähnelt.
+        /// </summary>
+        public static string tenant_not_found {
+            get {
+                return ResourceManager.GetString("tenant_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is invalid ähnelt.
+        /// </summary>
+        public static string tenant_uuid_invalid {
+            get {
+                return ResourceManager.GetString("tenant_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The tenant UUID is too long ähnelt.
+        /// </summary>
+        public static string tenant_uuid_too_long {
+            get {
+                return ResourceManager.GetString("tenant_uuid_too_long", resourceCulture);
             }
         }
         

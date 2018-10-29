@@ -1,5 +1,6 @@
 ﻿using HCore.Tenants;
 using HCore.Tenants.Database.SqlServer;
+using HCore.Tenants.Middleware;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder
@@ -11,6 +12,8 @@ namespace Microsoft.AspNetCore.Builder
             app.UseSqlServer<SqlServerTenantDbContext>();
 
             app.ApplicationServices.GetRequiredService<ITenantDataProvider>();
+
+            app.UseMiddleware<TenantsMiddleware>();
 
             return app;
         }        

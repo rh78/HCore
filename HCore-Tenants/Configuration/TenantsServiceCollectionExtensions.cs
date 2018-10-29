@@ -1,7 +1,9 @@
 ﻿using HCore.Tenants;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Impl;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -12,6 +14,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
 
             services.AddSingleton<ITenantDataProvider, TenantDataProviderImpl>();
+
+            services.AddHttpContextAccessor();
+
+            services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
+            services.TryAddSingleton<ITenantInfoAccessor, TenantInfoAccessorImpl>();
 
             return services;
         }

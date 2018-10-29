@@ -348,4 +348,7 @@
   <data name="argument_missing" xml:space="preserve">
     <value>The argument is missing</value>
   </data>
+  <data name="tenant_not_found" xml:space="preserve">
+    <value>The tenant was not found</value>
+  </data>
 </root>

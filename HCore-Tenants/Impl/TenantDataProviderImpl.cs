@@ -1,6 +1,6 @@
 ﻿using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
-using HCore.Web.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -35,6 +35,8 @@ namespace HCore.Tenants.Impl
 
                 developer.Tenants.ForEach(tenant =>
                 {
+                    string subdomainPattern = tenant.SubdomainPattern;
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -45,7 +47,14 @@ namespace HCore.Tenants.Impl
                         LogoUrl = tenant.LogoUrl
                     };
 
-                    _tenantInfoMappings.Add(tenant.SubdomainPattern, tenantInfo);
+                    string[] subdomainPatternParts = subdomainPattern.Split(';');
+
+                    subdomainPatternParts.ToList().ForEach(subdomainPatternPart =>
+                    {
+                        _tenantInfoMappings.Add(subdomainPatternPart, tenantInfo);
+                        
+                    });
+
                     TenantInfos.Add(tenantInfo);
                 });
             }
@@ -90,14 +99,6 @@ namespace HCore.Tenants.Impl
             }
 
             _logger = logger;
-
-            LookupTenant("smint.io");
-            LookupTenant("www.smint.io");
-            LookupTenant("development.smint.io");
-            LookupTenant("megacorp-development-portal.smint.io");
-            LookupTenant("xyz");
-            LookupTenant("xyz.test");
-            LookupTenant("abc.xyz.test");
         }
 
         public ITenantInfo LookupTenant(string host)
