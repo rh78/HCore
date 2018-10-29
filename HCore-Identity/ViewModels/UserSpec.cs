@@ -17,14 +17,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace HCore.Identity.Generated.Models
+namespace HCore.Identity.ViewModels
 { 
     /// <summary>
-    /// The information required to reset the password for the user
+    /// The information required to register the new user
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class ResetUserPasswordSpec : IEquatable<ResetUserPasswordSpec>
+	public partial class UserSpec : IEquatable<UserSpec>
     { 
 		private string _Email;
 		
@@ -56,23 +56,34 @@ namespace HCore.Identity.Generated.Models
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
+        [Required]
         [DataMember(Name="password_confirmation")]
 		public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
 		
-		public bool PasswordConfirmationSet = false;		
+		public bool PasswordConfirmationSet = false;
 
-		private string _Code;
-		
-		/// <summary>
-        /// The password reset code sent by e-mail to the user
+        private string _PhoneNumber;
+
+        /// <summary>
+        /// The phone number of the user
         /// </summary>
-        /// <value>The password reset code sent by e-mail to the user</value>
-        [Required]
-        [DataMember(Name="code")]
-		public string Code { get => _Code; set { _Code = value; CodeSet = true; } }
-		
-		public bool CodeSet = false;		
+        /// <value>The phone number of the user</value>
+        [DataMember(Name = "phone_number")]
+        public string PhoneNumber { get => _PhoneNumber; set { _PhoneNumber = value; PhoneNumberSet = true; } }
 
+        public bool PhoneNumberSet = false;
+
+        private bool? _PhoneNumberConfirmed;
+
+        /// <summary>
+        /// Indicates if the phone number of the user has already been confirmed
+        /// </summary>
+        /// <value>Indicates if the phone number of the user has already been confirmed</value>
+        [DataMember(Name = "phone_number_confirmed")]
+        public bool? PhoneNumberConfirmed { get => _PhoneNumberConfirmed; set { _PhoneNumberConfirmed = value; PhoneNumberConfirmedSet = true; } }
+
+        public bool PhoneNumberConfirmedSet = false;
+      
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -80,11 +91,12 @@ namespace HCore.Identity.Generated.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ResetUserPasswordSpec {\n");
+            sb.Append("class UserSpec {\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
-            sb.Append("  Code: ").Append(Code).Append("\n");
+            sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
+            sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -107,15 +119,15 @@ namespace HCore.Identity.Generated.Models
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ResetUserPasswordSpec)obj);
+            return obj.GetType() == GetType() && Equals((UserSpec)obj);
         }
 
         /// <summary>
-        /// Returns true if ResetUserPasswordSpec instances are equal
+        /// Returns true if UserSpec instances are equal
         /// </summary>
-        /// <param name="other">Instance of ResetUserPasswordSpec to be compared</param>
+        /// <param name="other">Instance of UserSpec to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(ResetUserPasswordSpec other)
+        public bool Equals(UserSpec other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -135,11 +147,16 @@ namespace HCore.Identity.Generated.Models
                     PasswordConfirmation == other.PasswordConfirmation ||
                     PasswordConfirmation != null &&
                     PasswordConfirmation.Equals(other.PasswordConfirmation)
-                ) && 
+                ) &&
                 (
-                    Code == other.Code ||
-                    Code != null &&
-                    Code.Equals(other.Code)
+                    PhoneNumber == other.PhoneNumber ||
+                    PhoneNumber != null &&
+                    PhoneNumber.Equals(other.PhoneNumber)
+                ) &&
+                (
+                    PhoneNumberConfirmed == other.PhoneNumberConfirmed ||
+                    PhoneNumberConfirmed != null &&
+                    PhoneNumberConfirmed.Equals(other.PhoneNumberConfirmed)
                 );
         }
 
@@ -159,8 +176,10 @@ namespace HCore.Identity.Generated.Models
                     hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)
                     hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
-                    if (Code != null)
-                    hashCode = hashCode * 59 + Code.GetHashCode();
+                    if (PhoneNumber != null)
+                        hashCode = hashCode * 59 + PhoneNumber.GetHashCode();
+                    if (PhoneNumberConfirmed != null)
+                        hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
                 return hashCode;
             }
         }
@@ -168,12 +187,12 @@ namespace HCore.Identity.Generated.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(ResetUserPasswordSpec left, ResetUserPasswordSpec right)
+        public static bool operator ==(UserSpec left, UserSpec right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(ResetUserPasswordSpec left, ResetUserPasswordSpec right)
+        public static bool operator !=(UserSpec left, UserSpec right)
         {
             return !Equals(left, right);
         }

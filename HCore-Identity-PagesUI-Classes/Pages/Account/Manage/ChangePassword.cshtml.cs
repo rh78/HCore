@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
+using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
@@ -14,12 +13,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
     [SecurityHeaders]
     public class ChangePasswordModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         public ChangePasswordModel(
-            ISecureApiController secureApiController)
+            IIdentityServices identityServices)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
         }
 
         [BindProperty]
@@ -32,7 +31,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
-            var apiResult = await _secureApiController.GetUserAsync(userUuid).ConfigureAwait(false);            
+            var apiResult = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);            
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -43,7 +42,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             {
                 var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
-                await _secureApiController.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
+                await _identityServices.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 
                 StatusMessage = "Your password has been changed";
 

@@ -5,14 +5,13 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
     public class LogoutModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
@@ -40,11 +39,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public string LogoutId { get; set; }
 
         public LogoutModel(
-             ISecureApiController secureApiController,
+             IIdentityServices identityServices,
              IIdentityServerInteractionService interaction,
              IEventService events)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
             _interaction = interaction;
             _events = events;
         }
@@ -116,7 +115,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 // delete local authentication cookie
 
-                await _secureApiController.SignOutUserAsync().ConfigureAwait(false);
+                await _identityServices.SignOutUserAsync().ConfigureAwait(false);
 
                 // raise the logout event
                 

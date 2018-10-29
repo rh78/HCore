@@ -17,26 +17,26 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace HCore.Identity.Generated.Models
+namespace HCore.Identity.ViewModels
 { 
     /// <summary>
-    /// The information required to initiate the \&quot;forgot password\&quot; flow for the user
+    /// The information required to confirm the email address of the user
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class UserForgotPasswordSpec : IEquatable<UserForgotPasswordSpec>
+	public partial class UserConfirmEmailSpec : IEquatable<UserConfirmEmailSpec>
     { 
-		private string _Email;
+		private string _Code;
 		
 		/// <summary>
-        /// The email address of the user
+        /// The confirmation code sent by e-mail to the user
         /// </summary>
-        /// <value>The email address of the user</value>
+        /// <value>The confirmation code sent by e-mail to the user</value>
         [Required]
-        [DataMember(Name="email")]
-		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
+        [DataMember(Name="code")]
+		public string Code { get => _Code; set { _Code = value; CodeSet = true; } }
 		
-		public bool EmailSet = false;		
+		public bool CodeSet = false;		
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -45,8 +45,8 @@ namespace HCore.Identity.Generated.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class UserForgotPasswordSpec {\n");
-            sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("class UserConfirmEmailSpec {\n");
+            sb.Append("  Code: ").Append(Code).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -69,24 +69,24 @@ namespace HCore.Identity.Generated.Models
         {
             if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((UserForgotPasswordSpec)obj);
+            return obj.GetType() == GetType() && Equals((UserConfirmEmailSpec)obj);
         }
 
         /// <summary>
-        /// Returns true if UserForgotPasswordSpec instances are equal
+        /// Returns true if UserConfirmEmailSpec instances are equal
         /// </summary>
-        /// <param name="other">Instance of UserForgotPasswordSpec to be compared</param>
+        /// <param name="other">Instance of UserConfirmEmailSpec to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(UserForgotPasswordSpec other)
+        public bool Equals(UserConfirmEmailSpec other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    Email == other.Email ||
-                    Email != null &&
-                    Email.Equals(other.Email)
+                    Code == other.Code ||
+                    Code != null &&
+                    Code.Equals(other.Code)
                 );
         }
 
@@ -100,8 +100,8 @@ namespace HCore.Identity.Generated.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Email != null)
-                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (Code != null)
+                    hashCode = hashCode * 59 + Code.GetHashCode();
                 return hashCode;
             }
         }
@@ -109,12 +109,12 @@ namespace HCore.Identity.Generated.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(UserForgotPasswordSpec left, UserForgotPasswordSpec right)
+        public static bool operator ==(UserConfirmEmailSpec left, UserConfirmEmailSpec right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(UserForgotPasswordSpec left, UserForgotPasswordSpec right)
+        public static bool operator !=(UserConfirmEmailSpec left, UserConfirmEmailSpec right)
         {
             return !Equals(left, right);
         }

@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
+using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
@@ -14,19 +13,19 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
     [SecurityHeaders]
     public partial class IndexModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         public IndexModel(
-            ISecureApiController secureApiController)
+            IIdentityServices identityServices)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
         }
 
         [TempData]
         public string StatusMessage { get; set; }
 
         [BindProperty]
-        public User Input { get; set; }
+        public UserSpec Input { get; set; }
 
         public string Email { get; set; }
         public bool EmailConfirmed { get; set; }
@@ -35,12 +34,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {            
             var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
-            var apiResult = await _secureApiController.GetUserAsync(userUuid).ConfigureAwait(false);
+            var user = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
 
-            Input = apiResult.Result;
+            Input = new UserSpec()
+            {
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            };
 
             Email = Input.Email;
-            EmailConfirmed = Input.EmailConfirmed != null && (bool)Input.EmailConfirmed;
+            EmailConfirmed = user.EmailConfirmed;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -51,7 +54,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             {
                 var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
 
-                await _secureApiController.UpdateUserAsync(userUuid, Input).ConfigureAwait(false);
+                await _identityServices.UpdateUserAsync(userUuid, Input).ConfigureAwait(false);
 
                 StatusMessage = "Your profile has been updated";
 
@@ -71,7 +74,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
             try
             {
-                await _secureApiController.ResendUserEmailConfirmationEmailAsync(userUuid).ConfigureAwait(false);
+                await _identityServices.ResendUserEmailConfirmationEmailAsync(userUuid).ConfigureAwait(false);
 
                 StatusMessage = "Verification email sent, please check your email";
 

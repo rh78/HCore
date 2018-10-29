@@ -3,20 +3,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
 using HCore.Web.Exceptions;
+using HCore.Identity.ViewModels;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
     public class ConfirmEmailModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         public ConfirmEmailModel(
-            ISecureApiController secureApiController)
+            IIdentityServices identityServices)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
         }
 
         public async Task<IActionResult> OnGetAsync(string userUuid, string code)
@@ -25,7 +25,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                await _secureApiController.ConfirmUserEmailAddressAsync(userUuid, new Generated.Models.UserConfirmEmailSpec()
+                await _identityServices.ConfirmUserEmailAddressAsync(userUuid, new UserConfirmEmailSpec()
                 {                    
                     Code = code
                 }).ConfigureAwait(false);

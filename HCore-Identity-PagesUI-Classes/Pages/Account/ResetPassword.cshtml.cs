@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
+using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
@@ -12,12 +11,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     [SecurityHeaders]
     public class ResetPasswordModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         public ResetPasswordModel(
-            ISecureApiController secureApiController)
+            IIdentityServices identityServices)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
         }
 
         [BindProperty]
@@ -46,7 +45,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                await _secureApiController.ResetUserPasswordAsync(Input).ConfigureAwait(false);
+                await _identityServices.ResetUserPasswordAsync(Input).ConfigureAwait(false);
 
                 return RedirectToPage("./ResetPasswordConfirmation");
             }

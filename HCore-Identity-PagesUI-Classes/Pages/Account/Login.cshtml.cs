@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
+using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -11,13 +10,14 @@ using HCore.Identity.Attributes;
 using IdentityServer4.Models;
 using HCore.Web.Result;
 using IdentityServer4.Events;
+using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
     public class LoginModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
 
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -25,13 +25,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IEventService _events;
 
         public LoginModel(
-            ISecureApiController secureApiController,
+            IIdentityServices identityServices,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
@@ -95,11 +95,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                ApiResult<User> result = await _secureApiController.SignInUserAsync(Input).ConfigureAwait(false);
+                UserModel user = await _identityServices.SignInUserAsync(Input).ConfigureAwait(false);
 
-                User user = result.Result;
-
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Uuid, user.Email)).ConfigureAwait(false);
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
 
                 if (IsLocalAuthorization)
                 {

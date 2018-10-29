@@ -6,37 +6,41 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Templating.Emails;
 using HCore.Templating.Emails.ViewModels;
 using HCore.Web.Exceptions;
-using HCore.Web.Result;
+using System.Collections.Generic;
+using HCore.Identity.ViewModels;
+using HCore.Web.API.Impl;
 
 namespace HCore.Identity.Controllers.API.Impl
 {
-    public class SecureApiImpl : ApiImpl, ISecureApiController
+    internal class IdentityServicesImpl : IIdentityServices
     {
+        public const int MaxUserUuidLength = 50;
+        public const int MaxUserNameLength = 50;
+        public const int MinPasswordLength = 6;
+        public const int MaxPasswordLength = 50;
+        public const int MaxCodeLength = 50;
+
         private readonly SignInManager<UserModel> _signInManager;
         private readonly UserManager<UserModel> _userManager;
-        private readonly ILogger<SecureApiImpl> _logger;
+        private readonly ILogger<IdentityServicesImpl> _logger;
         private readonly IEmailSender _emailSender;
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
 
-        public SecureApiImpl(
+        public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
             UserManager<UserModel> userManager,
-            ILogger<SecureApiImpl> logger,
+            ILogger<IdentityServicesImpl> logger,
             IEmailSender emailSender,
             IEmailTemplateProvider emailTemplateProvider,
             IUrlHelper urlHelper,
-            SqlServerIdentityDbContext identityDbContext,
-            ILoggerFactory loggerFactory)
-            : base(loggerFactory)
+            SqlServerIdentityDbContext identityDbContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -47,7 +51,7 @@ namespace HCore.Identity.Controllers.API.Impl
             _identityDbContext = identityDbContext;
         }
 
-        public async Task<ApiResult<User>> CreateUserAsync([FromBody]UserSpec userSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec)
         {
             userSpec.Email = ProcessEmail(userSpec.Email, true);
             userSpec.Password = ProcessPassword(userSpec.Password);
@@ -85,14 +89,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                         await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
 
-                        return new ApiResult<User>(new User()
-                        {
-                            Uuid = user.Id,
-                            Email = user.Email,
-                            EmailConfirmed = user.EmailConfirmed,
-                            PhoneNumber = user.PhoneNumber,
-                            PhoneNumberConfirmed = user.PhoneNumberConfirmed
-                        });
+                        return user;
                     }
                     else
                     {
@@ -115,7 +112,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task<ApiResult<User>> SignInUserAsync([FromBody] UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec)
         {
             userSignInSpec.Email = ProcessEmail(userSignInSpec.Email, true);
             userSignInSpec.Password = ProcessPassword(userSignInSpec.Password);
@@ -147,14 +144,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                         transaction.Commit();
 
-                        return new ApiResult<User>(new User()
-                        {
-                            Uuid = user.Id,
-                            Email = user.Email,
-                            EmailConfirmed = user.EmailConfirmed,
-                            PhoneNumber = user.PhoneNumber,
-                            PhoneNumberConfirmed = user.PhoneNumberConfirmed
-                        });
+                        return user;
                     }
 
                     // authorization failed 
@@ -187,7 +177,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task ConfirmUserEmailAddressAsync([FromRoute][Required]string userUuid, [FromBody]UserConfirmEmailSpec userConfirmEmailSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -230,7 +220,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task UserForgotPasswordAsync([FromBody] UserForgotPasswordSpec userForgotPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec)
         {
             userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email, true);
 
@@ -278,7 +268,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task ResetUserPasswordAsync([FromBody] ResetUserPasswordSpec resetUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ResetUserPasswordAsync(ResetUserPasswordSpec resetUserPasswordSpec)
         {
             resetUserPasswordSpec.Email = ProcessEmail(resetUserPasswordSpec.Email, true);
             resetUserPasswordSpec.Password = ProcessPassword(resetUserPasswordSpec.Password);
@@ -322,7 +312,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task SetUserPasswordAsync([FromRoute, Required] string userUuid, [FromBody] SetUserPasswordSpec setUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task SetUserPasswordAsync(string userUuid, SetUserPasswordSpec setUserPasswordSpec)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -367,14 +357,14 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task SignOutUserAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task SignOutUserAsync()
         {
             await _signInManager.SignOutAsync().ConfigureAwait(false);
 
             _logger.LogInformation("User logged out");
         }
 
-        public async Task<ApiResult<User>> GetUserAsync([FromRoute, Required] string userUuid, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserModel> GetUserAsync(string userUuid)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -387,14 +377,7 @@ namespace HCore.Identity.Controllers.API.Impl
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                 }
 
-                return new ApiResult<User>(new User
-                {
-                    Uuid = user.Id,
-                    Email = user.Email,
-                    EmailConfirmed = user.EmailConfirmed,
-                    PhoneNumber = user.PhoneNumber,
-                    PhoneNumberConfirmed = user.PhoneNumberConfirmed
-                });
+                return user;
             }
             catch (ApiException e)
             {
@@ -408,7 +391,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task<ApiResult<User>> UpdateUserAsync([FromRoute, Required] string userUuid, [FromBody] User user, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -457,14 +440,7 @@ namespace HCore.Identity.Controllers.API.Impl
                 {
                     var newUser = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
 
-                    return new ApiResult<User>(new User
-                    {
-                        Uuid = newUser.Id,
-                        Email = newUser.Email,
-                        EmailConfirmed = newUser.EmailConfirmed,
-                        PhoneNumber = newUser.PhoneNumber,
-                        PhoneNumberConfirmed = newUser.PhoneNumberConfirmed
-                    });
+                    return newUser;
                 }
             }
             catch (ApiException e)
@@ -479,7 +455,7 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task ResendUserEmailConfirmationEmailAsync([FromRoute, Required] string userUuid, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ResendUserEmailConfirmationEmailAsync(string userUuid)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -524,6 +500,121 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 throw new InternalServerErrorApiException();
             }
-        }                
+        }
+
+        private string ProcessUserUuid(string userUuid)
+        {
+            if (string.IsNullOrEmpty(userUuid))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidMissing, "The user UUID is missing");
+
+            if (!ApiImpl.Uuid.IsMatch(userUuid))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+
+            if (userUuid.Length > MaxUserUuidLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+
+            return userUuid;
+        }
+
+        private string ProcessEmail(string email, bool required)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                if (required)
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
+
+                return null;
+            }
+
+            if (!new EmailAddressAttribute().IsValid(email))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is invalid");
+
+            return email;
+        }
+
+        private string ProcessPhoneNumber(string phoneNumber, bool required)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+            {
+                if (required)
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberMissing, "The phone number is missing");
+
+                return null;
+            }
+
+            if (!new PhoneAttribute().IsValid(phoneNumber))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberInvalid, "The phone number is invalid");
+
+            return phoneNumber;
+        }
+
+        private string ProcessPassword(string password)
+        {
+            if (string.IsNullOrEmpty(password))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordMissing, "The password is missing");
+
+            if (!ApiImpl.SafeString.IsMatch(password))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password contains invalid characters");
+
+            if (password.Length < MinPasswordLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooShort, "The password is too short");
+
+            if (password.Length > MaxPasswordLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooLong, "The password is too long");
+
+            return password;
+        }
+
+        private string ProcessPasswordConfirmation(string password, string passwordConfirmation)
+        {
+            if (string.IsNullOrEmpty(passwordConfirmation))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationMissing, "The password confirmation is missing");
+
+            if (!Equals(password, passwordConfirmation))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationNoMatch, "The password confirmation is not matching the password");
+
+            return password;
+        }
+
+        private string ProcessCode(string code)
+        {
+            if (string.IsNullOrEmpty(code))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeMissing, "The code is missing");
+
+            if (!ApiImpl.SafeString.IsMatch(code))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code contains invalid characters");
+
+            if (code.Length > MaxCodeLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeTooLong, "The code is too long");
+
+            return code;
+        }
+
+        private void HandleIdentityError(IEnumerable<IdentityError> errors)
+        {
+            var enumerator = errors.GetEnumerator();
+
+            if (enumerator.MoveNext())
+            {
+                var error = enumerator.Current;
+
+                if (Equals(error.Code, "DuplicateUserName"))
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.DuplicateUserName, "This user name already exists");
+                else if (Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
+                else if (Equals(error.Code, "InvalidToken"))
+                    throw new InvalidArgumentApiException(InvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
+                else if (Equals(error.Code, "PasswordMismatch"))
+                    throw new UnauthorizedApiException(UnauthorizedApiException.PasswordDoesNotMatch, "The password does not match our records");
+
+                _logger.LogWarning($"Identity error was not covered: {error.Code}");
+            }
+            else
+            {
+                _logger.LogWarning("Unknown identity error occured");
+            }
+
+            throw new InternalServerErrorApiException();
+        }
     }
 }

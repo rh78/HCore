@@ -1,28 +1,27 @@
 ﻿using System.Threading.Tasks;
 using IdentityServer4.Events;
 using IdentityServer4.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.Generated.Controllers;
-using HCore.Identity.Generated.Models;
+using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
 using HCore.Web.Result;
+using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
     public class RegisterModel : PageModel
     {
-        private readonly ISecureApiController _secureApiController;
+        private readonly IIdentityServices _identityServices;
         private readonly IEventService _events;
 
         public RegisterModel(
-            ISecureApiController secureApiController,
+            IIdentityServices identityServices,
             IEventService events)
         {
-            _secureApiController = secureApiController;
+            _identityServices = identityServices;
             _events = events;
         }
 
@@ -40,11 +39,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                ApiResult<User> result = await _secureApiController.CreateUserAsync(Input).ConfigureAwait(false);
+                UserModel user = await _identityServices.CreateUserAsync(Input).ConfigureAwait(false);
 
-                User user = result.Result;
-
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Uuid, user.Email)).ConfigureAwait(false);
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
 
                 return LocalRedirect("~/");
             } catch (ApiException e)

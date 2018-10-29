@@ -11,7 +11,6 @@ using HCore.Identity;
 using HCore.Identity.Controllers.API.Impl;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Identity.Generated.Controllers;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -52,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
-            services.AddScoped<ISecureApiController, SecureApiImpl>();
+            services.AddScoped<IIdentityServices, IdentityServicesImpl>();
 
             return services;
         }
