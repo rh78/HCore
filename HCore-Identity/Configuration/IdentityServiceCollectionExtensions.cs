@@ -24,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder = null)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddCoreIdentityJwt(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        public static IServiceCollection AddCoreIdentityJwt(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder = null)
         {
             ConfigureJwtAuthentication(services, configuration, tenantsBuilder);
 
