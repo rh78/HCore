@@ -2,7 +2,10 @@
 using Microsoft.Extensions.Localization;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Web;
 
 namespace HCore.Translations.Impl
 {
@@ -11,6 +14,8 @@ namespace HCore.Translations.Impl
         private readonly IServiceProvider _serviceProvider;
 
         private List<IStringLocalizer> _stringLocalizers;
+
+        private Dictionary<string, string> _cachedJson = new Dictionary<string, string>();
 
         public TranslationsProviderImpl(IServiceProvider serviceProvider)
         {
@@ -33,6 +38,41 @@ namespace HCore.Translations.Impl
             }
 
             return key;
-        }        
+        }   
+        
+        public string GetJson()
+        {
+            string currentCulture = CultureInfo.CurrentCulture.ToString();
+
+            if (_cachedJson.ContainsKey(currentCulture))
+                return _cachedJson[currentCulture];
+
+            StringBuilder jsonBuilder = new StringBuilder();
+
+            jsonBuilder.Append("{");
+
+            _stringLocalizers.ForEach(stringLocalizer =>
+            {
+                var translatedStrings = stringLocalizer.GetAllStrings(true);
+
+                translatedStrings.ToList().ForEach(translatedString =>
+                {
+                    jsonBuilder
+                        .Append("\"")
+                        .Append(translatedString.Name)
+                        .Append("\": \"")
+                        .Append(HttpUtility.JavaScriptStringEncode(translatedString.Value))
+                        .Append("\",\n");
+                });
+            });
+
+            jsonBuilder.Append("}");
+
+            string json = jsonBuilder.ToString();
+
+            _cachedJson[currentCulture] = json;
+
+            return json;
+        }
     }
 }
