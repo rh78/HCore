@@ -37,11 +37,19 @@ namespace HCore.Tenants.Impl
                 {
                     string subdomainPattern = tenant.SubdomainPattern;
 
+                    if (developer.Certificate != null && developer.Certificate.Length > 0 &&
+                        string.IsNullOrEmpty(developer.CertificatePassword))
+                    {
+                        throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
+                    }
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
                         DeveloperAuthority = developer.Authority,
+                        DeveloperAudience = developer.Audience,
                         DeveloperCertificate = developer.Certificate,
+                        CertificatePassword = developer.CertificatePassword,
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,

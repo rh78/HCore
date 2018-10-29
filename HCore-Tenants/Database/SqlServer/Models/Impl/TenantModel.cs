@@ -6,7 +6,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
     public class TenantModel
     {
-        public const int MaxSubdomainPatternLength = 50;
+        public const int MaxSubdomainPatternLength = 255;
         public const int MaxNameLength = 50;
         public const int MaxLogoUrlLength = 50;        
 

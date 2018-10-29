@@ -17,6 +17,8 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using HCore.Web.Attributes;
 using HCore.Web.Result;
+using Microsoft.AspNetCore.Authorization;
+using HCore.Identity;
 using HCore.Identity.Generated.Models;
 
 namespace HCore.Identity.Generated.Controllers
@@ -138,8 +140,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/{userUuid}/confirmEmail")]
-        [ProtectApi]
+        [Route("/auth/v1/users/{userUuid}/confirmEmail")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> ConfirmUserEmailAddressAsync([FromRoute][Required]string userUuid, [FromBody]UserConfirmEmailSpec userConfirmEmailSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -156,8 +158,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="201">An user has been successfully registered, the response contains the secure cookies. You should refresh the page</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users")]
-        [ProtectApi]
+        [Route("/auth/v1/users")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> CreateUserAsync([FromBody]UserSpec userSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -179,8 +181,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="403">Access to the resource was forbidden. Check the response for more details about the issue</response>
         /// <response code="404">The desired record was not found. Check the response for more details about the issue</response>
         [HttpGet]
-        [Route("/auth/v1/users/{userUuid}")]
-        [ProtectApi]
+        [Route("/auth/v1/users/{userUuid}")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> GetUserAsync([FromRoute][Required]string userUuid, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -201,8 +203,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/{userUuid}/resendEmailConfirmationEmail")]
-        [ProtectApi]
+        [Route("/auth/v1/users/{userUuid}/resendEmailConfirmationEmail")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> ResendUserEmailConfirmationEmailAsync([FromRoute][Required]string userUuid, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -219,8 +221,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="200">The password of the user has been reset</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/resetPassword")]
-        [ProtectApi]
+        [Route("/auth/v1/users/resetPassword")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> ResetUserPasswordAsync([FromBody]ResetUserPasswordSpec resetUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -239,8 +241,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/{userUuid}/setPassword")]
-        [ProtectApi]
+        [Route("/auth/v1/users/{userUuid}/setPassword")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> SetUserPasswordAsync([FromRoute][Required]string userUuid, [FromBody]SetUserPasswordSpec setUserPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -258,8 +260,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         /// <response code="401">Authorization for the operation failed. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/signin")]
-        [ProtectApi]
+        [Route("/auth/v1/users/signin")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> SignInUserAsync([FromBody]UserSignInSpec userSignInSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -277,8 +279,8 @@ namespace HCore.Identity.Generated.Controllers
         /// </summary>
         /// <response code="200">The user has been signed out, if a user was signed in. You should refresh the page</response>
         [HttpPost]
-        [Route("/auth/v1/users/signout")]
-        [ProtectApi]
+        [Route("/auth/v1/users/signout")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> SignOutUserAsync(CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -298,8 +300,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="403">Access to the resource was forbidden. Check the response for more details about the issue</response>
         /// <response code="404">The desired record was not found. Check the response for more details about the issue</response>
         [HttpPut]
-        [Route("/auth/v1/users/{userUuid}")]
-        [ProtectApi]
+        [Route("/auth/v1/users/{userUuid}")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> UpdateUserAsync([FromRoute][Required]string userUuid, [FromBody]User user, CancellationToken cancellationToken = default(CancellationToken))
         { 	
@@ -319,8 +321,8 @@ namespace HCore.Identity.Generated.Controllers
         /// <response code="200">The forgot password flow has been initiated</response>
         /// <response code="400">An issue occured when validating the arguments. Check the response for more details about the issue</response>
         [HttpPost]
-        [Route("/auth/v1/users/forgotPassword")]
-        [ProtectApi]
+        [Route("/auth/v1/users/forgotPassword")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]
         public async Task<IActionResult> UserForgotPasswordAsync([FromBody]UserForgotPasswordSpec userForgotPasswordSpec, CancellationToken cancellationToken = default(CancellationToken))
         { 	

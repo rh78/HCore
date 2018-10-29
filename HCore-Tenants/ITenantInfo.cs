@@ -4,7 +4,10 @@
     {
         long DeveloperUuid { get; }
         string DeveloperAuthority { get; }
+        string DeveloperAudience { get; }
         byte[] DeveloperCertificate { get; }
+        string CertificatePassword { get; }
+        string DeveloperAuthCookieDomain { get; }
 
         long TenantUuid { get; }
         string Name { get; }

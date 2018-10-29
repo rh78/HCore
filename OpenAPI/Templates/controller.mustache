@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using HCore.Web.Attributes;
 using HCore.Web.Result;
+using Microsoft.AspNetCore.Authorization;
+using HCore.Identity;
 using {{packageName}}.Models;
 
 namespace {{packageName}}.Controllers
@@ -51,8 +53,8 @@ namespace {{packageName}}.Controllers
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
-        [Route("{{{basePathWithoutHost}}}{{{path}}}")]
-        [ProtectApi]
+        [Route("{{{basePathWithoutHost}}}{{{path}}}")]  
+		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}

@@ -18,6 +18,7 @@
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />    
     <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />
     <ProjectReference Include="..\HCore-Templating\HCore-Templating.csproj" />
+    <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
   </ItemGroup>
 

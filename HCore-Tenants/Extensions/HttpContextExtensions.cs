@@ -7,7 +7,8 @@ namespace Microsoft.AspNetCore.Http
         public static ITenantInfo GetTenantInfo(this HttpContext context)
         {
             object tenantInfo = null;
-            context.Items.TryGetValue(TenantsConstants.TenantInfoContextKey, out tenantInfo);
+
+            context.Items.TryGetValue(TenantConstants.TenantInfoContextKey, out tenantInfo);
 
             return (ITenantInfo)tenantInfo;
         }

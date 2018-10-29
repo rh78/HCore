@@ -28,7 +28,7 @@ namespace HCore.Tenants.Middleware
 
         public async Task Invoke(HttpContext context)
         {
-            if (!context.Items.ContainsKey(TenantsConstants.TenantInfoContextKey))
+            if (!context.Items.ContainsKey(TenantConstants.TenantInfoContextKey))
             {
                 ITenantInfo tenantInfo = null;
 
@@ -56,7 +56,7 @@ namespace HCore.Tenants.Middleware
                     return;
                 }
 
-                context.Items.Add(TenantsConstants.TenantInfoContextKey, tenantInfo);                
+                context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);                
             }
 
             await _next.Invoke(context).ConfigureAwait(false);

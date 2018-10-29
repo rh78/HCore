@@ -35,6 +35,13 @@ namespace Microsoft.AspNetCore.Builder
             return app;
         }
 
+        public static IApplicationBuilder UseCoreIdentityJwt(this IApplicationBuilder app)
+        {
+            app.Validate();            
+
+            return app;
+        }
+
         private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
             string oidcAudience = configuration[$"Identity:Oidc:Audience"];

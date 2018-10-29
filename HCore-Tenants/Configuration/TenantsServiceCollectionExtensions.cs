@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class TenantsServiceCollectionExtensions
     {
-        public static IServiceCollection AddTenants<TStartup>(this IServiceCollection services, IConfiguration configuration)
+        public static TenantsBuilder AddTenants<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSqlServer<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
 
@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
             services.TryAddSingleton<ITenantInfoAccessor, TenantInfoAccessorImpl>();
 
-            return services;
+            return new TenantsBuilder(services);
         }
     }    
 }

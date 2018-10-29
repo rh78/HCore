@@ -2,7 +2,7 @@
 
 namespace HCore.Tenants.Impl
 {
-    internal  class TenantInfoAccessorImpl : ITenantInfoAccessor
+    internal class TenantInfoAccessorImpl : ITenantInfoAccessor
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 

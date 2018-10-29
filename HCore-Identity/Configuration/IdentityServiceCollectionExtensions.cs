@@ -1,6 +1,4 @@
 ﻿using AspNetCore.DataProtection.SqlServer;
-using IdentityServer4;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -20,13 +18,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
-    {        
-        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
+    {
+        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -35,10 +34,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("SQL Server connection string is empty");
 
             ConfigureSqlServer<TStartup>(services, configuration);
-            ConfigureDataProtection(services, connectionString, configuration);
-            ConfigureAspNetIdentity(services, configuration);
-            ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration);
-            ConfigureJwtAuthentication(services, configuration);
+            ConfigureDataProtection(services, connectionString, configuration, tenantsBuilder);
+
+            ConfigureAspNetIdentity(services, configuration, tenantsBuilder);
+
+            ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration, tenantsBuilder);
+           
+            ConfigureJwtAuthentication(services, configuration, tenantsBuilder);
 
             // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
 
@@ -55,6 +57,13 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
+        public static IServiceCollection AddCoreIdentityJwt(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        {
+            ConfigureJwtAuthentication(services, configuration, tenantsBuilder);
+
+            return services;
+        }
+
         private static void ConfigureSqlServer<TStartup>(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSqlServer<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
@@ -63,7 +72,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
         }
 
-        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration)
+        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration, TenantsBuilder tenantsBuilder)
         {
             string applicationName = configuration[$"Identity:Application:Name"];
             if (string.IsNullOrEmpty(applicationName))
@@ -74,51 +83,110 @@ namespace Microsoft.Extensions.DependencyInjection
                 .SetApplicationName(applicationName);
         }
 
-        private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration)
+        private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
         {
-            string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
-            if (string.IsNullOrEmpty(oidcAuthority))
-                throw new Exception("Identity OIDC authority string is empty");
-
-            string oidcAudience = configuration[$"Identity:Oidc:Audience"];
-            if (string.IsNullOrEmpty(oidcAudience))
-                throw new Exception("Identity audience string is empty");
-
-            var authenticationBuilder = services.AddAuthentication();
-
             bool useJwt = configuration.GetValue<bool>("WebServer:UseJwt");
 
+            var authenticationBuilder = services.AddAuthentication();
+            
             if (useJwt)
             {
                 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-                authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
+                if (tenantsBuilder == null)
                 {
-                    jwt.Authority = oidcAuthority;
-                    jwt.RequireHttpsMetadata = true;
-                    jwt.Audience = oidcAudience;
-                });
-            }            
+                    string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
+                    if (string.IsNullOrEmpty(oidcAuthority))
+                        throw new Exception("Identity OIDC authority string is empty");
+
+                    string oidcAudience = configuration[$"Identity:Oidc:Audience"];
+                    if (string.IsNullOrEmpty(oidcAudience))
+                        throw new Exception("Identity audience string is empty");
+
+                    authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
+                    {                       
+                        jwt.RequireHttpsMetadata = true;
+
+                        jwt.Authority = oidcAuthority;
+                        jwt.Audience = oidcAudience;
+
+                        jwt.TokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ClockSkew = TimeSpan.FromMinutes(5),                           
+                            RequireSignedTokens = true,
+                            RequireExpirationTime = true,
+                            ValidateLifetime = true,
+                            ValidateAudience = true,
+                            ValidAudience = oidcAudience,
+                            ValidateIssuer = true,
+                            ValidIssuer = oidcAuthority
+                        };
+                    });
+                } else
+                {
+                    authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
+                    {
+                        jwt.RequireHttpsMetadata = true;                                                
+                    });
+
+                    tenantsBuilder.WithPerTenantOptions<JwtBearerOptions>((jwt, tenantInfo) =>
+                    {
+                        jwt.Authority = tenantInfo.DeveloperAuthority;
+                        jwt.Audience = tenantInfo.DeveloperAudience;
+
+                        var tokenValidationParameters = new TokenValidationParameters()
+                        {
+                            ClockSkew = TimeSpan.FromMinutes(5),
+                            RequireSignedTokens = true,
+                            RequireExpirationTime = true,
+                            ValidateLifetime = true,
+                            ValidateAudience = true,
+                            ValidAudience = tenantInfo.DeveloperAudience,
+                            ValidateIssuer = true,
+                            ValidIssuer = tenantInfo.DeveloperAuthority
+                        };                        
+
+                        if (tenantInfo.DeveloperCertificate != null && tenantInfo.DeveloperCertificate.Length > 0)
+                        {
+                            // if we cannot resolve it from some discovery endpoint
+
+                            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.CertificatePassword));
+                        }
+
+                        jwt.TokenValidationParameters = tokenValidationParameters;
+                    });
+                }
+            } 
         }
 
-        private static void ConfigureAspNetIdentity(IServiceCollection services, IConfiguration configuration)
+        private static void ConfigureAspNetIdentity(IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
         {
             // now, on second priority, comes the identity which we tweaked
 
-            string authCookieDomain = configuration[$"Identity:AuthCookie:Domain"];
-            if (string.IsNullOrEmpty(authCookieDomain))
-                throw new Exception("Identity auth cookie domain is empty");
-
             var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
-            
+
             identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
             identityBuilder.AddDefaultTokenProviders();
 
-            services.ConfigureApplicationCookie(options =>
+            if (tenantsBuilder == null)
             {
-                options.Cookie.Domain = authCookieDomain;
-                options.Cookie.Name = "HCore.Identity.session";
-            });
+                string authCookieDomain = configuration[$"Identity:AuthCookie:Domain"];
+                if (string.IsNullOrEmpty(authCookieDomain))
+                    throw new Exception("Identity auth cookie domain is empty");
+
+                services.ConfigureApplicationCookie(options =>
+                {
+                    options.Cookie.Domain = authCookieDomain;
+                    options.Cookie.Name = "HCore.Identity.session";
+                });
+            } else
+            {
+                tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo) =>
+                {
+                    options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
+                    options.Cookie.Name = tenantInfo.DeveloperUuid + ".HCore.Identity.session";
+                });
+            }
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -130,7 +198,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration)
+        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration, TenantsBuilder tenantsBuilder)
         {
             var identityServerBuilder = services.AddIdentityServer(options =>
             {
