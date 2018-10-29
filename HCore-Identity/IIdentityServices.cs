@@ -6,15 +6,21 @@ namespace HCore.Identity
 {
     public interface IIdentityServices
     {
-        Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task<UserModel> CreateUserAsync(UserSpec userSpec);
-        Task<UserModel> GetUserAsync(string userUuid);
+        Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
+
+        Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec);
         Task ResetUserPasswordAsync(ResetUserPasswordSpec resetUserPasswordSpec);
         Task SetUserPasswordAsync(string userUuid, SetUserPasswordSpec setUserPasswordSpec);
+
         Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec);
         Task SignOutUserAsync();
+
+        Task<UserModel> GetUserAsync(string userUuid);
+
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user);
-        Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec);
+
+        Task<string> GetAccessTokenAsync(string userUuid);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace HCore.Translations
+﻿using System.Collections.Generic;
+
+namespace HCore.Translations
 {
     public interface ITranslationsProvider
     {

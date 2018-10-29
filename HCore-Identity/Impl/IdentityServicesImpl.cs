@@ -14,6 +14,14 @@ using HCore.Web.Exceptions;
 using System.Collections.Generic;
 using HCore.Identity.ViewModels;
 using HCore.Web.API.Impl;
+using IdentityServer4.Models;
+using IdentityServer4;
+using System.Linq;
+using IdentityServer4.Validation;
+using IdentityServer4.Services;
+using IdentityServer4.Configuration;
+using IdentityServer4.Stores;
+using Microsoft.Extensions.Configuration;
 
 namespace HCore.Identity.Controllers.API.Impl
 {
@@ -32,6 +40,12 @@ namespace HCore.Identity.Controllers.API.Impl
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
+        private readonly IUserClaimsPrincipalFactory<UserModel> _principalFactory;
+        private readonly ITokenService _tokenService;
+        private readonly IdentityServerOptions _options;
+        private readonly IClientStore _clientStore;
+        private readonly IResourceStore _resourceStore;
+        private readonly IConfiguration _configuration;
 
         public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
@@ -40,7 +54,13 @@ namespace HCore.Identity.Controllers.API.Impl
             IEmailSender emailSender,
             IEmailTemplateProvider emailTemplateProvider,
             IUrlHelper urlHelper,
-            SqlServerIdentityDbContext identityDbContext)
+            SqlServerIdentityDbContext identityDbContext,
+            IUserClaimsPrincipalFactory<UserModel> principalFactory,
+            ITokenService tokenService,
+            IdentityServerOptions options,
+            IClientStore clientStore,
+            IResourceStore resourceStore,
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -49,6 +69,12 @@ namespace HCore.Identity.Controllers.API.Impl
             _emailTemplateProvider = emailTemplateProvider;
             _urlHelper = urlHelper;
             _identityDbContext = identityDbContext;
+            _principalFactory = principalFactory;
+            _tokenService = tokenService;
+            _options = options;
+            _clientStore = clientStore;
+            _resourceStore = resourceStore;
+            _configuration = configuration;
         }
 
         public async Task<UserModel> CreateUserAsync(UserSpec userSpec)
@@ -497,6 +523,84 @@ namespace HCore.Identity.Controllers.API.Impl
             catch (Exception e)
             {
                 _logger.LogError($"Error when resetting user password: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task<string> GetAccessTokenAsync(string userUuid)
+        {
+            userUuid = ProcessUserUuid(userUuid);
+
+            try
+            {
+                var tokenCreationRequest = new TokenCreationRequest();
+
+                var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                if (user == null)
+                {
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                }
+            
+                var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
+
+                var identityUser = new IdentityServerUser(user.Id.ToString());
+
+                identityUser.AdditionalClaims = identityPricipal.Claims.ToArray();
+
+                identityUser.DisplayName = user.UserName;
+
+                identityUser.AuthenticationTime = DateTime.UtcNow;
+                identityUser.IdentityProvider = IdentityServerConstants.LocalIdentityProvider;
+
+                tokenCreationRequest.Subject = identityUser.CreatePrincipal();
+                tokenCreationRequest.IncludeAllIdentityClaims = true;
+
+                tokenCreationRequest.ValidatedRequest = new ValidatedRequest();
+
+                tokenCreationRequest.ValidatedRequest.Subject = tokenCreationRequest.Subject;
+
+                string defaultClientId = _configuration[$"Identity:Client:DefaultClientId"];
+                if (string.IsNullOrEmpty(defaultClientId))
+                    throw new Exception("Identity default client ID is empty");
+
+                var client = await _clientStore.FindClientByIdAsync(defaultClientId).ConfigureAwait(false);
+
+                tokenCreationRequest.ValidatedRequest.SetClient(client);
+
+                var resources = await _resourceStore.GetAllEnabledResourcesAsync().ConfigureAwait(false);
+
+                tokenCreationRequest.Resources = resources;
+
+                tokenCreationRequest.ValidatedRequest.Options = _options;
+
+                tokenCreationRequest.ValidatedRequest.ClientClaims = identityUser.AdditionalClaims;
+
+                var token = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
+
+                string oidcAuthority = _configuration[$"Identity:Oidc:Authority"];
+                if (string.IsNullOrEmpty(oidcAuthority))
+                    throw new Exception("Identity OIDC authority string is empty");
+
+                string oidcAudience = _configuration[$"Identity:Oidc:Audience"];
+                if (string.IsNullOrEmpty(oidcAudience))
+                    throw new Exception("Identity OIDC audience string is empty");
+
+                token.Issuer = oidcAuthority;
+                token.Audiences = new string[] { oidcAudience };
+
+                var tokenValue = await _tokenService.CreateSecurityTokenAsync(token);
+
+                return tokenValue;
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when getting access token: {e}");
 
                 throw new InternalServerErrorApiException();
             }
