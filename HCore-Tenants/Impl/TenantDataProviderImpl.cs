@@ -42,6 +42,7 @@ namespace HCore.Tenants.Impl
                         DeveloperUuid = developer.Uuid,
                         DeveloperAuthority = developer.Authority,
                         DeveloperCertificate = developer.Certificate,
+                        DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
                         LogoUrl = tenant.LogoUrl

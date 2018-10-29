@@ -9,6 +9,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
     {
         public const int MaxHostPatternLength = 255;
         public const int MaxAuthorityLength = 255;
+        public const int MaxAuthCookieDomainLength = 255;
         
         [Key]
         public long Uuid { get; set; }
@@ -19,6 +20,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxAuthorityLength)]
         public string Authority { get; set; }
         
+        [StringLength(MaxAuthCookieDomainLength)]
+        public string AuthCookieDomain { get; set; }
+
         public byte[] Certificate { get; set; }
 
         public List<TenantModel> Tenants { get; set; }
