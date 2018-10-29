@@ -5,7 +5,9 @@ namespace HCore.Web.Exceptions
     public class ServiceUnavailableApiException : ApiException
     {
         private readonly string _errorCode;
-        
+
+        public const string AuthorizationAuthorityNotAvailable = "authorization_authority_not_available";
+
         public ServiceUnavailableApiException(string errorCode, string message) : 
             base(message)
         {

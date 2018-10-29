@@ -19,6 +19,8 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using HCore.Identity.Requirements;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -121,6 +123,16 @@ namespace Microsoft.Extensions.DependencyInjection
                             ValidIssuer = oidcAuthority
                         };
                     });
+
+                    services.AddAuthorization(options =>
+                    {
+                        options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
+                        {
+                            policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
+
+                            policy.RequireAuthenticatedUser();
+                        });
+                    });
                 } else
                 {
                     authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
@@ -154,6 +166,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         jwt.TokenValidationParameters = tokenValidationParameters;
                     });
+
+                    services.AddAuthorization(options =>
+                    {
+                        options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
+                        {
+                            policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
+
+                            policy.Requirements.Add(new ClientDeveloperUuidRequirement());
+                            
+                            policy.RequireAuthenticatedUser();
+                        });
+                    });
+
+                    services.AddSingleton<IAuthorizationHandler, ClientDeveloperUuidRequirementHandler>();                    
                 }
             } 
         }

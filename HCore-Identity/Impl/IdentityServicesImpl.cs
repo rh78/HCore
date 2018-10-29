@@ -575,7 +575,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 tokenCreationRequest.ValidatedRequest.Options = _options;
 
-                tokenCreationRequest.ValidatedRequest.ClientClaims = identityUser.AdditionalClaims;
+                tokenCreationRequest.ValidatedRequest.ClientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims.Concat(identityUser.AdditionalClaims).ToList();
 
                 var token = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 

@@ -54,7 +54,7 @@ namespace {{packageName}}.Controllers
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
         [Route("{{{basePathWithoutHost}}}{{{path}}}")]  
-		[Authorize(AuthenticationSchemes = IdentityCoreConstants.JwtScheme)]
+		[Authorize(Policy = IdentityCoreConstants.JwtPolicy)]
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}

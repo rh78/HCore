@@ -42,9 +42,16 @@ namespace HCore.Web.Middleware
             }
             catch (Exception e)
             {
-                _logger.LogError($"Unexpected server error: {e}");
+                if (!string.IsNullOrEmpty(e.Message) && e.Message.Contains("IDX20803"))
+                {
+                    resultException = new ServiceUnavailableApiException(ServiceUnavailableApiException.AuthorizationAuthorityNotAvailable, "The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later");
+                }
+                else
+                {
+                    _logger.LogError($"Unexpected server error: {e}");
 
-                resultException = new InternalServerErrorApiException();                
+                    resultException = new InternalServerErrorApiException();
+                }
             }            
 
             if (resultException != null)            

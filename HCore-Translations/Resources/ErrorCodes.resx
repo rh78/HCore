@@ -351,4 +351,7 @@
   <data name="tenant_not_found" xml:space="preserve">
     <value>The tenant was not found</value>
   </data>
+  <data name="authorization_authority_not_available" xml:space="preserve">
+    <value>The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later</value>
+  </data>
 </root>
