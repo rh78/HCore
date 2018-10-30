@@ -10,6 +10,8 @@ namespace HCore.Web.Exceptions
         public const string AccountLockedOut = "account_locked_out";
         public const string InvalidCredentials = "invalid_credentials";
         public const string PasswordDoesNotMatch = "password_does_not_match";
+        public const string TokenInvalidOrExpired = "token_invalid_or_expired";
+        public const string CookieInvalidOrExpired = "cookie_invalid_or_expired";
 
         public UnauthorizedApiException(string errorCode, string message) : 
             base(message)

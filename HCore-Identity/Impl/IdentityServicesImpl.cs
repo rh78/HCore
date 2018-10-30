@@ -554,7 +554,9 @@ namespace HCore.Identity.Controllers.API.Impl
                 identityUser.AuthenticationTime = DateTime.UtcNow;
                 identityUser.IdentityProvider = IdentityServerConstants.LocalIdentityProvider;
 
-                tokenCreationRequest.Subject = identityUser.CreatePrincipal();
+                var subject = identityUser.CreatePrincipal();
+
+                tokenCreationRequest.Subject = subject;
                 tokenCreationRequest.IncludeAllIdentityClaims = true;
 
                 tokenCreationRequest.ValidatedRequest = new ValidatedRequest();
@@ -577,7 +579,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 tokenCreationRequest.ValidatedRequest.ClientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims.Concat(identityUser.AdditionalClaims).ToList();
 
-                var token = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
+                var accessToken = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
                 string oidcAuthority = _configuration[$"Identity:Oidc:Authority"];
                 if (string.IsNullOrEmpty(oidcAuthority))
@@ -587,12 +589,12 @@ namespace HCore.Identity.Controllers.API.Impl
                 if (string.IsNullOrEmpty(oidcAudience))
                     throw new Exception("Identity OIDC audience string is empty");
 
-                token.Issuer = oidcAuthority;
-                token.Audiences = new string[] { oidcAudience };
+                accessToken.Issuer = oidcAuthority;
+                accessToken.Audiences = new string[] { oidcAudience };
 
-                var tokenValue = await _tokenService.CreateSecurityTokenAsync(token);
+                var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken);
 
-                return tokenValue;
+                return accessTokenValue;
             }
             catch (ApiException e)
             {

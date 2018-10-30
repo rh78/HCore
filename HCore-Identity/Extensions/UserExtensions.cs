@@ -15,5 +15,17 @@ namespace System.Security.Claims
 
             return emailAddress;
         }    
+
+        public static string GetUserUuid(this ClaimsPrincipal user)
+        {            
+            var userUuidClaim = user.Claims.FirstOrDefault(claim => claim.Type == "sub" || claim.Type == ClaimTypes.NameIdentifier);
+
+            string userUuid = userUuidClaim?.Value;
+
+            if (string.IsNullOrEmpty(userUuid))
+                return null;
+
+            return userUuid;
+        }
     }
 }

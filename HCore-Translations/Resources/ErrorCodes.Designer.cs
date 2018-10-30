@@ -106,6 +106,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later ähnelt.
+        /// </summary>
+        public static string authorization_authority_not_available {
+            get {
+                return ResourceManager.GetString("authorization_authority_not_available", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID contains invalid characters ähnelt.
         /// </summary>
         public static string client_id_invalid {
@@ -183,6 +192,15 @@ namespace HCore.Translations.Resources {
         public static string code_too_long {
             get {
                 return ResourceManager.GetString("code_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The cookie is invalid or expired ähnelt.
+        /// </summary>
+        public static string cookie_invalid_or_expired {
+            get {
+                return ResourceManager.GetString("cookie_invalid_or_expired", resourceCulture);
             }
         }
         
@@ -624,6 +642,15 @@ namespace HCore.Translations.Resources {
         public static string tenant_uuid_too_long {
             get {
                 return ResourceManager.GetString("tenant_uuid_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The access token is invalid or expired ähnelt.
+        /// </summary>
+        public static string token_invalid_or_expired {
+            get {
+                return ResourceManager.GetString("token_invalid_or_expired", resourceCulture);
             }
         }
         

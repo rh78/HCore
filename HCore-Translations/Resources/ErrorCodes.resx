@@ -354,4 +354,10 @@
   <data name="authorization_authority_not_available" xml:space="preserve">
     <value>The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later</value>
   </data>
+  <data name="token_invalid_or_expired" xml:space="preserve">
+    <value>The access token is invalid or expired</value>
+  </data>
+  <data name="cookie_invalid_or_expired" xml:space="preserve">
+    <value>The cookie is invalid or expired</value>
+  </data>
 </root>
