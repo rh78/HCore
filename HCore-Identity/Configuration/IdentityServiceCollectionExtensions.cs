@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using HCore.Identity.Requirements;
+using HCore.Identity.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -74,6 +75,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
                 services.AddScoped<IIdentityServices, IdentityServicesImpl>();
+            }
+
+            if (useIdentity || useJwt)
+            {
+                services.AddScoped<IAuthServices, AuthServicesImpl>();
             }
 
             return services;
