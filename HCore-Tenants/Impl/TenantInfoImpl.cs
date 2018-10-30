@@ -12,5 +12,8 @@
         public long TenantUuid { get; internal set; }
         public string Name { get; internal set; }
         public string LogoUrl { get; internal set; }
+
+        public string ApiUrl { get; set; }
+        public string WebUrl { get; set; }
     }
 }

@@ -8,7 +8,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
     {
         public const int MaxSubdomainPatternLength = 255;
         public const int MaxNameLength = 50;
-        public const int MaxLogoUrlLength = 50;        
+        public const int MaxLogoUrlLength = 50;
+        public const int MaxUrlLength = 255;
 
         [Key]
         public long Uuid { get; set; }
@@ -17,6 +18,12 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         [StringLength(MaxSubdomainPatternLength)]
         public string SubdomainPattern { get; set; }
+
+        [StringLength(MaxUrlLength)]
+        public string ApiUrl { get; set; }
+
+        [StringLength(MaxUrlLength)]
+        public string WebUrl { get; set; }
 
         [StringLength(MaxNameLength)]
         public string Name { get; set; }

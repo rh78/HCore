@@ -10,5 +10,7 @@ namespace HCore.Identity
 
         long? DeveloperUuid { get; }
         long? TenantUuid { get; }
+
+        bool IsDeveloperAdmin { get; }
     }
 }

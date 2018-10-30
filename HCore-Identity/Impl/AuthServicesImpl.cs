@@ -1,5 +1,7 @@
 ﻿using HCore.Tenants;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Linq;
 using System.Security.Claims;
 
 namespace HCore.Identity.Impl
@@ -27,11 +29,40 @@ namespace HCore.Identity.Impl
 
             ITenantInfo tenantInfo = _tenantInfoAccessor.TenantInfo;
 
+            bool isDeveloperAdmin = IsDeveloperAdmin(httpContext, tenantInfo);
+
             return new AuthInfoImpl()
             {
                 UserUuid = userUuid,
-                TenantInfo = tenantInfo
+                TenantInfo = tenantInfo,
+                IsDeveloperAdmin = isDeveloperAdmin
             };
+        }
+
+        private bool IsDeveloperAdmin(HttpContext context, ITenantInfo tenantInfo)
+        {
+            var developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClaim);
+
+            if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
+            {
+                return false;
+            }
+
+            string developerAdminString = developerAdminClaim.Value;
+
+            long developerAdminUuid;
+
+            if (!long.TryParse(developerAdminString, out developerAdminUuid))
+            {
+                return false;
+            }
+
+            if (tenantInfo.DeveloperUuid != developerAdminUuid)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

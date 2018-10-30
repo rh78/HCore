@@ -12,5 +12,8 @@
         long TenantUuid { get; }
         string Name { get; }
         string LogoUrl { get; }
+        
+        string ApiUrl { get; }
+        string WebUrl { get; }
     }
 }

@@ -727,7 +727,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The user UUID is invalid ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user UUID contains invalid characters ähnelt.
         /// </summary>
         public static string user_uuid_invalid {
             get {
@@ -741,6 +741,15 @@ namespace HCore.Translations.Resources {
         public static string user_uuid_missing {
             get {
                 return ResourceManager.GetString("user_uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The user UUID is too long ähnelt.
+        /// </summary>
+        public static string user_uuid_too_long {
+            get {
+                return ResourceManager.GetString("user_uuid_too_long", resourceCulture);
             }
         }
         

@@ -11,5 +11,7 @@ namespace HCore.Identity.Impl
         public long? DeveloperUuid { get => TenantInfo?.DeveloperUuid; }
 
         public long? TenantUuid { get => TenantInfo?.TenantUuid;  }
+
+        public bool IsDeveloperAdmin { get; internal set; }
     }
 }

@@ -53,7 +53,9 @@ namespace HCore.Tenants.Impl
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
-                        LogoUrl = tenant.LogoUrl
+                        LogoUrl = tenant.LogoUrl,
+                        ApiUrl = tenant.ApiUrl,
+                        WebUrl = tenant.WebUrl
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

@@ -62,6 +62,7 @@ namespace HCore.Web.Exceptions
         public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
         public const string UserUuidMissing = "user_uuid_missing";
         public const string UserUuidInvalid = "user_uuid_invalid";
+        public const string UserUuidTooLong = "user_uuid_too_long";
         public const string EmailMissing = "email_missing";
         public const string EmailInvalid = "email_invalid";
         public const string PhoneNumberMissing = "phone_number_missing";
