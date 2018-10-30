@@ -26,22 +26,40 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder = null)
+        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
-            string connectionString = configuration[$"SqlServer:Identity:ConnectionString"];
-            if (string.IsNullOrEmpty(connectionString))
-                throw new Exception("SQL Server connection string is empty");
+            bool useIdentity = configuration.GetValue<bool>("Identity:UseIdentity");
+            bool useTenants = configuration.GetValue<bool>("Identity:UseTenants");
 
-            ConfigureSqlServer<TStartup>(services, configuration);
-            ConfigureDataProtection(services, connectionString, configuration, tenantsBuilder);
+            TenantsBuilder tenantsBuilder = null;
 
-            ConfigureAspNetIdentity(services, configuration, tenantsBuilder);
+            if (useTenants)
+            {
+                tenantsBuilder = services.AddTenants<TStartup>(configuration);
+            }
 
-            ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration, tenantsBuilder);
-           
-            ConfigureJwtAuthentication(services, configuration, tenantsBuilder);
+            if (useIdentity)
+            {
+                string connectionString = configuration[$"SqlServer:Identity:ConnectionString"];
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new Exception("SQL Server connection string is empty");
+
+                ConfigureSqlServer<TStartup>(services, configuration);
+                ConfigureDataProtection(services, connectionString, configuration);
+
+                ConfigureAspNetIdentity(services, tenantsBuilder, configuration);
+
+                ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration);
+            }
+
+            bool useJwt = configuration.GetValue<bool>("Identity:UseJwt");
+
+            if (useJwt)
+            {
+                ConfigureJwtAuthentication(services, tenantsBuilder, configuration);
+            }
 
             // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
 
@@ -51,16 +69,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 iis.AutomaticAuthentication = false;
             });
 
-            services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
+            if (useIdentity)
+            {
+                services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
-            services.AddScoped<IIdentityServices, IdentityServicesImpl>();
-
-            return services;
-        }
-
-        public static IServiceCollection AddCoreIdentityJwt(this IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder = null)
-        {
-            ConfigureJwtAuthentication(services, configuration, tenantsBuilder);
+                services.AddScoped<IIdentityServices, IdentityServicesImpl>();
+            }
 
             return services;
         }
@@ -73,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
         }
 
-        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration)
         {
             string applicationName = configuration[$"Identity:Application:Name"];
             if (string.IsNullOrEmpty(applicationName))
@@ -84,107 +98,102 @@ namespace Microsoft.Extensions.DependencyInjection
                 .SetApplicationName(applicationName);
         }
 
-        private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        private static void ConfigureJwtAuthentication(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
         {
-            bool useJwt = configuration.GetValue<bool>("WebServer:UseJwt");
-
             var authenticationBuilder = services.AddAuthentication();
             
-            if (useJwt)
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            if (tenantsBuilder == null)
             {
-                JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+                string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
+                if (string.IsNullOrEmpty(oidcAuthority))
+                    throw new Exception("Identity OIDC authority string is empty");
 
-                if (tenantsBuilder == null)
+                string oidcAudience = configuration[$"Identity:Oidc:Audience"];
+                if (string.IsNullOrEmpty(oidcAudience))
+                    throw new Exception("Identity audience string is empty");
+
+                authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
+                {                       
+                    jwt.RequireHttpsMetadata = true;
+
+                    jwt.Authority = oidcAuthority;
+                    jwt.Audience = oidcAudience;
+
+                    jwt.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ClockSkew = TimeSpan.FromMinutes(5),                           
+                        RequireSignedTokens = true,
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ValidateAudience = true,
+                        ValidAudience = oidcAudience,
+                        ValidateIssuer = true,
+                        ValidIssuer = oidcAuthority
+                    };
+                });
+
+                services.AddAuthorization(options =>
                 {
-                    string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
-                    if (string.IsNullOrEmpty(oidcAuthority))
-                        throw new Exception("Identity OIDC authority string is empty");
-
-                    string oidcAudience = configuration[$"Identity:Oidc:Audience"];
-                    if (string.IsNullOrEmpty(oidcAudience))
-                        throw new Exception("Identity audience string is empty");
-
-                    authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
-                    {                       
-                        jwt.RequireHttpsMetadata = true;
-
-                        jwt.Authority = oidcAuthority;
-                        jwt.Audience = oidcAudience;
-
-                        jwt.TokenValidationParameters = new TokenValidationParameters()
-                        {
-                            ClockSkew = TimeSpan.FromMinutes(5),                           
-                            RequireSignedTokens = true,
-                            RequireExpirationTime = true,
-                            ValidateLifetime = true,
-                            ValidateAudience = true,
-                            ValidAudience = oidcAudience,
-                            ValidateIssuer = true,
-                            ValidIssuer = oidcAuthority
-                        };
-                    });
-
-                    services.AddAuthorization(options =>
+                    options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
                     {
-                        options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
-                        {
-                            policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
+                        policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
 
-                            policy.RequireAuthenticatedUser();
-                        });
+                        policy.RequireAuthenticatedUser();
                     });
-                } else
+                });
+            } else
+            {
+                authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
                 {
-                    authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
+                    jwt.RequireHttpsMetadata = true;                                                
+                });
+
+                tenantsBuilder.WithPerTenantOptions<JwtBearerOptions>((jwt, tenantInfo) =>
+                {
+                    jwt.Authority = tenantInfo.DeveloperAuthority;
+                    jwt.Audience = tenantInfo.DeveloperAudience;
+
+                    var tokenValidationParameters = new TokenValidationParameters()
                     {
-                        jwt.RequireHttpsMetadata = true;                                                
-                    });
+                        ClockSkew = TimeSpan.FromMinutes(5),
+                        RequireSignedTokens = true,
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
+                        ValidateAudience = true,
+                        ValidAudience = tenantInfo.DeveloperAudience,
+                        ValidateIssuer = true,
+                        ValidIssuer = tenantInfo.DeveloperAuthority
+                    };                        
 
-                    tenantsBuilder.WithPerTenantOptions<JwtBearerOptions>((jwt, tenantInfo) =>
+                    if (tenantInfo.DeveloperCertificate != null && tenantInfo.DeveloperCertificate.Length > 0)
                     {
-                        jwt.Authority = tenantInfo.DeveloperAuthority;
-                        jwt.Audience = tenantInfo.DeveloperAudience;
+                        // if we cannot resolve it from some discovery endpoint
 
-                        var tokenValidationParameters = new TokenValidationParameters()
-                        {
-                            ClockSkew = TimeSpan.FromMinutes(5),
-                            RequireSignedTokens = true,
-                            RequireExpirationTime = true,
-                            ValidateLifetime = true,
-                            ValidateAudience = true,
-                            ValidAudience = tenantInfo.DeveloperAudience,
-                            ValidateIssuer = true,
-                            ValidIssuer = tenantInfo.DeveloperAuthority
-                        };                        
+                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.CertificatePassword));
+                    }
 
-                        if (tenantInfo.DeveloperCertificate != null && tenantInfo.DeveloperCertificate.Length > 0)
-                        {
-                            // if we cannot resolve it from some discovery endpoint
+                    jwt.TokenValidationParameters = tokenValidationParameters;
+                });
 
-                            tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.CertificatePassword));
-                        }
-
-                        jwt.TokenValidationParameters = tokenValidationParameters;
-                    });
-
-                    services.AddAuthorization(options =>
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
                     {
-                        options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
-                        {
-                            policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
+                        policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
 
-                            policy.Requirements.Add(new ClientDeveloperUuidRequirement());
+                        policy.Requirements.Add(new ClientDeveloperUuidRequirement());
                             
-                            policy.RequireAuthenticatedUser();
-                        });
+                        policy.RequireAuthenticatedUser();
                     });
+                });
 
-                    services.AddSingleton<IAuthorizationHandler, ClientDeveloperUuidRequirementHandler>();                    
-                }
-            } 
+                services.AddSingleton<IAuthorizationHandler, ClientDeveloperUuidRequirementHandler>();                    
+            }             
         }
 
-        private static void ConfigureAspNetIdentity(IServiceCollection services, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
         {
             // now, on second priority, comes the identity which we tweaked
 
@@ -223,7 +232,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration, TenantsBuilder tenantsBuilder)
+        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration)
         {
             var identityServerBuilder = services.AddIdentityServer(options =>
             {

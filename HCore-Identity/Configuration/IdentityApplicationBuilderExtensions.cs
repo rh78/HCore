@@ -1,4 +1,5 @@
-﻿using IdentityServer4;
+﻿using HCore.Tenants.Database.SqlServer;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
@@ -23,25 +24,30 @@ namespace Microsoft.AspNetCore.Builder
 
             using (var scope = scopeFactory.CreateScope())
             {
-                var configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-                InitializeIdentity(configurationDbContext, configuration);
+                bool useTenants = configuration.GetValue<bool>("Identity:UseTenants");
+
+                if (useTenants)
+                {
+                    app.UseTenants();
+                }
+
+                bool useIdentity = configuration.GetValue<bool>("Identity:UseIdentity");
+
+                if (useIdentity)
+                {
+                    var configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+
+                    InitializeIdentity(configurationDbContext, configuration);
+
+                    app.UseIdentityServer();
+                }
             }
 
-            app.UseIdentityServer();
-
-
             return app;
         }
-
-        public static IApplicationBuilder UseCoreIdentityJwt(this IApplicationBuilder app)
-        {
-            app.Validate();            
-
-            return app;
-        }
-
+       
         private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
             string oidcAudience = configuration[$"Identity:Oidc:Audience"];
