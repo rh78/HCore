@@ -10,8 +10,6 @@ namespace HCore.Web.Exceptions
 
         public const string ArgumentInvalid = "argument_invalid";
         public const string ArgumentMissing = "argument_missing";
-        public const string TenantUuidInvalid = "tenant_uuid_invalid";
-        public const string TenantUuidTooLong = "tenant_uuid_too_long";
         public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";
         public const string MaxPagingLimitExceeded = "max_paging_limit_exceeded";
         public const string PagingOffsetInvalid = "paging_offset_invalid";

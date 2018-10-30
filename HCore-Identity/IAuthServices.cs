@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HCore.Identity
+﻿namespace HCore.Identity
 {
     public interface IAuthServices
     {
-
+        IAuthInfo AuthInfo { get; }
     }
 }
