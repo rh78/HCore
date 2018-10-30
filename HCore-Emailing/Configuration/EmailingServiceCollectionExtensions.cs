@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             if (!addressesSplit.Any(address => address.EndsWith(EmailSenderConstants.AddressSuffix)))
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
 
-            bool useAmqpEmailSender = configuration.GetValue<bool>("UseAmqpEmailSender");
+            bool useAmqpEmailSender = configuration.GetValue<bool>("Emailing:UseAmqpEmailSender");
 
             if (useAmqpEmailSender)
             {
