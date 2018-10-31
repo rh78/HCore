@@ -40,7 +40,7 @@ namespace HCore.Tenants.Middleware
                 {
                     host = hostString.Host;
                     
-                    tenantInfo = _tenantDataProvider.LookupTenant(host);
+                    tenantInfo = _tenantDataProvider.LookupTenantByHost(host);
                 }
 
                 if (tenantInfo == null)

@@ -5,8 +5,8 @@ namespace HCore.Tenants
     public interface ITenantDataProvider
     {
         List<ITenantInfo> Tenants { get; }
-        ITenantInfo LookupTenant(string host);
 
-        string GetTenantName(long developerUuid, long tenantUuid);
+        ITenantInfo LookupTenantByHost(string host);
+        ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid);
     }
 }

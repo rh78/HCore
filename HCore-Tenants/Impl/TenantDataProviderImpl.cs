@@ -76,7 +76,7 @@ namespace HCore.Tenants.Impl
                 });
             }
 
-            internal ITenantInfo LookupTenant(string subDomainLookup)
+            internal ITenantInfo LookupTenantBySubDomain(string subDomainLookup)
             {
                 if (!_tenantInfoMappings.ContainsKey(subDomainLookup))
                     return null;
@@ -86,12 +86,12 @@ namespace HCore.Tenants.Impl
                 return tenantInfo;
             }
 
-            internal string GetTenantName(long tenantUuid)
+            internal ITenantInfo LookupTenantByUuid(long tenantUuid)
             {
                 if (!_tenantInfoMappingsByUuid.ContainsKey(tenantUuid))
                     return null;
 
-                return _tenantInfoMappingsByUuid[tenantUuid].Name;
+                return _tenantInfoMappingsByUuid[tenantUuid];
             }
         }
 
@@ -129,7 +129,7 @@ namespace HCore.Tenants.Impl
             _logger = logger;
         }
 
-        public ITenantInfo LookupTenant(string host)
+        public ITenantInfo LookupTenantByHost(string host)
         {
             if (string.IsNullOrEmpty(host))
             {
@@ -188,7 +188,7 @@ namespace HCore.Tenants.Impl
                 return null;
             }
 
-            var tenantInfo = developerWrapper.LookupTenant(subDomainLookup);
+            var tenantInfo = developerWrapper.LookupTenantBySubDomain(subDomainLookup);
             if (tenantInfo == null)
             {
                 _logger.LogError($"No developer found for host {host}, developer {developerWrapper.Developer.Uuid} and sub domain lookup {subDomainLookup}");
@@ -199,12 +199,12 @@ namespace HCore.Tenants.Impl
             return tenantInfo;            
         }
 
-        public string GetTenantName(long developerUuid, long tenantUuid)
+        public ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid)
         {
             if (!_developerMappingsByUuid.ContainsKey(developerUuid))
                 return null;
 
-            return _developerMappingsByUuid[developerUuid].GetTenantName(tenantUuid);
+            return _developerMappingsByUuid[developerUuid].LookupTenantByUuid(tenantUuid);
         }
     }
 }
