@@ -14,6 +14,8 @@ namespace HCore.Tenants.Impl
     {
         private readonly Dictionary<string, DeveloperWrapper> _developerMappings;
 
+        private readonly Dictionary<long, DeveloperWrapper> _developerMappingsByUuid;
+
         public List<ITenantInfo> Tenants { get; internal set; }
 
         private readonly ILogger<TenantDataProviderImpl> _logger;
@@ -21,6 +23,7 @@ namespace HCore.Tenants.Impl
         private class DeveloperWrapper
         {
             private Dictionary<string, ITenantInfo> _tenantInfoMappings;
+            private Dictionary<long, ITenantInfo> _tenantInfoMappingsByUuid;
 
             public List<ITenantInfo> TenantInfos { get; set; }
             
@@ -31,6 +34,8 @@ namespace HCore.Tenants.Impl
                 Developer = developer;
 
                 _tenantInfoMappings = new Dictionary<string, ITenantInfo>();
+                _tenantInfoMappingsByUuid = new Dictionary<long, ITenantInfo>();
+
                 TenantInfos = new List<ITenantInfo>();
 
                 developer.Tenants.ForEach(tenant =>
@@ -62,9 +67,10 @@ namespace HCore.Tenants.Impl
 
                     subdomainPatternParts.ToList().ForEach(subdomainPatternPart =>
                     {
-                        _tenantInfoMappings.Add(subdomainPatternPart, tenantInfo);
-                        
+                        _tenantInfoMappings.Add(subdomainPatternPart, tenantInfo);                        
                     });
+
+                    _tenantInfoMappingsByUuid.Add(tenantInfo.TenantUuid, tenantInfo);
 
                     TenantInfos.Add(tenantInfo);
                 });
@@ -78,6 +84,14 @@ namespace HCore.Tenants.Impl
                 var tenantInfo = _tenantInfoMappings[subDomainLookup];
 
                 return tenantInfo;
+            }
+
+            internal string GetTenantName(long tenantUuid)
+            {
+                if (!_tenantInfoMappingsByUuid.ContainsKey(tenantUuid))
+                    return null;
+
+                return _tenantInfoMappingsByUuid[tenantUuid].Name;
             }
         }
 
@@ -96,6 +110,8 @@ namespace HCore.Tenants.Impl
                     List<DeveloperModel> developers = query.ToList();
 
                     _developerMappings = new Dictionary<string, DeveloperWrapper>();
+                    _developerMappingsByUuid = new Dictionary<long, DeveloperWrapper>();
+
                     Tenants = new List<ITenantInfo>();
 
                     developers.ForEach(developer =>
@@ -103,6 +119,7 @@ namespace HCore.Tenants.Impl
                         var developerWrapper = new DeveloperWrapper(developer);
 
                         _developerMappings.Add(developer.HostPattern, developerWrapper);
+                        _developerMappingsByUuid.Add(developer.Uuid, developerWrapper);
 
                         Tenants.AddRange(developerWrapper.TenantInfos);                        
                     });
@@ -180,6 +197,14 @@ namespace HCore.Tenants.Impl
             }
 
             return tenantInfo;            
+        }
+
+        public string GetTenantName(long developerUuid, long tenantUuid)
+        {
+            if (!_developerMappingsByUuid.ContainsKey(developerUuid))
+                return null;
+
+            return _developerMappingsByUuid[developerUuid].GetTenantName(tenantUuid);
         }
     }
 }
