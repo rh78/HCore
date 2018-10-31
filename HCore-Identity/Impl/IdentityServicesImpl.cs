@@ -31,7 +31,7 @@ namespace HCore.Identity.Controllers.API.Impl
         public const int MaxUserNameLength = 50;
         public const int MinPasswordLength = 6;
         public const int MaxPasswordLength = 50;
-        public const int MaxCodeLength = 50;
+        public const int MaxCodeLength = 512;
 
         private readonly SignInManager<UserModel> _signInManager;
         private readonly UserManager<UserModel> _userManager;
@@ -563,7 +563,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 tokenCreationRequest.ValidatedRequest.Subject = tokenCreationRequest.Subject;
 
-                string defaultClientId = _configuration[$"Identity:Client:DefaultClientId"];
+                string defaultClientId = _configuration[$"Identity:DefaultClient:ClientId"];
                 if (string.IsNullOrEmpty(defaultClientId))
                     throw new Exception("Identity default client ID is empty");
 
@@ -581,11 +581,11 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 var accessToken = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
-                string oidcAuthority = _configuration[$"Identity:Oidc:Authority"];
+                string oidcAuthority = _configuration[$"Identity:DefaultClient:Authority"];
                 if (string.IsNullOrEmpty(oidcAuthority))
                     throw new Exception("Identity OIDC authority string is empty");
 
-                string oidcAudience = _configuration[$"Identity:Oidc:Audience"];
+                string oidcAudience = _configuration[$"Identity:DefaultClient:Audience"];
                 if (string.IsNullOrEmpty(oidcAudience))
                     throw new Exception("Identity OIDC audience string is empty");
 
@@ -658,10 +658,7 @@ namespace HCore.Identity.Controllers.API.Impl
         {
             if (string.IsNullOrEmpty(password))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordMissing, "The password is missing");
-
-            if (!ApiImpl.SafeString.IsMatch(password))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordInvalid, "The password contains invalid characters");
-
+            
             if (password.Length < MinPasswordLength)
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooShort, "The password is too short");
 

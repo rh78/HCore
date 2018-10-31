@@ -216,9 +216,6 @@
   <data name="password_does_not_match" xml:space="preserve">
     <value>The password does not match our records</value>
   </data>
-  <data name="password_invalid" xml:space="preserve">
-    <value>The password contains invalid characters</value>
-  </data>
   <data name="password_missing" xml:space="preserve">
     <value>The password is missing</value>
   </data>

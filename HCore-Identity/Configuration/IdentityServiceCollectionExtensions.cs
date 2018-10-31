@@ -112,11 +112,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (tenantsBuilder == null)
             {
-                string oidcAuthority = configuration[$"Identity:Oidc:Authority"];
+                string oidcAuthority = configuration[$"Identity:DefaultClient:Authority"];
                 if (string.IsNullOrEmpty(oidcAuthority))
                     throw new Exception("Identity OIDC authority string is empty");
 
-                string oidcAudience = configuration[$"Identity:Oidc:Audience"];
+                string oidcAudience = configuration[$"Identity:DefaultClient:Audience"];
                 if (string.IsNullOrEmpty(oidcAudience))
                     throw new Exception("Identity audience string is empty");
 

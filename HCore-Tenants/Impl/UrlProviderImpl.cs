@@ -1,35 +1,49 @@
-﻿using HCore.Web.Providers;
+﻿using Microsoft.AspNetCore.Http;
 using System;
 
 namespace HCore.Tenants.Impl
 {
     internal class UrlProviderImpl : IUrlProvider
     {
-        private readonly ITenantInfoAccessor _tenantInfoAccessor;
+        public string BaseUrl { get; private set; }
+        public string WebUrl { get; private set; }
+        public string ApiUrl { get; private set; }
 
-        public string ApiDomain { get => _tenantInfoAccessor.TenantInfo?.ApiUrl; }
-
-        public string WebDomain { get => _tenantInfoAccessor.TenantInfo?.WebUrl; }
-
-        public UrlProviderImpl(ITenantInfoAccessor tenantInfoAccessor)
+        public UrlProviderImpl(IHttpContextAccessor httpContextAccessor, ITenantInfoAccessor tenantInfoAccessor)
         {
-            _tenantInfoAccessor = tenantInfoAccessor;
-        }        
+            var request = httpContextAccessor.HttpContext?.Request;
 
-        public string BuildApiUrl(string path)
+            if (request != null)
+                BaseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}/";
+            else
+                BaseUrl = null;
+
+            WebUrl = tenantInfoAccessor.TenantInfo?.WebUrl;
+            ApiUrl = tenantInfoAccessor.TenantInfo?.ApiUrl;
+        }
+
+        public string BuildUrl(string path)
         {
-            if (string.IsNullOrEmpty(ApiDomain))
-                throw new Exception("No API domain is set up for this service");
+            if (string.IsNullOrEmpty(BaseUrl))
+                throw new Exception("No base url is available");
 
-            return ApiDomain + path;
+            return BaseUrl + path;
         }
 
         public string BuildWebUrl(string path)
         {
-            if (string.IsNullOrEmpty(WebDomain))
-                throw new Exception("No web domain is set up for this service");
+            if (string.IsNullOrEmpty(WebUrl))
+                throw new Exception("No web URL is set up for this service");
 
-            return WebDomain + path;
+            return WebUrl + path;
+        }
+
+        public string BuildApiUrl(string path)
+        {
+            if (string.IsNullOrEmpty(WebUrl))
+                throw new Exception("No web URL is set up for this service");
+
+            return WebUrl + path;
         }
     }
 }

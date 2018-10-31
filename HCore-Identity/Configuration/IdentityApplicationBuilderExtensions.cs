@@ -50,23 +50,23 @@ namespace Microsoft.AspNetCore.Builder
        
         private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
-            string oidcAudience = configuration[$"Identity:Oidc:Audience"];
-            if (string.IsNullOrEmpty(oidcAudience))
-                throw new Exception("Identity audience string is empty");
+            string defaultClientAudience = configuration[$"Identity:DefaultClient:Audience"];
+            if (string.IsNullOrEmpty(defaultClientAudience))
+                throw new Exception("Identity default client audience string is empty");
 
-            string defaultClientId = configuration[$"Identity:Client:DefaultClientId"];
+            string defaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
             if (string.IsNullOrEmpty(defaultClientId))
                 throw new Exception("Identity default client ID is empty");
 
-            string defaultClientName = configuration[$"Identity:Client:DefaultClientName"];
+            string defaultClientName = configuration[$"Identity:DefaultClient:ClientName"];
             if (string.IsNullOrEmpty(defaultClientName))
                 throw new Exception("Identity default client name is empty");
 
-            string defaultClientLogoUrl = configuration[$"Identity:Client:DefaultClientLogoUrl"];
+            string defaultClientLogoUrl = configuration[$"Identity:DefaultClient:ClientLogoUrl"];
             if (string.IsNullOrEmpty(defaultClientLogoUrl))
                 throw new Exception("Identity default client logo URL is empty");
 
-            string defaultClientSecret = configuration[$"Identity:Client:DefaultClientSecret"];
+            string defaultClientSecret = configuration[$"Identity:DefaultClient:ClientSecret"];
             if (string.IsNullOrEmpty(defaultClientSecret))
                 throw new Exception("Identity default client secret is empty");
 
@@ -118,12 +118,12 @@ namespace Microsoft.AspNetCore.Builder
                 },
                 RedirectUris =
                 {
-                    $"{oidcAudience}signin-oidc"
+                    $"{defaultClientAudience}signin-oidc"
                 },
                 PostLogoutRedirectUris =
                 {
-                    $"{oidcAudience}",
-                    $"{oidcAudience}signout-callback-oidc"
+                    $"{defaultClientAudience}",
+                    $"{defaultClientAudience}signout-callback-oidc"
                 }
             };
 

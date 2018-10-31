@@ -20,8 +20,7 @@ namespace HCore.Web.Startup
     public class Launcher<TStartup>
     {
         private string _environment;        
-        private bool _useWebListener;
-
+        
         private WebHostBuilder _builder;
         private IConfigurationRoot _configuration;
 
@@ -38,27 +37,8 @@ namespace HCore.Web.Startup
         {
             _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             
-            _useWebListener = true;
-
-            if (_environment == EnvironmentName.Development)
-            {
-                _useWebListener = false;
-
-                CreateWebHostBuilder();
-            }
-            else if (_environment == EnvironmentName.Staging)
-            {
-                CreateWebHostBuilder();
-            }
-            else if (_environment == EnvironmentName.Production)
-            {
-                CreateWebHostBuilder();
-            }
-            else
-            {
-                throw new Exception($"Invalid environment name found: {_environment}");
-            }
-
+            CreateWebHostBuilder();
+            
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
             _builder.Build().Run();
@@ -149,82 +129,72 @@ namespace HCore.Web.Startup
             if (!useWeb && !useApi)
                 throw new Exception("Please specify which kind of service (web or API) you want to use");
 
-            if (_useWebListener)
+            _builder.UseKestrel((builderContext, options) =>
             {
-                // see https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/httpsys
+                options.Configure(builderContext.Configuration.GetSection("Kestrel"));
 
-                // do not forget to install the SSL certificate before, see SETUP.txt
-                _builder.UseHttpSys();
-            }
-            else
-            {
-                _builder.UseKestrel((builderContext, options) =>
+                if (useHttps)
                 {
-                    options.Configure(builderContext.Configuration.GetSection("Kestrel"));
+                    string httpsCertificateAssembly = null;
+                    string httpsCertificateName = null;
+                    string httpsCertificatePassword = null;
 
                     if (useHttps)
                     {
-                        string httpsCertificateAssembly = null;
-                        string httpsCertificateName = null;
-                        string httpsCertificatePassword = null;
+                        httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
+                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                            throw new Exception("HTTPS certificate assembly not found");
 
-                        if (useHttps)
-                        {
-                            httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
-                            if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                                throw new Exception("HTTPS certificate assembly not found");
+                        httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
 
-                            httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
+                        if (string.IsNullOrEmpty(httpsCertificateName))
+                            throw new Exception("HTTPS certificate name not found");
 
-                            if (string.IsNullOrEmpty(httpsCertificateName))
-                                throw new Exception("HTTPS certificate name not found");
+                        httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
 
-                            httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
-
-                            if (string.IsNullOrEmpty(httpsCertificatePassword))
-                                throw new Exception("HTTPS certificate password not found");
-                        }
-
-                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                        X509Certificate2 certificate = null;
-
-                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                        if (httpsAssembly == null)
-                            throw new Exception("HTTPS certificate assembly is not present in the list of assemblies");
-
-                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                        if (resourceStream == null)
-                            throw new Exception("HTTPS certificate resource not found");
-
-                        using (var memory = new MemoryStream((int)resourceStream.Length))
-                        {
-                            resourceStream.CopyTo(memory);
-
-                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                        }
-
-                        if (useWeb)
-                        {
-                            int webPort = _configuration.GetValue<int>("WebServer:WebPort");
-
-                            options.Listen(IPAddress.Any, webPort, listenOptions =>
-                                listenOptions.UseHttps(certificate));
-                        }
-
-                        if (useApi)
-                        { 
-                            int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
-
-                            options.Listen(IPAddress.Any, apiPort, listenOptions =>
-                                listenOptions.UseHttps(certificate));
-                        }                        
+                        if (string.IsNullOrEmpty(httpsCertificatePassword))
+                            throw new Exception("HTTPS certificate password not found");
                     }
-                });
-            }
+
+                    // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                    X509Certificate2 certificate = null;
+
+                    Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                        SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                    if (httpsAssembly == null)
+                        throw new Exception("HTTPS certificate assembly is not present in the list of assemblies");
+
+                    var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                    if (resourceStream == null)
+                        throw new Exception("HTTPS certificate resource not found");
+
+                    using (var memory = new MemoryStream((int)resourceStream.Length))
+                    {
+                        resourceStream.CopyTo(memory);
+
+                        certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                    }
+
+                    if (useWeb)
+                    {
+                        int webPort = _configuration.GetValue<int>("WebServer:WebPort");
+
+                        options.Listen(IPAddress.Any, webPort, listenOptions =>
+                            listenOptions.UseHttps(certificate));
+                    }
+
+                    if (useApi)
+                    { 
+                        int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
+
+                        options.Listen(IPAddress.Any, apiPort, listenOptions =>
+                            listenOptions.UseHttps(certificate));
+                    }                        
+                }
+            });            
 
             _builder.ConfigureServices((hostingContext, services) =>
             {
@@ -251,18 +221,18 @@ namespace HCore.Web.Startup
             _builder.UseIISIntegration();
 
             List<string> urls = new List<string>();
-            
+
+            string urlPattern = _configuration["WebServer:UrlPattern"];
+            if (string.IsNullOrEmpty(urlPattern))
+                throw new Exception("URL pattern not found in application settings");
+
             if (useWeb)
             {
                 string webServerUrl = useHttps ? "https://" : "http://";
 
-                string webDomain = _configuration["WebServer:WebDomain"];
-                if (string.IsNullOrEmpty(webDomain))
-                    throw new Exception("Web domain not found in application settings");
-
                 int webPort = _configuration.GetValue<int>("WebServer:WebPort");
 
-                webServerUrl += webDomain;
+                webServerUrl += urlPattern;
                 webServerUrl += ":" + webPort;
 
                 urls.Add(webServerUrl);
@@ -270,15 +240,11 @@ namespace HCore.Web.Startup
 
             if (useApi)
             { 
-                string apiServerUrl = useHttps ? "https://" : "http://";
-
-                string apiDomain = _configuration["WebServer:ApiDomain"];
-                if (string.IsNullOrEmpty(apiDomain))
-                    throw new Exception("API domain not found in application settings");
+                string apiServerUrl = useHttps ? "https://" : "http://";                
 
                 int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
-                apiServerUrl += apiDomain;
+                apiServerUrl += urlPattern;
                 apiServerUrl += ":" + apiPort;
 
                 urls.Add(apiServerUrl);

@@ -15,13 +15,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
 
             services.AddSingleton<ITenantDataProvider, TenantDataProviderImpl>();
-
-            services.AddHttpContextAccessor();
-
+           
             services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
             services.TryAddSingleton<ITenantInfoAccessor, TenantInfoAccessorImpl>();
 
-            var descriptor = new ServiceDescriptor(typeof(IUrlProvider), typeof(UrlProviderImpl), ServiceLifetime.Singleton);
+            services.AddScoped<HCore.Tenants.IUrlProvider, UrlProviderImpl>();
+            var descriptor = new ServiceDescriptor(typeof(HCore.Web.Providers.IUrlProvider), typeof(UrlProviderImpl), ServiceLifetime.Scoped);
 
             services.Replace(descriptor);
             

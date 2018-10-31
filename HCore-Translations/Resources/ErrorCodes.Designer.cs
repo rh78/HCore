@@ -394,15 +394,6 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The password contains invalid characters ähnelt.
-        /// </summary>
-        public static string password_invalid {
-            get {
-                return ResourceManager.GetString("password_invalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The password is missing ähnelt.
         /// </summary>
         public static string password_missing {

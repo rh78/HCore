@@ -39,7 +39,8 @@ namespace HCore.Web.Startup
         protected abstract void ConfigureCoreRoutes(IRouteBuilder routes);
 
         public void ConfigureServices(IServiceCollection services)
-        {            
+        {
+            ConfigureHttpContextAccessor(services);
             ConfigureLocalization(services);
             ConfigureUrlHelper(services);
             ConfigureWebServer(services);
@@ -49,6 +50,11 @@ namespace HCore.Web.Startup
             ConfigureGenericServices(services);
 
             ConfigureCoreServices(services);            
+        }
+
+        private void ConfigureHttpContextAccessor(IServiceCollection services)
+        {
+            services.AddHttpContextAccessor();
         }
 
         private void ConfigureLocalization(IServiceCollection services)
@@ -281,7 +287,7 @@ namespace HCore.Web.Startup
 
         private void ConfigureGenericServices(IServiceCollection services)
         {
-            services.AddSingleton<IUrlProvider, UrlProviderImpl>();
+            services.AddScoped<IUrlProvider, UrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
         }
     }
