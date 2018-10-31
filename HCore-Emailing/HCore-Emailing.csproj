@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Sendgrid" Version="9.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
   </ItemGroup>
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -14,11 +16,21 @@ namespace HCore.Emailing.Impl
 
         private readonly IConfiguration _configuration;
 
-        private readonly Dictionary<string, EmailSenderConfiguration> _emailSenderConfigurations = new Dictionary<string, EmailSenderConfiguration>();
+        private readonly Dictionary<string, SmtpEmailSenderConfiguration> _smtpEmailSenderConfigurations = new Dictionary<string, SmtpEmailSenderConfiguration>();
+        private readonly Dictionary<string, SendGridEmailSenderConfiguration> _sendGridEmailSenderConfigurations = new Dictionary<string, SendGridEmailSenderConfiguration>();
+
+        private readonly bool _useSendGrid;
 
         public DirectEmailSenderImpl(ILogger<DirectEmailSenderImpl> logger, IConfiguration configuration)
         {
             _configuration = configuration;
+
+            string implementation = configuration["Emailing:Implementation"];
+
+            if (string.IsNullOrEmpty(implementation))
+                throw new Exception("Emailing implementation specification is empty");
+
+            _useSendGrid = string.Equals(implementation, "SendGrid");            
 
             _logger = logger;
         }
@@ -27,41 +39,12 @@ namespace HCore.Emailing.Impl
         {
             _logger.LogInformation($"Sending email: {subject}");
 
-            try {
-                if (string.IsNullOrEmpty(configurationKey))
-                    configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
-                    
-                if (!_emailSenderConfigurations.ContainsKey(configurationKey))
-                    _emailSenderConfigurations.Add(configurationKey, LoadEmailSenderConfiguration(configurationKey, _configuration));
-
-                EmailSenderConfiguration emailSenderConfiguration = _emailSenderConfigurations[configurationKey];
-
-                using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) {
-                    client.UseDefaultCredentials = false;
-                    client.Credentials = new NetworkCredential(emailSenderConfiguration.SmtpUserName, emailSenderConfiguration.SmtpPassword);
-                    client.Port = emailSenderConfiguration.SmtpPort;
-                    client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl;
-
-                    MailMessage mailMessage = new MailMessage();
-                    mailMessage.From = new MailAddress(emailSenderConfiguration.SmtpEmailAddress);
-                    string user = mailMessage.From.User;
-
-                    if (to != null)
-                        to.ForEach(toString => mailMessage.To.Add(toString));
-
-                    if (cc != null)
-                        cc.ForEach(ccString => mailMessage.CC.Add(ccString));
-
-                    if (bcc != null)
-                        bcc.ForEach(bccString => mailMessage.Bcc.Add(bccString));
-
-                    mailMessage.IsBodyHtml = true;
-
-                    mailMessage.Subject = subject;
-                    mailMessage.Body = htmlMessage;
-
-                    await client.SendMailAsync(mailMessage).ConfigureAwait(false);
-                }
+            try
+            {
+                if (_useSendGrid)
+                    await SendSendGridEmailAsync(configurationKey, to, cc, bcc, subject, htmlMessage).ConfigureAwait(false);
+                else
+                    await SendSmtpEmailAsync(configurationKey, to, cc, bcc, subject, htmlMessage).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -70,8 +53,120 @@ namespace HCore.Emailing.Impl
                 throw e;
             }
         }
+        
+        private async Task SendSmtpEmailAsync(string configurationKey, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        {            
+            if (string.IsNullOrEmpty(configurationKey))
+                configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
+                    
+            if (!_smtpEmailSenderConfigurations.ContainsKey(configurationKey))
+                _smtpEmailSenderConfigurations.Add(configurationKey, LoadSmtpEmailSenderConfiguration(configurationKey, _configuration));
 
-        internal static EmailSenderConfiguration LoadEmailSenderConfiguration(string configurationKey, IConfiguration configuration)
+            SmtpEmailSenderConfiguration emailSenderConfiguration = _smtpEmailSenderConfigurations[configurationKey];
+
+            using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) {
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(emailSenderConfiguration.SmtpUserName, emailSenderConfiguration.SmtpPassword);
+                client.Port = emailSenderConfiguration.SmtpPort;
+                client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl;
+
+                MailMessage mailMessage = new MailMessage();
+                mailMessage.From = new MailAddress(emailSenderConfiguration.SmtpEmailAddress);                    
+
+                if (to != null)
+                    to.ForEach(toString => mailMessage.To.Add(toString));
+
+                if (cc != null)
+                    cc.ForEach(ccString => mailMessage.CC.Add(ccString));
+
+                if (bcc != null)
+                    bcc.ForEach(bccString => mailMessage.Bcc.Add(bccString));
+
+                mailMessage.IsBodyHtml = true;
+
+                mailMessage.Subject = subject;
+                mailMessage.Body = htmlMessage;
+
+                await client.SendMailAsync(mailMessage).ConfigureAwait(false);
+            }            
+        }
+
+        private async Task SendSendGridEmailAsync(string configurationKey, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        {            
+            if (string.IsNullOrEmpty(configurationKey))
+                configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
+
+            if (!_sendGridEmailSenderConfigurations.ContainsKey(configurationKey))
+                _sendGridEmailSenderConfigurations.Add(configurationKey, LoadSendGridEmailSenderConfiguration(configurationKey, _configuration));
+
+            SendGridEmailSenderConfiguration emailSenderConfiguration = _sendGridEmailSenderConfigurations[configurationKey];
+
+            var client = new SendGridClient(emailSenderConfiguration.ApiKey);
+
+            var mailMessage = new SendGridMessage()
+            {
+                From = new EmailAddress(emailSenderConfiguration.FromEmailAddress),
+                Subject = subject,                    
+                HtmlContent = htmlMessage
+            };
+                
+            if (to != null)
+                to.ForEach(toString => mailMessage.AddTo(new EmailAddress(toString)));
+
+            if (cc != null)
+                cc.ForEach(ccString => mailMessage.AddCc(new EmailAddress(ccString)));
+
+            if (bcc != null)
+                bcc.ForEach(bccString => mailMessage.AddBcc(new EmailAddress(bccString)));
+
+            var response = await client.SendEmailAsync(mailMessage).ConfigureAwait(false);
+
+            // see https://github.com/sendgrid/sendgrid-csharp
+
+            // "After executing the above code, response.StatusCode should be 202 and you should have an email in the inbox of the to recipient."
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                string body = await response.Body.ReadAsStringAsync().ConfigureAwait(false);
+
+                throw new Exception($"SendGrid email sending failed with status code {response.StatusCode}: {body}");
+            }                               
+        }
+
+        internal class SendGridEmailSenderConfiguration
+        {
+            public string ApiKey { get; set; }
+            public string FromEmailAddress { get; set; }
+        }
+
+        private SendGridEmailSenderConfiguration LoadSendGridEmailSenderConfiguration(string configurationKey, IConfiguration configuration)
+        {
+            string apiKey = configuration[$"Emailing:SendGrid:ApiKey"];
+            if (string.IsNullOrEmpty(apiKey))
+                throw new Exception($"SendGrid API key is missing");
+
+            string fromEmailAddress = configuration[$"Emailing:SendGrid:{configurationKey}:EmailAddress"];
+            if (string.IsNullOrEmpty(fromEmailAddress))
+                throw new Exception($"SendGrid from email address is missing for key {configurationKey}");
+
+            return new SendGridEmailSenderConfiguration()
+            {
+                ApiKey = apiKey,
+                FromEmailAddress = fromEmailAddress
+            };
+        }
+
+        internal class SmtpEmailSenderConfiguration
+        {
+            public string SmtpEmailAddress { get; set; }
+            public string SmtpHost { get; set; }
+            public string SmtpUserName { get; set; }
+            public string SmtpPassword { get; set; }
+            public int SmtpPort { get; set; }
+            public bool SmtpEnableSsl { get; set; }
+        }
+
+        private SmtpEmailSenderConfiguration LoadSmtpEmailSenderConfiguration(string configurationKey, IConfiguration configuration)
         {
             string smtpEmailAddress = configuration[$"Smtp:{configurationKey}:EmailAddress"];
             if (string.IsNullOrEmpty(smtpEmailAddress))
@@ -95,7 +190,7 @@ namespace HCore.Emailing.Impl
 
             bool smtpEnableSsl = configuration.GetValue<bool>($"Smtp:{configurationKey}:EnableSsl");
 
-            return new EmailSenderConfiguration()
+            return new SmtpEmailSenderConfiguration()
             {
                 SmtpEmailAddress = smtpEmailAddress,
                 SmtpHost = smtpHost,
@@ -104,6 +199,6 @@ namespace HCore.Emailing.Impl
                 SmtpPort = smtpPort,
                 SmtpEnableSsl = smtpEnableSsl
             };
-        }
+        }        
     }
 }

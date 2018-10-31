@@ -28,8 +28,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 services.AddAmqp(configuration);
 
-                DirectEmailSenderImpl.LoadEmailSenderConfiguration(EmailSenderConstants.EmptyConfigurationKeyDefaultKey, configuration);
-
                 services.AddSingleton<IEmailSender, AMQPEmailSenderImpl>();
 
                 Console.WriteLine("AMQP email sender initialized successfully");
@@ -37,8 +35,6 @@ namespace Microsoft.Extensions.DependencyInjection
             else
             {
                 Console.WriteLine("Initializing direct email sender...");
-
-                DirectEmailSenderImpl.LoadEmailSenderConfiguration(EmailSenderConstants.EmptyConfigurationKeyDefaultKey, configuration);
 
                 services.AddSingleton<IEmailSender, DirectEmailSenderImpl>();
 
