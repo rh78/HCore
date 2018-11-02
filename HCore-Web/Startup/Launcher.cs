@@ -52,6 +52,7 @@ namespace HCore.Web.Startup
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: true)
                 .Build();
 
             ConfigureDefaultServiceProvider();
@@ -100,7 +101,8 @@ namespace HCore.Web.Startup
                 var env = hostingContext.HostingEnvironment;
 
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: true);
 
                 if (env.IsDevelopment())
                 {
