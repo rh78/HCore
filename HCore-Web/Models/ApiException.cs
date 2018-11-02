@@ -25,21 +25,21 @@ namespace HCore.Web.Models
         /// The error code
         /// </summary>
         /// <value>The error code</value>
-        [DataMember(Name = "errorCode")]
+        [DataMember(Name = "error_code")]
         public string ErrorCode { get; set; }
 
         /// <summary>
         /// The error message
         /// </summary>
         /// <value>The error message</value>
-        [DataMember(Name = "errorMessage")]
+        [DataMember(Name = "error_message")]
         public string ErrorMessage { get; set; }
 
         /// <summary>
         /// More details about the error, if available
         /// </summary>
         /// <value>More details about the error, if available</value>
-        [DataMember(Name = "errorDetails")]
+        [DataMember(Name = "error_details")]
         public string ErrorDetails { get; set; }
 
         /// <summary>
