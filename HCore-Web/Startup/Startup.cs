@@ -23,6 +23,7 @@ namespace HCore.Web.Startup
         private bool _useHttps;
         private int _port;
         private bool _useSpa;
+        private bool _useSpaStaticFiles;
 
         public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
@@ -128,15 +129,15 @@ namespace HCore.Web.Startup
                 options.EnableForHttps = true;
             });
 
-            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+            _useSpaStaticFiles = Configuration.GetValue<bool>("WebServer:UseSpaStaticFiles");
 
-            if (_useSpa)
+            if (_useSpaStaticFiles)
             {
                 services.AddSpaStaticFiles(configuration =>
                 {
                     configuration.RootPath = "ClientApp/build";
                 });
-            }            
+            }
         }        
 
         private void ConfigureMvc(IServiceCollection services)
@@ -207,8 +208,10 @@ namespace HCore.Web.Startup
 
             app.UseStaticFiles(staticFileOptions);
 
-            if (_useSpa)            
-                app.UseSpaStaticFiles(staticFileOptions);            
+            if (_useSpaStaticFiles)
+            {
+                app.UseSpaStaticFiles(staticFileOptions);
+            }
         }
 
         private void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
