@@ -18,7 +18,7 @@ namespace HCore.Web.Providers.Impl
             HeaderIncludes = "";
             BodyIncludes = "";
 
-            if (!hostingEnvironment.IsDevelopment())
+            if (hostingEnvironment.IsProduction())
             {
                 string contentRootPath = hostingEnvironment.ContentRootPath;
 
