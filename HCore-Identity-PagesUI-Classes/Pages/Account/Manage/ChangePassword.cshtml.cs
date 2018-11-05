@@ -29,7 +29,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
         public async Task OnGetAsync()
         {
-            var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
+            var userUuid = User.GetUserUuid();
 
             var apiResult = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);            
         }
@@ -40,7 +40,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
             try
             {
-                var userUuid = User.FindFirstValue(IdentityModel.JwtClaimTypes.Subject);
+                var userUuid = User.GetUserUuid();
 
                 await _identityServices.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 

@@ -36,7 +36,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public List<TenantModel> Tenants { get; set; }
         
         public long Version { get; set; }
-        public DateTimeOffset Created { get; set; }
-        public DateTimeOffset? LastUpdated { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset? LastUpdatedAt { get; set; }
     }
 }

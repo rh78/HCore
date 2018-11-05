@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using IdentityModel;
 
 namespace System.Security.Claims
 {
@@ -6,7 +7,7 @@ namespace System.Security.Claims
     {        
         public static string GetEmailAddress(this ClaimsPrincipal user)
         {
-            var emailAddressClaim = user.Claims.FirstOrDefault(claim => claim.Type == "email" || claim.Type == ClaimTypes.Email);
+            var emailAddressClaim = user.Claims.FirstOrDefault(claim => claim.Type == JwtClaimTypes.Email || claim.Type == ClaimTypes.Email);
 
             string emailAddress = emailAddressClaim?.Value;
 
@@ -18,7 +19,7 @@ namespace System.Security.Claims
 
         public static string GetUserUuid(this ClaimsPrincipal user)
         {            
-            var userUuidClaim = user.Claims.FirstOrDefault(claim => claim.Type == "sub" || claim.Type == ClaimTypes.NameIdentifier);
+            var userUuidClaim = user.Claims.FirstOrDefault(claim => claim.Type == JwtClaimTypes.Subject || claim.Type == ClaimTypes.NameIdentifier);
 
             string userUuid = userUuidClaim?.Value;
 
