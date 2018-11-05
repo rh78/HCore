@@ -24,7 +24,8 @@ namespace HCore.Web.Middleware
                    "default-src 'self' 'unsafe-inline'; " +
                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
                    "font-src 'self' https://fonts.gstatic.com; " +
-                   "script-src 'self' 'unsafe-eval' 'unsafe-inline';");
+                   "script-src 'self' 'unsafe-eval' 'unsafe-inline'; " +
+                   "connect-src 'self';");
 
             await _next.Invoke(context).ConfigureAwait(false);
         }            
