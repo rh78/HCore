@@ -223,7 +223,12 @@ namespace HCore.Web.Startup
 
         private void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseMiddleware<CspHandlingMiddleware>(); 
+            bool useCsp = Configuration.GetValue<bool>("WebServer:UseCsp");
+
+            if (useCsp)
+            {
+                app.UseMiddleware<CspHandlingMiddleware>();
+            }
         }
 
         private void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
