@@ -21,9 +21,10 @@ namespace HCore.Web.Middleware
             // see https://anthonychu.ca/post/aspnet-core-csp/
 
             context.Response.Headers.Add("Content-Security-Policy",
-                   "default-src 'self' 'unsafe-inline' " +
-                   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com " +
-                   "font-src 'self' https://fonts.gstatic.com");
+                   "default-src 'self' 'unsafe-inline'; " +
+                   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                   "font-src 'self' https://fonts.gstatic.com; " +
+                   "script-src 'self' 'unsafe-eval' 'unsafe-inline';");
 
             await _next.Invoke(context).ConfigureAwait(false);
         }            

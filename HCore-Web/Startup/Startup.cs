@@ -129,6 +129,13 @@ namespace HCore.Web.Startup
                 options.EnableForHttps = true;
             });
 
+            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+
+            if (_useSpa)
+            {
+                services.AddSingleton<ISpaManifestJsonProvider, SpaManifestJsonProviderImpl>();
+            }
+
             _useSpaStaticFiles = Configuration.GetValue<bool>("WebServer:UseSpaStaticFiles");
 
             if (_useSpaStaticFiles)
@@ -245,18 +252,18 @@ namespace HCore.Web.Startup
             {
                 ConfigureCoreRoutes(routes);
 
-                if (_useSpa)
+                /* if (_useSpa)
                 {
                     routes.MapSpaFallbackRoute(
                         name: "spa-fallback",
                         defaults: new { controller = "Home", action = "Index" });
-                }
+                } */
             });        
         }        
 
         private void ConfigureSpa(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (_useSpa)
+            /* if (_useSpa)
             {
                 app.UseSpa(spa =>
                 {
@@ -269,7 +276,7 @@ namespace HCore.Web.Startup
                         spa.UseReactDevelopmentServer(npmScript: "start");
                     }
                 });
-            }
+            } */
         }
 
         private void ConfigureGenericServices(IServiceCollection services)
