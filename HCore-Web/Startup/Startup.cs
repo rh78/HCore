@@ -9,7 +9,6 @@ using System;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Routing;
 using HCore.Web.Providers.Impl;
 using HCore.Web.Providers;
@@ -22,9 +21,7 @@ namespace HCore.Web.Startup
     {
         private bool _useHttps;
         private int _port;
-        private bool _useSpa;
-        private bool _useSpaStaticFiles;
-
+        
         public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
@@ -129,22 +126,22 @@ namespace HCore.Web.Startup
                 options.EnableForHttps = true;
             });
 
-            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+            bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
 
-            if (_useSpa)
+            if (useSpa)
             {
                 services.AddSingleton<ISpaManifestJsonProvider, SpaManifestJsonProviderImpl>();
-            }
 
-            _useSpaStaticFiles = Configuration.GetValue<bool>("WebServer:UseSpaStaticFiles");
+                bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 
-            if (_useSpaStaticFiles)
-            {
-                services.AddSpaStaticFiles(configuration =>
+                if (staticFiles)
                 {
-                    configuration.RootPath = "ClientApp/build";
-                });
-            }
+                    services.AddSpaStaticFiles(configuration =>
+                    {
+                        configuration.RootPath = "ClientApp/build";
+                    });
+                }
+            }            
         }        
 
         private void ConfigureMvc(IServiceCollection services)
@@ -166,8 +163,6 @@ namespace HCore.Web.Startup
             ConfigureExceptionHandling(app, env);            
 
             ConfigureMvc(app, env);
-
-            ConfigureSpa(app, env);
         }
 
         private void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
@@ -215,9 +210,16 @@ namespace HCore.Web.Startup
 
             app.UseStaticFiles(staticFileOptions);
 
-            if (_useSpaStaticFiles)
+            bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+
+            if (useSpa)
             {
-                app.UseSpaStaticFiles(staticFileOptions);
+                bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
+
+                if (staticFiles)
+                {
+                    app.UseSpaStaticFiles(staticFileOptions);
+                }
             }
         }
 
@@ -256,32 +258,7 @@ namespace HCore.Web.Startup
             app.UseMvc(routes =>
             {
                 ConfigureCoreRoutes(routes);
-
-                /* if (_useSpa)
-                {
-                    routes.MapSpaFallbackRoute(
-                        name: "spa-fallback",
-                        defaults: new { controller = "Home", action = "Index" });
-                } */
-            });        
-        }        
-
-        private void ConfigureSpa(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            /* if (_useSpa)
-            {
-                app.UseSpa(spa =>
-                {
-                    spa.Options.SourcePath = "ClientApp";
-
-                    bool useSpaDevelopmentServer = Configuration.GetValue<bool>("WebServer:UseSpaDevelopmentServer");
-
-                    if (useSpaDevelopmentServer && env.IsDevelopment())
-                    {
-                        spa.UseReactDevelopmentServer(npmScript: "start");
-                    }
-                });
-            } */
+            });            
         }
 
         private void ConfigureGenericServices(IServiceCollection services)
