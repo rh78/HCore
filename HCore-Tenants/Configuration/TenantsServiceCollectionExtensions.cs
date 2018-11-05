@@ -23,7 +23,14 @@ namespace Microsoft.Extensions.DependencyInjection
             var descriptor = new ServiceDescriptor(typeof(HCore.Web.Providers.IUrlProvider), typeof(UrlProviderImpl), ServiceLifetime.Scoped);
 
             services.Replace(descriptor);
-            
+
+            bool useCors = configuration.GetValue<bool>("Identity:Tenants:UseCors");
+
+            if (useCors)
+            {
+                services.AddCors();
+            }
+
             return new TenantsBuilder(services);
         }
     }    

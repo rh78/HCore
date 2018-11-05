@@ -1,5 +1,4 @@
-﻿using HCore.Tenants.Database.SqlServer;
-using IdentityServer4;
+﻿using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;

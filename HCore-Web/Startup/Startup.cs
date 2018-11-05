@@ -33,10 +33,20 @@ namespace HCore.Web.Startup
         public IConfiguration Configuration { get; }
         public IHostingEnvironment HostingEnvironment { get; set; }
 
-        protected abstract void ConfigureCoreServices(IServiceCollection services);
-        protected abstract void ConfigureCore(IApplicationBuilder app);
+        protected virtual void ConfigureCoreServices(IServiceCollection services)
+        {
 
-        protected abstract void ConfigureCoreRoutes(IRouteBuilder routes);
+        }
+
+        protected virtual void ConfigureCore(IApplicationBuilder app)
+        {
+
+        }
+
+        protected virtual void ConfigureCoreRoutes(IRouteBuilder routes)
+        {
+
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -44,7 +54,6 @@ namespace HCore.Web.Startup
             ConfigureLocalization(services);
             ConfigureUrlHelper(services);
             ConfigureWebServer(services);
-            ConfigureCors(services);
             ConfigureMvc(services);
 
             ConfigureGenericServices(services);
@@ -130,11 +139,6 @@ namespace HCore.Web.Startup
             }            
         }        
 
-        private void ConfigureCors(IServiceCollection services)
-        {
-            services.AddCors();
-        }
-
         private void ConfigureMvc(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -149,7 +153,6 @@ namespace HCore.Web.Startup
             ConfigureHttps(app, env);
             ConfigureResponseCompression(app, env);
             ConfigureStaticFiles(app, env);
-            ConfigureCors(app, env);
             ConfigureCsp(app, env);
             ConfigureRequestLocalization(app, env);
             ConfigureExceptionHandling(app, env);            
@@ -208,24 +211,9 @@ namespace HCore.Web.Startup
                 app.UseSpaStaticFiles(staticFileOptions);            
         }
 
-        private void ConfigureCors(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app.UseCors(builder => 
-            {
-                builder
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowAnyOrigin()
-                    .AllowCredentials();
-            });
-        }
-
         private void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
         {
-            /* We do not need to introduce Content Security Policy headers, because we're going
-               through Apigee for now
-
-            app.UseMiddleware<CspHandlingMiddleware>(); */
+            app.UseMiddleware<CspHandlingMiddleware>(); 
         }
 
         private void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
