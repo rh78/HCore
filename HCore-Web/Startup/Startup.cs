@@ -132,11 +132,7 @@ namespace HCore.Web.Startup
 
         private void ConfigureCors(IServiceCollection services)
         {
-            /* We do not need to introduce CORS headers, because they're done by Apigee for now...
-             
-            // see: https://docs.microsoft.com/en-us/aspnet/core/security/cors
-
-            services.AddCors(); */
+            services.AddCors();
         }
 
         private void ConfigureMvc(IServiceCollection services)
@@ -214,14 +210,14 @@ namespace HCore.Web.Startup
 
         private void ConfigureCors(IApplicationBuilder app, IHostingEnvironment env)
         {
-            /* We do not need to introduce CORS headers, because they're done by Apigee for now...
-             
-            // see: https://docs.microsoft.com/en-us/aspnet/core/security/cors
-
             app.UseCors(builder => 
             {
-                // TODO (how to handle '*' with credentials?)
-            }); */
+                builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowCredentials();
+            });
         }
 
         private void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
