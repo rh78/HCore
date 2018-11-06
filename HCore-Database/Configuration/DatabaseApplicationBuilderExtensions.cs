@@ -12,7 +12,9 @@ namespace Microsoft.AspNetCore.Builder
 
             using (var scope = scopeFactory.CreateScope())
             {
-                scope.ServiceProvider.GetRequiredService<TSqlServerDbContext>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<TSqlServerDbContext>();
+
+                dbContext.Database.Migrate();
             }
 
             return app;

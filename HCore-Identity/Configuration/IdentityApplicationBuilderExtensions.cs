@@ -1,8 +1,10 @@
-﻿using IdentityServer4;
+﻿using HCore.Identity.Database.SqlServer;
+using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,6 +39,16 @@ namespace Microsoft.AspNetCore.Builder
                 if (useIdentity)
                 {
                     var configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+
+                    configurationDbContext.Database.Migrate();
+
+                    var persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+
+                    persistedGrantDbContext.Database.Migrate();
+
+                    var identityDbContext = scope.ServiceProvider.GetRequiredService<SqlServerIdentityDbContext>();
+
+                    identityDbContext.Database.Migrate();
 
                     InitializeIdentity(configurationDbContext, configuration);
 
