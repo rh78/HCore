@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
@@ -12,6 +13,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public const int MaxUrlLength = 255;
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Uuid { get; set; }
 
         public DeveloperModel Developer { get; set; }
