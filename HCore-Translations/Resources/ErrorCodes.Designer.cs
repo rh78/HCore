@@ -232,6 +232,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The email address is too long ähnelt.
+        /// </summary>
+        public static string email_too_long {
+            get {
+                return ResourceManager.GetString("email_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The first name contains invalid characters ähnelt.
         /// </summary>
         public static string first_name_invalid {
@@ -507,6 +516,15 @@ namespace HCore.Translations.Resources {
         public static string phone_number_missing {
             get {
                 return ResourceManager.GetString("phone_number_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The phone number is too long ähnelt.
+        /// </summary>
+        public static string phone_number_too_long {
+            get {
+                return ResourceManager.GetString("phone_number_too_long", resourceCulture);
             }
         }
         

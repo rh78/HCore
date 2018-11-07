@@ -75,8 +75,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
                 services.AddSingleton<IIdentityServicesConfiguration, IdentityServicesConfigurationImpl>();
-                
-                services.AddScoped<IIdentityServices, IdentityServicesImpl>();
+
+                services.AddScoped<IAccessTokenProvider, AccessTokenProviderImpl>();
+                services.AddScoped<IIdentityServices, IdentityServicesImpl>();                
             }
 
             if (useIdentity || useJwt)

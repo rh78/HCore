@@ -162,6 +162,9 @@
   <data name="email_missing" xml:space="preserve">
     <value>The email address is missing</value>
   </data>
+  <data name="email_too_long" xml:space="preserve">
+    <value>The email address is too long</value>
+  </data>
   <data name="internal_server_error" xml:space="preserve">
     <value>An unexpected server error occured</value>
   </data>
@@ -236,6 +239,9 @@
   </data>
   <data name="phone_number_missing" xml:space="preserve">
     <value>The phone number is missing</value>
+  </data>
+  <data name="phone_number_too_long" xml:space="preserve">
+    <value>The phone number is too long</value>
   </data>
   <data name="private_key_invalid" xml:space="preserve">
     <value>The private key is invalid, decoding failed</value>

@@ -64,8 +64,10 @@ namespace HCore.Web.Exceptions
         public const string UserUuidTooLong = "user_uuid_too_long";
         public const string EmailMissing = "email_missing";
         public const string EmailInvalid = "email_invalid";
+        public const string EmailTooLong = "email_too_long";
         public const string PhoneNumberMissing = "phone_number_missing";
         public const string PhoneNumberInvalid = "phone_number_invalid";
+        public const string PhoneNumberTooLong = "phone_number_too_long";
         public const string ValidationFailed = "validation_failed";
         public const string DuplicateUserName = "duplicate_user_name";
         public const string PasswordRequiresNonAlphanumeric = "password_requires_non_alphanumeric";
