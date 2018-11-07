@@ -232,6 +232,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first name contains invalid characters ähnelt.
+        /// </summary>
+        public static string first_name_invalid {
+            get {
+                return ResourceManager.GetString("first_name_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first name is missing ähnelt.
+        /// </summary>
+        public static string first_name_missing {
+            get {
+                return ResourceManager.GetString("first_name_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The first name is too long ähnelt.
+        /// </summary>
+        public static string first_name_too_long {
+            get {
+                return ResourceManager.GetString("first_name_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die An unexpected server error occured ähnelt.
         /// </summary>
         public static string internal_server_error {
@@ -273,6 +300,33 @@ namespace HCore.Translations.Resources {
         public static string issuer_too_long {
             get {
                 return ResourceManager.GetString("issuer_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The last name contains invalid characters ähnelt.
+        /// </summary>
+        public static string last_name_invalid {
+            get {
+                return ResourceManager.GetString("last_name_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The last name is missing ähnelt.
+        /// </summary>
+        public static string last_name_missing {
+            get {
+                return ResourceManager.GetString("last_name_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The last name is too long ähnelt.
+        /// </summary>
+        public static string last_name_too_long {
+            get {
+                return ResourceManager.GetString("last_name_too_long", resourceCulture);
             }
         }
         
@@ -574,6 +628,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die It is not allowed to register users in self-service on this system ähnelt.
+        /// </summary>
+        public static string self_registration_not_allowed {
+            get {
+                return ResourceManager.GetString("self_registration_not_allowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die It is not allowed to modify user data in self-service on this system ähnelt.
+        /// </summary>
+        public static string self_service_not_allowed {
+            get {
+                return ResourceManager.GetString("self_service_not_allowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The state is invalid ähnelt.
         /// </summary>
         public static string state_invalid {
@@ -642,6 +714,15 @@ namespace HCore.Translations.Resources {
         public static string user_credentials_missing {
             get {
                 return ResourceManager.GetString("user_credentials_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This system does not support managing user detail data ähnelt.
+        /// </summary>
+        public static string user_details_not_supported {
+            get {
+                return ResourceManager.GetString("user_details_not_supported", resourceCulture);
             }
         }
         
@@ -759,15 +840,6 @@ namespace HCore.Translations.Resources {
         public static string uuid_missing {
             get {
                 return ResourceManager.GetString("uuid_missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Validation of the submitted data failed ähnelt.
-        /// </summary>
-        public static string validation_failed {
-            get {
-                return ResourceManager.GetString("validation_failed", resourceCulture);
             }
         }
     }

@@ -42,9 +42,12 @@
                         <p>
                             <a asp-page="./ForgotPassword">Passwort vergessen?</a>
                         </p>
-                        <p>
-                            <a asp-page="./Register">Als neuer Benutzer registrieren</a>
-                        </p>
+                        @if (configuration.SelfRegistration)
+                        {
+                            <p>
+                                <a asp-page="./Register">Als neuer Benutzer registrieren</a>
+                            </p>
+                        }
                     </div>
                 </form>
             </section>

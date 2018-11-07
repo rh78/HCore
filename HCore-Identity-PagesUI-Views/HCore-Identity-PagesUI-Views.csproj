@@ -109,6 +109,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HCore-Identity-PagesUI-Classes\HCore-Identity-PagesUI-Classes.csproj" />
+    <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />
   </ItemGroup>
 
 </Project>

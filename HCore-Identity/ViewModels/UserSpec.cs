@@ -36,9 +36,33 @@ namespace HCore.Identity.ViewModels
         [DataMember(Name="email")]
 		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
-		public bool EmailSet = false;		
+		public bool EmailSet = false;
 
-		private string _Password;
+        private string _FirstName;
+
+        /// <summary>
+        /// The first name of the user
+        /// </summary>
+        /// <value>The first name of the user</value>
+        [Required]
+        [DataMember(Name = "first_name")]
+        public string FirstName { get => _FirstName; set { _FirstName = value; FirstNameSet = true; } }
+
+        public bool FirstNameSet = false;
+
+        private string _LastName;
+
+        /// <summary>
+        /// The last name of the user
+        /// </summary>
+        /// <value>The last name of the user</value>
+        [Required]
+        [DataMember(Name = "last_name")]
+        public string LastName { get => _LastName; set { _LastName = value; LastNameSet = true; } }
+
+        public bool LastNameSet = false;
+
+        private string _Password;
 		
 		/// <summary>
         /// The password of the user
@@ -68,6 +92,7 @@ namespace HCore.Identity.ViewModels
         /// The phone number of the user
         /// </summary>
         /// <value>The phone number of the user</value>
+        [Required]
         [DataMember(Name = "phone_number")]
         public string PhoneNumber { get => _PhoneNumber; set { _PhoneNumber = value; PhoneNumberSet = true; } }
 
@@ -93,6 +118,8 @@ namespace HCore.Identity.ViewModels
             var sb = new StringBuilder();
             sb.Append("class UserSpec {\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("  FirstName: ").Append(FirstName).Append("\n");
+            sb.Append("  LastName: ").Append(LastName).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
@@ -137,7 +164,17 @@ namespace HCore.Identity.ViewModels
                     Email == other.Email ||
                     Email != null &&
                     Email.Equals(other.Email)
-                ) && 
+                ) &&
+                (
+                    FirstName == other.FirstName ||
+                    FirstName != null &&
+                    FirstName.Equals(other.FirstName)
+                ) &&
+                (
+                    LastName == other.LastName ||
+                    LastName != null &&
+                    LastName.Equals(other.LastName)
+                ) &&
                 (
                     Password == other.Password ||
                     Password != null &&
@@ -171,9 +208,13 @@ namespace HCore.Identity.ViewModels
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
                     if (Email != null)
-                    hashCode = hashCode * 59 + Email.GetHashCode();
+                        hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (FirstName != null)
+                        hashCode = hashCode * 59 + FirstName.GetHashCode();
+                    if (LastName != null)
+                        hashCode = hashCode * 59 + LastName.GetHashCode();
                     if (Password != null)
-                    hashCode = hashCode * 59 + Password.GetHashCode();
+                        hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)
                     hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
                     if (PhoneNumber != null)

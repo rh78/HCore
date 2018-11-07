@@ -1,0 +1,43 @@
+﻿using Microsoft.Extensions.Configuration;
+using System;
+
+namespace HCore.Identity.Impl
+{
+    internal class IdentityServicesConfigurationImpl : IIdentityServicesConfiguration
+    {
+        public string DefaultClientId { get; private set; }
+        public string DefaultClientAuthority { get; private set; }
+        public string DefaultClientAudience { get; private set; }
+
+        public bool SelfRegistration { get; private set; }
+        public bool RegisterName { get; private set; }
+        public bool RegisterPhoneNumber { get; private set; }
+
+        public bool SelfManagement { get; private set; }
+        public bool ManageName { get; private set; }
+        public bool ManagePhoneNumber { get; private set; }
+
+        public IdentityServicesConfigurationImpl(IConfiguration configuration)
+        {
+            DefaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
+            if (string.IsNullOrEmpty(DefaultClientId))
+                throw new Exception("Identity default client ID is empty");
+
+            DefaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+            if (string.IsNullOrEmpty(DefaultClientAuthority))
+                throw new Exception("Identity default client authority string is empty");
+
+            DefaultClientAudience = configuration[$"Identity:DefaultClient:Audience"];
+            if (string.IsNullOrEmpty(DefaultClientAudience))
+                throw new Exception("Identity default client audience string is empty");
+
+            SelfRegistration = configuration.GetValue<bool>("Identity:FeatureSet:SelfRegistration");
+            RegisterName = configuration.GetValue<bool>("Identity:FeatureSet:RegisterName");
+            RegisterPhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:RegisterPhoneNumber");
+
+            SelfManagement = configuration.GetValue<bool>("Identity:FeatureSet:SelfManagement");
+            ManageName = configuration.GetValue<bool>("Identity:FeatureSet:ManageName");
+            ManagePhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:ManagePhoneNumber");
+        }
+    }
+}

@@ -324,8 +324,8 @@
   <data name="uuid_missing" xml:space="preserve">
     <value>The UUID is missing</value>
   </data>
-  <data name="validation_failed" xml:space="preserve">
-    <value>Validation of the submitted data failed</value>
+  <data name="user_details_not_supported" xml:space="preserve">
+    <value>This system does not support managing user detail data</value>
   </data>
   <data name="user_no_member_of_user_group" xml:space="preserve">
     <value>The user is no member of the user group</value>
@@ -353,5 +353,29 @@
   </data>
   <data name="cookie_invalid_or_expired" xml:space="preserve">
     <value>The cookie is invalid or expired</value>
+  </data>
+  <data name="first_name_invalid" xml:space="preserve">
+    <value>The first name contains invalid characters</value>
+  </data>
+  <data name="first_name_missing" xml:space="preserve">
+    <value>The first name is missing</value>
+  </data>
+  <data name="first_name_too_long" xml:space="preserve">
+    <value>The first name is too long</value>
+  </data>
+  <data name="last_name_invalid" xml:space="preserve">
+    <value>The last name contains invalid characters</value>
+  </data>
+  <data name="last_name_missing" xml:space="preserve">
+    <value>The last name is missing</value>
+  </data>
+  <data name="last_name_too_long" xml:space="preserve">
+    <value>The last name is too long</value>
+  </data>
+  <data name="self_registration_not_allowed" xml:space="preserve">
+    <value>It is not allowed to register users in self-service on this system</value>
+  </data>
+  <data name="self_service_not_allowed" xml:space="preserve">
+    <value>It is not allowed to modify user data in self-service on this system</value>
   </data>
 </root>

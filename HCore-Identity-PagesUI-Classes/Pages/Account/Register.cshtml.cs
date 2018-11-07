@@ -39,7 +39,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                UserModel user = await _identityServices.CreateUserAsync(Input).ConfigureAwait(false);
+                UserModel user = await _identityServices.CreateUserAsync(Input, false).ConfigureAwait(false);
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
 

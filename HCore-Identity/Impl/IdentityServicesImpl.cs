@@ -21,16 +21,11 @@ using IdentityServer4.Validation;
 using IdentityServer4.Services;
 using IdentityServer4.Configuration;
 using IdentityServer4.Stores;
-using Microsoft.Extensions.Configuration;
 
 namespace HCore.Identity.Controllers.API.Impl
 {
     internal class IdentityServicesImpl : IIdentityServices
     {
-        public const int MaxUserUuidLength = 50;
-        public const int MaxUserNameLength = 50;
-        public const int MinPasswordLength = 6;
-        public const int MaxPasswordLength = 50;
         public const int MaxCodeLength = 512;
 
         private readonly SignInManager<UserModel> _signInManager;
@@ -45,7 +40,7 @@ namespace HCore.Identity.Controllers.API.Impl
         private readonly IdentityServerOptions _options;
         private readonly IClientStore _clientStore;
         private readonly IResourceStore _resourceStore;
-        private readonly IConfiguration _configuration;
+        private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
 
         public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
@@ -60,7 +55,7 @@ namespace HCore.Identity.Controllers.API.Impl
             IdentityServerOptions options,
             IClientStore clientStore,
             IResourceStore resourceStore,
-            IConfiguration configuration)
+            IIdentityServicesConfiguration identityServicesConfiguration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -74,19 +69,53 @@ namespace HCore.Identity.Controllers.API.Impl
             _options = options;
             _clientStore = clientStore;
             _resourceStore = resourceStore;
-            _configuration = configuration;
+            _identityServicesConfiguration = identityServicesConfiguration;
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin)
         {
-            userSpec.Email = ProcessEmail(userSpec.Email, true);
+            if (!isAdmin)
+            {
+                if (!_identityServicesConfiguration.SelfRegistration)
+                    throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
+            }
+
+            userSpec.Email = ProcessEmail(userSpec.Email);
             userSpec.Password = ProcessPassword(userSpec.Password);
+
+            if (_identityServicesConfiguration.SelfManagement)
+            {
+                if (_identityServicesConfiguration.ManageName && _identityServicesConfiguration.RegisterName)
+                {
+                    userSpec.FirstName = ProcessFirstName(userSpec.FirstName);
+                    userSpec.LastName = ProcessLastName(userSpec.LastName);
+                }
+
+                if (_identityServicesConfiguration.ManagePhoneNumber && _identityServicesConfiguration.RegisterPhoneNumber)
+                {
+                    userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
+                }
+            } 
 
             try
             {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
                     var user = new UserModel { UserName = userSpec.Email, Email = userSpec.Email };
+
+                    if (_identityServicesConfiguration.SelfManagement)
+                    {
+                        if (_identityServicesConfiguration.ManageName && _identityServicesConfiguration.RegisterName)
+                        {
+                            user.FirstName = userSpec.FirstName;
+                            user.LastName = userSpec.LastName;
+                        }
+
+                        if (_identityServicesConfiguration.ManagePhoneNumber && _identityServicesConfiguration.RegisterPhoneNumber)
+                        {
+                            user.PhoneNumber = userSpec.PhoneNumber;
+                        }
+                    }
 
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 
@@ -140,7 +169,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
         public async Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec)
         {
-            userSignInSpec.Email = ProcessEmail(userSignInSpec.Email, true);
+            userSignInSpec.Email = ProcessEmail(userSignInSpec.Email);
             userSignInSpec.Password = ProcessPassword(userSignInSpec.Password);
 
             try
@@ -248,7 +277,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
         public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec)
         {
-            userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email, true);
+            userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email);
 
             try
             {
@@ -296,7 +325,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
         public async Task ResetUserPasswordAsync(ResetUserPasswordSpec resetUserPasswordSpec)
         {
-            resetUserPasswordSpec.Email = ProcessEmail(resetUserPasswordSpec.Email, true);
+            resetUserPasswordSpec.Email = ProcessEmail(resetUserPasswordSpec.Email);
             resetUserPasswordSpec.Password = ProcessPassword(resetUserPasswordSpec.Password);
             resetUserPasswordSpec.PasswordConfirmation = ProcessPasswordConfirmation(resetUserPasswordSpec.Password, resetUserPasswordSpec.PasswordConfirmation);
 
@@ -417,13 +446,18 @@ namespace HCore.Identity.Controllers.API.Impl
             }
         }
 
-        public async Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user)
+        public async Task<UserModel> UpdateUserAsync(string userUuid, UserSpec userSpec, bool isAdmin)
         {
+            if (!_identityServicesConfiguration.ManageName && !_identityServicesConfiguration.ManagePhoneNumber)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserDetailsNotSupported, "This system does not support managing user detail data");
+
+            if (!isAdmin) {
+                if (!_identityServicesConfiguration.SelfManagement)
+                    throw new ForbiddenApiException(ForbiddenApiException.SelfServiceNotAllowed, "It is not allowed to modify user data in self-service on this system");
+            }
+            
             userUuid = ProcessUserUuid(userUuid);
-
-            user.Email = ProcessEmail(user.Email, false);
-            user.PhoneNumber = ProcessPhoneNumber(user.PhoneNumber, false);
-
+            
             try
             {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
@@ -437,23 +471,57 @@ namespace HCore.Identity.Controllers.API.Impl
 
                     bool changed = false;
 
-                    if (user.PhoneNumberSet)
+                    if (_identityServicesConfiguration.ManageName)
                     {
-                        if (!string.Equals(oldUser.PhoneNumber, user.PhoneNumber))
+                        if (userSpec.FirstNameSet)
                         {
-                            var setPhoneNumberResult = await _userManager.SetPhoneNumberAsync(oldUser, user.PhoneNumber).ConfigureAwait(false);
+                            userSpec.FirstName = ProcessFirstName(userSpec.FirstName);
 
-                            if (!setPhoneNumberResult.Succeeded)
+                            if (!string.Equals(oldUser.FirstName, userSpec.FirstName))
                             {
-                                HandleIdentityError(setPhoneNumberResult.Errors);
-                            }
+                                oldUser.FirstName = userSpec.FirstName;
 
-                            changed = true;
+                                changed = true;
+                            }
+                        }
+
+                        if (userSpec.LastNameSet)
+                        {
+                            userSpec.LastName = ProcessLastName(userSpec.LastName);
+
+                            if (!string.Equals(oldUser.LastName, userSpec.LastName))
+                            {
+                                oldUser.LastName = userSpec.LastName;
+
+                                changed = true;
+                            }
+                        }
+                    }
+
+                    if (_identityServicesConfiguration.ManagePhoneNumber)
+                    {
+                        if (userSpec.PhoneNumberSet)
+                        {
+                            userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
+
+                            if (!string.Equals(oldUser.PhoneNumber, userSpec.PhoneNumber))
+                            {
+                                oldUser.PhoneNumber = userSpec.PhoneNumber;
+
+                                changed = true;
+                            }
                         }
                     }
 
                     if (changed)
                     {
+                        var updateResult = await _userManager.UpdateAsync(oldUser);
+
+                        if (!updateResult.Succeeded)
+                        {
+                            HandleIdentityError(updateResult.Errors);
+                        }
+
                         await _signInManager.RefreshSignInAsync(oldUser).ConfigureAwait(false);
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -563,9 +631,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 tokenCreationRequest.ValidatedRequest.Subject = tokenCreationRequest.Subject;
 
-                string defaultClientId = _configuration[$"Identity:DefaultClient:ClientId"];
-                if (string.IsNullOrEmpty(defaultClientId))
-                    throw new Exception("Identity default client ID is empty");
+                string defaultClientId = _identityServicesConfiguration.DefaultClientId;
 
                 var client = await _clientStore.FindClientByIdAsync(defaultClientId).ConfigureAwait(false);
 
@@ -581,13 +647,8 @@ namespace HCore.Identity.Controllers.API.Impl
 
                 var accessToken = await _tokenService.CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
-                string oidcAuthority = _configuration[$"Identity:DefaultClient:Authority"];
-                if (string.IsNullOrEmpty(oidcAuthority))
-                    throw new Exception("Identity OIDC authority string is empty");
-
-                string oidcAudience = _configuration[$"Identity:DefaultClient:Audience"];
-                if (string.IsNullOrEmpty(oidcAudience))
-                    throw new Exception("Identity OIDC audience string is empty");
+                string oidcAuthority = _identityServicesConfiguration.DefaultClientAuthority;
+                string oidcAudience = _identityServicesConfiguration.DefaultClientAudience;
 
                 accessToken.Issuer = oidcAuthority;
                 accessToken.Audiences = new string[] { oidcAudience };
@@ -616,38 +677,56 @@ namespace HCore.Identity.Controllers.API.Impl
             if (!ApiImpl.Uuid.IsMatch(userUuid))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
 
-            if (userUuid.Length > MaxUserUuidLength)
+            if (userUuid.Length > UserModel.MaxUserUuidLength)
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
 
             return userUuid;
         }
 
-        private string ProcessEmail(string email, bool required)
+        private string ProcessEmail(string email)
         {
             if (string.IsNullOrEmpty(email))
-            {
-                if (required)
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
-
-                return null;
-            }
-
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
+            
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is invalid");
 
             return email;
         }
 
-        private string ProcessPhoneNumber(string phoneNumber, bool required)
+        private string ProcessFirstName(string firstName)
+        {
+            if (string.IsNullOrEmpty(firstName))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameMissing, "The first name is missing");
+            
+            if (!ApiImpl.SafeString.IsMatch(firstName))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameInvalid, "The first name contains invalid characters");
+
+            if (firstName.Length > UserModel.MaxFirstNameLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameTooLong, "The fist name is too long");
+
+            return firstName;
+        }
+
+        private string ProcessLastName(string lastName)
+        {
+            if (string.IsNullOrEmpty(lastName))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameMissing, "The last name is missing");
+            
+            if (!ApiImpl.SafeString.IsMatch(lastName))
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameInvalid, "The last name contains invalid characters");
+
+            if (lastName.Length > UserModel.MaxLastNameLength)
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameTooLong, "The last name is too long");
+
+            return lastName;
+        }
+
+        private string ProcessPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrEmpty(phoneNumber))
-            {
-                if (required)
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberMissing, "The phone number is missing");
-
-                return null;
-            }
-
+                throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberMissing, "The phone number is missing");
+            
             if (!new PhoneAttribute().IsValid(phoneNumber))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberInvalid, "The phone number is invalid");
 
@@ -659,10 +738,10 @@ namespace HCore.Identity.Controllers.API.Impl
             if (string.IsNullOrEmpty(password))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordMissing, "The password is missing");
             
-            if (password.Length < MinPasswordLength)
+            if (password.Length < UserModel.MinPasswordLength)
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooShort, "The password is too short");
 
-            if (password.Length > MaxPasswordLength)
+            if (password.Length > UserModel.MaxPasswordLength)
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooLong, "The password is too long");
 
             return password;

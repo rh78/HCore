@@ -74,6 +74,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
+                services.AddSingleton<IIdentityServicesConfiguration, IdentityServicesConfigurationImpl>();
+                
                 services.AddScoped<IIdentityServices, IdentityServicesImpl>();
             }
 
@@ -112,20 +114,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (tenantsBuilder == null)
             {
-                string oidcAuthority = configuration[$"Identity:DefaultClient:Authority"];
-                if (string.IsNullOrEmpty(oidcAuthority))
-                    throw new Exception("Identity OIDC authority string is empty");
+                string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+                if (string.IsNullOrEmpty(defaultClientAuthority))
+                    throw new Exception("Identity default client authority string is empty");
 
-                string oidcAudience = configuration[$"Identity:DefaultClient:Audience"];
-                if (string.IsNullOrEmpty(oidcAudience))
-                    throw new Exception("Identity audience string is empty");
+                string defaultClientAudience = configuration[$"Identity:DefaultClient:Audience"];
+                if (string.IsNullOrEmpty(defaultClientAudience))
+                    throw new Exception("Identity default client audience string is empty");
 
                 authenticationBuilder.AddJwtBearer(IdentityCoreConstants.JwtScheme, jwt =>
                 {                       
                     jwt.RequireHttpsMetadata = true;
 
-                    jwt.Authority = oidcAuthority;
-                    jwt.Audience = oidcAudience;
+                    jwt.Authority = defaultClientAuthority;
+                    jwt.Audience = defaultClientAudience;
 
                     jwt.TokenValidationParameters = new TokenValidationParameters()
                     {
@@ -134,9 +136,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         RequireExpirationTime = true,
                         ValidateLifetime = true,
                         ValidateAudience = true,
-                        ValidAudience = oidcAudience,
+                        ValidAudience = defaultClientAudience,
                         ValidateIssuer = true,
-                        ValidIssuer = oidcAuthority
+                        ValidIssuer = defaultClientAuthority
                     };
                 });
 

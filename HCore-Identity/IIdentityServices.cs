@@ -6,7 +6,7 @@ namespace HCore.Identity
 {
     public interface IIdentityServices
     {
-        Task<UserModel> CreateUserAsync(UserSpec userSpec);
+        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin);
         Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
 
@@ -19,7 +19,7 @@ namespace HCore.Identity
 
         Task<UserModel> GetUserAsync(string userUuid);
 
-        Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user);
+        Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
         Task<string> GetAccessTokenAsync(string userUuid);
     }

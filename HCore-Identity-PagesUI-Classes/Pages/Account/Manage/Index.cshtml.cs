@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.ViewModels;
 using HCore.Web.Exceptions;
+using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -50,11 +51,15 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             ModelState.Clear();
 
+            UserModel user = null;
+
             try
             {
                 var userUuid = User.GetUserUuid();
 
-                await _identityServices.UpdateUserAsync(userUuid, Input).ConfigureAwait(false);
+                user = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
+
+                await _identityServices.UpdateUserAsync(userUuid, Input, false).ConfigureAwait(false);
 
                 StatusMessage = "Your profile has been updated";
 
@@ -63,6 +68,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             catch (ApiException e)
             {
                 ModelState.AddModelError(string.Empty, e.Message);
+
+                if (user != null)
+                {
+                    Input.Email = user.Email;
+
+                    Email = user.Email;
+                    EmailConfirmed = user.EmailConfirmed;
+                }
             }
 
             return Page();                                  

@@ -71,7 +71,14 @@ namespace HCore.Web.Exceptions
         public const string PasswordRequiresNonAlphanumeric = "password_requires_non_alphanumeric";
         public const string SecurityTokenInvalid = "security_token_invalid";
         public const string ScrollUuidInvalid = "scroll_uuid_invalid";
-        public const string ScrollUuidTooLong = "scroll_uuid_too_long";        
+        public const string ScrollUuidTooLong = "scroll_uuid_too_long";
+        public const string FirstNameMissing = "first_name_missing";
+        public const string FirstNameInvalid = "first_name_invalid";
+        public const string FirstNameTooLong = "first_name_too_long";
+        public const string LastNameMissing = "last_name_missing";
+        public const string LastNameInvalid = "last_name_invalid";
+        public const string LastNameTooLong = "last_name_too_long";
+        public const string UserDetailsNotSupported = "user_details_not_supported";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)

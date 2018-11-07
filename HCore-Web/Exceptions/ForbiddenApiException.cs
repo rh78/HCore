@@ -7,6 +7,8 @@ namespace HCore.Web.Exceptions
         private readonly string _errorCode;
 
         public const string PermissionDenied = "permission_denied";
+        public const string SelfRegistrationNotAllowed = "self_registration_not_allowed";
+        public const string SelfServiceNotAllowed = "self_service_not_allowed";
 
         public ForbiddenApiException(string errorCode, string message) : 
             base(message)
