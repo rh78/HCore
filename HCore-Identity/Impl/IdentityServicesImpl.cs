@@ -473,7 +473,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                     if (_identityServicesConfiguration.ManageName)
                     {
-                        if (userSpec.FirstNameSet)
+                        if (!string.IsNullOrEmpty(userSpec.FirstName))
                         {
                             userSpec.FirstName = ProcessFirstName(userSpec.FirstName);
 
@@ -485,7 +485,7 @@ namespace HCore.Identity.Controllers.API.Impl
                             }
                         }
 
-                        if (userSpec.LastNameSet)
+                        if (!string.IsNullOrEmpty(userSpec.LastName))
                         {
                             userSpec.LastName = ProcessLastName(userSpec.LastName);
 
@@ -500,7 +500,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                     if (_identityServicesConfiguration.ManagePhoneNumber)
                     {
-                        if (userSpec.PhoneNumberSet)
+                        if (!string.IsNullOrEmpty(userSpec.PhoneNumber))
                         {
                             userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
 

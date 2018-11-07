@@ -40,6 +40,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             Input = new UserSpec()
             {
                 Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber
             };
 
@@ -83,10 +85,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
         {
-            var userUuid = User.GetUserUuid();
+            ModelState.Clear();
+
+            UserModel user = null;
 
             try
             {
+                var userUuid = User.GetUserUuid();
+
+                user = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
+
                 await _identityServices.ResendUserEmailConfirmationEmailAsync(userUuid).ConfigureAwait(false);
 
                 StatusMessage = "Verification email sent, please check your email";
@@ -96,6 +104,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             catch (ApiException e)
             {
                 ModelState.AddModelError(string.Empty, e.Message);
+
+                if (user != null)
+                {
+                    Input.Email = user.Email;
+
+                    Email = user.Email;
+                    EmailConfirmed = user.EmailConfirmed;
+                }
             }
 
             return Page();
