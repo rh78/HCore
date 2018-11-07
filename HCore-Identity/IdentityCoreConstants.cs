@@ -10,5 +10,11 @@
         public const string DeveloperUuidClientClaim = "client_developer_uuid";
 
         public const string DeveloperAdminClaim = "client_developer_admin";
+
+        public const string IdentityChangeTasksAddressSuffix = "IdentityChangeTasks";
+
+        public const string ActionNotify = "notify";
+
+        public const int AccessTokenValidityInSeconds = 3600;
     }
 }

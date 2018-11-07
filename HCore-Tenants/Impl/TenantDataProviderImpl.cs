@@ -16,6 +16,7 @@ namespace HCore.Tenants.Impl
 
         private readonly Dictionary<long, DeveloperWrapper> _developerMappingsByUuid;
 
+        public List<IDeveloperInfo> Developers { get; internal set; }
         public List<ITenantInfo> Tenants { get; internal set; }
 
         private readonly ILogger<TenantDataProviderImpl> _logger;
@@ -54,7 +55,7 @@ namespace HCore.Tenants.Impl
                         DeveloperAuthority = developer.Authority,
                         DeveloperAudience = developer.Audience,
                         DeveloperCertificate = developer.Certificate,
-                        CertificatePassword = developer.CertificatePassword,
+                        DeveloperCertificatePassword = developer.CertificatePassword,
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
@@ -112,6 +113,7 @@ namespace HCore.Tenants.Impl
                     _developerMappings = new Dictionary<string, DeveloperWrapper>();
                     _developerMappingsByUuid = new Dictionary<long, DeveloperWrapper>();
 
+                    Developers = new List<IDeveloperInfo>();
                     Tenants = new List<ITenantInfo>();
 
                     developers.ForEach(developer =>
@@ -121,7 +123,19 @@ namespace HCore.Tenants.Impl
                         _developerMappings.Add(developer.HostPattern, developerWrapper);
                         _developerMappingsByUuid.Add(developer.Uuid, developerWrapper);
 
-                        Tenants.AddRange(developerWrapper.TenantInfos);                        
+                        Tenants.AddRange(developerWrapper.TenantInfos);
+
+                        var developerInfo = new DeveloperInfoImpl()
+                        {
+                            DeveloperUuid = developer.Uuid,
+                            Authority = developer.Authority,
+                            Audience = developer.Audience,
+                            Certificate = developer.Certificate,
+                            CertificatePassword = developer.CertificatePassword,
+                            AuthCookieDomain = developer.AuthCookieDomain
+                        };
+
+                        Developers.Add(developerInfo);
                     });
                 }
             }

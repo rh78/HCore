@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 
 namespace HCore.Identity.Impl
 {
@@ -17,6 +18,8 @@ namespace HCore.Identity.Impl
         public bool ManageName { get; private set; }
         public bool ManagePhoneNumber { get; private set; }
 
+        public string IdentityChangeTasksAmqpAddress { get; private set; }
+        
         public IdentityServicesConfigurationImpl(IConfiguration configuration)
         {
             DefaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
@@ -38,6 +41,15 @@ namespace HCore.Identity.Impl
             SelfManagement = configuration.GetValue<bool>("Identity:FeatureSet:SelfManagement");
             ManageName = configuration.GetValue<bool>("Identity:FeatureSet:ManageName");
             ManagePhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:ManagePhoneNumber");
+
+            string amqpAddresses = configuration["Amqp:Addresses"];
+
+            if (!string.IsNullOrEmpty(amqpAddresses))
+            {
+                string[] amqpAddressesSplit = amqpAddresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                IdentityChangeTasksAmqpAddress = amqpAddressesSplit.FirstOrDefault(address => address.EndsWith(IdentityCoreConstants.IdentityChangeTasksAddressSuffix));
+            }
         }
     }
 }

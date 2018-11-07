@@ -179,7 +179,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         // if we cannot resolve it from some discovery endpoint
 
-                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.CertificatePassword));
+                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.DeveloperCertificatePassword));
                     }
 
                     jwt.TokenValidationParameters = tokenValidationParameters;

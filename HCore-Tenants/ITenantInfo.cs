@@ -6,7 +6,7 @@
         string DeveloperAuthority { get; }
         string DeveloperAudience { get; }
         byte[] DeveloperCertificate { get; }
-        string CertificatePassword { get; }
+        string DeveloperCertificatePassword { get; }
         string DeveloperAuthCookieDomain { get; }
 
         long TenantUuid { get; }

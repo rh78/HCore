@@ -8,12 +8,9 @@ namespace HCore.Emailing.Impl
 {
     public class AMQPMessageProcessorImpl : DirectEmailSenderImpl, IAMQPMessageProcessor
     {
-        private readonly ILogger<AMQPMessageProcessorImpl> _logger;
-
         public AMQPMessageProcessorImpl(ILogger<AMQPMessageProcessorImpl> logger, IConfiguration configuration)
             : base(logger, configuration)
         {
-            _logger = logger;
         }
 
         public virtual async Task<bool> ProcessMessageAsync(string address, string messageBodyJson)

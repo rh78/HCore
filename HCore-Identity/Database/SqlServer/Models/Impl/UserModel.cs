@@ -5,10 +5,11 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 { 
     public class UserModel : IdentityUser
     {
+        public const int MaxUserUuidLength = 255;
+        public const int MaxUserNameLength = 255;
+
         public const int MaxFirstNameLength = 50;
         public const int MaxLastNameLength = 50;
-        public const int MaxUserUuidLength = 50;
-        public const int MaxUserNameLength = 50;
         public const int MinPasswordLength = 6;
         public const int MaxPasswordLength = 50;
 

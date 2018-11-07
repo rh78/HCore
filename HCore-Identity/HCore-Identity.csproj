@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />    
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />    
     <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />
     <ProjectReference Include="..\HCore-Templating\HCore-Templating.csproj" />

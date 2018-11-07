@@ -21,6 +21,8 @@ using IdentityServer4.Validation;
 using IdentityServer4.Services;
 using IdentityServer4.Configuration;
 using IdentityServer4.Stores;
+using Microsoft.Extensions.DependencyInjection;
+using HCore.Amqp.Processor;
 
 namespace HCore.Identity.Controllers.API.Impl
 {
@@ -41,6 +43,7 @@ namespace HCore.Identity.Controllers.API.Impl
         private readonly IClientStore _clientStore;
         private readonly IResourceStore _resourceStore;
         private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
+        private readonly IServiceProvider _serviceProvider;
 
         public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
@@ -55,7 +58,8 @@ namespace HCore.Identity.Controllers.API.Impl
             IdentityServerOptions options,
             IClientStore clientStore,
             IResourceStore resourceStore,
-            IIdentityServicesConfiguration identityServicesConfiguration)
+            IIdentityServicesConfiguration identityServicesConfiguration,
+            IServiceProvider serviceProvider)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -70,6 +74,7 @@ namespace HCore.Identity.Controllers.API.Impl
             _clientStore = clientStore;
             _resourceStore = resourceStore;
             _identityServicesConfiguration = identityServicesConfiguration;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin)
@@ -141,6 +146,8 @@ namespace HCore.Identity.Controllers.API.Impl
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         transaction.Commit();
+
+                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
 
                         await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
 
@@ -256,6 +263,8 @@ namespace HCore.Identity.Controllers.API.Impl
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         transaction.Commit();
+
+                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
                     }
                     else
                     {
@@ -527,6 +536,8 @@ namespace HCore.Identity.Controllers.API.Impl
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         transaction.Commit();
+
+                        await SendUserChangeNotificationAsync(oldUser.Id).ConfigureAwait(false);                        
                     }
                 }
 
@@ -797,6 +808,25 @@ namespace HCore.Identity.Controllers.API.Impl
             }
 
             throw new InternalServerErrorApiException();
+        }
+
+        private async Task SendUserChangeNotificationAsync(string userUuid)
+        {
+            if (!string.IsNullOrEmpty(_identityServicesConfiguration.IdentityChangeTasksAmqpAddress))
+            {
+                // notification to dependent services
+
+                string identityChangeTasksAmqpAddress = _identityServicesConfiguration.IdentityChangeTasksAmqpAddress;
+
+                var identityChangeTask = new IdentityChangeTask()
+                {
+                    UserUuid = userUuid
+                };
+
+                var amqpMessenger = _serviceProvider.GetRequiredService<IAMQPMessenger>();
+
+                await amqpMessenger.SendMessageAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
+            }
         }
     }
 }

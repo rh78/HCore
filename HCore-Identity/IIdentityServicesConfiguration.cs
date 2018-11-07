@@ -13,5 +13,7 @@
         bool SelfManagement { get; }
         bool ManageName { get; }
         bool ManagePhoneNumber { get; }
+
+        string IdentityChangeTasksAmqpAddress { get; }
     }
 }
