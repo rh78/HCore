@@ -8,10 +8,13 @@ namespace HCore.Web.Exceptions
 
         public const string AccessTokenExpired = "access_token_expired";
         public const string AccountLockedOut = "account_locked_out";
+        public const string EmailNotConfirmed = "email_not_confirmed";
         public const string InvalidCredentials = "invalid_credentials";
         public const string PasswordDoesNotMatch = "password_does_not_match";
         public const string TokenInvalidOrExpired = "token_invalid_or_expired";
         public const string CookieInvalidOrExpired = "cookie_invalid_or_expired";
+
+        private string _userUuid;
 
         public UnauthorizedApiException(string errorCode, string message) : 
             base(message)
@@ -31,7 +34,12 @@ namespace HCore.Web.Exceptions
 
         public override object GetObject()
         {
-            return null;
+            return _userUuid;
+        }
+
+        public void SetUserUuid(string userUuid)
+        {
+            _userUuid = userUuid;
         }
     }
 }

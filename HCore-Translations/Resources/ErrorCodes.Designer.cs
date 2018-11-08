@@ -232,6 +232,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The email address is not yet confirmed ähnelt.
+        /// </summary>
+        public static string email_not_confirmed {
+            get {
+                return ResourceManager.GetString("email_not_confirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The email address is too long ähnelt.
         /// </summary>
         public static string email_too_long {
@@ -385,6 +394,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The new password is missing ähnelt.
+        /// </summary>
+        public static string new_password_missing {
+            get {
+                return ResourceManager.GetString("new_password_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please provide records for the update operation ähnelt.
         /// </summary>
         public static string no_records_specified {
@@ -408,6 +426,15 @@ namespace HCore.Translations.Resources {
         public static string not_implemented {
             get {
                 return ResourceManager.GetString("not_implemented", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The old password is missing ähnelt.
+        /// </summary>
+        public static string old_password_missing {
+            get {
+                return ResourceManager.GetString("old_password_missing", resourceCulture);
             }
         }
         

@@ -16,6 +16,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using HCore.Translations.Resources;
+using HCore.Identity.Resources;
 
 namespace HCore.Identity.ViewModels
 { 
@@ -27,35 +29,39 @@ namespace HCore.Identity.ViewModels
 	public partial class UserSignInSpec : IEquatable<UserSignInSpec>
     { 
 		private string _Email;
-		
-		/// <summary>
+
+        /// <summary>
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required]
-        [DataMember(Name="email")]
-		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
+        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "email_address")]
+        [DataMember(Name = "email")]
+        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_invalid")]
+        public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
 		public bool EmailSet = false;		
 
 		private string _Password;
-		
-		/// <summary>
+
+        /// <summary>
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required]
-        [DataMember(Name="password")]
-		public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
+        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "password")]
+        [DataMember(Name = "password")]
+        public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
 		
 		public bool PasswordSet = false;		
 
 		private bool? _Remember;
-		
-		/// <summary>
+
+        /// <summary>
         /// Flag to indicate if the user sign in should be remembered or not
         /// </summary>
         /// <value>Flag to indicate if the user sign in should be remembered or not</value>
+        [Display(ResourceType = typeof(Messages), Name = "remember")]
         [DataMember(Name="remember")]
 		public bool Remember { get => _Remember != null ? (bool)_Remember : false; set { _Remember = value; RememberSet = true; } }
 		

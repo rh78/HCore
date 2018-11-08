@@ -14,6 +14,8 @@
         bool ManageName { get; }
         bool ManagePhoneNumber { get; }
 
+        bool RequireEmailConfirmed { get; }
+
         string IdentityChangeTasksAmqpAddress { get; }
     }
 }

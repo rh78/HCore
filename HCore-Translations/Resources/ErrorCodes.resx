@@ -384,4 +384,13 @@
   <data name="self_service_not_allowed" xml:space="preserve">
     <value>It is not allowed to modify user data in self-service on this system</value>
   </data>
+  <data name="email_not_confirmed" xml:space="preserve">
+    <value>The email address is not yet confirmed</value>
+  </data>
+  <data name="new_password_missing" xml:space="preserve">
+    <value>The new password is missing</value>
+  </data>
+  <data name="old_password_missing" xml:space="preserve">
+    <value>The old password is missing</value>
+  </data>
 </root>

@@ -9,15 +9,25 @@
 
   <ItemGroup>
     <None Remove="Pages\Account\AccessDenied.cshtml" />
+    <None Remove="Pages\Account\EmailConfirmationSent.cshtml" />
+    <None Remove="Pages\Account\EmailNotConfirmed.cshtml" />
     <None Remove="Pages\Login.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Pages\Account\EmailNotConfirmed.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Include="Pages\Account\ConfirmEmail.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Include="Pages\Account\ForgotPassword.cshtml">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Include="Pages\Account\EmailConfirmationSent.cshtml">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

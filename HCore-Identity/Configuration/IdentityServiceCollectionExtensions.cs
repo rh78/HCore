@@ -206,7 +206,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             // now, on second priority, comes the identity which we tweaked
 
-            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>();
+            bool requireEmailConfirmed = configuration.GetValue<bool>("Identity:FeatureSet:RequireEmailConfirmed");
+
+            var identityBuilder = services.AddIdentity<UserModel, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = requireEmailConfirmed;
+            });
 
             identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
             identityBuilder.AddDefaultTokenProviders();

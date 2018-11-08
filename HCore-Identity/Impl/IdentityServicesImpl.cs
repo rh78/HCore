@@ -130,7 +130,10 @@ namespace HCore.Identity.Controllers.API.Impl
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
 
-                        await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                        if (!_identityServicesConfiguration.RequireEmailConfirmed || user.EmailConfirmed)
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                        }
 
                         return user;
                     }
@@ -164,6 +167,13 @@ namespace HCore.Identity.Controllers.API.Impl
             {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
+                    var user = await _userManager.FindByEmailAsync(userSignInSpec.Email).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
+                    }
+
                     bool remember = userSignInSpec.RememberSet && userSignInSpec.Remember;
 
                     var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, remember, lockoutOnFailure: true).ConfigureAwait(false);
@@ -171,17 +181,6 @@ namespace HCore.Identity.Controllers.API.Impl
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User signed in");
-
-                        var user = await _userManager.FindByEmailAsync(userSignInSpec.Email).ConfigureAwait(false);
-
-                        if (user == null)
-                        {
-                            // This should not happen as we authorized
-
-                            _logger.LogError("Invalid state reached when signing in user");
-
-                            throw new InternalServerErrorApiException();
-                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -201,6 +200,14 @@ namespace HCore.Identity.Controllers.API.Impl
                         _logger.LogWarning("User account is locked out");
 
                         throw new UnauthorizedApiException(UnauthorizedApiException.AccountLockedOut, "The user account is locked out");
+                    }
+                    else if (result.IsNotAllowed)
+                    {
+                        var exception = new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
+
+                        exception.SetUserUuid(user.Id);
+
+                        throw exception;
                     }
                     else
                     {
@@ -275,7 +282,7 @@ namespace HCore.Identity.Controllers.API.Impl
                 {
                     var user = await _userManager.FindByEmailAsync(userForgotPasswordSpec.Email).ConfigureAwait(false);
 
-                    if (user == null || !await _userManager.IsEmailConfirmedAsync(user).ConfigureAwait(false))
+                    if (user == null)
                     {
                         // Don't reveal that the user does not exist or is not confirmed
                         return;

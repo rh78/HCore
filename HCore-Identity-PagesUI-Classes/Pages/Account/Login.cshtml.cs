@@ -18,6 +18,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
+        private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
 
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -26,12 +27,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public LoginModel(
             IIdentityServices identityServices,
+            IIdentityServicesConfiguration identityServicesConfiguration,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events)
         {
             _identityServices = identityServices;
+            _identityServicesConfiguration = identityServicesConfiguration;
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
@@ -98,7 +101,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 UserModel user = await _identityServices.SignInUserAsync(Input).ConfigureAwait(false);
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
-
+                
                 if (IsLocalAuthorization)
                 {
                     if (!string.IsNullOrEmpty(ReturnUrl))
@@ -113,6 +116,17 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 }
 
                 return LocalRedirect("~/");                
+            }
+            catch (UnauthorizedApiException unauthorizedApiException)
+            {
+                if (Equals(unauthorizedApiException.GetErrorCode(), UnauthorizedApiException.EmailNotConfirmed))
+                {
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = (string) unauthorizedApiException.GetObject() });
+                }
+
+                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
+
+                ModelState.AddModelError(string.Empty, unauthorizedApiException.Message);
             }
             catch (ApiException e)
             {

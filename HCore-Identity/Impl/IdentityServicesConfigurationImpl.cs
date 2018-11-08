@@ -18,6 +18,8 @@ namespace HCore.Identity.Impl
         public bool ManageName { get; private set; }
         public bool ManagePhoneNumber { get; private set; }
 
+        public bool RequireEmailConfirmed { get; private set; }
+
         public string IdentityChangeTasksAmqpAddress { get; private set; }
         
         public IdentityServicesConfigurationImpl(IConfiguration configuration)
@@ -41,6 +43,8 @@ namespace HCore.Identity.Impl
             SelfManagement = configuration.GetValue<bool>("Identity:FeatureSet:SelfManagement");
             ManageName = configuration.GetValue<bool>("Identity:FeatureSet:ManageName");
             ManagePhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:ManagePhoneNumber");
+
+            RequireEmailConfirmed = configuration.GetValue<bool>("Identity:FeatureSet:RequireEmailConfirmed");
 
             string amqpAddresses = configuration["Amqp:Addresses"];
 

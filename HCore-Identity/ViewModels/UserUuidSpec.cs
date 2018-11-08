@@ -16,8 +16,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using HCore.Translations.Resources;
-using HCore.Identity.Resources;
 
 namespace HCore.Identity.ViewModels
 { 
@@ -26,21 +24,19 @@ namespace HCore.Identity.ViewModels
     /// </summary>
     [DataContract]
     [NotMapped]
-	public partial class UserForgotPasswordSpec : IEquatable<UserForgotPasswordSpec>
+	public partial class UserUuidSpec : IEquatable<UserUuidSpec>
     { 
-		private string _Email;
-
-        /// <summary>
-        /// The email address of the user
-        /// </summary>
-        /// <value>The email address of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_missing")]
-        [Display(ResourceType = typeof(Messages), Name = "email_address")]
-        [DataMember(Name = "email")]
-        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_invalid")]
-        public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
+		private string _UserUuid;
 		
-		public bool EmailSet = false;		
+		/// <summary>
+        /// The UUID of the user
+        /// </summary>
+        /// <value>The UUID of the user</value>
+        [Required]
+        [DataMember(Name="user_uuid")]
+		public string UserUuid { get => _UserUuid; set { _UserUuid = value; UserUuidSet = true; } }
+		
+		public bool UserUuidSet = false;		
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -49,8 +45,8 @@ namespace HCore.Identity.ViewModels
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class UserForgotPasswordSpec {\n");
-            sb.Append("  Email: ").Append(Email).Append("\n");
+            sb.Append("class UserUuidSpec {\n");
+            sb.Append("  UserUuid: ").Append(UserUuid).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -81,16 +77,16 @@ namespace HCore.Identity.ViewModels
         /// </summary>
         /// <param name="other">Instance of UserForgotPasswordSpec to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(UserForgotPasswordSpec other)
+        public bool Equals(UserUuidSpec other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    Email == other.Email ||
-                    Email != null &&
-                    Email.Equals(other.Email)
+                    UserUuid == other.UserUuid ||
+                    UserUuid != null &&
+                    UserUuid.Equals(other.UserUuid)
                 );
         }
 
@@ -104,8 +100,8 @@ namespace HCore.Identity.ViewModels
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Email != null)
-                    hashCode = hashCode * 59 + Email.GetHashCode();
+                    if (UserUuid != null)
+                    hashCode = hashCode * 59 + UserUuid.GetHashCode();
                 return hashCode;
             }
         }
@@ -113,12 +109,12 @@ namespace HCore.Identity.ViewModels
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(UserForgotPasswordSpec left, UserForgotPasswordSpec right)
+        public static bool operator ==(UserUuidSpec left, UserUuidSpec right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(UserForgotPasswordSpec left, UserForgotPasswordSpec right)
+        public static bool operator !=(UserUuidSpec left, UserUuidSpec right)
         {
             return !Equals(left, right);
         }

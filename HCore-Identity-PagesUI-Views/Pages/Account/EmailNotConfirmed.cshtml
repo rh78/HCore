@@ -1,0 +1,17 @@
+﻿@page
+@model EmailNotConfirmedModel
+@{
+    ViewData["Title"] = "Please confirm your Email Address";
+}
+
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <form method="post">
+            <h4>Bitte bestätigen Sie Ihre Email-Adresse.</h4>
+            <p>Wir haben einen Link an Ihre Email-Adresse gesendet. Bitte klicken Sie auf diesen Link um Ihre Email-Adresse zu bestätigen.</p>
+            <hr />            
+            <button type="submit" class="btn btn-default">Bestätigungs-Email erneut senden</button>            
+        </form>
+    </div>
+</div>

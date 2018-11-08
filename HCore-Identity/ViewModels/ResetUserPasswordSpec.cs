@@ -16,6 +16,8 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using HCore.Translations.Resources;
+using HCore.Identity.Resources;
 
 namespace HCore.Identity.ViewModels
 { 
@@ -32,32 +34,38 @@ namespace HCore.Identity.ViewModels
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required]
+        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "email_address")]
         [DataMember(Name="email")]
-		public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
+        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_invalid")]
+        public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
 		public bool EmailSet = false;		
 
 		private string _Password;
-		
-		/// <summary>
+
+        /// <summary>
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required]
-        [DataMember(Name="password")]
-		public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
+        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "password")]
+        [DataMember(Name = "password")]
+        public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
 		
 		public bool PasswordSet = false;		
 
 		private string _PasswordConfirmation;
-		
-		/// <summary>
+
+        /// <summary>
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
-        [DataMember(Name="password_confirmation")]
-		public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
+        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "password_confirmation")]
+        [DataMember(Name = "password_confirmation")]
+        [Compare("Password", ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_no_match")]
+        public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
 		
 		public bool PasswordConfirmationSet = false;		
 
