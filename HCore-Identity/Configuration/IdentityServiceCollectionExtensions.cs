@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using HCore.Identity.Requirements;
 using HCore.Identity.Impl;
+using IdentityModel;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -113,6 +114,17 @@ namespace Microsoft.Extensions.DependencyInjection
             
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+            string[] requiredScopesSplit = null;
+
+            string requiredScopes = configuration["Identity:Jwt:RequiredScopes"];
+            if (!string.IsNullOrEmpty(requiredScopes))
+            {
+                requiredScopesSplit = requiredScopes.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (requiredScopesSplit.Length == 0)
+                    requiredScopesSplit = null;
+            }
+
             if (tenantsBuilder == null)
             {
                 string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
@@ -148,6 +160,11 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
                     {
                         policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
+                        
+                        if (requiredScopesSplit != null)
+                        {
+                            policy.RequireClaim(JwtClaimTypes.Scope, requiredScopesSplit);                        
+                        }
 
                         policy.RequireAuthenticatedUser();
                     });
@@ -193,7 +210,12 @@ namespace Microsoft.Extensions.DependencyInjection
                         policy.AuthenticationSchemes.Add(IdentityCoreConstants.JwtScheme);
 
                         policy.Requirements.Add(new ClientDeveloperUuidRequirement());
-                            
+
+                        if (requiredScopesSplit != null)
+                        {
+                            policy.RequireClaim(JwtClaimTypes.Scope, requiredScopesSplit);
+                        }
+
                         policy.RequireAuthenticatedUser();
                     });
                 });
