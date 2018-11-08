@@ -3,43 +3,39 @@
 @model ErrorModel
 @inject IHostingEnvironment host
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = Messages.error_title;
 
     var error = Model?.Error?.Error;
     var errorDescription = host.IsDevelopment() ? Model?.Error?.ErrorDescription : null;
     var requestId = Model?.Error?.RequestId;
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-@if (error != null)
-{
-    <p>
-        <strong>
-            <em>
-                @error
-            </em>
-        </strong>
-
-        @if (errorDescription != null)
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <h4>@Messages.error_header</h4>
+        <p>@Messages.error_header_text</p>
+        <hr />
+        @if (error != null)
         {
-            <div>@errorDescription</div>
+            <p>
+                <strong>
+                    <em>
+                        @error
+                    </em>
+                </strong>
+
+                @if (errorDescription != null)
+                {
+                    <div>@errorDescription</div>
+                }
+            </p>
         }
-    </p>
-}
 
-@if (requestId != null)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@requestId</code>
-    </p>    
-}
-
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>Development environment should not be enabled in deployed applications</strong>, as it can result in sensitive information from exceptions being displayed to end users. For local debugging, development environment can be enabled by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>, and restarting the application.
-</p>
+        @if (requestId != null)
+        {
+            <p>
+                <strong>@Messages.error_request_id</strong> <code>@requestId</code>
+            </p>
+        }
+    </div>
+</div>

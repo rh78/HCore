@@ -61,11 +61,308 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Access denied ähnelt.
+        /// </summary>
+        public static string access_to_page_denied_header {
+            get {
+                return ResourceManager.GetString("access_to_page_denied_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sorry, but you do not have permissions to view this page. ähnelt.
+        /// </summary>
+        public static string access_to_page_denied_header_text {
+            get {
+                return ResourceManager.GetString("access_to_page_denied_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Access denied ähnelt.
+        /// </summary>
+        public static string access_to_page_denied_title {
+            get {
+                return ResourceManager.GetString("access_to_page_denied_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cancel ähnelt.
+        /// </summary>
+        public static string button_cancel {
+            get {
+                return ResourceManager.GetString("button_cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Create user account ähnelt.
+        /// </summary>
+        public static string button_create_user_account {
+            get {
+                return ResourceManager.GetString("button_create_user_account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Log out ähnelt.
+        /// </summary>
+        public static string button_log_out {
+            get {
+                return ResourceManager.GetString("button_log_out", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Register ähnelt.
+        /// </summary>
+        public static string button_register {
+            get {
+                return ResourceManager.GetString("button_register", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset password ähnelt.
+        /// </summary>
+        public static string button_reset_password {
+            get {
+                return ResourceManager.GetString("button_reset_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Save ähnelt.
+        /// </summary>
+        public static string button_save {
+            get {
+                return ResourceManager.GetString("button_save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sign in ähnelt.
+        /// </summary>
+        public static string button_sign_in {
+            get {
+                return ResourceManager.GetString("button_sign_in", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Submit ähnelt.
+        /// </summary>
+        public static string button_submit {
+            get {
+                return ResourceManager.GetString("button_submit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Change password ähnelt.
+        /// </summary>
+        public static string change_password_button_text {
+            get {
+                return ResourceManager.GetString("change_password_button_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Change password ähnelt.
+        /// </summary>
+        public static string change_password_title {
+            get {
+                return ResourceManager.GetString("change_password_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Email address verified ähnelt.
+        /// </summary>
+        public static string confirm_email_header {
+            get {
+                return ResourceManager.GetString("confirm_email_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You successfully verified your email address. Thank you very much! ähnelt.
+        /// </summary>
+        public static string confirm_email_header_text {
+            get {
+                return ResourceManager.GetString("confirm_email_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die click here to log in ähnelt.
+        /// </summary>
+        public static string confirm_email_header_text_link {
+            get {
+                return ResourceManager.GetString("confirm_email_header_text_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please ähnelt.
+        /// </summary>
+        public static string confirm_email_header_text_prefix {
+            get {
+                return ResourceManager.GetString("confirm_email_header_text_prefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die . ähnelt.
+        /// </summary>
+        public static string confirm_email_header_text_suffix {
+            get {
+                return ResourceManager.GetString("confirm_email_header_text_suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Email address verified ähnelt.
+        /// </summary>
+        public static string confirm_email_title {
+            get {
+                return ResourceManager.GetString("confirm_email_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Email ähnelt.
         /// </summary>
         public static string email_address {
             get {
                 return ResourceManager.GetString("email_address", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die . ähnelt.
+        /// </summary>
+        public static string email_confirmation_send_header_text_suffix {
+            get {
+                return ResourceManager.GetString("email_confirmation_send_header_text_suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The verification email was sent ähnelt.
+        /// </summary>
+        public static string email_confirmation_sent_header {
+            get {
+                return ResourceManager.GetString("email_confirmation_sent_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please check your email inbox to verify your email address. ähnelt.
+        /// </summary>
+        public static string email_confirmation_sent_header_text {
+            get {
+                return ResourceManager.GetString("email_confirmation_sent_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die please click here to log in ähnelt.
+        /// </summary>
+        public static string email_confirmation_sent_header_text_link {
+            get {
+                return ResourceManager.GetString("email_confirmation_sent_header_text_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Then ähnelt.
+        /// </summary>
+        public static string email_confirmation_sent_header_text_prefix {
+            get {
+                return ResourceManager.GetString("email_confirmation_sent_header_text_prefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verification email sent ähnelt.
+        /// </summary>
+        public static string email_confirmation_sent_title {
+            get {
+                return ResourceManager.GetString("email_confirmation_sent_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Resend verification email ähnelt.
+        /// </summary>
+        public static string email_not_confirmed_button_resend {
+            get {
+                return ResourceManager.GetString("email_not_confirmed_button_resend", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please verify your email address ähnelt.
+        /// </summary>
+        public static string email_not_confirmed_header {
+            get {
+                return ResourceManager.GetString("email_not_confirmed_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We sent a verification email message to your email address. Please check your email inbox and click the link in the message to verify your email address. ähnelt.
+        /// </summary>
+        public static string email_not_confirmed_header_text {
+            get {
+                return ResourceManager.GetString("email_not_confirmed_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Verify your email address ähnelt.
+        /// </summary>
+        public static string email_not_confirmed_title {
+            get {
+                return ResourceManager.GetString("email_not_confirmed_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die An unexpected error occured ähnelt.
+        /// </summary>
+        public static string error_header {
+            get {
+                return ResourceManager.GetString("error_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We are sorry, but an unexpected error occured while processing your request. ähnelt.
+        /// </summary>
+        public static string error_header_text {
+            get {
+                return ResourceManager.GetString("error_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your request ID is: ähnelt.
+        /// </summary>
+        public static string error_request_id {
+            get {
+                return ResourceManager.GetString("error_request_id", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unexpected error ähnelt.
+        /// </summary>
+        public static string error_title {
+            get {
+                return ResourceManager.GetString("error_title", resourceCulture);
             }
         }
         
@@ -79,11 +376,200 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your password reset email was sent ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_header {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We sent a password reset email message to your email address. Please check your email inbox and click the link in the message to reset your password. ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_header_text {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die click here to log in ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_header_text_link {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_header_text_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You can also ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_header_text_prefix {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_header_text_prefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die . ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_header_text_suffix {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_header_text_suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Password reset email sent ähnelt.
+        /// </summary>
+        public static string forgot_password_confirmation_title {
+            get {
+                return ResourceManager.GetString("forgot_password_confirmation_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Did you forget your password? ähnelt.
+        /// </summary>
+        public static string forgot_password_header {
+            get {
+                return ResourceManager.GetString("forgot_password_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die No problem, we can send a link to your email address which you can use to reset your password. Please just enter your email address below. ähnelt.
+        /// </summary>
+        public static string forgot_password_header_text {
+            get {
+                return ResourceManager.GetString("forgot_password_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Forgot password ähnelt.
+        /// </summary>
+        public static string forgot_password_title {
+            get {
+                return ResourceManager.GetString("forgot_password_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Last Name ähnelt.
         /// </summary>
         public static string last_name {
             get {
                 return ResourceManager.GetString("last_name", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You are now logged out ähnelt.
+        /// </summary>
+        public static string log_out_confirmed_header {
+            get {
+                return ResourceManager.GetString("log_out_confirmed_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We hope to see you back again soon! ähnelt.
+        /// </summary>
+        public static string log_out_confirmed_header_text {
+            get {
+                return ResourceManager.GetString("log_out_confirmed_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die here ähnelt.
+        /// </summary>
+        public static string log_out_confirmed_redirect_text_link {
+            get {
+                return ResourceManager.GetString("log_out_confirmed_redirect_text_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Click ähnelt.
+        /// </summary>
+        public static string log_out_confirmed_redirect_text_prefix {
+            get {
+                return ResourceManager.GetString("log_out_confirmed_redirect_text_prefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die to return to the main page. ähnelt.
+        /// </summary>
+        public static string log_out_confirmed_redirect_text_suffix {
+            get {
+                return ResourceManager.GetString("log_out_confirmed_redirect_text_suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Would you like to log out? ähnelt.
+        /// </summary>
+        public static string log_out_header {
+            get {
+                return ResourceManager.GetString("log_out_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please click the button below to confirm. ähnelt.
+        /// </summary>
+        public static string log_out_header_text {
+            get {
+                return ResourceManager.GetString("log_out_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Log out ähnelt.
+        /// </summary>
+        public static string log_out_title {
+            get {
+                return ResourceManager.GetString("log_out_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Manage your account ähnelt.
+        /// </summary>
+        public static string manage_account_header {
+            get {
+                return ResourceManager.GetString("manage_account_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Password ähnelt.
+        /// </summary>
+        public static string manage_account_password_link {
+            get {
+                return ResourceManager.GetString("manage_account_password_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Profile ähnelt.
+        /// </summary>
+        public static string manage_account_profile_link {
+            get {
+                return ResourceManager.GetString("manage_account_profile_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Change your account settings ähnelt.
+        /// </summary>
+        public static string manage_account_subheader {
+            get {
+                return ResourceManager.GetString("manage_account_subheader", resourceCulture);
             }
         }
         
@@ -133,11 +619,182 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Resend confirmation email ähnelt.
+        /// </summary>
+        public static string profile_resend_verification_email_link {
+            get {
+                return ResourceManager.GetString("profile_resend_verification_email_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Profile ähnelt.
+        /// </summary>
+        public static string profile_title {
+            get {
+                return ResourceManager.GetString("profile_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Registration ähnelt.
+        /// </summary>
+        public static string register_header {
+            get {
+                return ResourceManager.GetString("register_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Register for your new user account now. ähnelt.
+        /// </summary>
+        public static string register_header_text {
+            get {
+                return ResourceManager.GetString("register_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Registration ähnelt.
+        /// </summary>
+        public static string register_title {
+            get {
+                return ResourceManager.GetString("register_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Remember login ähnelt.
         /// </summary>
         public static string remember {
             get {
                 return ResourceManager.GetString("remember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your password has been reset ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_header {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your password has been reset successfully. ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_header_text {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die click here to log in ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_header_text_link {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_header_text_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_header_text_prefix {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_header_text_prefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die . ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_header_text_suffix {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_header_text_suffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Password reset ähnelt.
+        /// </summary>
+        public static string reset_password_confirmation_title {
+            get {
+                return ResourceManager.GetString("reset_password_confirmation_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset your password ähnelt.
+        /// </summary>
+        public static string reset_password_header {
+            get {
+                return ResourceManager.GetString("reset_password_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Reset password ähnelt.
+        /// </summary>
+        public static string reset_password_title {
+            get {
+                return ResourceManager.GetString("reset_password_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Forgot password? ähnelt.
+        /// </summary>
+        public static string sign_in_button_forgot_password {
+            get {
+                return ResourceManager.GetString("sign_in_button_forgot_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Register new user account ähnelt.
+        /// </summary>
+        public static string sign_in_button_register {
+            get {
+                return ResourceManager.GetString("sign_in_button_register", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sign in ähnelt.
+        /// </summary>
+        public static string sign_in_header {
+            get {
+                return ResourceManager.GetString("sign_in_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Welcome! Please enter your user credentials to sign in. ähnelt.
+        /// </summary>
+        public static string sign_in_header_text {
+            get {
+                return ResourceManager.GetString("sign_in_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die There are no login schemes configured for this client. ähnelt.
+        /// </summary>
+        public static string sign_in_no_login_schemes_text {
+            get {
+                return ResourceManager.GetString("sign_in_no_login_schemes_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Sign in ähnelt.
+        /// </summary>
+        public static string sign_in_title {
+            get {
+                return ResourceManager.GetString("sign_in_title", resourceCulture);
             }
         }
     }

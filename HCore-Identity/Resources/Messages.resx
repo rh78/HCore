@@ -117,14 +117,155 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="access_to_page_denied_header_text" xml:space="preserve">
+    <value>Sorry, but you do not have permissions to view this page.</value>
+  </data>
+  <data name="access_to_page_denied_header" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="button_cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="button_create_user_account" xml:space="preserve">
+    <value>Create user account</value>
+  </data>
+  <data name="button_log_out" xml:space="preserve">
+    <value>Log out</value>
+  </data>
+  <data name="button_register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="button_reset_password" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="button_save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="button_sign_in" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="button_submit" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="change_password_button_text" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="change_password_title" xml:space="preserve">
+    <value>Change password</value>
+  </data>
+  <data name="confirm_email_header" xml:space="preserve">
+    <value>Email address verified</value>
+  </data>
+  <data name="confirm_email_header_text" xml:space="preserve">
+    <value>You successfully verified your email address. Thank you very much!</value>
+  </data>
   <data name="email_address" xml:space="preserve">
     <value>Email</value>
+  </data>
+  <data name="email_confirmation_send_header_text_suffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="email_confirmation_sent_header" xml:space="preserve">
+    <value>The verification email was sent</value>
+  </data>
+  <data name="email_confirmation_sent_header_text" xml:space="preserve">
+    <value>Please check your email inbox to verify your email address.</value>
+  </data>
+  <data name="email_confirmation_sent_header_text_link" xml:space="preserve">
+    <value>please click here to log in</value>
+  </data>
+  <data name="email_confirmation_sent_header_text_prefix" xml:space="preserve">
+    <value>Then</value>
+  </data>
+  <data name="email_not_confirmed_button_resend" xml:space="preserve">
+    <value>Resend verification email</value>
+  </data>
+  <data name="email_not_confirmed_header" xml:space="preserve">
+    <value>Please verify your email address</value>
+  </data>
+  <data name="email_not_confirmed_header_text" xml:space="preserve">
+    <value>We sent a verification email message to your email address. Please check your email inbox and click the link in the message to verify your email address.</value>
+  </data>
+  <data name="error_header" xml:space="preserve">
+    <value>An unexpected error occured</value>
+  </data>
+  <data name="error_request_id" xml:space="preserve">
+    <value>Your request ID is:</value>
+  </data>
+  <data name="error_header_text" xml:space="preserve">
+    <value>We are sorry, but an unexpected error occured while processing your request.</value>
   </data>
   <data name="first_name" xml:space="preserve">
     <value>First Name</value>
   </data>
+  <data name="forgot_password_confirmation_header" xml:space="preserve">
+    <value>Your password reset email was sent</value>
+  </data>
+  <data name="forgot_password_confirmation_header_text_link" xml:space="preserve">
+    <value>click here to log in</value>
+  </data>
+  <data name="forgot_password_confirmation_header_text" xml:space="preserve">
+    <value>We sent a password reset email message to your email address. Please check your email inbox and click the link in the message to reset your password.</value>
+  </data>
+  <data name="forgot_password_confirmation_header_text_prefix" xml:space="preserve">
+    <value>You can also</value>
+  </data>
+  <data name="forgot_password_confirmation_header_text_suffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="confirm_email_header_text_prefix" xml:space="preserve">
+    <value>Please</value>
+  </data>
+  <data name="confirm_email_header_text_suffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="confirm_email_header_text_link" xml:space="preserve">
+    <value>click here to log in</value>
+  </data>
+  <data name="forgot_password_header" xml:space="preserve">
+    <value>Did you forget your password?</value>
+  </data>
+  <data name="forgot_password_header_text" xml:space="preserve">
+    <value>No problem, we can send a link to your email address which you can use to reset your password. Please just enter your email address below.</value>
+  </data>
   <data name="last_name" xml:space="preserve">
     <value>Last Name</value>
+  </data>
+  <data name="log_out_confirmed_header" xml:space="preserve">
+    <value>You are now logged out</value>
+  </data>
+  <data name="log_out_confirmed_redirect_text_link" xml:space="preserve">
+    <value>here</value>
+  </data>
+  <data name="log_out_confirmed_redirect_text_prefix" xml:space="preserve">
+    <value>Click</value>
+  </data>
+  <data name="log_out_confirmed_redirect_text_suffix" xml:space="preserve">
+    <value>to return to the main page.</value>
+  </data>
+  <data name="log_out_confirmed_header_text" xml:space="preserve">
+    <value>We hope to see you back again soon!</value>
+  </data>
+  <data name="log_out_title" xml:space="preserve">
+    <value>Log out</value>
+  </data>
+  <data name="log_out_header" xml:space="preserve">
+    <value>Would you like to log out?</value>
+  </data>
+  <data name="log_out_header_text" xml:space="preserve">
+    <value>Please click the button below to confirm.</value>
+  </data>
+  <data name="manage_account_header" xml:space="preserve">
+    <value>Manage your account</value>
+  </data>
+  <data name="manage_account_password_link" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="manage_account_profile_link" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="manage_account_subheader" xml:space="preserve">
+    <value>Change your account settings</value>
   </data>
   <data name="new_password" xml:space="preserve">
     <value>New Password</value>
@@ -141,7 +282,85 @@
   <data name="password_confirmation" xml:space="preserve">
     <value>Confirm Password</value>
   </data>
+  <data name="profile_title" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="profile_resend_verification_email_link" xml:space="preserve">
+    <value>Resend confirmation email</value>
+  </data>
+  <data name="register_header" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="register_header_text" xml:space="preserve">
+    <value>Register for your new user account now.</value>
+  </data>
   <data name="remember" xml:space="preserve">
     <value>Remember login</value>
+  </data>
+  <data name="reset_password_confirmation_header" xml:space="preserve">
+    <value>Your password has been reset</value>
+  </data>
+  <data name="reset_password_confirmation_header_text" xml:space="preserve">
+    <value>Your password has been reset successfully.</value>
+  </data>
+  <data name="reset_password_confirmation_header_text_link" xml:space="preserve">
+    <value>click here to log in</value>
+  </data>
+  <data name="reset_password_confirmation_header_text_prefix" xml:space="preserve">
+    <value>Please</value>
+  </data>
+  <data name="reset_password_confirmation_header_text_suffix" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="reset_password_header" xml:space="preserve">
+    <value>Reset your password</value>
+  </data>
+  <data name="sign_in_button_forgot_password" xml:space="preserve">
+    <value>Forgot password?</value>
+  </data>
+  <data name="sign_in_button_register" xml:space="preserve">
+    <value>Register new user account</value>
+  </data>
+  <data name="sign_in_header" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="sign_in_header_text" xml:space="preserve">
+    <value>Welcome! Please enter your user credentials to sign in.</value>
+  </data>
+  <data name="sign_in_no_login_schemes_text" xml:space="preserve">
+    <value>There are no login schemes configured for this client.</value>
+  </data>
+  <data name="access_to_page_denied_title" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="confirm_email_title" xml:space="preserve">
+    <value>Email address verified</value>
+  </data>
+  <data name="email_confirmation_sent_title" xml:space="preserve">
+    <value>Verification email sent</value>
+  </data>
+  <data name="email_not_confirmed_title" xml:space="preserve">
+    <value>Verify your email address</value>
+  </data>
+  <data name="error_title" xml:space="preserve">
+    <value>Unexpected error</value>
+  </data>
+  <data name="forgot_password_confirmation_title" xml:space="preserve">
+    <value>Password reset email sent</value>
+  </data>
+  <data name="forgot_password_title" xml:space="preserve">
+    <value>Forgot password</value>
+  </data>
+  <data name="register_title" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="reset_password_confirmation_title" xml:space="preserve">
+    <value>Password reset</value>
+  </data>
+  <data name="reset_password_title" xml:space="preserve">
+    <value>Reset password</value>
+  </data>
+  <data name="sign_in_title" xml:space="preserve">
+    <value>Sign in</value>
   </data>
 </root>
