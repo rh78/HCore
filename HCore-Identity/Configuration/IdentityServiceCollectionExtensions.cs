@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Authorization;
 using HCore.Identity.Requirements;
 using HCore.Identity.Impl;
 using IdentityModel;
+using System.Security.Claims;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -163,7 +164,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         
                         if (requiredScopesSplit != null)
                         {
-                            policy.RequireClaim(JwtClaimTypes.Scope, requiredScopesSplit);                        
+                            policy.RequireAssertion(handler =>
+                            {
+                                return CheckScopes(handler.User, requiredScopesSplit);
+                            });
                         }
 
                         policy.RequireAuthenticatedUser();
@@ -213,7 +217,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         if (requiredScopesSplit != null)
                         {
-                            policy.RequireClaim(JwtClaimTypes.Scope, requiredScopesSplit);
+                            policy.RequireAssertion(handler =>
+                            {
+                                return CheckScopes(handler.User, requiredScopesSplit);
+                            });
                         }
 
                         policy.RequireAuthenticatedUser();
@@ -222,6 +229,17 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 services.AddSingleton<IAuthorizationHandler, ClientDeveloperUuidRequirementHandler>();                    
             }             
+        }
+
+        private static bool CheckScopes(ClaimsPrincipal user, string[] requiredScopes)
+        {
+            foreach (var requiredScope in requiredScopes)
+            {
+                if (user.FindFirst(claim => claim.Type == JwtClaimTypes.Scope && claim.Value == requiredScope) == null)
+                    return false;
+            }
+
+            return true;
         }
 
         private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)

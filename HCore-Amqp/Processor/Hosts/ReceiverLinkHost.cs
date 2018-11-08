@@ -56,7 +56,7 @@ namespace HCore.Amqp.Processor.Hosts
                             {
                                 Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
 
-                                _receiverLink.Reject(message);
+                                _receiverLink.Release(message);
                             }
                         }
                     }

@@ -61,9 +61,9 @@ namespace Microsoft.AspNetCore.Builder
        
         private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
-            string defaultClientAudience = configuration[$"Identity:DefaultClient:Audience"];
-            if (string.IsNullOrEmpty(defaultClientAudience))
-                throw new Exception("Identity default client audience string is empty");
+            string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+            if (string.IsNullOrEmpty(defaultClientAuthority))
+                throw new Exception("Identity default client authority string is empty");
 
             string defaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
             if (string.IsNullOrEmpty(defaultClientId))
@@ -129,12 +129,12 @@ namespace Microsoft.AspNetCore.Builder
                 },
                 RedirectUris =
                 {
-                    $"{defaultClientAudience}signin-oidc"
+                    $"{defaultClientAuthority}signin-oidc"
                 },
                 PostLogoutRedirectUris =
                 {
-                    $"{defaultClientAudience}",
-                    $"{defaultClientAudience}signout-callback-oidc"
+                    $"{defaultClientAuthority}",
+                    $"{defaultClientAuthority}signout-callback-oidc"
                 }
             };
 
