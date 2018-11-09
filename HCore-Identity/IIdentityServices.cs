@@ -1,5 +1,5 @@
 ﻿using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 using System.Threading.Tasks;
 
 namespace HCore.Identity

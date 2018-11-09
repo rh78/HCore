@@ -29,7 +29,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, Configuration.IConfiguration configuration)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -76,7 +76,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
-                services.AddSingleton<IIdentityServicesConfiguration, IdentityServicesConfigurationImpl>();
+                services.AddSingleton<HCore.Identity.IConfiguration, ConfigurationImpl>();
 
                 services.AddScoped<IAccessTokenProvider, AccessTokenProviderImpl>();
                 services.AddScoped<IIdentityServices, IdentityServicesImpl>();                
@@ -84,13 +84,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (useIdentity || useJwt)
             {
-                services.AddScoped<IAuthServices, AuthServicesImpl>();
+                services.AddScoped<IAuthInfoAccessor, AuthInfoAccessorImpl>();
             }
 
             return services;
         }
 
-        private static void ConfigureSqlServer<TStartup>(IServiceCollection services, IConfiguration configuration)
+        private static void ConfigureSqlServer<TStartup>(IServiceCollection services, Configuration.IConfiguration configuration)
         {
             services.AddSqlServer<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
 
@@ -98,7 +98,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
         }
 
-        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, IConfiguration configuration)
+        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, Configuration.IConfiguration configuration)
         {
             string applicationName = configuration[$"Identity:Application:Name"];
             if (string.IsNullOrEmpty(applicationName))
@@ -109,7 +109,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .SetApplicationName(applicationName);
         }
 
-        private static void ConfigureJwtAuthentication(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
+        private static void ConfigureJwtAuthentication(IServiceCollection services, TenantsBuilder tenantsBuilder, Configuration.IConfiguration configuration)
         {
             var authenticationBuilder = services.AddAuthentication();
             
@@ -242,7 +242,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return true;
         }
 
-        private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
+        private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, Configuration.IConfiguration configuration)
         {
             // now, on second priority, comes the identity which we tweaked
 
@@ -286,7 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, IConfiguration configuration)
+        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, Configuration.IConfiguration configuration)
         {
             var identityServerBuilder = services.AddIdentityServer(options =>
             {
@@ -325,7 +325,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });            
         }
 
-        private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
+        private static X509Certificate2 GetSigningKeyCertificate(Configuration.IConfiguration configuration)
         {
             string signingKeyAssembly = configuration["Identity:SigningKey:Assembly"];
             if (string.IsNullOrEmpty(signingKeyAssembly))

@@ -12,7 +12,7 @@ using HCore.Templating.Emails;
 using HCore.Templating.Emails.ViewModels;
 using HCore.Web.Exceptions;
 using System.Collections.Generic;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 using HCore.Web.API.Impl;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Amqp.Processor;
@@ -30,7 +30,7 @@ namespace HCore.Identity.Controllers.API.Impl
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
-        private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
+        private readonly IConfiguration _configuration;
         private readonly IServiceProvider _serviceProvider;
 
         public IdentityServicesImpl(
@@ -41,7 +41,7 @@ namespace HCore.Identity.Controllers.API.Impl
             IEmailTemplateProvider emailTemplateProvider,
             IUrlHelper urlHelper,
             SqlServerIdentityDbContext identityDbContext,
-            IIdentityServicesConfiguration identityServicesConfiguration,
+            IConfiguration configuration,
             IServiceProvider serviceProvider)
         {
             _signInManager = signInManager;
@@ -51,7 +51,7 @@ namespace HCore.Identity.Controllers.API.Impl
             _emailTemplateProvider = emailTemplateProvider;
             _urlHelper = urlHelper;
             _identityDbContext = identityDbContext;
-            _identityServicesConfiguration = identityServicesConfiguration;
+            _configuration = configuration;
             _serviceProvider = serviceProvider;
         }
 
@@ -59,22 +59,22 @@ namespace HCore.Identity.Controllers.API.Impl
         {
             if (!isAdmin)
             {
-                if (!_identityServicesConfiguration.SelfRegistration)
+                if (!_configuration.SelfRegistration)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
             }
 
             userSpec.Email = ProcessEmail(userSpec.Email);
             userSpec.Password = ProcessPassword(userSpec.Password);
 
-            if (_identityServicesConfiguration.SelfManagement)
+            if (_configuration.SelfManagement)
             {
-                if (_identityServicesConfiguration.ManageName && _identityServicesConfiguration.RegisterName)
+                if (_configuration.ManageName && _configuration.RegisterName)
                 {
                     userSpec.FirstName = ProcessFirstName(userSpec.FirstName);
                     userSpec.LastName = ProcessLastName(userSpec.LastName);
                 }
 
-                if (_identityServicesConfiguration.ManagePhoneNumber && _identityServicesConfiguration.RegisterPhoneNumber)
+                if (_configuration.ManagePhoneNumber && _configuration.RegisterPhoneNumber)
                 {
                     userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
                 }
@@ -86,15 +86,15 @@ namespace HCore.Identity.Controllers.API.Impl
                 {
                     var user = new UserModel { UserName = userSpec.Email, Email = userSpec.Email };
 
-                    if (_identityServicesConfiguration.SelfManagement)
+                    if (_configuration.SelfManagement)
                     {
-                        if (_identityServicesConfiguration.ManageName && _identityServicesConfiguration.RegisterName)
+                        if (_configuration.ManageName && _configuration.RegisterName)
                         {
                             user.FirstName = userSpec.FirstName;
                             user.LastName = userSpec.LastName;
                         }
 
-                        if (_identityServicesConfiguration.ManagePhoneNumber && _identityServicesConfiguration.RegisterPhoneNumber)
+                        if (_configuration.ManagePhoneNumber && _configuration.RegisterPhoneNumber)
                         {
                             user.PhoneNumber = userSpec.PhoneNumber;
                         }
@@ -127,7 +127,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
 
-                        if (!_identityServicesConfiguration.RequireEmailConfirmed || user.EmailConfirmed)
+                        if (!_configuration.RequireEmailConfirmed || user.EmailConfirmed)
                         {
                             await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
                         }
@@ -442,11 +442,11 @@ namespace HCore.Identity.Controllers.API.Impl
 
         public async Task<UserModel> UpdateUserAsync(string userUuid, UserSpec userSpec, bool isAdmin)
         {
-            if (!_identityServicesConfiguration.ManageName && !_identityServicesConfiguration.ManagePhoneNumber)
+            if (!_configuration.ManageName && !_configuration.ManagePhoneNumber)
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.UserDetailsNotSupported, "This system does not support managing user detail data");
 
             if (!isAdmin) {
-                if (!_identityServicesConfiguration.SelfManagement)
+                if (!_configuration.SelfManagement)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfServiceNotAllowed, "It is not allowed to modify user data in self-service on this system");
             }
             
@@ -465,7 +465,7 @@ namespace HCore.Identity.Controllers.API.Impl
 
                     bool changed = false;
 
-                    if (_identityServicesConfiguration.ManageName)
+                    if (_configuration.ManageName)
                     {
                         if (!string.IsNullOrEmpty(userSpec.FirstName))
                         {
@@ -492,7 +492,7 @@ namespace HCore.Identity.Controllers.API.Impl
                         }
                     }
 
-                    if (_identityServicesConfiguration.ManagePhoneNumber)
+                    if (_configuration.ManagePhoneNumber)
                     {
                         if (!string.IsNullOrEmpty(userSpec.PhoneNumber))
                         {
@@ -727,11 +727,11 @@ namespace HCore.Identity.Controllers.API.Impl
 
         private async Task SendUserChangeNotificationAsync(string userUuid)
         {
-            if (!string.IsNullOrEmpty(_identityServicesConfiguration.IdentityChangeTasksAmqpAddress))
+            if (!string.IsNullOrEmpty(_configuration.IdentityChangeTasksAmqpAddress))
             {
                 // notification to dependent services
 
-                string identityChangeTasksAmqpAddress = _identityServicesConfiguration.IdentityChangeTasksAmqpAddress;
+                string identityChangeTasksAmqpAddress = _configuration.IdentityChangeTasksAmqpAddress;
 
                 var identityChangeTask = new IdentityChangeTask()
                 {
