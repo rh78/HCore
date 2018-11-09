@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using HCore.Redis;
-using HCore.Redis.Impl;
+using HCore.Redis.Cache;
+using HCore.Redis.Cache.Impl;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection

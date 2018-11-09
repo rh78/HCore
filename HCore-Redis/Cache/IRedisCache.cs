@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace HCore.Redis
+namespace HCore.Redis.Cache
 {
     public interface IRedisCache
     {

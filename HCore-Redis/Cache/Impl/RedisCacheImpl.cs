@@ -4,7 +4,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
-namespace HCore.Redis.Impl
+namespace HCore.Redis.Cache.Impl
 {
     internal class RedisCacheImpl : IRedisCache
     {

@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
-using HCore.Redis;
+﻿using Microsoft.Extensions.DependencyInjection;
+using HCore.Redis.Cache;
 
 namespace Microsoft.AspNetCore.Builder
 {
