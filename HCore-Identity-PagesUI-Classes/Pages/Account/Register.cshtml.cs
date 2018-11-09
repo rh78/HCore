@@ -4,7 +4,7 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 
@@ -14,16 +14,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class RegisterModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
-        private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
+        private readonly IConfiguration _configuration;
         private readonly IEventService _events;
 
         public RegisterModel(
             IIdentityServices identityServices,
-            IIdentityServicesConfiguration identityServicesConfiguration,
+            IConfiguration configuration,
             IEventService events)
         {
             _identityServices = identityServices;
-            _identityServicesConfiguration = identityServicesConfiguration;
+            _configuration = configuration;
             _events = events;
         }
 
@@ -43,7 +43,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 UserModel user = await _identityServices.CreateUserAsync(Input, false).ConfigureAwait(false);
 
-                if (_identityServicesConfiguration.RequireEmailConfirmed && !user.EmailConfirmed)
+                if (_configuration.RequireEmailConfirmed && !user.EmailConfirmed)
                 {
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = user.Id });
                 } else

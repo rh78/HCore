@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -18,7 +18,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
-        private readonly IIdentityServicesConfiguration _identityServicesConfiguration;
+        private readonly IConfiguration _configuration;
 
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -27,14 +27,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public LoginModel(
             IIdentityServices identityServices,
-            IIdentityServicesConfiguration identityServicesConfiguration,
+            IConfiguration configuration,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events)
         {
             _identityServices = identityServices;
-            _identityServicesConfiguration = identityServicesConfiguration;
+            _configuration = configuration;
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;

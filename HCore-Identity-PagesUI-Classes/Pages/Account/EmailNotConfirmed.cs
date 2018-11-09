@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Web.Exceptions;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {

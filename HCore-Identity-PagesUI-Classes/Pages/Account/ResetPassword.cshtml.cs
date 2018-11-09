@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
-using HCore.Identity.ViewModels;
+using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
