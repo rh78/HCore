@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using HCore.Identity;
-using HCore.Identity.Controllers.API.Impl;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using System;
@@ -21,9 +20,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using HCore.Identity.Requirements;
-using HCore.Identity.Impl;
 using IdentityModel;
 using System.Security.Claims;
+using HCore.Identity.Providers;
+using HCore.Identity.Providers.Impl;
+using HCore.Identity.Services.Impl;
+using HCore.Identity.Services;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -76,7 +78,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddSingleton<IEmailSender, HCore.Identity.EmailSender.Impl.EmailSenderImpl>();
 
-                services.AddSingleton<HCore.Identity.IConfiguration, ConfigurationImpl>();
+                services.AddSingleton<HCore.Identity.Providers.IConfigurationProvider, ConfigurationProviderImpl>();
 
                 services.AddScoped<IAccessTokenProvider, AccessTokenProviderImpl>();
                 services.AddScoped<IIdentityServices, IdentityServicesImpl>();                

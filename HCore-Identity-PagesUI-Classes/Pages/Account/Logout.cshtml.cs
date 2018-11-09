@@ -5,6 +5,7 @@ using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
+using HCore.Identity.Services;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {

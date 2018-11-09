@@ -40,7 +40,7 @@
                         <p>
                             <a asp-page="./ForgotPassword">@Messages.sign_in_button_forgot_password</a>
                         </p>
-                        @if (configuration.SelfRegistration)
+                        @if (configurationProvider.SelfRegistration)
                         {
                             <p>
                                 <a asp-page="./Register">@Messages.sign_in_button_register</a>

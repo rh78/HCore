@@ -15,7 +15,7 @@
                 <label asp-for="Input.Email"></label>
                 <input asp-for="Input.Email" class="form-control" />
             </div>
-            @if (configuration.RegisterName)
+            @if (configurationProvider.RegisterName)
             {
                 <div class="form-group">
                     <label asp-for="Input.FirstName"></label>
@@ -34,7 +34,7 @@
                 <label asp-for="Input.PasswordConfirmation"></label>
                 <input type="password" autocomplete="off" asp-for="Input.PasswordConfirmation" class="form-control" />                
             </div>
-            @if (configuration.RegisterPhoneNumber)
+            @if (configurationProvider.RegisterPhoneNumber)
             {
                 <div class="form-group">
                     <label asp-for="Input.PhoneNumber"></label>

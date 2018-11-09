@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace HCore.Identity
+namespace HCore.Identity.Providers
 {
     public interface IAccessTokenProvider
     {

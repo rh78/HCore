@@ -1,6 +1,6 @@
 ﻿using HCore.Tenants.Models;
 
-namespace HCore.Identity
+namespace HCore.Identity.Models
 {
     public interface IAuthInfo
     {

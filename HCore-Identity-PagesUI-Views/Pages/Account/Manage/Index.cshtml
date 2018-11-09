@@ -26,7 +26,7 @@
                 }
             </div>
             
-            @if (configuration.SelfManagement && configuration.ManageName)
+            @if (configurationProvider.SelfManagement && configurationProvider.ManageName)
             {
                 <div class="form-group">
                     <label asp-for="Input.FirstName"></label>
@@ -38,7 +38,7 @@
                 </div>
             }
 
-            @if (configuration.SelfManagement && configuration.ManagePhoneNumber)
+            @if (configurationProvider.SelfManagement && configurationProvider.ManagePhoneNumber)
             {
                 <div class="form-group">
                     <label asp-for="Input.PhoneNumber"></label>
@@ -46,7 +46,7 @@
                 </div>
             }
 
-            @if (configuration.SelfManagement && (configuration.ManageName || configuration.ManagePhoneNumber))
+            @if (configurationProvider.SelfManagement && (configurationProvider.ManageName || configurationProvider.ManagePhoneNumber))
             {
                 <button type="submit" class="btn btn-default">@Messages.button_save</button>
             }

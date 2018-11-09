@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
+using HCore.Identity.Services;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {

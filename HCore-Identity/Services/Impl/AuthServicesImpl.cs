@@ -1,10 +1,12 @@
-﻿using HCore.Tenants.Models;
+﻿using HCore.Identity.Models;
+using HCore.Identity.Models.Impl;
+using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Security.Claims;
 
-namespace HCore.Identity.Impl
+namespace HCore.Identity.Services.Impl
 {
     internal class AuthServicesImpl : IAuthServices
     { 

@@ -7,6 +7,8 @@ using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Services;
+using HCore.Identity.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -14,16 +16,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class RegisterModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
-        private readonly IConfiguration _configuration;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly IEventService _events;
 
         public RegisterModel(
             IIdentityServices identityServices,
-            IConfiguration configuration,
+            IConfigurationProvider configurationProvider,
             IEventService events)
         {
             _identityServices = identityServices;
-            _configuration = configuration;
+            _configurationProvider = configurationProvider;
             _events = events;
         }
 
@@ -43,7 +45,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 UserModel user = await _identityServices.CreateUserAsync(Input, false).ConfigureAwait(false);
 
-                if (_configuration.RequireEmailConfirmed && !user.EmailConfirmed)
+                if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
                 {
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = user.Id });
                 } else

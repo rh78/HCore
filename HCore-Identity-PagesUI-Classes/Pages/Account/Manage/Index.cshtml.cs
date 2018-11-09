@@ -7,6 +7,7 @@ using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Services;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {

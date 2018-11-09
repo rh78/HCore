@@ -16,7 +16,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace HCore.Identity.Impl
+namespace HCore.Identity.Providers.Impl
 {
     internal class AccessTokenProviderImpl : IAccessTokenProvider
     {
@@ -26,7 +26,7 @@ namespace HCore.Identity.Impl
         private readonly IResourceStore _resourceStore;
         private readonly ITokenService _tokenService;
         private readonly IdentityServerOptions _options;
-        private readonly IConfiguration _configuration;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly IClaimsService _claimsService;
         private readonly ILogger<AccessTokenProviderImpl> _logger;
 
@@ -38,7 +38,7 @@ namespace HCore.Identity.Impl
            IClaimsService claimsService,
            ITokenService tokenService,
            IdentityServerOptions options,
-           IConfiguration configuration,
+           IConfigurationProvider configurationProvider,
            ILogger<AccessTokenProviderImpl> logger)
         {
             _userManager = userManager;            
@@ -48,7 +48,7 @@ namespace HCore.Identity.Impl
             _claimsService = claimsService;
             _tokenService = tokenService;
             _options = options;
-            _configuration = configuration;
+            _configurationProvider = configurationProvider;
             _logger = logger;
         }
 
@@ -87,7 +87,7 @@ namespace HCore.Identity.Impl
 
                 tokenCreationRequest.ValidatedRequest.Subject = tokenCreationRequest.Subject;
 
-                string defaultClientId = _configuration.DefaultClientId;
+                string defaultClientId = _configurationProvider.DefaultClientId;
 
                 var client = await _clientStore.FindClientByIdAsync(defaultClientId).ConfigureAwait(false);
 
@@ -103,8 +103,8 @@ namespace HCore.Identity.Impl
 
                 var accessToken = await CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
-                string defaultClientAuthority = _configuration.DefaultClientAuthority;
-                string defaultClientAudience = _configuration.DefaultClientAudience;
+                string defaultClientAuthority = _configurationProvider.DefaultClientAuthority;
+                string defaultClientAudience = _configurationProvider.DefaultClientAudience;
 
                 accessToken.Issuer = defaultClientAuthority;
                 accessToken.Audiences = new string[] { defaultClientAudience };
@@ -142,7 +142,7 @@ namespace HCore.Identity.Impl
                 claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
             }
 
-            var issuer = _configuration.DefaultClientAuthority;
+            var issuer = _configurationProvider.DefaultClientAuthority;
             var token = new Token(OidcConstants.TokenTypes.AccessToken)
             {
                 CreationTime = DateTimeOffset.Now.UtcDateTime,

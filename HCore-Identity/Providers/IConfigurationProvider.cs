@@ -1,6 +1,6 @@
-﻿namespace HCore.Identity
+﻿namespace HCore.Identity.Providers
 {
-    public interface IConfiguration
+    public interface IConfigurationProvider
     {
         string DefaultClientId { get; }
         string DefaultClientAuthority { get; }

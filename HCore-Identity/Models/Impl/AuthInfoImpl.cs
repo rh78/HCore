@@ -1,6 +1,6 @@
 ﻿using HCore.Tenants.Models;
 
-namespace HCore.Identity.Impl
+namespace HCore.Identity.Models.Impl
 {
     internal class AuthInfoImpl : IAuthInfo
     {

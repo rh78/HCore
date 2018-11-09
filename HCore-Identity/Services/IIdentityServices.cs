@@ -2,7 +2,7 @@
 using HCore.Identity.Models;
 using System.Threading.Tasks;
 
-namespace HCore.Identity
+namespace HCore.Identity.Services
 {
     public interface IIdentityServices
     {

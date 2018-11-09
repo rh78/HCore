@@ -2,9 +2,9 @@
 using System;
 using System.Linq;
 
-namespace HCore.Identity.Impl
+namespace HCore.Identity.Providers.Impl
 {
-    internal class ConfigurationImpl : IConfiguration
+    internal class ConfigurationProviderImpl : IConfigurationProvider
     {
         public string DefaultClientId { get; private set; }
         public string DefaultClientAuthority { get; private set; }
@@ -22,7 +22,7 @@ namespace HCore.Identity.Impl
 
         public string IdentityChangeTasksAmqpAddress { get; private set; }
         
-        public ConfigurationImpl(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        public ConfigurationProviderImpl(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             DefaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
             if (string.IsNullOrEmpty(DefaultClientId))

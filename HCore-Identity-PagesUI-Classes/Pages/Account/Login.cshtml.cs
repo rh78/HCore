@@ -11,6 +11,8 @@ using IdentityServer4.Models;
 using HCore.Web.Result;
 using IdentityServer4.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Services;
+using HCore.Identity.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -18,7 +20,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
-        private readonly IConfiguration _configuration;
+        private readonly IConfigurationProvider _configurationProvider;
 
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
@@ -27,14 +29,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public LoginModel(
             IIdentityServices identityServices,
-            IConfiguration configuration,
+            IConfigurationProvider configurationProvider,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events)
         {
             _identityServices = identityServices;
-            _configuration = configuration;
+            _configurationProvider = configurationProvider;
             _interaction = interaction;
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
