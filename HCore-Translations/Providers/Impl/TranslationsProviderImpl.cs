@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 
-namespace HCore.Translations.Impl
+namespace HCore.Translations.Providers.Impl
 {
     internal class TranslationsProviderImpl : ITranslationsProvider
     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using HCore.Translations;
+using HCore.Translations.Providers;
 using System;
 
 namespace Microsoft.AspNetCore.Builder

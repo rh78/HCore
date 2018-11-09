@@ -2,7 +2,7 @@
 using HCore.Translations.Resources;
 using System.Reflection;
 
-namespace HCore.Translations.Impl
+namespace HCore.Translations.Providers.Impl
 {
     internal class ErrorCodesStringLocalizerProviderImpl : IStringLocalizerProvider
     {

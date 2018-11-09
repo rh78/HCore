@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HCore.Translations
+namespace HCore.Translations.Providers
 {
     public interface ITranslationsProvider
     {

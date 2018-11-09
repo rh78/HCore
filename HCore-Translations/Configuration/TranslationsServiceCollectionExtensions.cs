@@ -1,5 +1,5 @@
-﻿using HCore.Translations;
-using HCore.Translations.Impl;
+﻿using HCore.Translations.Providers;
+using HCore.Translations.Providers.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

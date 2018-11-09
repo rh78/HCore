@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Localization;
 
-namespace HCore.Translations
+namespace HCore.Translations.Providers
 {
     public interface IStringLocalizerProvider
     {
