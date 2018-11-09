@@ -1,5 +1,5 @@
-﻿using HCore.Templating.Generic;
-using HCore.Templating.Generic.Impl;
+﻿using HCore.Templating.Renderer;
+using HCore.Templating.Renderer.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 // see https://scottsauber.com/2018/07/07/walkthrough-creating-an-html-email-template-with-razor-and-razor-class-libraries-and-rendering-it-from-a-net-standard-class-library/
 
-namespace HCore.Templating.Generic.Impl
+namespace HCore.Templating.Renderer.Impl
 {
     internal class TemplateRendererImpl : ITemplateRenderer
     {

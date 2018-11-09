@@ -15,8 +15,4 @@
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Impl\" />
-  </ItemGroup>
-
 </Project>

@@ -1,7 +1,7 @@
 ﻿using HCore.Templating.Templates.ViewModels.Shared;
 using System.Threading.Tasks;
 
-namespace HCore.Templating.Generic
+namespace HCore.Templating.Renderer
 {
     public interface ITemplateRenderer
     {

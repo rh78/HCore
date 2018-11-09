@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using HCore.Templating.Emails.ViewModels;
-using HCore.Templating.Generic;
+using HCore.Templating.Renderer;
 
 namespace HCore.Templating.Emails.Impl
 {
