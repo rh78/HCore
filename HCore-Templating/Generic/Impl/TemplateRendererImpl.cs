@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HCore.Templating.Templates.ViewModels.Shared;
+using HCore.Tenants;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
@@ -22,6 +25,8 @@ namespace HCore.Templating.Generic.Impl
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
         public TemplateRendererImpl(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
@@ -30,10 +35,15 @@ namespace HCore.Templating.Generic.Impl
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
+
+            _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
         public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model)
+            where TModel : TemplateViewModel
         {
+            EnrichTenantInfo(model);
+
             var actionContext = GetActionContext();
             var view = FindView(actionContext, viewName);
 
@@ -58,6 +68,32 @@ namespace HCore.Templating.Generic.Impl
 
                 return output.ToString();
             }
+        }
+
+        private void EnrichTenantInfo<TModel>(TModel model) 
+            where TModel : TemplateViewModel
+        {
+            if (_tenantInfoAccessor == null)
+                return;
+
+            var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+            if (tenantInfo == null)
+                return;
+
+            model.TenantName = tenantInfo.Name;
+            model.TenantLogoUrl = tenantInfo.LogoUrl;
+            model.TenantPrimaryColor = ConvertToHexColor(tenantInfo.PrimaryColor);
+            model.TenantSecondaryColor = ConvertToHexColor(tenantInfo.SecondaryColor);
+            model.TenantTextOnPrimaryColor = ConvertToHexColor(tenantInfo.TextOnPrimaryColor);
+            model.TenantTextOnSecondaryColor = ConvertToHexColor(tenantInfo.TextOnSecondaryColor);
+            model.TenantSupportEmail = tenantInfo.SupportEmail;
+            model.TenantProductName = tenantInfo.ProductName;
+        }
+
+        private string ConvertToHexColor(int? color)
+        {
+            return "#" + (color != null ? ((int)color).ToString("X6") : "000000");
         }
 
         private IView FindView(ActionContext actionContext, string viewName)

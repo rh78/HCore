@@ -19,6 +19,10 @@
         int TextOnPrimaryColor { get; }
         int TextOnSecondaryColor { get; }
 
+        string SupportEmail { get; }
+
+        string ProductName { get; }
+
         string ApiUrl { get; }
         string WebUrl { get; }
     }

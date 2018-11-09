@@ -16,5 +16,9 @@
         public int SecondaryColor { get; internal set; }
         public int TextOnPrimaryColor { get; internal set; }
         public int TextOnSecondaryColor { get; internal set; }
+
+        public string SupportEmail { get; internal set; }
+
+        public string ProductName { get; internal set; }
     }
 }

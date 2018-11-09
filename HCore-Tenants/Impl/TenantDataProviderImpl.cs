@@ -78,6 +78,14 @@ namespace HCore.Tenants.Impl
                     if (textOnSecondaryColor == null)
                         textOnSecondaryColor = developer.TextOnSecondaryColor;
 
+                    string supportEmail = tenant.SupportEmail;
+                    if (string.IsNullOrEmpty(supportEmail))
+                        supportEmail = developer.SupportEmail;
+
+                    string productName = tenant.ProductName;
+                    if (string.IsNullOrEmpty(productName))
+                        productName = developer.ProductName;
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -93,6 +101,8 @@ namespace HCore.Tenants.Impl
                         SecondaryColor = (int)secondaryColor,
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
                         TextOnSecondaryColor = (int)textOnSecondaryColor,
+                        SupportEmail = supportEmail,
+                        ProductName = productName,
                         ApiUrl = tenant.ApiUrl,
                         WebUrl = tenant.WebUrl
                     };
@@ -172,7 +182,13 @@ namespace HCore.Tenants.Impl
 
                         if (string.IsNullOrEmpty(developer.LogoUrl))
                             throw new Exception("The developer logo URL is empty");
-                       
+
+                        if (string.IsNullOrEmpty(developer.SupportEmail))
+                            throw new Exception("The developer support email is empty");
+
+                        if (string.IsNullOrEmpty(developer.ProductName))
+                            throw new Exception("The developer product name is empty");
+
                         var developerInfo = new DeveloperInfoImpl()
                         {
                             DeveloperUuid = developer.Uuid,
@@ -186,7 +202,9 @@ namespace HCore.Tenants.Impl
                             PrimaryColor = developer.PrimaryColor,
                             SecondaryColor = developer.SecondaryColor,
                             TextOnPrimaryColor = developer.TextOnPrimaryColor,
-                            TextOnSecondaryColor = developer.TextOnSecondaryColor
+                            TextOnSecondaryColor = developer.TextOnSecondaryColor,
+                            SupportEmail = developer.SupportEmail,
+                            ProductName = developer.ProductName
                         };
 
                         Developers.Add(developerInfo);

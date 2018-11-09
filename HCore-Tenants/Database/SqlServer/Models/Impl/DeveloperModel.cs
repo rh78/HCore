@@ -50,6 +50,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public int TextOnPrimaryColor { get; set; }
         public int TextOnSecondaryColor { get; set; }
 
+        public string SupportEmail { get; set; }
+
+        public string ProductName { get; set; }
+
         public List<TenantModel> Tenants { get; set; }
         
         public int Version { get; set; }

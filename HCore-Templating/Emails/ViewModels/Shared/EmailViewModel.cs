@@ -1,6 +1,8 @@
-﻿namespace HCore.Templating.Emails.ViewModels.Shared
+﻿using HCore.Templating.Templates.ViewModels.Shared;
+
+namespace HCore.Templating.Emails.ViewModels.Shared
 {
-    public class EmailViewModel
+    public class EmailViewModel : TemplateViewModel
     {
         public EmailViewModel()
         {            

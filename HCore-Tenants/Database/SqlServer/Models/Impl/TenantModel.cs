@@ -36,6 +36,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public int? TextOnPrimaryColor { get; set; }
         public int? TextOnSecondaryColor { get; set; }
 
+        public string SupportEmail { get; set; }
+
+        public string ProductName { get; set; }
+
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }

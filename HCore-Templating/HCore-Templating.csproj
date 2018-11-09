@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
+  </ItemGroup>
+
 </Project>

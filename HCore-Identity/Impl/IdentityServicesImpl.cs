@@ -14,9 +14,6 @@ using HCore.Web.Exceptions;
 using System.Collections.Generic;
 using HCore.Identity.ViewModels;
 using HCore.Web.API.Impl;
-using IdentityServer4.Services;
-using IdentityServer4.Configuration;
-using IdentityServer4.Stores;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Amqp.Processor;
 

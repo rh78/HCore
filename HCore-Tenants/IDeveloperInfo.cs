@@ -16,5 +16,9 @@
         int SecondaryColor { get; }
         int TextOnPrimaryColor { get; }
         int TextOnSecondaryColor { get; }
+
+        string SupportEmail { get; }
+
+        string ProductName { get; }
     }
 }
