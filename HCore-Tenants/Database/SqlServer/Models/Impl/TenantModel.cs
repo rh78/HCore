@@ -8,8 +8,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
     public class TenantModel
     {
         public const int MaxSubdomainPatternLength = 255;
-        public const int MaxNameLength = 50;
-        public const int MaxLogoUrlLength = 50;
         public const int MaxUrlLength = 255;
 
         [Key]
@@ -27,13 +25,18 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxUrlLength)]
         public string WebUrl { get; set; }
 
-        [StringLength(MaxNameLength)]
+        [StringLength(DeveloperModel.MaxNameLength)]
         public string Name { get; set; }
 
-        [StringLength(MaxLogoUrlLength)]
-        public string LogoUrl { get; set; }        
-        
-        public long Version { get; set; }
+        [StringLength(DeveloperModel.MaxLogoUrlLength)]
+        public string LogoUrl { get; set; }
+
+        public int? PrimaryColor { get; set; }
+        public int? SecondaryColor { get; set; }
+        public int? TextOnPrimaryColor { get; set; }
+        public int? TextOnSecondaryColor { get; set; }
+
+        public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
     }

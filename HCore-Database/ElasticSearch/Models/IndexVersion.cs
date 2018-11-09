@@ -3,6 +3,6 @@
     internal class IndexVersion
     {
         public string Name { get; set; }
-        public long Version { get; set; } 
+        public int Version { get; set; } 
     }
 }

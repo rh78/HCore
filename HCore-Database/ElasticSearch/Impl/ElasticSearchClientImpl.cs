@@ -79,7 +79,7 @@ namespace HCore.Database.ElasticSearch.Impl
             
             indexNames.ToList().ForEach(indexName =>
             {
-                long newestIndexVersion = _elasticSearchDbContext.GetIndexVersion(indexName);
+                int newestIndexVersion = _elasticSearchDbContext.GetIndexVersion(indexName);
 
                 IndexVersion indexVersion = GetIndexVersion(indexName);
 
@@ -122,7 +122,7 @@ namespace HCore.Database.ElasticSearch.Impl
             }
         }
 
-        private void CreateIndexVersion(string indexName, long oldVersion, long newVersion)
+        private void CreateIndexVersion(string indexName, long oldVersion, int newVersion)
         {
             var createIndexDescriptor = _elasticSearchDbContext.GetCreateIndexDescriptor(this, indexName);
 

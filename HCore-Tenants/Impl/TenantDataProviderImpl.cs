@@ -49,6 +49,35 @@ namespace HCore.Tenants.Impl
                         throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
                     }
 
+                    if (string.IsNullOrEmpty(tenant.Name))
+                        throw new Exception("The tenant name is empty");
+
+                    if (string.IsNullOrEmpty(tenant.ApiUrl))
+                        throw new Exception("The tenant API url is empty");
+
+                    if (string.IsNullOrEmpty(tenant.WebUrl))
+                        throw new Exception("The tenant web url is empty");
+
+                    string logoUrl = tenant.LogoUrl;
+                    if (string.IsNullOrEmpty(logoUrl))
+                        logoUrl = developer.LogoUrl;
+
+                    int? primaryColor = tenant.PrimaryColor;
+                    if (primaryColor == null)
+                        primaryColor = developer.PrimaryColor;
+
+                    int? secondaryColor = tenant.SecondaryColor;
+                    if (secondaryColor == null)
+                        secondaryColor = developer.SecondaryColor;
+
+                    int? textOnPrimaryColor = tenant.TextOnPrimaryColor;
+                    if (textOnPrimaryColor == null)
+                        textOnPrimaryColor = developer.TextOnPrimaryColor;
+
+                    int? textOnSecondaryColor = tenant.TextOnSecondaryColor;
+                    if (textOnSecondaryColor == null)
+                        textOnSecondaryColor = developer.TextOnSecondaryColor;
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -59,7 +88,11 @@ namespace HCore.Tenants.Impl
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
-                        LogoUrl = tenant.LogoUrl,
+                        LogoUrl = logoUrl,
+                        PrimaryColor = (int)primaryColor,
+                        SecondaryColor = (int)secondaryColor,
+                        TextOnPrimaryColor = (int)textOnPrimaryColor,
+                        TextOnSecondaryColor = (int)textOnSecondaryColor,
                         ApiUrl = tenant.ApiUrl,
                         WebUrl = tenant.WebUrl
                     };
@@ -125,6 +158,21 @@ namespace HCore.Tenants.Impl
 
                         Tenants.AddRange(developerWrapper.TenantInfos);
 
+                        if (string.IsNullOrEmpty(developer.Authority))
+                            throw new Exception("The developer authority is empty");
+
+                        if (string.IsNullOrEmpty(developer.Audience))
+                            throw new Exception("The developer audience is empty");
+
+                        if (string.IsNullOrEmpty(developer.AuthCookieDomain))
+                            throw new Exception("The developer auth cookie domain is empty");
+
+                        if (string.IsNullOrEmpty(developer.Name))
+                            throw new Exception("The developer name is empty");
+
+                        if (string.IsNullOrEmpty(developer.LogoUrl))
+                            throw new Exception("The developer logo URL is empty");
+                       
                         var developerInfo = new DeveloperInfoImpl()
                         {
                             DeveloperUuid = developer.Uuid,
@@ -132,7 +180,13 @@ namespace HCore.Tenants.Impl
                             Audience = developer.Audience,
                             Certificate = developer.Certificate,
                             CertificatePassword = developer.CertificatePassword,
-                            AuthCookieDomain = developer.AuthCookieDomain
+                            AuthCookieDomain = developer.AuthCookieDomain,
+                            Name = developer.Name,
+                            LogoUrl = developer.LogoUrl,
+                            PrimaryColor = developer.PrimaryColor,
+                            SecondaryColor = developer.SecondaryColor,
+                            TextOnPrimaryColor = developer.TextOnPrimaryColor,
+                            TextOnSecondaryColor = developer.TextOnSecondaryColor
                         };
 
                         Developers.Add(developerInfo);

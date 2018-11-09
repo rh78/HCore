@@ -7,6 +7,6 @@ namespace HCore.Database.ElasticSearch
         string[] IndexNames { get; }
 
         CreateIndexDescriptor GetCreateIndexDescriptor(IElasticSearchClient elasticSearchClient, string indexName);
-        long GetIndexVersion(string indexName);
+        int GetIndexVersion(string indexName);
     }
 }

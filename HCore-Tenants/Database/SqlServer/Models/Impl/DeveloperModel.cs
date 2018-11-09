@@ -13,7 +13,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public const int MaxAudienceLength = 255;
         public const int MaxAuthCookieDomainLength = 255;
         public const int MaxCertificatePasswordLength = 255;
-        
+        public const int MaxNameLength = 50;
+        public const int MaxLogoUrlLength = 255;
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Uuid { get; set; }
@@ -35,9 +37,22 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxCertificatePasswordLength)]
         public string CertificatePassword { get; set; }
 
+        [StringLength(MaxNameLength)]
+        public string Name { get; set; }
+
+        [StringLength(MaxLogoUrlLength)]
+        public string LogoUrl { get; set; }
+
+        // see https://material.io/tools/color
+
+        public int PrimaryColor { get; set; }
+        public int SecondaryColor { get; set; }
+        public int TextOnPrimaryColor { get; set; }
+        public int TextOnSecondaryColor { get; set; }
+
         public List<TenantModel> Tenants { get; set; }
         
-        public long Version { get; set; }
+        public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
     }

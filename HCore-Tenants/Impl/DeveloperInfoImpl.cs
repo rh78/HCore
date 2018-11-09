@@ -7,6 +7,14 @@
         public string Audience { get; internal set; }
         public byte[] Certificate { get; internal set; }
         public string CertificatePassword { get; internal set; }
-        public string AuthCookieDomain { get; internal set; }        
+        public string AuthCookieDomain { get; internal set; }
+
+        public string Name { get; internal set; }
+        public string LogoUrl { get; internal set; }
+
+        public int PrimaryColor { get; internal set; }
+        public int SecondaryColor { get; internal set; }
+        public int TextOnPrimaryColor { get; internal set; }
+        public int TextOnSecondaryColor { get; internal set; }
     }
 }

@@ -10,9 +10,15 @@
         string DeveloperAuthCookieDomain { get; }
 
         long TenantUuid { get; }
+
         string Name { get; }
         string LogoUrl { get; }
-        
+
+        int PrimaryColor { get; }
+        int SecondaryColor { get; }
+        int TextOnPrimaryColor { get; }
+        int TextOnSecondaryColor { get; }
+
         string ApiUrl { get; }
         string WebUrl { get; }
     }
