@@ -1,4 +1,4 @@
-﻿namespace HCore.Database
+﻿namespace HCore.Database.Models
 {
     public interface IModel<TJsonModel>
     {

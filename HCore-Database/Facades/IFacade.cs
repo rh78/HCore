@@ -1,4 +1,4 @@
-﻿namespace HCore.Database
+﻿namespace HCore.Database.Facades
 {
     public interface IFacade
     {
