@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using HCore.Amqp.Message;
+using System.Threading.Tasks;
 
 namespace HCore.Amqp.Processor
 {

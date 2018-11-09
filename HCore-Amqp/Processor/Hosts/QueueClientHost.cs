@@ -5,6 +5,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using HCore.Amqp.Message;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -52,7 +53,7 @@ namespace HCore.Amqp.Processor.Hosts
             });            
         }
 
-        private async Task ProcessMessageAsync(Message message, CancellationToken token)
+        private async Task ProcessMessageAsync(Microsoft.Azure.ServiceBus.Message message, CancellationToken token)
         {
             QueueClient queueClient = _queueClient;
 
@@ -115,7 +116,7 @@ namespace HCore.Amqp.Processor.Hosts
                     if (queueClient == null || queueClient.IsClosedOrClosing)
                         await InitializeAsync().ConfigureAwait(false);
 
-                    var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
+                    var message = new Microsoft.Azure.ServiceBus.Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
                     {
                         ContentType = "application/json",
                         MessageId = Guid.NewGuid().ToString()

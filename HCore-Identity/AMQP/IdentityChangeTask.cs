@@ -1,4 +1,4 @@
-﻿using HCore.Amqp;
+﻿using HCore.Amqp.Message;
 
 namespace HCore.Identity.AMQP
 {

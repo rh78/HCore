@@ -1,4 +1,4 @@
-﻿using HCore.Amqp;
+﻿using HCore.Amqp.Message;
 using System.Collections.Generic;
 
 namespace HCore.Emailing.AMQP

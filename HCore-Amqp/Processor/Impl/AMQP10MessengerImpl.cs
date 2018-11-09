@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amqp;
 using Microsoft.AspNetCore.Hosting;
 using HCore.Amqp.Processor.Hosts;
+using HCore.Amqp.Message;
 
 namespace HCore.Amqp.Processor.Impl
 {

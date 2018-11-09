@@ -1,4 +1,5 @@
 ﻿using Amqp;
+using HCore.Amqp.Message;
 using Newtonsoft.Json;
 using System;
 using System.Threading;
@@ -41,7 +42,7 @@ namespace HCore.Amqp.Processor.Hosts
                     if (senderLink == null || senderLink.IsClosed)
                         await InitializeAsync().ConfigureAwait(false);
 
-                    Message message = new Message(JsonConvert.SerializeObject(messageBody))
+                    global::Amqp.Message message = new global::Amqp.Message(JsonConvert.SerializeObject(messageBody))
                     {
                         Header = new global::Amqp.Framing.Header()
                         {

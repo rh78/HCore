@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.ServiceBus.Management;
 using HCore.Amqp.Processor.Hosts;
+using HCore.Amqp.Message;
 
 namespace HCore.Amqp.Processor.Impl
 {

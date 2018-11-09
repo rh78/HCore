@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using HCore.Amqp;
 using HCore.Emailing.AMQP;
+using HCore.Amqp.Processor;
 
 namespace HCore.Emailing.Sender.Impl
 {
