@@ -15,10 +15,9 @@ using System.Collections.Generic;
 using HCore.Identity.Models;
 using HCore.Web.API.Impl;
 using Microsoft.Extensions.DependencyInjection;
-using HCore.Amqp.Processor;
 using HCore.Identity.Providers;
-using HCore.Identity.AMQP;
 using HCore.Amqp.Messenger;
+using HCore.Identity.Amqp;
 
 namespace HCore.Identity.Services.Impl
 {

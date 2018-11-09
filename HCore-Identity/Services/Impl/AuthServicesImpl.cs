@@ -1,6 +1,4 @@
-﻿using HCore.Identity.Models;
-using HCore.Identity.Models.Impl;
-using HCore.Tenants.Models;
+﻿using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Http;
 using System.Linq;

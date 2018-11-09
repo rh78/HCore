@@ -1,6 +1,6 @@
 ﻿using HCore.Amqp.Message;
 
-namespace HCore.Identity.AMQP
+namespace HCore.Identity.Amqp
 {
     public class IdentityChangeTask : AMQPMessage
     {
