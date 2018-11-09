@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HCore.Rest.Impl
+namespace HCore.Rest.Client.Impl
 {
     internal class RestSharpClientProviderImpl : IRestSharpClientProvider
     {

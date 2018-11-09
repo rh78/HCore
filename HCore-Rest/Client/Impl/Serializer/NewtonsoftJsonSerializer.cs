@@ -3,7 +3,7 @@ using RestSharp.Deserializers;
 using RestSharp.Serializers;
 using System.IO;
 
-namespace HCore.Rest.Impl.Serializer
+namespace HCore.Rest.Client.Impl.Serializer
 {
     internal class NewtonsoftJsonSerializer : ISerializer, IDeserializer
     {

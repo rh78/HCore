@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using RestSharp;
 
-namespace HCore.Rest
+namespace HCore.Rest.Client
 {
     public interface IRestSharpClient
     {

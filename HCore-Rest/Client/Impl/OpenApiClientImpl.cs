@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HCore.Rest.Impl
+namespace HCore.Rest.Client.Impl
 {
     public abstract class OpenApiClientImpl
     {

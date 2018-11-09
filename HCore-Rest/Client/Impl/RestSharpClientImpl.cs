@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using HCore.Rest.Impl.Serializer;
+using HCore.Rest.Client.Impl.Serializer;
 using RestSharp;
 
-namespace HCore.Rest.Impl
+namespace HCore.Rest.Client.Impl
 {
     internal class RestSharpClientImpl : IRestSharpClient
     {

@@ -1,4 +1,4 @@
-﻿namespace HCore.Rest
+﻿namespace HCore.Rest.Client
 {
     public interface IRestSharpClientProvider
     {
