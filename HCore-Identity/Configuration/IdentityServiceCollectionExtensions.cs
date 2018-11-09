@@ -84,7 +84,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (useIdentity || useJwt)
             {
-                services.AddScoped<IAuthInfoAccessor, AuthInfoAccessorImpl>();
+                services.AddScoped<IAuthServices, AuthServicesImpl>();
             }
 
             return services;
