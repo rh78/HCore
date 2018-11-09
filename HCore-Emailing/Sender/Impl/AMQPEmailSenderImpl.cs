@@ -1,11 +1,12 @@
 ﻿using HCore.Amqp.Processor;
+using HCore.Emailing.AMQP;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HCore.Emailing.Impl
+namespace HCore.Emailing.Sender.Impl
 {
     internal class AMQPEmailSenderImpl : EmailSenderImpl, IEmailSender
     {

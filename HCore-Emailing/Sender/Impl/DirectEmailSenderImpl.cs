@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace HCore.Emailing.Impl
+namespace HCore.Emailing.Sender.Impl
 {
     public class DirectEmailSenderImpl : EmailSenderImpl, IEmailSender
     {

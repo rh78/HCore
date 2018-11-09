@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace HCore.Emailing
+namespace HCore.Emailing.Sender
 {
     public interface IEmailSender
     {

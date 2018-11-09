@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using HCore.Emailing;
+using HCore.Emailing.Sender;
 
 namespace Microsoft.AspNetCore.Builder
 {

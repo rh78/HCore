@@ -9,11 +9,11 @@ namespace HCore.Identity.EmailSender.Impl
 {
     public class EmailSenderImpl : IEmailSender
     {
-        private readonly Emailing.IEmailSender _emailSender;
+        private readonly Emailing.Sender.IEmailSender _emailSender;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
-        public EmailSenderImpl(Emailing.IEmailSender emailSender, IServiceProvider serviceProvider)
+        public EmailSenderImpl(Emailing.Sender.IEmailSender emailSender, IServiceProvider serviceProvider)
         {
             _emailSender = emailSender;
 

@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
-using HCore.Emailing;
-using HCore.Emailing.Impl;
+using HCore.Emailing.Sender;
+using HCore.Emailing.Sender.Impl;
 using System;
 using System.Linq;
+using HCore.Emailing;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

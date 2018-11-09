@@ -1,7 +1,7 @@
 ﻿using HCore.Amqp;
 using System.Collections.Generic;
 
-namespace HCore.Emailing
+namespace HCore.Emailing.AMQP
 {
     internal class EmailSenderTask : AMQPMessage
     {

@@ -1,4 +1,4 @@
-﻿namespace HCore.Emailing.Impl
+﻿namespace HCore.Emailing.Sender.Impl
 {
     public abstract class EmailSenderImpl
     {
