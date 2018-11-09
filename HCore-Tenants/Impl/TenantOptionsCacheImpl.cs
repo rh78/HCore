@@ -29,7 +29,7 @@ namespace HCore.Tenants.Impl
 
             name = name ?? Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo?.DeveloperUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
 
             return base.GetOrAdd(adjustedOptionsName, () => TenantsFactoryWrapper(name, adjustedOptionsName, createOptions));
         }
@@ -38,7 +38,7 @@ namespace HCore.Tenants.Impl
         {
             name = name ?? Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo?.DeveloperUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
 
             if (base.TryAdd(adjustedOptionsName, options))
             {

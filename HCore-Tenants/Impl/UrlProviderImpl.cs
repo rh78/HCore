@@ -18,8 +18,8 @@ namespace HCore.Tenants.Impl
             else
                 BaseUrl = null;
 
-            WebUrl = tenantInfoAccessor.TenantInfo?.WebUrl;
-            ApiUrl = tenantInfoAccessor.TenantInfo?.ApiUrl;
+            WebUrl = tenantInfoAccessor.TenantInfo.WebUrl;
+            ApiUrl = tenantInfoAccessor.TenantInfo.ApiUrl;
         }
 
         public string BuildUrl(string path)

@@ -20,6 +20,7 @@
         public int TextOnSecondaryColor { get; internal set; }
 
         public string SupportEmail { get; internal set; }
+        public string NoreplyEmail { get; internal set; }
 
         public string ProductName { get; internal set; }
 

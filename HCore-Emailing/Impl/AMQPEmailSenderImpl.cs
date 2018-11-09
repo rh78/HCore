@@ -30,11 +30,12 @@ namespace HCore.Emailing.Impl
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
         }
 
-        public async Task SendEmailAsync(string configurationKey, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
         {
             var emailSenderTask = new EmailSenderTask()
             {
                 ConfigurationKey = configurationKey,
+                FromOverride = fromOverride,
                 To = to,
                 Cc = cc,
                 Bcc = bcc,

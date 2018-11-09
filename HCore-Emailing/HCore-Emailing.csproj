@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
+    <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
   </ItemGroup>
 
 </Project>

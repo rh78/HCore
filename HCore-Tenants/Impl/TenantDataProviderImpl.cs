@@ -82,6 +82,10 @@ namespace HCore.Tenants.Impl
                     if (string.IsNullOrEmpty(supportEmail))
                         supportEmail = developer.SupportEmail;
 
+                    string noreplyEmail = tenant.NoreplyEmail;
+                    if (string.IsNullOrEmpty(noreplyEmail))
+                        noreplyEmail = developer.NoreplyEmail;
+
                     string productName = tenant.ProductName;
                     if (string.IsNullOrEmpty(productName))
                         productName = developer.ProductName;
@@ -102,6 +106,7 @@ namespace HCore.Tenants.Impl
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
                         TextOnSecondaryColor = (int)textOnSecondaryColor,
                         SupportEmail = supportEmail,
+                        NoreplyEmail = noreplyEmail,
                         ProductName = productName,
                         ApiUrl = tenant.ApiUrl,
                         WebUrl = tenant.WebUrl
@@ -186,6 +191,9 @@ namespace HCore.Tenants.Impl
                         if (string.IsNullOrEmpty(developer.SupportEmail))
                             throw new Exception("The developer support email is empty");
 
+                        if (string.IsNullOrEmpty(developer.NoreplyEmail))
+                            throw new Exception("The developer noreply email is empty");
+
                         if (string.IsNullOrEmpty(developer.ProductName))
                             throw new Exception("The developer product name is empty");
 
@@ -204,6 +212,7 @@ namespace HCore.Tenants.Impl
                             TextOnPrimaryColor = developer.TextOnPrimaryColor,
                             TextOnSecondaryColor = developer.TextOnSecondaryColor,
                             SupportEmail = developer.SupportEmail,
+                            NoreplyEmail = developer.NoreplyEmail,
                             ProductName = developer.ProductName
                         };
 

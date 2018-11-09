@@ -20,6 +20,7 @@
         int TextOnSecondaryColor { get; }
 
         string SupportEmail { get; }
+        string NoreplyEmail { get; }
 
         string ProductName { get; }
 

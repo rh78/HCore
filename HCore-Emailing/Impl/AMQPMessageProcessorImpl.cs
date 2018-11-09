@@ -20,7 +20,7 @@ namespace HCore.Emailing.Impl
 
             EmailSenderTask emailSenderTask = JsonConvert.DeserializeObject<EmailSenderTask>(messageBodyJson);
 
-            await SendEmailAsync(emailSenderTask.ConfigurationKey, emailSenderTask.To, emailSenderTask.Cc, emailSenderTask.Bcc, emailSenderTask.Subject, emailSenderTask.HtmlMessage).ConfigureAwait(false);
+            await SendEmailAsync(emailSenderTask.ConfigurationKey, emailSenderTask.FromOverride, emailSenderTask.To, emailSenderTask.Cc, emailSenderTask.Bcc, emailSenderTask.Subject, emailSenderTask.HtmlMessage).ConfigureAwait(false);
             
             return true;
         }
