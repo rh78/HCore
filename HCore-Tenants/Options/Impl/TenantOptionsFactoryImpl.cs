@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Options;
+﻿using HCore.Tenants.Models;
+using HCore.Tenants.Providers;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 
 // based on https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/master/src/Finbuckle.MultiTenant.AspNetCore/Internal/MultiTenantOptionsFactory.cs
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Options.Impl
 {
     internal class TenantOptionsFactoryImpl<TOptions> : IOptionsFactory<TOptions> where TOptions : class, new()
     {
@@ -32,7 +34,7 @@ namespace HCore.Tenants.Impl
                 {
                     namedSetup.Configure(name, options);
                 }
-                else if (name == Options.DefaultName)
+                else if (name == Microsoft.Extensions.Options.Options.DefaultName)
                 {
                     setup.Configure(options);
                 }

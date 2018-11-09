@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Providers.Impl
 {
     internal class UrlProviderImpl : IUrlProvider
     {

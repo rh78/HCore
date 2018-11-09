@@ -1,6 +1,7 @@
 ﻿using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
-using Microsoft.AspNetCore.Http;
+using HCore.Tenants.Models;
+using HCore.Tenants.Models.Impl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Providers.Impl
 {
     internal class TenantDataProviderImpl : ITenantDataProvider
     {

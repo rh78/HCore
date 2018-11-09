@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using HCore.Tenants.Models;
+using System.Collections.Generic;
 
-namespace HCore.Tenants
+namespace HCore.Tenants.Providers
 {
     public interface ITenantDataProvider
     {

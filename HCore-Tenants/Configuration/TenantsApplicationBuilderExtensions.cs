@@ -1,6 +1,7 @@
 ﻿using HCore.Tenants;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Middleware;
+using HCore.Tenants.Providers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;

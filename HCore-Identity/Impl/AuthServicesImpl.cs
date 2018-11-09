@@ -1,6 +1,6 @@
-﻿using HCore.Tenants;
+﻿using HCore.Tenants.Models;
+using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Linq;
 using System.Security.Claims;
 

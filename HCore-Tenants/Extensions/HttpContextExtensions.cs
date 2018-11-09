@@ -1,4 +1,5 @@
 ﻿using HCore.Tenants;
+using HCore.Tenants.Models;
 
 namespace Microsoft.AspNetCore.Http
 {

@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HCore.Tenants.Models;
+using Microsoft.AspNetCore.Http;
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Providers.Impl
 {
     internal class TenantInfoAccessorImpl : ITenantInfoAccessor
     {

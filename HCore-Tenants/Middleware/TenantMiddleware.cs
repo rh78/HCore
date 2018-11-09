@@ -1,10 +1,9 @@
-﻿using HCore.Web.Exceptions;
+﻿using HCore.Tenants.Models;
+using HCore.Tenants.Providers;
+using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HCore.Tenants.Middleware

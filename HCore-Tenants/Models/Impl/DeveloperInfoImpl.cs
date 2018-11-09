@@ -1,15 +1,13 @@
-﻿namespace HCore.Tenants.Impl
+﻿namespace HCore.Tenants.Models.Impl
 {
-    internal class TenantInfoImpl : ITenantInfo
+    internal class DeveloperInfoImpl : IDeveloperInfo
     {
         public long DeveloperUuid { get; internal set; }
-        public string DeveloperAuthority { get; internal set; }
-        public string DeveloperAudience { get; internal set; }
-        public byte[] DeveloperCertificate { get; internal set; }
-        public string DeveloperCertificatePassword { get; internal set; }
-        public string DeveloperAuthCookieDomain { get; internal set; }
-
-        public long TenantUuid { get; internal set; }
+        public string Authority { get; internal set; }
+        public string Audience { get; internal set; }
+        public byte[] Certificate { get; internal set; }
+        public string CertificatePassword { get; internal set; }
+        public string AuthCookieDomain { get; internal set; }
 
         public string Name { get; internal set; }
         public string LogoUrl { get; internal set; }
@@ -23,8 +21,5 @@
         public string NoreplyEmail { get; internal set; }
 
         public string ProductName { get; internal set; }
-
-        public string ApiUrl { get; set; }
-        public string WebUrl { get; set; }
     }
 }

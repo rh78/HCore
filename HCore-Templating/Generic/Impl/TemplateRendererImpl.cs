@@ -1,5 +1,5 @@
 ﻿using HCore.Templating.Templates.ViewModels.Shared;
-using HCore.Tenants;
+using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;

@@ -1,4 +1,4 @@
-﻿namespace HCore.Tenants
+﻿namespace HCore.Tenants.Models
 {
     public interface IDeveloperInfo
     {

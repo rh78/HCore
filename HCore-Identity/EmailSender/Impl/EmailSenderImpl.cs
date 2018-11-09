@@ -1,4 +1,4 @@
-﻿using HCore.Tenants;
+﻿using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;

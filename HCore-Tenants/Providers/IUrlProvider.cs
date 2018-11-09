@@ -1,4 +1,4 @@
-﻿namespace HCore.Tenants
+﻿namespace HCore.Tenants.Providers
 {
     public interface IUrlProvider : Web.Providers.IUrlProvider
     {

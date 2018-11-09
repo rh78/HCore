@@ -2,7 +2,7 @@
 
 // based on https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/master/src/Finbuckle.MultiTenant.AspNetCore/Internal/MultiTenantOptionsManager.cs
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Options.Impl
 {
     internal class TenantOptionsManagerImpl<TOptions> : IOptions<TOptions>, IOptionsSnapshot<TOptions> where TOptions : class, new()
     {
@@ -19,13 +19,13 @@ namespace HCore.Tenants.Impl
         {
             get
             {
-                return Get(Options.DefaultName);
+                return Get(Microsoft.Extensions.Options.Options.DefaultName);
             }
         }
 
         public virtual TOptions Get(string name)
         {
-            name = name ?? Options.DefaultName;
+            name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
             // Store the options in our instance cache
 

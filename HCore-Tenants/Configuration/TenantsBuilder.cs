@@ -1,5 +1,5 @@
-﻿using HCore.Tenants;
-using HCore.Tenants.Impl;
+﻿using HCore.Tenants.Models;
+using HCore.Tenants.Options.Impl;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;

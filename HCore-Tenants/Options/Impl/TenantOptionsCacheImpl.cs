@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using HCore.Tenants.Providers;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 // based on https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/master/src/Finbuckle.MultiTenant.AspNetCore/Internal/MultiTenantOptionsCache.cs
 
-namespace HCore.Tenants.Impl
+namespace HCore.Tenants.Options.Impl
 {
     internal class TenantOptionsCacheImpl<TOptions> : OptionsCache<TOptions> where TOptions : class
     {
@@ -27,7 +28,7 @@ namespace HCore.Tenants.Impl
                 throw new ArgumentNullException(nameof(createOptions));
             }
 
-            name = name ?? Options.DefaultName;
+            name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
             var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
 
@@ -36,7 +37,7 @@ namespace HCore.Tenants.Impl
 
         public override bool TryAdd(string name, TOptions options)
         {
-            name = name ?? Options.DefaultName;
+            name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
             var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
 
@@ -52,7 +53,7 @@ namespace HCore.Tenants.Impl
 
         public override bool TryRemove(string name)
         {
-            name = name ?? Options.DefaultName;
+            name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
             var result = false;
 
             if (!_adjustedOptionsNames.TryGetValue(name, out var adjustedOptionsNames))

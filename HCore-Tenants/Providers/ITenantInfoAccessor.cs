@@ -1,4 +1,6 @@
-﻿namespace HCore.Tenants
+﻿using HCore.Tenants.Models;
+
+namespace HCore.Tenants.Providers
 {
     public interface ITenantInfoAccessor
     {

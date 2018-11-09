@@ -1,4 +1,4 @@
-﻿using HCore.Tenants;
+﻿using HCore.Tenants.Models;
 
 namespace HCore.Identity.Impl
 {

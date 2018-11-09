@@ -1,6 +1,7 @@
 ﻿using HCore.Tenants;
 using HCore.Tenants.Database.SqlServer;
-using HCore.Tenants.Impl;
+using HCore.Tenants.Providers;
+using HCore.Tenants.Providers.Impl;
 using HCore.Web.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
             services.TryAddSingleton<ITenantInfoAccessor, TenantInfoAccessorImpl>();
 
-            services.AddScoped<HCore.Tenants.IUrlProvider, UrlProviderImpl>();
+            services.AddScoped<HCore.Tenants.Providers.IUrlProvider, UrlProviderImpl>();
             var descriptor = new ServiceDescriptor(typeof(HCore.Web.Providers.IUrlProvider), typeof(UrlProviderImpl), ServiceLifetime.Scoped);
 
             services.Replace(descriptor);
