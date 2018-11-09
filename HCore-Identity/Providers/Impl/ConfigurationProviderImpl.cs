@@ -22,7 +22,7 @@ namespace HCore.Identity.Providers.Impl
 
         public string IdentityChangeTasksAmqpAddress { get; private set; }
         
-        public ConfigurationProviderImpl(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        public ConfigurationProviderImpl(IConfiguration configuration)
         {
             DefaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
             if (string.IsNullOrEmpty(DefaultClientId))
