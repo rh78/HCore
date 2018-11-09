@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HCore.Amqp.Processor;
 using HCore.Identity.Providers;
 using HCore.Identity.AMQP;
+using HCore.Amqp.Messenger;
 
 namespace HCore.Identity.Services.Impl
 {

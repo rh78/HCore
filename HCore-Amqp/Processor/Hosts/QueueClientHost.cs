@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using Newtonsoft.Json;
-using HCore.Amqp.Processor.Impl;
 using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HCore.Amqp.Message;
+using HCore.Amqp.Messenger.Impl;
 
 namespace HCore.Amqp.Processor.Hosts
 {

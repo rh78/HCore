@@ -1,7 +1,7 @@
 ﻿using HCore.Amqp.Message;
 using System.Threading.Tasks;
 
-namespace HCore.Amqp.Processor
+namespace HCore.Amqp.Messenger
 {
     public interface IAMQPMessenger
     {

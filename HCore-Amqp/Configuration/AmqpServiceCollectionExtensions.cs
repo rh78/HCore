@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using HCore.Amqp;
 using HCore.Amqp.Processor;
-using HCore.Amqp.Processor.Impl;
 using System;
+using HCore.Amqp.Messenger;
+using HCore.Amqp.Messenger.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

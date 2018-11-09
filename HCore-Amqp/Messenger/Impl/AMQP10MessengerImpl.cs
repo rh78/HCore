@@ -7,8 +7,9 @@ using Amqp;
 using Microsoft.AspNetCore.Hosting;
 using HCore.Amqp.Processor.Hosts;
 using HCore.Amqp.Message;
+using HCore.Amqp.Processor;
 
-namespace HCore.Amqp.Processor.Impl
+namespace HCore.Amqp.Messenger.Impl
 {
     internal class AMQP10MessengerImpl : IAMQPMessenger
     {

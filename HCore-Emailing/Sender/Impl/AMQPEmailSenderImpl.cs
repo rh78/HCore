@@ -1,4 +1,4 @@
-﻿using HCore.Amqp.Processor;
+﻿using HCore.Amqp.Messenger;
 using HCore.Emailing.AMQP;
 using Microsoft.Extensions.Configuration;
 using System;

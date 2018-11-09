@@ -1,5 +1,5 @@
 ﻿using Amqp;
-using HCore.Amqp.Processor.Impl;
+using HCore.Amqp.Messenger.Impl;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

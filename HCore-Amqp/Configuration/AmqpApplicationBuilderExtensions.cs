@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using HCore.Amqp.Processor;
+using HCore.Amqp.Messenger;
 
 namespace Microsoft.AspNetCore.Builder
 {
