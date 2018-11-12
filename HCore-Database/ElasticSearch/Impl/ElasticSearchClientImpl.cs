@@ -246,17 +246,24 @@ namespace HCore.Database.ElasticSearch.Impl
                         .MinGram(1)
                         .MaxGram(20)
                     )
+                    .EdgeNGram("partialsearch_filter", edgeNGram => edgeNGram
+                        .MinGram(3)
+                        .MaxGram(20)
+                    )
                 )
                 .Analyzers(analyzer => analyzer
                     .Custom("autocomplete_index", custom => custom
                         .Tokenizer("standard")
-                        .Filters(new string[] { "lowercase", "concatenate_filter", "autocomplete_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "autocomplete_filter" })
                     )
                     .Custom("autocomplete_search", custom => custom
                         .Tokenizer("standard")
-                        .Filters(new string[] { "lowercase", "concatenate_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter" })
                     )
-                );
+                    .Custom("partialsearch_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "partialsearch_filter" })
+                ));
         }
 
         private IndexVersion GetIndexVersion(string indexName)
