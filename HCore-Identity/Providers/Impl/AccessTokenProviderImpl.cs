@@ -58,14 +58,32 @@ namespace HCore.Identity.Providers.Impl
 
             try
             {
-                var tokenCreationRequest = new TokenCreationRequest();
-
                 var user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
 
                 if (user == null)
                 {
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                 }
+
+                return await GetAccessTokenAsync(user).ConfigureAwait(false);
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when getting access token: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task<string> GetAccessTokenAsync(UserModel user)
+        { 
+            try
+            {
+                var tokenCreationRequest = new TokenCreationRequest();
 
                 var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
 
