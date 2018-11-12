@@ -235,6 +235,8 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private IAnalysis ConfigureConcatenateAndAutocompleteAnalysis(AnalysisDescriptor analysis)
         {
+            // for concatenate filter see my contribution to https://github.com/francesconero/elasticsearch-concatenate-token-filter
+
             return analysis
                 .TokenFilters(filter => filter
                     .UserDefined("concatenate_filter", new ConcatenateTokenFilter()
