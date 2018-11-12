@@ -241,7 +241,7 @@ namespace HCore.Database.ElasticSearch.Impl
                 .TokenFilters(filter => filter
                     .UserDefined("concatenate_filter", new ConcatenateTokenFilter()
                     {
-                        TokenSeparator = "_",
+                        TokenSeparator = " ",
                         IncrementGap = 1000
                     })
                     .EdgeNGram("autocomplete_filter", edgeNGram => edgeNGram
