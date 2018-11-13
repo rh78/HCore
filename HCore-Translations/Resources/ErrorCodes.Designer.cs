@@ -232,6 +232,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A user account with that email address already exists ähnelt.
+        /// </summary>
+        public static string email_already_exists {
+            get {
+                return ResourceManager.GetString("email_already_exists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The email address is invalid ähnelt.
         /// </summary>
         public static string email_invalid {

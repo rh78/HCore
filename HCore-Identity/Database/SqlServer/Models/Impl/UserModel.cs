@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace HCore.Identity.Database.SqlServer.Models.Impl
@@ -19,5 +20,13 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 
         [StringLength(MaxFirstNameLength)]
         public string LastName { get; set; }
+
+        public string GetDisplayName()
+        {
+            if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
+                return $"{LastName} {FirstName}";
+            
+            return Email;
+        }
     }
 }

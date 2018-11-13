@@ -399,4 +399,7 @@
   <data name="backend_service_not_available" xml:space="preserve">
     <value>A backend service is currently not available</value>
   </data>
+  <data name="email_already_exists" xml:space="preserve">
+    <value>A user account with that email address already exists</value>
+  </data>
 </root>

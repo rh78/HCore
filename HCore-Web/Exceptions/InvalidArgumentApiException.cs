@@ -65,6 +65,7 @@ namespace HCore.Web.Exceptions
         public const string EmailMissing = "email_missing";
         public const string EmailInvalid = "email_invalid";
         public const string EmailTooLong = "email_too_long";
+        public const string EmailAlreadyExists = "email_already_exists";
         public const string PhoneNumberMissing = "phone_number_missing";
         public const string PhoneNumberInvalid = "phone_number_invalid";
         public const string PhoneNumberTooLong = "phone_number_too_long";

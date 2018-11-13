@@ -18,6 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using HCore.Identity.Providers;
 using HCore.Amqp.Messenger;
 using HCore.Identity.Amqp;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -57,6 +59,58 @@ namespace HCore.Identity.Services.Impl
             _serviceProvider = serviceProvider;
         }
 
+        public async Task<string> ReserveUserUuidAsync(string emailAddress)
+        {
+            emailAddress = ProcessEmail(emailAddress);
+
+            string normalizedEmailAddress = emailAddress.Trim().ToUpper();
+
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    // make sure we have no race conditions
+
+                    await _identityDbContext.Database.ExecuteSqlCommandAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE NormalizedEmailAddress = {0}", normalizedEmailAddress).ConfigureAwait(false);
+
+                    IQueryable<ReservedEmailAddressModel> query = _identityDbContext.ReservedEmailAddresses;
+                    
+                    query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.NormalizedEmailAddress == normalizedEmailAddress);
+
+                    var reservedUserUuidQuery = query.Select(reservedEmailAddress => reservedEmailAddress.Uuid);
+
+                    string reservedUserUuid = await reservedUserUuidQuery.FirstOrDefaultAsync().ConfigureAwait(false);
+
+                    if (!string.IsNullOrEmpty(reservedUserUuid))
+                        return reservedUserUuid;
+
+                    string newUserUuid = Guid.NewGuid().ToString();
+
+                    _identityDbContext.ReservedEmailAddresses.Add(new ReservedEmailAddressModel()
+                    {
+                        Uuid = newUserUuid,
+                        NormalizedEmailAddress = normalizedEmailAddress
+                    });
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+
+                    return newUserUuid;
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when reserving user UUID: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
         public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin)
         {
             if (!isAdmin)
@@ -84,9 +138,16 @@ namespace HCore.Identity.Services.Impl
 
             try
             {
+                string newUserUuid = await ReserveUserUuidAsync(userSpec.Email).ConfigureAwait(false);
+
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var user = new UserModel { UserName = userSpec.Email, Email = userSpec.Email };
+                    var existingUser = await _userManager.FindByEmailAsync(userSpec.Email).ConfigureAwait(false);
+
+                    if (existingUser != null)
+                        throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailAlreadyExists, "A user account with that email address already exists");
+
+                    var user = new UserModel { Id = newUserUuid, UserName = userSpec.Email, Email = userSpec.Email };
 
                     if (_configurationProvider.SelfManagement)
                     {

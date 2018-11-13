@@ -6,6 +6,8 @@ namespace HCore.Identity.Database.SqlServer
 {
     public class SqlServerIdentityDbContext : IdentityDbContext<UserModel>
     {
+        public DbSet<ReservedEmailAddressModel> ReservedEmailAddresses { get; set; }
+
         public SqlServerIdentityDbContext(DbContextOptions<SqlServerIdentityDbContext> options)
             : base(options)
         {
@@ -14,6 +16,9 @@ namespace HCore.Identity.Database.SqlServer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ReservedEmailAddressModel>()
+                .HasKey(entity => new { entity.Uuid, entity.NormalizedEmailAddress });
         }
     }
 }

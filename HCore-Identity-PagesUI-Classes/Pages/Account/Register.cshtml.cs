@@ -9,6 +9,7 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Providers;
+using System.ComponentModel.DataAnnotations;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -32,9 +33,31 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         [BindProperty]
         public UserSpec Input { get; set; }
 
-        public void OnGet()
+        public void OnGet(string emailAddress = null)
         {
-            
+            emailAddress = ProcessEmail(emailAddress);
+
+            if (!string.IsNullOrEmpty(emailAddress))
+            {
+                Input = new UserSpec()
+                {
+                    Email = emailAddress
+                };
+            }
+        }
+
+        private string ProcessEmail(string emailAddress)
+        {
+            if (string.IsNullOrEmpty(emailAddress))
+                return null;
+
+            if (!new EmailAddressAttribute().IsValid(emailAddress))
+                return null;
+
+            if (emailAddress.Length > UserModel.MaxEmailAddressLength)
+                return null;
+
+            return emailAddress;
         }
 
         public async Task<IActionResult> OnPostAsync()
