@@ -52,7 +52,7 @@ namespace HCore.Identity.Providers.Impl
             _logger = logger;
         }
 
-        public async Task<string> GetAccessTokenAsync(string userUuid)
+        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClientClaims = null)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -65,7 +65,7 @@ namespace HCore.Identity.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
                 }
 
-                return await GetAccessTokenAsync(user).ConfigureAwait(false);
+                return await GetAccessTokenAsync(user, additionalClientClaims).ConfigureAwait(false);
             }
             catch (ApiException e)
             {
@@ -79,7 +79,7 @@ namespace HCore.Identity.Providers.Impl
             }
         }
 
-        public async Task<string> GetAccessTokenAsync(UserModel user)
+        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClientClaims = null)
         { 
             try
             {
@@ -118,6 +118,13 @@ namespace HCore.Identity.Providers.Impl
                 tokenCreationRequest.ValidatedRequest.Options = _options;
 
                 tokenCreationRequest.ValidatedRequest.ClientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims.Concat(identityUser.AdditionalClaims).ToList();
+
+                if (additionalClientClaims != null)
+                {
+                    foreach (Claim additionalClientClaim in additionalClientClaims) {
+                        tokenCreationRequest.ValidatedRequest.ClientClaims.Add(additionalClientClaim);
+                    }
+                }
 
                 var accessToken = await CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
