@@ -115,6 +115,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die A backend service is currently not available ähnelt.
+        /// </summary>
+        public static string backend_service_not_available {
+            get {
+                return ResourceManager.GetString("backend_service_not_available", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die System user groups must contain at least one member ähnelt.
+        /// </summary>
+        public static string cannot_delete_last_system_user_group_member {
+            get {
+                return ResourceManager.GetString("cannot_delete_last_system_user_group_member", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The client ID contains invalid characters ähnelt.
         /// </summary>
         public static string client_id_invalid {

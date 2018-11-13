@@ -393,4 +393,10 @@
   <data name="old_password_missing" xml:space="preserve">
     <value>The old password is missing</value>
   </data>
+  <data name="cannot_delete_last_system_user_group_member" xml:space="preserve">
+    <value>System user groups must contain at least one member</value>
+  </data>
+  <data name="backend_service_not_available" xml:space="preserve">
+    <value>A backend service is currently not available</value>
+  </data>
 </root>
