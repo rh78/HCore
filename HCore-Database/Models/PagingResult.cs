@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HCore.Database.ElasticSearch.Helpers
+namespace HCore.Database.Models
 {
     public class PagingResult<TResult>
     {
