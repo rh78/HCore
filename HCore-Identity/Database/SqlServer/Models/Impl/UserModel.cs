@@ -24,7 +24,7 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
-                return $"{LastName} {FirstName}";
+                return $"{FirstName} {LastName}";
             
             return Email;
         }
