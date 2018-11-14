@@ -718,6 +718,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The sort by value is invalid ähnelt.
+        /// </summary>
+        public static string sort_by_invalid {
+            get {
+                return ResourceManager.GetString("sort_by_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The sort order is invalid ähnelt.
+        /// </summary>
+        public static string sort_order_invalid {
+            get {
+                return ResourceManager.GetString("sort_order_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The state is invalid ähnelt.
         /// </summary>
         public static string state_invalid {

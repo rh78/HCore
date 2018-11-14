@@ -402,4 +402,10 @@
   <data name="email_already_exists" xml:space="preserve">
     <value>A user account with that email address already exists</value>
   </data>
+  <data name="sort_by_invalid" xml:space="preserve">
+    <value>The sort by value is invalid</value>
+  </data>
+  <data name="sort_order_invalid" xml:space="preserve">
+    <value>The sort order is invalid</value>
+  </data>
 </root>

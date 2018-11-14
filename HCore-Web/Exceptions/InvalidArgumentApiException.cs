@@ -83,6 +83,8 @@ namespace HCore.Web.Exceptions
         public const string LastNameTooLong = "last_name_too_long";
         public const string UserDetailsNotSupported = "user_details_not_supported";
         public const string CannotDeleteLastSystemUserGroupMember = "cannot_delete_last_system_user_group_member";
+        public const string SortByInvalid = "sort_by_invalid";
+        public const string SortOrderInvalid = "sort_order_invalid";
 
         public InvalidArgumentApiException(string errorCode, string message) : 
             base(message)
