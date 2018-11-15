@@ -82,7 +82,8 @@ namespace HCore.Templating.Renderer.Impl
                 return;
 
             model.TenantName = tenantInfo.Name;
-            model.TenantLogoUrl = tenantInfo.LogoUrl;
+            model.TenantLogoSvgUrl = tenantInfo.LogoSvgUrl;
+            model.TenantLogoPngUrl = tenantInfo.LogoPngUrl;
             model.TenantPrimaryColor = ConvertToHexColor(tenantInfo.PrimaryColor);
             model.TenantSecondaryColor = ConvertToHexColor(tenantInfo.SecondaryColor);
             model.TenantTextOnPrimaryColor = ConvertToHexColor(tenantInfo.TextOnPrimaryColor);

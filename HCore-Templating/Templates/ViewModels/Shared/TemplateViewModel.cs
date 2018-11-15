@@ -3,7 +3,8 @@
     public class TemplateViewModel
     {
         public string TenantName { get; set; }
-        public string TenantLogoUrl { get; set; }
+        public string TenantLogoSvgUrl { get; set; }
+        public string TenantLogoPngUrl { get; set; }
         public string TenantPrimaryColor { get; set; }
         public string TenantSecondaryColor { get; set; }
         public string TenantTextOnPrimaryColor { get; set; }

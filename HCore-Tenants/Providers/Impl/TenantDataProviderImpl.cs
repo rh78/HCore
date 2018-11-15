@@ -59,9 +59,13 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(tenant.WebUrl))
                         throw new Exception("The tenant web url is empty");
 
-                    string logoUrl = tenant.LogoUrl;
-                    if (string.IsNullOrEmpty(logoUrl))
-                        logoUrl = developer.LogoUrl;
+                    string logoSvgUrl = tenant.LogoSvgUrl;
+                    if (string.IsNullOrEmpty(logoSvgUrl))
+                        logoSvgUrl = developer.LogoSvgUrl;
+
+                    string logoPngUrl = tenant.LogoPngUrl;
+                    if (string.IsNullOrEmpty(logoPngUrl))
+                        logoPngUrl = developer.LogoPngUrl;
 
                     int? primaryColor = tenant.PrimaryColor;
                     if (primaryColor == null)
@@ -101,7 +105,8 @@ namespace HCore.Tenants.Providers.Impl
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
-                        LogoUrl = logoUrl,
+                        LogoSvgUrl = logoSvgUrl,
+                        LogoPngUrl = logoPngUrl,
                         PrimaryColor = (int)primaryColor,
                         SecondaryColor = (int)secondaryColor,
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
@@ -186,8 +191,11 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developer.Name))
                             throw new Exception("The developer name is empty");
 
-                        if (string.IsNullOrEmpty(developer.LogoUrl))
-                            throw new Exception("The developer logo URL is empty");
+                        if (string.IsNullOrEmpty(developer.LogoSvgUrl))
+                            throw new Exception("The developer logo SVG URL is empty");
+
+                        if (string.IsNullOrEmpty(developer.LogoPngUrl))
+                            throw new Exception("The developer logo PNG URL is empty");
 
                         if (string.IsNullOrEmpty(developer.SupportEmail))
                             throw new Exception("The developer support email is empty");
@@ -207,7 +215,8 @@ namespace HCore.Tenants.Providers.Impl
                             CertificatePassword = developer.CertificatePassword,
                             AuthCookieDomain = developer.AuthCookieDomain,
                             Name = developer.Name,
-                            LogoUrl = developer.LogoUrl,
+                            LogoSvgUrl = developer.LogoSvgUrl,
+                            LogoPngUrl = developer.LogoPngUrl,
                             PrimaryColor = developer.PrimaryColor,
                             SecondaryColor = developer.SecondaryColor,
                             TextOnPrimaryColor = developer.TextOnPrimaryColor,

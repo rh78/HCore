@@ -29,7 +29,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string Name { get; set; }
 
         [StringLength(DeveloperModel.MaxLogoUrlLength)]
-        public string LogoUrl { get; set; }
+        public string LogoSvgUrl { get; set; }
+
+        [StringLength(DeveloperModel.MaxLogoUrlLength)]
+        public string LogoPngUrl { get; set; }
 
         public int? PrimaryColor { get; set; }
         public int? SecondaryColor { get; set; }

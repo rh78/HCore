@@ -12,7 +12,9 @@
         long TenantUuid { get; }
 
         string Name { get; }
-        string LogoUrl { get; }
+
+        string LogoSvgUrl { get; }
+        string LogoPngUrl { get; }
 
         int PrimaryColor { get; }
         int SecondaryColor { get; }
