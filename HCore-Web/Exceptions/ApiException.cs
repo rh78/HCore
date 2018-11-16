@@ -20,8 +20,9 @@ namespace HCore.Web.Exceptions
         public async Task WriteResponseAsync(HttpContext context)
         {
             context.Response.StatusCode = GetStatusCode();
+            context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
 
-            await context.Response.WriteAsync(SerializeException()).ConfigureAwait(false);
+            await context.Response.WriteAsync(SerializeException()).ConfigureAwait(false);            
         }
 
         public Models.ApiException GetApiExceptionModel()
