@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
@@ -494,6 +494,33 @@ namespace HCore.Identity.Services.Impl
             catch (ApiException e)
             {
                 throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when getting user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+        
+        public async Task<UserModel> GetUserByEmailAsync(string emailAddress)
+        {
+            emailAddress = ProcessEmail(emailAddress);
+
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(emailAddress).ConfigureAwait(false);
+
+                if (user == null)
+                {
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with email {emailAddress} was not found");
+                }
+
+                return user;
+            }
+            catch (ApiException)
+            {
+                throw;
             }
             catch (Exception e)
             {

@@ -1,4 +1,4 @@
-﻿using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Models;
 using System.Threading.Tasks;
 
@@ -18,6 +18,7 @@ namespace HCore.Identity.Services
         Task SignOutUserAsync();
 
         Task<UserModel> GetUserAsync(string userUuid);
+        Task<UserModel> GetUserByEmailAsync(string emailAddress);
 
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
