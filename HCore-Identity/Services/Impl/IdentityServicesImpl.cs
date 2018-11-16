@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
@@ -111,9 +111,9 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration)
         {
-            if (!isAdmin)
+            if (isSelfRegistration)
             {
                 if (!_configurationProvider.SelfRegistration)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");

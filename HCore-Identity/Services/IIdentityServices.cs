@@ -1,4 +1,4 @@
-using HCore.Identity.Database.SqlServer.Models.Impl;
+﻿using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Models;
 using System.Threading.Tasks;
 
@@ -6,7 +6,7 @@ namespace HCore.Identity.Services
 {
     public interface IIdentityServices
     {
-        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin);
+        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration);
         Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
 
