@@ -214,51 +214,6 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The content element was not found ähnelt.
-        /// </summary>
-        public static string content_element_not_found {
-            get {
-                return ResourceManager.GetString("content_element_not_found", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The content element UUID is invalid ähnelt.
-        /// </summary>
-        public static string content_element_uuid_invalid {
-            get {
-                return ResourceManager.GetString("content_element_uuid_invalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The content element UUID is missing ähnelt.
-        /// </summary>
-        public static string content_element_uuid_missing {
-            get {
-                return ResourceManager.GetString("content_element_uuid_missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The content element UUID is too long ähnelt.
-        /// </summary>
-        public static string content_element_uuid_too_long {
-            get {
-                return ResourceManager.GetString("content_element_uuid_too_long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The contributor was not found ähnelt.
-        /// </summary>
-        public static string contributor_not_found {
-            get {
-                return ResourceManager.GetString("contributor_not_found", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The cookie is invalid or expired ähnelt.
         /// </summary>
         public static string cookie_invalid_or_expired {

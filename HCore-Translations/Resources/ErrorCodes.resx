@@ -408,19 +408,4 @@
   <data name="sort_order_invalid" xml:space="preserve">
     <value>The sort order is invalid</value>
   </data>
-  <data name="content_element_uuid_invalid" xml:space="preserve">
-    <value>The content element UUID is invalid</value>
-  </data>
-  <data name="content_element_uuid_missing" xml:space="preserve">
-    <value>The content element UUID is missing</value>
-  </data>
-  <data name="content_element_uuid_too_long" xml:space="preserve">
-    <value>The content element UUID is too long</value>
-  </data>
-  <data name="content_element_not_found" xml:space="preserve">
-    <value>The content element was not found</value>
-  </data>
-  <data name="contributor_not_found" xml:space="preserve">
-    <value>The contributor was not found</value>
-  </data>
 </root>
