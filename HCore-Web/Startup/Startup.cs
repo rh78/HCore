@@ -14,6 +14,7 @@ using HCore.Web.Providers.Impl;
 using HCore.Web.Providers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using HCore.Web.Json;
 
 namespace HCore.Web.Startup
 {
@@ -146,7 +147,13 @@ namespace HCore.Web.Startup
 
         private void ConfigureMvc(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
+                    options.SerializerSettings.ContractResolver = IgnoreOutboundNullValuesContractResolver.Instance;
+                });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
