@@ -9,7 +9,7 @@ namespace HCore.Web.Json
 {
     internal class IgnoreOutboundNullValuesContractResolver : DefaultContractResolver
     {
-        public new static readonly IgnoreOutboundNullValuesContractResolver Instance = new IgnoreOutboundNullValuesContractResolver();
+        public static readonly IgnoreOutboundNullValuesContractResolver Instance = new IgnoreOutboundNullValuesContractResolver();
 
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {
