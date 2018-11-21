@@ -66,7 +66,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                UserModel user = await _identityServices.CreateUserAsync(Input, false).ConfigureAwait(false);
+                UserModel user = await _identityServices.CreateUserAsync(Input, true).ConfigureAwait(false);
 
                 if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
                 {

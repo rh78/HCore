@@ -6,7 +6,7 @@ namespace HCore.Identity.Services
 {
     public interface IIdentityServices
     {
-        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isAdmin);
+        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration);
         Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
 
@@ -18,6 +18,7 @@ namespace HCore.Identity.Services
         Task SignOutUserAsync();
 
         Task<UserModel> GetUserAsync(string userUuid);
+        Task<UserModel> GetUserByEmailAsync(string emailAddress);
 
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
