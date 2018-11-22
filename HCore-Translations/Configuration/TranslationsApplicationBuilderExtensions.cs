@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Builder
 
             string translation = translationsProvider.GetString("access_token_expired");
 
-            if (string.IsNullOrEmpty(translation) || Equals(translation, "access_token_expired"))
+            if (string.IsNullOrEmpty(translation) || string.Equals(translation, "access_token_expired"))
                 throw new Exception("Translation can not be read");            
 
             return app;

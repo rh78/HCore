@@ -779,7 +779,7 @@ namespace HCore.Identity.Services.Impl
             if (string.IsNullOrEmpty(passwordConfirmation))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationMissing, "The password confirmation is missing");
 
-            if (!Equals(password, passwordConfirmation))
+            if (!string.Equals(password, passwordConfirmation))
                 throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationNoMatch, "The password confirmation is not matching the password");
 
             return password;
@@ -807,13 +807,13 @@ namespace HCore.Identity.Services.Impl
             {
                 var error = enumerator.Current;
 
-                if (Equals(error.Code, "DuplicateUserName"))
+                if (string.Equals(error.Code, "DuplicateUserName"))
                     throw new InvalidArgumentApiException(InvalidArgumentApiException.DuplicateUserName, "This user name already exists");
-                else if (Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
+                else if (string.Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
                     throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
-                else if (Equals(error.Code, "InvalidToken"))
+                else if (string.Equals(error.Code, "InvalidToken"))
                     throw new InvalidArgumentApiException(InvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
-                else if (Equals(error.Code, "PasswordMismatch"))
+                else if (string.Equals(error.Code, "PasswordMismatch"))
                     throw new UnauthorizedApiException(UnauthorizedApiException.PasswordDoesNotMatch, "The password does not match our records");
 
                 _logger.LogWarning($"Identity error was not covered: {error.Code}");
