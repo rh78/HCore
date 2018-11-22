@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using HCore.Emailing.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -35,16 +37,16 @@ namespace HCore.Emailing.Sender.Impl
             _logger = logger;
         }
 
-        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {
             _logger.LogInformation($"Sending email: {subject}");
 
             try
             {
                 if (_useSendGrid)
-                    await SendSendGridEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage).ConfigureAwait(false);
+                    await SendSendGridEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
                 else
-                    await SendSmtpEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage).ConfigureAwait(false);
+                    await SendSmtpEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -54,7 +56,7 @@ namespace HCore.Emailing.Sender.Impl
             }
         }
         
-        private async Task SendSmtpEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        private async Task SendSmtpEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -87,11 +89,22 @@ namespace HCore.Emailing.Sender.Impl
                 mailMessage.Subject = subject;
                 mailMessage.Body = htmlMessage;
 
+                if (emailAttachments != null)
+                {
+                    foreach (var emailAttachment in emailAttachments)
+                    {
+                        var memoryStream = new MemoryStream(emailAttachment.Content);
+                        System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(memoryStream, emailAttachment.FileName, emailAttachment.MimeType);
+
+                        mailMessage.Attachments.Add(attachment);
+                    }
+                }
+
                 await client.SendMailAsync(mailMessage).ConfigureAwait(false);
             }            
         }
 
-        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -118,6 +131,19 @@ namespace HCore.Emailing.Sender.Impl
 
             if (bcc != null)
                 bcc.ForEach(bccString => mailMessage.AddBcc(new EmailAddress(bccString)));
+
+            if (emailAttachments != null)
+            {
+                foreach (var emailAttachment in emailAttachments)
+                {
+                    mailMessage.AddAttachment(new SendGrid.Helpers.Mail.Attachment()
+                    {
+                        Content = Convert.ToBase64String(emailAttachment.Content),
+                        Filename = emailAttachment.FileName,
+                        Type = emailAttachment.MimeType
+                    });
+                }
+            }
 
             var response = await client.SendEmailAsync(mailMessage).ConfigureAwait(false);
 

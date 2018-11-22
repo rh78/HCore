@@ -1,5 +1,6 @@
 ﻿using HCore.Amqp.Messenger;
 using HCore.Emailing.AMQP;
+using HCore.Emailing.Models;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -31,8 +32,10 @@ namespace HCore.Emailing.Sender.Impl
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
         }
 
-        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {
+            long totalApproximateSize = 0;
+
             var emailSenderTask = new EmailSenderTask()
             {
                 ConfigurationKey = configurationKey,
@@ -43,6 +46,34 @@ namespace HCore.Emailing.Sender.Impl
                 Subject = subject,
                 HtmlMessage = htmlMessage
             };
+
+            totalApproximateSize += htmlMessage.Length;
+
+            if (emailAttachments != null)
+            {
+                emailSenderTask.EmailAttachments = new List<EmailSenderTaskEmailAttachment>();
+
+                foreach (var emailAttachment in emailAttachments)
+                {
+                    var base64EncodedContent = Convert.ToBase64String(emailAttachment.Content);
+
+                    totalApproximateSize += base64EncodedContent.Length;
+
+                    emailSenderTask.EmailAttachments.Add(new EmailSenderTaskEmailAttachment()
+                    {
+                        Base64EncodedContent = base64EncodedContent,
+                        FileName = emailAttachment.FileName,
+                        MimeType = emailAttachment.MimeType
+                    });
+                }
+            }
+
+            if (totalApproximateSize > 200000)
+            {
+                // 256kB is Service Bus max message size
+
+                throw new Exception("The total email message size must not exceed 200 kB");
+            }
         
             await _amqpMessenger.SendMessageAsync(_emailSenderAddress, 
                 emailSenderTask).ConfigureAwait(false);         

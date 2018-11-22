@@ -111,7 +111,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false)
         {
             if (isSelfRegistration)
             {
@@ -163,26 +163,34 @@ namespace HCore.Identity.Services.Impl
                         }
                     }
 
+                    if (emailIsAlreadyConfirmed)
+                    {
+                        user.EmailConfirmed = true;
+                    }
+
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created a new account with password");
 
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
+                        if (!emailIsAlreadyConfirmed)
+                        {
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
-                        var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+                            var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
 
-                        var callbackUrl = _urlHelper.Page(
-                            "/Account/ConfirmEmail",
-                            pageHandler: null,
-                            values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
-                            protocol: "https");
+                            var callbackUrl = _urlHelper.Page(
+                                "/Account/ConfirmEmail",
+                                pageHandler: null,
+                                values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
+                                protocol: "https");
 
-                        EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                            new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
+                            EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
+                                new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
-                        await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                            await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                        } 
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -190,9 +198,12 @@ namespace HCore.Identity.Services.Impl
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
 
-                        if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                        if (isSelfRegistration)
                         {
-                            await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                            if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                            {
+                                await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                            }
                         }
 
                         return user;

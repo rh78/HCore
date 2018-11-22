@@ -20,5 +20,7 @@ namespace HCore.Emailing.AMQP
 
         public string Subject { get; set; }
         public string HtmlMessage { get; set; }
+
+        public List<EmailSenderTaskEmailAttachment> EmailAttachments { get; set; }
     }
 }
