@@ -9,11 +9,6 @@ namespace System
     {
         private static List<JsonConverter> converters = new JsonConverter[] { new StringEnumConverter() }.ToList();
 
-        private static JsonConverter StringEnumConverter()
-        {
-            throw new NotImplementedException();
-        }
-
         public static string ToEnumMemberAttrValue(this Enum e)
         {
             string json = JsonConvert.SerializeObject(e, new JsonSerializerSettings()
