@@ -1,6 +1,6 @@
 ﻿namespace HCore.Amqp.Message
 {
-    public abstract class AMQPMessage
+    public class AMQPMessage
     {
         public string Action { get; private set; }
         

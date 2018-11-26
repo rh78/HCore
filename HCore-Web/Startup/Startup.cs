@@ -242,8 +242,8 @@ namespace HCore.Web.Startup
 
         private void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
         {
-            var englishCultureInfo = new CultureInfo("en");
-            var germanCultureInfo = new CultureInfo("de");
+            var englishCultureInfo = CultureInfo.GetCultureInfo("en");
+            var germanCultureInfo = CultureInfo.GetCultureInfo("de");
 
             var cultures = new CultureInfo[] { englishCultureInfo, germanCultureInfo };
 
