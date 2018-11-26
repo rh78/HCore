@@ -65,7 +65,14 @@ namespace HCore.Web.Attributes
                 else
                     invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");
 
-                context.Result = new BadRequestObjectResult(invalidArgumentApiException.SerializeException());
+                var contentResult = new ContentResult()
+                {
+                    Content = invalidArgumentApiException.SerializeException(),
+                    ContentType = System.Net.Mime.MediaTypeNames.Application.Json,
+                    StatusCode = invalidArgumentApiException.GetStatusCode()
+                };
+
+                context.Result = contentResult;
             }
         }
 
