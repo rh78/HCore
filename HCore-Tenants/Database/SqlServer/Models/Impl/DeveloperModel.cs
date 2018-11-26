@@ -46,6 +46,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxLogoUrlLength)]
         public string LogoPngUrl { get; set; }
 
+        [StringLength(MaxLogoUrlLength)]
+        public string IconIcoUrl { get; set; }
+
         // see https://material.io/tools/color
 
         public int PrimaryColor { get; set; }

@@ -67,6 +67,10 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(logoPngUrl))
                         logoPngUrl = developer.LogoPngUrl;
 
+                    string iconIcoUrl = tenant.IconIcoUrl;
+                    if (string.IsNullOrEmpty(iconIcoUrl))
+                        iconIcoUrl = developer.IconIcoUrl;
+
                     int? primaryColor = tenant.PrimaryColor;
                     if (primaryColor == null)
                         primaryColor = developer.PrimaryColor;
@@ -107,6 +111,7 @@ namespace HCore.Tenants.Providers.Impl
                         Name = tenant.Name,
                         LogoSvgUrl = logoSvgUrl,
                         LogoPngUrl = logoPngUrl,
+                        IconIcoUrl = iconIcoUrl,
                         PrimaryColor = (int)primaryColor,
                         SecondaryColor = (int)secondaryColor,
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
@@ -197,6 +202,9 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developer.LogoPngUrl))
                             throw new Exception("The developer logo PNG URL is empty");
 
+                        if (string.IsNullOrEmpty(developer.IconIcoUrl))
+                            throw new Exception("The developer icon ICO URL is empty");
+
                         if (string.IsNullOrEmpty(developer.SupportEmail))
                             throw new Exception("The developer support email is empty");
 
@@ -217,6 +225,7 @@ namespace HCore.Tenants.Providers.Impl
                             Name = developer.Name,
                             LogoSvgUrl = developer.LogoSvgUrl,
                             LogoPngUrl = developer.LogoPngUrl,
+                            IconIcoUrl = developer.IconIcoUrl,
                             PrimaryColor = developer.PrimaryColor,
                             SecondaryColor = developer.SecondaryColor,
                             TextOnPrimaryColor = developer.TextOnPrimaryColor,

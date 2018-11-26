@@ -13,6 +13,7 @@
 
         public string LogoSvgUrl { get; internal set; }
         public string LogoPngUrl { get; internal set; }
+        public string IconIcoUrl { get; internal set; }
 
         public int PrimaryColor { get; internal set; }
         public int SecondaryColor { get; internal set; }

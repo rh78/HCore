@@ -13,6 +13,7 @@
 
         string LogoSvgUrl { get; }
         string LogoPngUrl { get; }
+        string IconIcoUrl { get; }
 
         int PrimaryColor { get; }
         int SecondaryColor { get; }
