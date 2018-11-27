@@ -1,4 +1,5 @@
-﻿using HCore.Identity.Database.SqlServer;
+﻿using HCore.Identity;
+using HCore.Identity.Database.SqlServer;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
@@ -106,7 +107,7 @@ namespace Microsoft.AspNetCore.Builder
                 if (string.IsNullOrEmpty(apiResourceName))
                     throw new Exception($"Identity API resource name for API resource {apiResourcesSplit[i]} is empty");
 
-                apiResourcesList.Add(new ApiResource(apiResourcesSplit[i], apiResourceName));
+                apiResourcesList.Add(new ApiResource(apiResourcesSplit[i], apiResourceName, new string[] { IdentityCoreConstants.DeveloperAdminClaim }));
             }
             
             var defaultClient = new Client

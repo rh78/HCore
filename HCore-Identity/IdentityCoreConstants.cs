@@ -9,7 +9,7 @@
 
         public const string DeveloperUuidClientClaim = "client_developer_uuid";
 
-        public const string DeveloperAdminClaim = "client_developer_admin";
+        public const string DeveloperAdminClaim = "developer_admin";
 
         public const string IdentityChangeTasksAddressSuffix = "IdentityChangeTasks";
 

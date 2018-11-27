@@ -117,8 +117,6 @@ namespace HCore.Identity.Providers.Impl
 
                 tokenCreationRequest.ValidatedRequest.Options = _options;
 
-                tokenCreationRequest.ValidatedRequest.ClientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims.Concat(identityUser.AdditionalClaims).ToList();
-
                 if (additionalClientClaims != null)
                 {
                     foreach (Claim additionalClientClaim in additionalClientClaims) {
@@ -129,11 +127,9 @@ namespace HCore.Identity.Providers.Impl
                 var accessToken = await CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
 
                 string defaultClientAuthority = _configurationProvider.DefaultClientAuthority;
-                string defaultClientAudience = _configurationProvider.DefaultClientAudience;
-
+                
                 accessToken.Issuer = defaultClientAuthority;
-                accessToken.Audiences = new string[] { defaultClientAudience };
-
+                
                 var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken);
 
                 return accessTokenValue;

@@ -151,8 +151,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         RequireSignedTokens = true,
                         RequireExpirationTime = true,
                         ValidateLifetime = true,
-                        ValidateAudience = true,
-                        ValidAudience = defaultClientAudience,
+                        // audience validation will be done via scope, as recommended in 
+                        // https://github.com/IdentityServer/IdentityServer4/issues/127
+                        ValidateAudience = false,
                         ValidateIssuer = true,
                         ValidIssuer = defaultClientAuthority
                     };
@@ -193,8 +194,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         RequireSignedTokens = true,
                         RequireExpirationTime = true,
                         ValidateLifetime = true,
-                        ValidateAudience = true,
-                        ValidAudience = tenantInfo.DeveloperAudience,
+                        // audience validation will be done via scope, as recommended in 
+                        // https://github.com/IdentityServer/IdentityServer4/issues/127
+                        ValidateAudience = false,
                         ValidateIssuer = true,
                         ValidIssuer = tenantInfo.DeveloperAuthority
                     };                        
