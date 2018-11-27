@@ -120,7 +120,7 @@ namespace Microsoft.AspNetCore.Builder
                 AlwaysSendClientClaims = true,
                 IncludeJwtId = true,
                 RefreshTokenExpiration = TokenExpiration.Sliding,
-                AllowedGrantTypes = GrantTypes.Hybrid,
+                AllowedGrantTypes = GrantTypes.Code,
                 AllowedScopes = scopes,
                 AllowOfflineAccess = true,
                 RequireConsent = false,
