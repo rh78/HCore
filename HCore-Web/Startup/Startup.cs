@@ -15,6 +15,7 @@ using HCore.Web.Providers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using HCore.Web.Json;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace HCore.Web.Startup
 {
@@ -35,6 +36,11 @@ namespace HCore.Web.Startup
         protected virtual void ConfigureCoreServices(IServiceCollection services)
         {
 
+        }
+
+        protected virtual void ConfigureMvc(IMvcBuilder mvcBuilder)
+        {
+           
         }
 
         protected virtual void ConfigureCore(IApplicationBuilder app)
@@ -147,13 +153,13 @@ namespace HCore.Web.Startup
 
         private void ConfigureMvc(IServiceCollection services)
         {
-            services.AddMvc()
+            ConfigureMvc(services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
                     options.SerializerSettings.ContractResolver = IgnoreOutboundNullValuesContractResolver.Instance;
-                });
+                }));
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -201,6 +207,10 @@ namespace HCore.Web.Startup
 
         private void ConfigureStaticFiles(IApplicationBuilder app, IHostingEnvironment env)
         {
+            var provider = new FileExtensionContentTypeProvider();
+
+            provider.Mappings[".yaml"] = "application/x-yaml";
+
             var staticFileOptions = new StaticFileOptions
             {
                 OnPrepareResponse = context =>
@@ -212,9 +222,10 @@ namespace HCore.Web.Startup
                     };
 
                     context.Context.Response.GetTypedHeaders().CacheControl = cacheControlHeaderValue;
-                }
+                },
+                ContentTypeProvider = provider
             };
-
+            
             app.UseStaticFiles(staticFileOptions);
 
             bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
