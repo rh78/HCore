@@ -57,7 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 ConfigureAspNetIdentity(services, tenantsBuilder, configuration);
 
-                ConfigureIdentityServer(services, connectionString, migrationsAssembly, configuration);
+                ConfigureIdentityServer(services, tenantsBuilder, connectionString, migrationsAssembly, configuration);
             }
 
             bool useJwt = configuration.GetValue<bool>("Identity:UseJwt");
@@ -291,17 +291,40 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void ConfigureIdentityServer(IServiceCollection services, string connectionString, string migrationsAssembly, Configuration.IConfiguration configuration)
+        private static void ConfigureIdentityServer(IServiceCollection services, TenantsBuilder tenantsBuilder, string connectionString, string migrationsAssembly, Configuration.IConfiguration configuration)
         {
-            var identityServerBuilder = services.AddIdentityServer(options =>
+            IIdentityServerBuilder identityServerBuilder;
+
+            if (tenantsBuilder == null)
             {
-                options.Events.RaiseErrorEvents = true;
-                options.Events.RaiseInformationEvents = true;
-                options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseSuccessEvents = true;
-                options.UserInteraction.ErrorUrl = "/Account/Error";
-                options.UserInteraction.ConsentUrl = "/Account/Consent";
-            });
+                identityServerBuilder = services.AddIdentityServer(options =>
+                {
+                    options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                    options.UserInteraction.ErrorUrl = "/Account/Error";
+                    options.UserInteraction.ConsentUrl = "/Account/Consent";
+                });
+            }
+            else
+            {
+                string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+                if (string.IsNullOrEmpty(defaultClientAuthority))
+                    throw new Exception("Identity default client authority string is empty");
+
+                identityServerBuilder = services.AddIdentityServer(options =>
+                {
+                    options.Events.RaiseErrorEvents = true;
+                    options.Events.RaiseInformationEvents = true;
+                    options.Events.RaiseFailureEvents = true;
+                    options.Events.RaiseSuccessEvents = true;
+                    options.UserInteraction.ErrorUrl = "/Account/Error";
+                    options.UserInteraction.ConsentUrl = "/Account/Consent";
+
+                    options.IssuerUri = defaultClientAuthority;
+                });
+            }
 
             // see http://amilspage.com/signing-certificates-idsv4/
 
