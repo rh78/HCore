@@ -38,11 +38,6 @@ namespace HCore.Web.Startup
 
         }
 
-        protected virtual void ConfigureMvc(IMvcBuilder mvcBuilder)
-        {
-           
-        }
-
         protected virtual void ConfigureCore(IApplicationBuilder app)
         {
 
@@ -59,6 +54,7 @@ namespace HCore.Web.Startup
             ConfigureLocalization(services);
             ConfigureUrlHelper(services);
             ConfigureWebServer(services);
+            ConfigureStaticFiles(services);
             ConfigureMvc(services);
 
             ConfigureGenericServices(services);
@@ -66,12 +62,12 @@ namespace HCore.Web.Startup
             ConfigureCoreServices(services);            
         }
 
-        private void ConfigureHttpContextAccessor(IServiceCollection services)
+        protected virtual void ConfigureHttpContextAccessor(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
         }
 
-        private void ConfigureLocalization(IServiceCollection services)
+        protected virtual void ConfigureLocalization(IServiceCollection services)
         {
             services.AddLocalization(options =>
             {
@@ -81,7 +77,7 @@ namespace HCore.Web.Startup
             services.AddCoreTranslations();
         }
 
-        private void ConfigureUrlHelper(IServiceCollection services)
+        protected virtual void ConfigureUrlHelper(IServiceCollection services)
         {
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
@@ -90,9 +86,9 @@ namespace HCore.Web.Startup
                 var factory = x.GetRequiredService<IUrlHelperFactory>();
                 return factory.GetUrlHelper(actionContext);
             });
-        }        
+        }
 
-        private void ConfigureWebServer(IServiceCollection services)
+        protected virtual void ConfigureWebServer(IServiceCollection services)
         {
             bool useWeb = Configuration.GetValue<bool>("UseWeb");
 
@@ -125,14 +121,17 @@ namespace HCore.Web.Startup
                 {
                     options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
                     options.HttpsPort = _port;
-                });              
+                });
             }
 
             services.AddResponseCompression(options =>
             {
                 options.EnableForHttps = true;
             });
+        }
 
+        protected virtual void ConfigureStaticFiles(IServiceCollection services)
+        {
             bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
 
             if (useSpa)
@@ -149,17 +148,17 @@ namespace HCore.Web.Startup
                     });
                 }
             }            
-        }        
+        }
 
-        private void ConfigureMvc(IServiceCollection services)
+        protected virtual void ConfigureMvc(IServiceCollection services)
         {
-            ConfigureMvc(services.AddMvc()
+            services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
                     options.SerializerSettings.ContractResolver = IgnoreOutboundNullValuesContractResolver.Instance;
-                }));
+                });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -178,13 +177,13 @@ namespace HCore.Web.Startup
             ConfigureMvc(app, env);
         }
 
-        private void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();            
         }
 
-        private void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseCoreTranslations();
         }
@@ -200,12 +199,12 @@ namespace HCore.Web.Startup
             }
         }
 
-        private void ConfigureResponseCompression(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureResponseCompression(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseResponseCompression();
         }
 
-        private void ConfigureStaticFiles(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureStaticFiles(IApplicationBuilder app, IHostingEnvironment env)
         {
             var provider = new FileExtensionContentTypeProvider();
 
@@ -241,7 +240,7 @@ namespace HCore.Web.Startup
             }
         }
 
-        private void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
         {
             bool useCsp = Configuration.GetValue<bool>("WebServer:UseCsp");
 
@@ -251,7 +250,7 @@ namespace HCore.Web.Startup
             }
         }
 
-        private void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
         {
             var englishCultureInfo = CultureInfo.GetCultureInfo("en");
             var germanCultureInfo = CultureInfo.GetCultureInfo("de");
@@ -266,12 +265,12 @@ namespace HCore.Web.Startup
             });
         }
 
-        private void ConfigureExceptionHandling(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureExceptionHandling(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseMiddleware<UnhandledExceptionHandlingMiddleware>();
         }
 
-        private void ConfigureMvc(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureMvc(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseMvc(routes =>
             {
@@ -279,7 +278,7 @@ namespace HCore.Web.Startup
             });            
         }
 
-        private void ConfigureGenericServices(IServiceCollection services)
+        protected virtual void ConfigureGenericServices(IServiceCollection services)
         {
             services.AddScoped<IUrlProvider, UrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();

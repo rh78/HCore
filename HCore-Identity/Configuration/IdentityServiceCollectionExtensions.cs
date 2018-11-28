@@ -26,6 +26,7 @@ using HCore.Identity.Providers;
 using HCore.Identity.Providers.Impl;
 using HCore.Identity.Services.Impl;
 using HCore.Identity.Services;
+using HCore.Identity.Validators.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -326,7 +327,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;
                 // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
-            });            
+            });
+
+            identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
         }
 
         private static X509Certificate2 GetSigningKeyCertificate(Configuration.IConfiguration configuration)

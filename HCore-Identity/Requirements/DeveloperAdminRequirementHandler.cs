@@ -5,27 +5,27 @@ using System.Threading.Tasks;
 
 namespace HCore.Identity.Requirements
 {
-    public class ClientDeveloperUuidRequirementHandler : AuthorizationHandler<ClientDeveloperUuidRequirement>
+    public class DeveloperAdminRequirementHandler : AuthorizationHandler<DeveloperAdminRequirement>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ClientDeveloperUuidRequirementHandler(IHttpContextAccessor httpContextAccessor)
+        public DeveloperAdminRequirementHandler(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ClientDeveloperUuidRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, DeveloperAdminRequirement requirement)
         {
-            var developerUuidClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperUuidClientClaim);
+            var developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClaim);
 
-            if (developerUuidClaim == null || string.IsNullOrEmpty(developerUuidClaim.Value))
+            if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
             {
                 context.Fail();
 
                 return Task.FromResult(0);
             }
 
-            string developerUuidString = developerUuidClaim.Value;
+            string developerUuidString = developerAdminClaim.Value;
 
             long developerUuid;
 

@@ -37,7 +37,7 @@ namespace HCore.Amqp.Processor.Hosts
                 if (CancellationToken.IsCancellationRequested)
                     break;
 
-                if ((_receiverLink == null || _receiverLink.IsClosed))
+                if (_receiverLink == null || _receiverLink.IsClosed)
                     await InitializeAsync().ConfigureAwait(false);
 
                 try

@@ -2,7 +2,7 @@
 
 namespace HCore.Identity.Requirements
 {
-    internal class ClientDeveloperUuidRequirement : IAuthorizationRequirement
+    public class ClientDeveloperUuidRequirement : IAuthorizationRequirement
     {
         public ClientDeveloperUuidRequirement()
         {
