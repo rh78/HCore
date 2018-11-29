@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2018 KevDever. All rights reserved.
 // Licensed under the MIT License. See the LICENSE file in the project root for more information.
 
+// Original at https://github.com/kevdever/SqlServerDataProtectionProvider
+
 // Adjusted for HCore by Reinhard Holzner
 
 using HCore.Identity.Database.SqlServer;
