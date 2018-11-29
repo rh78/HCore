@@ -5,14 +5,14 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class DatabaseApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseSqlServer<TSqlServerDbContext>(this IApplicationBuilder app)
-            where TSqlServerDbContext : DbContext
+        public static IApplicationBuilder UseSqlDatabase<TContext>(this IApplicationBuilder app)
+            where TContext : DbContext
         {
             var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
 
             using (var scope = scopeFactory.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<TSqlServerDbContext>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
                 dbContext.Database.Migrate();
             }

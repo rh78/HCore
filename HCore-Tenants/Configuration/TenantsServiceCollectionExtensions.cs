@@ -1,8 +1,6 @@
-﻿using HCore.Tenants;
-using HCore.Tenants.Database.SqlServer;
+﻿using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Providers;
 using HCore.Tenants.Providers.Impl;
-using HCore.Web.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static TenantsBuilder AddTenants<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSqlServer<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
+            services.AddSqlDatabase<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
 
             services.AddSingleton<ITenantDataProvider, TenantDataProviderImpl>();
            

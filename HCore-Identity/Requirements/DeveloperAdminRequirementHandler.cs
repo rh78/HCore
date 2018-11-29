@@ -7,11 +7,11 @@ namespace HCore.Identity.Requirements
 {
     public class DeveloperAdminRequirementHandler : AuthorizationHandler<DeveloperAdminRequirement>
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly IHttpContextAccessor HttpContextAccessor;
 
         public DeveloperAdminRequirementHandler(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
+            HttpContextAccessor = httpContextAccessor;
         }
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, DeveloperAdminRequirement requirement)
@@ -36,7 +36,7 @@ namespace HCore.Identity.Requirements
                 return Task.FromResult(0);
             }
 
-            HttpContext httpContext = _httpContextAccessor.HttpContext;
+            HttpContext httpContext = HttpContextAccessor.HttpContext;
 
             var tenantInfo = httpContext.GetTenantInfo();
             

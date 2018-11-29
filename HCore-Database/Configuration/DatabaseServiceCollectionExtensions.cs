@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using HCore.Database.ElasticSearch;
 using HCore.Database.ElasticSearch.Impl;
@@ -45,24 +44,24 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddSqlServer<TStartup, TSqlServerDbContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
-            where TSqlServerDbContext : DbContext
+        public static IServiceCollection AddSqlDatabase<TStartup, TContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
+            where TContext : DbContext
         {
-            Console.WriteLine($"Initializing SQL Server DB context with key {configurationKey}...");
+            Console.WriteLine($"Initializing SQL database context with key {configurationKey}...");
 
-            string connectionString = configuration[$"SqlServer:{configurationKey}:ConnectionString"];
+            string connectionString = configuration[$"Database:{configurationKey}:ConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
-                throw new Exception("SQL Server connection string is empty");
+                throw new Exception("SQL database connection string is empty");
 
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
-            services.AddDbContext<TSqlServerDbContext>(options =>
+            services.AddDbContext<TContext>(options =>
             {
                 options.UseSqlServer(connectionString, 
                     sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
             });
 
-            Console.WriteLine($"Initialized SQL Server DB context with key {configurationKey}");
+            Console.WriteLine($"Initialized SQL database context with key {configurationKey}");
 
             return services;
         }

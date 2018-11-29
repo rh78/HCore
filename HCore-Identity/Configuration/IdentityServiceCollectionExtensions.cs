@@ -1,5 +1,4 @@
-﻿using AspNetCore.DataProtection.SqlServer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -32,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
-        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, Configuration.IConfiguration configuration)
+        public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
@@ -48,16 +47,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (useIdentity)
             {
-                string connectionString = configuration[$"SqlServer:Identity:ConnectionString"];
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception("SQL Server connection string is empty");
-
                 ConfigureSqlServer<TStartup>(services, configuration);
-                ConfigureDataProtection(services, connectionString, configuration);
+                ConfigureDataProtection(services, configuration);
 
                 ConfigureAspNetIdentity(services, tenantsBuilder, configuration);
 
-                ConfigureIdentityServer(services, tenantsBuilder, connectionString, migrationsAssembly, configuration);
+                ConfigureIdentityServer(services, tenantsBuilder, migrationsAssembly, configuration);
             }
 
             bool useJwt = configuration.GetValue<bool>("Identity:UseJwt");
@@ -93,26 +88,26 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        private static void ConfigureSqlServer<TStartup>(IServiceCollection services, Configuration.IConfiguration configuration)
+        private static void ConfigureSqlServer<TStartup>(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSqlServer<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
+            services.AddSqlDatabase<TStartup, SqlServerIdentityDbContext>("Identity", configuration);
 
             // lightweight one for default UI implementations
-            services.AddSqlServer<TStartup, IdentityDbContext>("Identity", configuration);
+            services.AddSqlDatabase<TStartup, IdentityDbContext>("Identity", configuration);
         }
 
-        private static void ConfigureDataProtection(IServiceCollection services, string connectionString, Configuration.IConfiguration configuration)
+        private static void ConfigureDataProtection(IServiceCollection services, IConfiguration configuration)
         {
             string applicationName = configuration[$"Identity:Application:Name"];
             if (string.IsNullOrEmpty(applicationName))
                 throw new Exception("Identity application name is empty");
 
             services.AddDataProtection()
-                .PersistKeysToSqlServer(connectionString, "dbo", "DataProtectionKeys")
+                .PersistKeysToSqlDatabase()
                 .SetApplicationName(applicationName);
         }
 
-        private static void ConfigureJwtAuthentication(IServiceCollection services, TenantsBuilder tenantsBuilder, Configuration.IConfiguration configuration)
+        private static void ConfigureJwtAuthentication(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
         {
             var authenticationBuilder = services.AddAuthentication();
             
@@ -247,7 +242,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return true;
         }
 
-        private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, Configuration.IConfiguration configuration)
+        private static void ConfigureAspNetIdentity(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
         {
             // now, on second priority, comes the identity which we tweaked
 
@@ -291,7 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void ConfigureIdentityServer(IServiceCollection services, TenantsBuilder tenantsBuilder, string connectionString, string migrationsAssembly, Configuration.IConfiguration configuration)
+        private static void ConfigureIdentityServer(IServiceCollection services, TenantsBuilder tenantsBuilder, string migrationsAssembly, IConfiguration configuration)
         {
             IIdentityServerBuilder identityServerBuilder;
 
@@ -336,16 +331,14 @@ namespace Microsoft.Extensions.DependencyInjection
             identityServerBuilder.AddConfigurationStore(options =>
             {
                 options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.UseSqlServer(connectionString,
-                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+                    dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
             });
 
             // this adds the operational data from DB (codes, tokens, consents)
             identityServerBuilder.AddOperationalStore(options =>
             {
                 options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.UseSqlServer(connectionString,
-                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+                    dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
 
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;
@@ -355,7 +348,7 @@ namespace Microsoft.Extensions.DependencyInjection
             identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
         }
 
-        private static X509Certificate2 GetSigningKeyCertificate(Configuration.IConfiguration configuration)
+        private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
         {
             string signingKeyAssembly = configuration["Identity:SigningKey:Assembly"];
             if (string.IsNullOrEmpty(signingKeyAssembly))

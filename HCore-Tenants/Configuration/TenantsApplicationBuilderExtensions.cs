@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.Builder
     {
         public static IApplicationBuilder UseTenants(this IApplicationBuilder app)
         {
-            app.UseSqlServer<SqlServerTenantDbContext>();
+            app.UseSqlDatabase<SqlServerTenantDbContext>();
 
             var tenantDataProvider = app.ApplicationServices.GetRequiredService<ITenantDataProvider>();
 
