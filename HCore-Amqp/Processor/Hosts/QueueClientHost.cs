@@ -24,7 +24,7 @@ namespace HCore.Amqp.Processor.Hosts
 
         protected readonly CancellationToken CancellationToken;
 
-        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
         public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken)
         {
@@ -130,17 +130,25 @@ namespace HCore.Amqp.Processor.Hosts
 
                     await semaphore.WaitAsync().ConfigureAwait(false);
 
-                    if (queueClient == _queueClient)
-                    {
-                        // nobody else handled this before
+                    try { 
+                        if (queueClient == _queueClient)
+                        {
+                            // nobody else handled this before
 
-                        if (!CancellationToken.IsCancellationRequested)
-                            Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                            if (!CancellationToken.IsCancellationRequested)
+                                Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
 
-                        await CloseAsync().ConfigureAwait(false);
+                            await CloseAsync().ConfigureAwait(false);
+                        }
                     }
-
-                    semaphore.Release();
+                    catch (Exception e2)
+                    {
+                        throw e2;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
                 }
             } while (error);
         }        

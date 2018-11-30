@@ -11,7 +11,7 @@ namespace HCore.Amqp.Processor.Hosts
     {
         private SenderLink _senderLink;
 
-        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(0, 1);
+        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
         public SenderLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken)
             : base(connectionFactory, connectionString, address, cancellationToken)
@@ -58,17 +58,26 @@ namespace HCore.Amqp.Processor.Hosts
 
                     await semaphore.WaitAsync().ConfigureAwait(false);
 
-                    if (senderLink == _senderLink)
+                    try
                     {
-                        // nobody else handled this before
+                        if (senderLink == _senderLink)
+                        {
+                            // nobody else handled this before
 
-                        if (!CancellationToken.IsCancellationRequested)
-                            Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                            if (!CancellationToken.IsCancellationRequested)
+                                Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
 
-                        await CloseAsync().ConfigureAwait(false);
+                            await CloseAsync().ConfigureAwait(false);
+                        }
                     }
-
-                    semaphore.Release();
+                    catch (Exception e2)
+                    {
+                        throw e2;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }                    
                 }
             } while (error);
         }

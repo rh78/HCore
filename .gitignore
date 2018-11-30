@@ -22,4 +22,6 @@
 /HCore-Translations/obj
 /HCore-Tenants/bin
 /HCore-Tenants/obj
+/HCore-Scheduling/bin
+/HCore-Scheduling/obj
 /.vs
