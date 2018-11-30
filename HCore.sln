@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Web", "HCore-Web\HCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Tenants", "HCore-Tenants\HCore-Tenants.csproj", "{BEFB69D7-F78F-4207-8C0D-75835A1A0B4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore.Scheduling", "HCore.Scheduling\HCore.Scheduling.csproj", "{A5ABE9E1-D2B0-48C4-8F8A-0D1CEDC4AB7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Scheduling", "HCore-Scheduling\HCore-Scheduling.csproj", "{43C13A3F-B722-430A-896E-B8BE26217512}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,10 +83,10 @@ Global
 		{BEFB69D7-F78F-4207-8C0D-75835A1A0B4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEFB69D7-F78F-4207-8C0D-75835A1A0B4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEFB69D7-F78F-4207-8C0D-75835A1A0B4D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A5ABE9E1-D2B0-48C4-8F8A-0D1CEDC4AB7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5ABE9E1-D2B0-48C4-8F8A-0D1CEDC4AB7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5ABE9E1-D2B0-48C4-8F8A-0D1CEDC4AB7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5ABE9E1-D2B0-48C4-8F8A-0D1CEDC4AB7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43C13A3F-B722-430A-896E-B8BE26217512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43C13A3F-B722-430A-896E-B8BE26217512}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43C13A3F-B722-430A-896E-B8BE26217512}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43C13A3F-B722-430A-896E-B8BE26217512}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
