@@ -145,7 +145,7 @@ namespace HCore.Identity.Services.Impl
                     var existingUser = await _userManager.FindByEmailAsync(userSpec.Email).ConfigureAwait(false);
 
                     if (existingUser != null)
-                        throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailAlreadyExists, "A user account with that email address already exists");
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
                     var user = new UserModel { Id = newUserUuid, UserName = userSpec.Email, Email = userSpec.Email };
 
@@ -544,7 +544,7 @@ namespace HCore.Identity.Services.Impl
         public async Task<UserModel> UpdateUserAsync(string userUuid, UserSpec userSpec, bool isAdmin)
         {
             if (!_configurationProvider.ManageName && !_configurationProvider.ManagePhoneNumber)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserDetailsNotSupported, "This system does not support managing user detail data");
+                throw new RequestFailedApiException(RequestFailedApiException.UserDetailsNotSupported, "This system does not support managing user detail data");
 
             if (!isAdmin) {
                 if (!_configurationProvider.SelfManagement)
@@ -696,13 +696,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessUserUuid(string userUuid)
         {
             if (string.IsNullOrEmpty(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidMissing, "The user UUID is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidMissing, "The user UUID is missing");
 
             if (!ApiImpl.Uuid.IsMatch(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
             if (userUuid.Length > UserModel.MaxUserUuidLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
             return userUuid;
         }
@@ -710,13 +710,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessEmail(string email)
         {
             if (string.IsNullOrEmpty(email))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
             
             if (!new EmailAddressAttribute().IsValid(email))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
 
             if (email.Length > UserModel.MaxEmailAddressLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is too long");
 
             return email;
         }
@@ -724,13 +724,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessFirstName(string firstName)
         {
             if (string.IsNullOrEmpty(firstName))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameMissing, "The first name is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
             
             if (!ApiImpl.SafeString.IsMatch(firstName))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameInvalid, "The first name contains invalid characters");
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, "The first name contains invalid characters");
 
             if (firstName.Length > UserModel.MaxFirstNameLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.FirstNameTooLong, "The fist name is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, "The fist name is too long");
 
             return firstName;
         }
@@ -738,13 +738,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessLastName(string lastName)
         {
             if (string.IsNullOrEmpty(lastName))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameMissing, "The last name is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
             
             if (!ApiImpl.SafeString.IsMatch(lastName))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameInvalid, "The last name contains invalid characters");
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, "The last name contains invalid characters");
 
             if (lastName.Length > UserModel.MaxLastNameLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.LastNameTooLong, "The last name is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, "The last name is too long");
 
             return lastName;
         }
@@ -752,10 +752,10 @@ namespace HCore.Identity.Services.Impl
         private string ProcessPhoneNumber(string phoneNumber)
         {
             if (string.IsNullOrEmpty(phoneNumber))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberMissing, "The phone number is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberMissing, "The phone number is missing");
             
             if (!new PhoneAttribute().IsValid(phoneNumber))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PhoneNumberInvalid, "The phone number is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, "The phone number is invalid");
 
             return phoneNumber;
         }
@@ -763,13 +763,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessPassword(string password)
         {
             if (string.IsNullOrEmpty(password))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordMissing, "The password is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.PasswordMissing, "The password is missing");
             
             if (password.Length < UserModel.MinPasswordLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooShort, "The password is too short");
+                throw new RequestFailedApiException(RequestFailedApiException.PasswordTooShort, "The password is too short");
 
             if (password.Length > UserModel.MaxPasswordLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordTooLong, "The password is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.PasswordTooLong, "The password is too long");
 
             return password;
         }
@@ -777,10 +777,10 @@ namespace HCore.Identity.Services.Impl
         private string ProcessPasswordConfirmation(string password, string passwordConfirmation)
         {
             if (string.IsNullOrEmpty(passwordConfirmation))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationMissing, "The password confirmation is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.PasswordConfirmationMissing, "The password confirmation is missing");
 
             if (!string.Equals(password, passwordConfirmation))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordConfirmationNoMatch, "The password confirmation is not matching the password");
+                throw new RequestFailedApiException(RequestFailedApiException.PasswordConfirmationNoMatch, "The password confirmation is not matching the password");
 
             return password;
         }
@@ -788,13 +788,13 @@ namespace HCore.Identity.Services.Impl
         private string ProcessCode(string code)
         {
             if (string.IsNullOrEmpty(code))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeMissing, "The code is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.CodeMissing, "The code is missing");
 
             if (!ApiImpl.SafeString.IsMatch(code))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeInvalid, "The code contains invalid characters");
+                throw new RequestFailedApiException(RequestFailedApiException.CodeInvalid, "The code contains invalid characters");
 
             if (code.Length > MaxCodeLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.CodeTooLong, "The code is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.CodeTooLong, "The code is too long");
 
             return code;
         }
@@ -808,11 +808,11 @@ namespace HCore.Identity.Services.Impl
                 var error = enumerator.Current;
 
                 if (string.Equals(error.Code, "DuplicateUserName"))
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.DuplicateUserName, "This user name already exists");
+                    throw new RequestFailedApiException(RequestFailedApiException.DuplicateUserName, "This user name already exists");
                 else if (string.Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
                 else if (string.Equals(error.Code, "InvalidToken"))
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.SecurityTokenInvalid, "The security token is invalid or expired");
+                    throw new RequestFailedApiException(RequestFailedApiException.SecurityTokenInvalid, "The security token is invalid or expired");
                 else if (string.Equals(error.Code, "PasswordMismatch"))
                     throw new UnauthorizedApiException(UnauthorizedApiException.PasswordDoesNotMatch, "The password does not match our records");
 

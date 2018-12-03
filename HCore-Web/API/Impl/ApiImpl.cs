@@ -25,7 +25,7 @@ namespace HCore.Web.API.Impl
             if (string.IsNullOrEmpty(userGroupUuid))
             {
                 if (required)
-                    throw new InvalidArgumentApiException(InvalidArgumentApiException.UserGroupUuidMissing, "The user group UUID is missing");
+                    throw new RequestFailedApiException(RequestFailedApiException.UserGroupUuidMissing, "The user group UUID is missing");
 
                 return null;
             }
@@ -36,7 +36,7 @@ namespace HCore.Web.API.Impl
             }
             catch (Exception)
             {
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserGroupUuidInvalid, "The user group UUID is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.UserGroupUuidInvalid, "The user group UUID is invalid");
             }
         }
 
@@ -51,13 +51,13 @@ namespace HCore.Web.API.Impl
         public static string ProcessUserUuid(string userUuid)
         {
             if (string.IsNullOrEmpty(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidMissing, "The user UUID is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidMissing, "The user UUID is missing");
 
             if (!SafeString.IsMatch(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID contains invalid characters");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID contains invalid characters");
 
             if (userUuid.Length > MaxExternalUuidLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidTooLong, "The user UUID is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidTooLong, "The user UUID is too long");
 
             return userUuid;
         }
@@ -76,10 +76,10 @@ namespace HCore.Web.API.Impl
                 return null;
 
             if (!SafeString.IsMatch(emailAddress))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, $"The email address is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, $"The email address is invalid");
 
             if (emailAddress.Length > MaxEmailAddressLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailTooLong, $"The email address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailTooLong, $"The email address is too long");
 
             return emailAddress;
         }
@@ -87,13 +87,13 @@ namespace HCore.Web.API.Impl
         public string ProcessEmailAddressStrict(string email)
         {
             if (string.IsNullOrEmpty(email))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailMissing, "The email address is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
 
             if (!new EmailAddressAttribute().IsValid(email))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
 
             if (email.Length > MaxEmailAddressLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.EmailInvalid, "The email address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is too long");
 
             return email;
         }
@@ -101,10 +101,10 @@ namespace HCore.Web.API.Impl
         public static void ProcessBulkUpdateCount(int count)
         {
             if (count <= 0)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.NoRecordsSpecified, "Please provide records for the update operation");
+                throw new RequestFailedApiException(RequestFailedApiException.NoRecordsSpecified, "Please provide records for the update operation");
 
             if (count > MaxBulkUpdateCount)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.TooManyUpdateRecords, $"Please only update up to {MaxBulkUpdateCount} records at once");
+                throw new RequestFailedApiException(RequestFailedApiException.TooManyUpdateRecords, $"Please only update up to {MaxBulkUpdateCount} records at once");
         }
     }
 }

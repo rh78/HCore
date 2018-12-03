@@ -42,7 +42,7 @@ namespace HCore.Web.Attributes
 
             if (!context.ModelState.IsValid)
             {
-                InvalidArgumentApiException invalidArgumentApiException = null;
+                RequestFailedApiException RequestFailedApiException = null;
 
                 string errorMessage = null;
 
@@ -61,15 +61,15 @@ namespace HCore.Web.Attributes
                 }
 
                 if (!string.IsNullOrEmpty(errorMessage))
-                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, errorMessage);
+                    RequestFailedApiException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, errorMessage);
                 else
-                    invalidArgumentApiException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");
+                    RequestFailedApiException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");
 
                 var contentResult = new ContentResult()
                 {
-                    Content = invalidArgumentApiException.SerializeException(),
+                    Content = RequestFailedApiException.SerializeException(),
                     ContentType = System.Net.Mime.MediaTypeNames.Application.Json,
-                    StatusCode = invalidArgumentApiException.GetStatusCode()
+                    StatusCode = RequestFailedApiException.GetStatusCode()
                 };
 
                 context.Result = contentResult;

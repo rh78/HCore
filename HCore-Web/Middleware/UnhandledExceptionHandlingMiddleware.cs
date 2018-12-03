@@ -32,7 +32,7 @@ namespace HCore.Web.Middleware
             }
             catch (JsonSerializationException e)
             {
-                resultException = new InvalidArgumentApiException(InvalidArgumentApiException.ArgumentInvalid, e.Message);
+                resultException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, e.Message);
             }
             catch (NotImplementedException e)
             {

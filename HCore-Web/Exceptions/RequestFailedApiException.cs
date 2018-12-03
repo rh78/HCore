@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace HCore.Web.Exceptions
 {
-    public class InvalidArgumentApiException : ApiException
+    public class RequestFailedApiException : ApiException
     {
         private readonly string _errorCode;
         private readonly ModelStateDictionary _modelState;
@@ -86,13 +86,13 @@ namespace HCore.Web.Exceptions
         public const string SortByInvalid = "sort_by_invalid";
         public const string SortOrderInvalid = "sort_order_invalid";
 
-        public InvalidArgumentApiException(string errorCode, string message) : 
+        public RequestFailedApiException(string errorCode, string message) : 
             base(message)
         {
             _errorCode = errorCode;            
         }
 
-        public InvalidArgumentApiException(string errorCode, string message, ModelStateDictionary modelState) :
+        public RequestFailedApiException(string errorCode, string message, ModelStateDictionary modelState) :
            this(errorCode, message)
         {
             _modelState = modelState;

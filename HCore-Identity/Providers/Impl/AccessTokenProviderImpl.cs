@@ -189,13 +189,13 @@ namespace HCore.Identity.Providers.Impl
         private string ProcessUserUuid(string userUuid)
         {
             if (string.IsNullOrEmpty(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidMissing, "The user UUID is missing");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidMissing, "The user UUID is missing");
 
             if (!ApiImpl.Uuid.IsMatch(userUuid))
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
             if (userUuid.Length > UserModel.MaxUserUuidLength)
-                throw new InvalidArgumentApiException(InvalidArgumentApiException.UserUuidInvalid, "The user UUID is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
             return userUuid;
         }
