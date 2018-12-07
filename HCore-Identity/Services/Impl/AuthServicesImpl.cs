@@ -45,7 +45,12 @@ namespace HCore.Identity.Services.Impl
 
             if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
             {
-                return false;
+                developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClientClaim);
+
+                if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
+                {
+                    return false;
+                }
             }
 
             string developerAdminString = developerAdminClaim.Value;

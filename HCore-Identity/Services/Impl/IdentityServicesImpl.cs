@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -20,6 +19,7 @@ using HCore.Amqp.Messenger;
 using HCore.Identity.Amqp;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -178,7 +178,7 @@ namespace HCore.Identity.Services.Impl
                         {
                             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
-                            var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+                            var currentCultureInfo = CultureInfo.CurrentCulture;
 
                             var callbackUrl = _urlHelper.Page(
                                 "/Account/ConfirmEmail",
@@ -361,7 +361,7 @@ namespace HCore.Identity.Services.Impl
 
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user).ConfigureAwait(false);
 
-                    var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+                    var currentCultureInfo = CultureInfo.CurrentCulture;
 
                     var callbackUrl = _urlHelper.Page(
                         "/Account/ResetPassword",
@@ -663,7 +663,7 @@ namespace HCore.Identity.Services.Impl
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
-                    var currentCultureInfo = Thread.CurrentThread.CurrentUICulture;
+                    var currentCultureInfo = CultureInfo.CurrentCulture;
 
                     var callbackUrl = _urlHelper.Page(
                         "/Account/ConfirmEmail",

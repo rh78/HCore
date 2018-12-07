@@ -20,10 +20,15 @@ namespace HCore.Identity.Requirements
 
             if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
             {
-                context.Fail();
+                developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClientClaim);
 
-                return Task.FromResult(0);
-            }
+                if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
+                {
+                    context.Fail();
+
+                    return Task.FromResult(0);
+                }
+            }                
 
             string developerUuidString = developerAdminClaim.Value;
 
