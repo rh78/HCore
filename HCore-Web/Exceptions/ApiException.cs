@@ -33,12 +33,8 @@ namespace HCore.Web.Exceptions
                 ErrorMessage = Message
             };
 
-            object o = GetObject();
-            if (o != null)
-            {
-                apiExceptionResult.ErrorDetails = JsonConvert.SerializeObject(o);
-            }
-
+            apiExceptionResult.ErrorDetails = SerializeErrorDetails(GetObject());
+            
             return apiExceptionResult;
         }
 
@@ -46,6 +42,11 @@ namespace HCore.Web.Exceptions
         {           
             return JsonConvert.SerializeObject(GetApiExceptionModel(), Formatting.None,
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+        }
+
+        public string SerializeErrorDetails(object o)
+        {
+            return o != null ? JsonConvert.SerializeObject(o) : null;
         }
     }
 }
