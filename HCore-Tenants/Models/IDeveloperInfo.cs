@@ -15,6 +15,9 @@
         string LogoPngUrl { get; }
         string IconIcoUrl { get; }
 
+        string StorageImplementation { get; }
+        string StorageConnectionString { get; }
+        
         int PrimaryColor { get; }
         int SecondaryColor { get; }
         int TextOnPrimaryColor { get; }

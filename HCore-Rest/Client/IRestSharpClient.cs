@@ -9,5 +9,7 @@ namespace HCore.Rest.Client
         Uri BaseUrl { get; set; }
 
         Task<IRestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request);
+
+        RestClient Client { get; }
     }
 }

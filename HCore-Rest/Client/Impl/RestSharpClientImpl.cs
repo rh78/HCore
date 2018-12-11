@@ -8,23 +8,23 @@ namespace HCore.Rest.Client.Impl
 {
     internal class RestSharpClientImpl : IRestSharpClient
     {
-        private readonly RestClient _restClient;
+        public RestClient Client { get; private set; }
 
         private const int RequestRetryCount = 5;
         private const int BackoffRate = 100; // ms
 
         public RestSharpClientImpl()
         {
-            _restClient = new RestClient();
+            Client = new RestClient();
 
-            _restClient.AddHandler("application/json", NewtonsoftJsonSerializer.Default);
-            _restClient.AddHandler("text/json", NewtonsoftJsonSerializer.Default);
-            _restClient.AddHandler("text/x-json", NewtonsoftJsonSerializer.Default);
-            _restClient.AddHandler("text/javascript", NewtonsoftJsonSerializer.Default);
-            _restClient.AddHandler("*+json", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("application/json", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("text/json", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("text/x-json", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("text/javascript", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("*+json", NewtonsoftJsonSerializer.Default);
         }
 
-        public Uri BaseUrl { get => _restClient.BaseUrl; set => _restClient.BaseUrl = value; }
+        public Uri BaseUrl { get => Client.BaseUrl; set => Client.BaseUrl = value; }
 
         public async Task<IRestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request)
         {
@@ -41,7 +41,7 @@ namespace HCore.Rest.Client.Impl
 
             do
             {
-                response = await _restClient.ExecuteTaskAsync<TResponse>(request).ConfigureAwait(false);
+                response = await Client.ExecuteTaskAsync<TResponse>(request).ConfigureAwait(false);
 
                 failedWithBackoff = false;
 

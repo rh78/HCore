@@ -18,8 +18,13 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
             services.TryAddSingleton<ITenantInfoAccessor, TenantInfoAccessorImpl>();
 
-            services.AddScoped<HCore.Tenants.Providers.IUrlProvider, UrlProviderImpl>();
+            services.AddScoped<IUrlProvider, UrlProviderImpl>();
             var descriptor = new ServiceDescriptor(typeof(HCore.Web.Providers.IUrlProvider), typeof(UrlProviderImpl), ServiceLifetime.Scoped);
+
+            services.Replace(descriptor);
+
+            services.AddScoped<IStorageClientProvider, StorageClientProviderImpl>();
+            descriptor = new ServiceDescriptor(typeof(HCore.Storage.Providers.IStorageClientProvider), typeof(StorageClientProviderImpl), ServiceLifetime.Scoped);
 
             services.Replace(descriptor);
 

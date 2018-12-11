@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <AssemblyName>HCore.Scheduling</AssemblyName>
-    <RootNamespace>HCore.Scheduling</RootNamespace>
+    <RootNamespace>HCore.Storage</RootNamespace>
+    <AssemblyName>HCore.Storage</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
-    <PackageReference Include="Quartz" Version="3.0.7" />
   </ItemGroup>
 
 </Project>

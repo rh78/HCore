@@ -37,6 +37,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(DeveloperModel.MaxLogoUrlLength)]
         public string IconIcoUrl { get; set; }
 
+        public string StorageImplementation { get; set; }
+        public string StorageConnectionString { get; set; }
+
         public int? PrimaryColor { get; set; }
         public int? SecondaryColor { get; set; }
         public int? TextOnPrimaryColor { get; set; }

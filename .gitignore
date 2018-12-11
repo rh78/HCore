@@ -24,4 +24,6 @@
 /HCore-Tenants/obj
 /HCore-Scheduling/bin
 /HCore-Scheduling/obj
+/HCore-Storage/bin
+/HCore-Storage/obj
 /.vs

@@ -1,4 +1,5 @@
-﻿using HCore.Tenants.Database.SqlServer;
+﻿using HCore.Storage;
+using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
@@ -71,6 +72,17 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(iconIcoUrl))
                         iconIcoUrl = developer.IconIcoUrl;
 
+                    string storageImplementation = tenant.StorageImplementation;
+                    if (string.IsNullOrEmpty(storageImplementation))
+                        storageImplementation = developer.StorageImplementation;
+                    
+                    if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                        throw new Exception("The tenant storage implementation specification is invalid");
+
+                    string storageConnectionString = tenant.StorageConnectionString;
+                    if (string.IsNullOrEmpty(storageConnectionString))
+                        storageConnectionString = developer.StorageConnectionString;
+
                     int? primaryColor = tenant.PrimaryColor;
                     if (primaryColor == null)
                         primaryColor = developer.PrimaryColor;
@@ -112,6 +124,8 @@ namespace HCore.Tenants.Providers.Impl
                         LogoSvgUrl = logoSvgUrl,
                         LogoPngUrl = logoPngUrl,
                         IconIcoUrl = iconIcoUrl,
+                        StorageImplementation = storageImplementation,
+                        StorageConnectionString = storageConnectionString,
                         PrimaryColor = (int)primaryColor,
                         SecondaryColor = (int)secondaryColor,
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
@@ -205,6 +219,16 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developer.IconIcoUrl))
                             throw new Exception("The developer icon ICO URL is empty");
 
+                        if (string.IsNullOrEmpty(developer.StorageImplementation))
+                            throw new Exception("The developer storage provider is empty");
+
+                        string storageImplementation = developer.StorageImplementation;
+                        if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                            throw new Exception("The developer storage implementation specification is invalid");
+
+                        if (string.IsNullOrEmpty(developer.StorageConnectionString))
+                            throw new Exception("The developer storage connection string is empty");
+
                         if (string.IsNullOrEmpty(developer.SupportEmail))
                             throw new Exception("The developer support email is empty");
 
@@ -226,6 +250,8 @@ namespace HCore.Tenants.Providers.Impl
                             LogoSvgUrl = developer.LogoSvgUrl,
                             LogoPngUrl = developer.LogoPngUrl,
                             IconIcoUrl = developer.IconIcoUrl,
+                            StorageImplementation = developer.StorageImplementation,
+                            StorageConnectionString = developer.StorageConnectionString,
                             PrimaryColor = developer.PrimaryColor,
                             SecondaryColor = developer.SecondaryColor,
                             TextOnPrimaryColor = developer.TextOnPrimaryColor,

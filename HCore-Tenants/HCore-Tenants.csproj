@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />
+    <ProjectReference Include="..\HCore-Storage\HCore-Storage.csproj" />
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
   </ItemGroup>
 

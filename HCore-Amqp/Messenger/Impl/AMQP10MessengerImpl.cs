@@ -112,12 +112,12 @@ namespace HCore.Amqp.Messenger.Impl
             _messageProcessorTasks.Add(receiverLinkHost.MessageProcessorTask);
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body)
+        public async Task SendMessageAsync(string address, AMQPMessage body, DateTimeOffset? whenToRun = null)
         {
             if (!_senderLinks.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
 
-            await _senderLinks[address].SendMessageAsync(body).ConfigureAwait(false);
+            await _senderLinks[address].SendMessageAsync(body, whenToRun).ConfigureAwait(false);
         }
 
         public async Task ProcessMessageAsync(string address, string messageBodyJson)

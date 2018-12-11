@@ -1,4 +1,5 @@
 ﻿using HCore.Amqp.Message;
+using System;
 using System.Threading.Tasks;
 
 namespace HCore.Amqp.Messenger
@@ -7,6 +8,6 @@ namespace HCore.Amqp.Messenger
     {
         Task InitializeAsync();
 
-        Task SendMessageAsync(string address, AMQPMessage body);              
+        Task SendMessageAsync(string address, AMQPMessage body, DateTimeOffset? whenToRun = null);              
     }
 }

@@ -1,5 +1,7 @@
 ﻿using HCore.Rest.Client;
 using HCore.Rest.Client.Impl;
+using HCore.Rest.Providers;
+using HCore.Rest.Providers.Impl;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

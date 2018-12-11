@@ -1,6 +1,8 @@
-﻿using System;
+﻿using HCore.Rest.Client;
+using HCore.Rest.Client.Impl;
+using System;
 
-namespace HCore.Rest.Client.Impl
+namespace HCore.Rest.Providers.Impl
 {
     internal class RestSharpClientProviderImpl : IRestSharpClientProvider
     {

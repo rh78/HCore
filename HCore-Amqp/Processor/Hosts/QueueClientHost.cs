@@ -67,9 +67,9 @@ namespace HCore.Amqp.Processor.Hosts
                 await queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
             } catch (Exception e)
             {
-                Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
+                Console.WriteLine($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {e}");
 
-                await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                // await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
             }
         }
 
@@ -98,7 +98,7 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        public async Task SendMessageAsync(AMQPMessage messageBody)
+        public async Task SendMessageAsync(AMQPMessage messageBody, DateTimeOffset? whenToRun = null)
         {
             QueueClient queueClient;
             bool error;
@@ -122,7 +122,10 @@ namespace HCore.Amqp.Processor.Hosts
                         MessageId = Guid.NewGuid().ToString()
                     };
 
-                    await queueClient.SendAsync(message).ConfigureAwait(false);
+                    if (whenToRun == null)
+                        await queueClient.SendAsync(message).ConfigureAwait(false);
+                    else
+                        await queueClient.ScheduleMessageAsync(message, (DateTimeOffset)whenToRun).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
