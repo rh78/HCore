@@ -1,4 +1,5 @@
 ﻿using Amqp;
+using HCore.Amqp.Exceptions;
 using HCore.Amqp.Messenger.Impl;
 using System;
 using System.Threading;
@@ -52,9 +53,15 @@ namespace HCore.Amqp.Processor.Hosts
 
                                 _receiverLink.Accept(message);
                             }
-                            catch (Exception e)
+                            catch (RescheduleException)
                             {
-                                Console.WriteLine($"Exception during processing AMQP message, rejecting: {e}");
+                                // no log, this is "wanted"
+
+                                _receiverLink.Release(message);
+                            }
+                            catch (Exception exception)
+                            {
+                                Console.WriteLine($"Exception during processing AMQP message, rejecting: {exception}");
 
                                 _receiverLink.Release(message);
                             }

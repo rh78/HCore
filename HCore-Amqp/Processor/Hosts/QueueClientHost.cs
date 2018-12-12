@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HCore.Amqp.Message;
 using HCore.Amqp.Messenger.Impl;
+using HCore.Amqp.Exceptions;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -65,11 +66,16 @@ namespace HCore.Amqp.Processor.Hosts
                 await _messenger.ProcessMessageAsync(Address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
 
                 await queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
-            } catch (Exception e)
+            }
+            catch (RescheduleException)
             {
-                Console.WriteLine($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {e}");
+                // no log, this is "wanted"
 
-                // await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
             }
         }
 
