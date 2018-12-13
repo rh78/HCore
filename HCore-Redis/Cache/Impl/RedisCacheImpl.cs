@@ -15,9 +15,12 @@ namespace HCore.Redis.Cache.Impl
             _distributedCache = distributedCache;
         }
 
-        public async Task StoreAsync(string key, object value)
+        public async Task StoreAsync(string key, object value, TimeSpan? expiresIn = null)
         {
-            await _distributedCache.SetAsync(key, ToByteArray(value)).ConfigureAwait(false);
+            await _distributedCache.SetAsync(key, ToByteArray(value), new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpiration = expiresIn != null ? DateTimeOffset.Now.Add((TimeSpan)expiresIn) : (DateTimeOffset?)null
+            }).ConfigureAwait(false);
         }
         
         public async Task<T> GetAsync<T>(string key) where T : class
