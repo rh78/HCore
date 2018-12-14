@@ -3,6 +3,8 @@ using Google.Cloud.Storage.V1;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HCore.Storage.Client.Impl
@@ -29,7 +31,19 @@ namespace HCore.Storage.Client.Impl
                 throw new Exception("The Google Cloud credentials JSON is invalid");
         }
 
-        public async Task UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream)
+        public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
+        {
+            var credential = GoogleCredential.FromJson(_credentialsJson);
+
+            using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+            {
+                var blockBlob = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+
+                await storageClient.DownloadObjectAsync(blockBlob, stream).ConfigureAwait(false);
+            }
+        }
+
+        public async Task UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -51,6 +65,9 @@ namespace HCore.Storage.Client.Impl
                     await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
 
                     // exists
+
+                    if (!overwriteIfExists)
+                        throw new Exception("The target storage object already exists");
 
                     await storageClient.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
                 }
@@ -74,6 +91,19 @@ namespace HCore.Storage.Client.Impl
                 
                 await storageClient.UploadObjectAsync(blockBlob, stream).ConfigureAwait(false);                
             }
+        }
+
+        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan)
+        {
+            var credential = GoogleCredential.FromJson(_credentialsJson)
+                .CreateScoped(new string[] { "https://www.googleapis.com/auth/devstorage.read_only" })
+                .UnderlyingCredential as ServiceAccountCredential;
+
+            var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
+
+            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get);
+
+            return signedUrl;
         }
     }
 }
