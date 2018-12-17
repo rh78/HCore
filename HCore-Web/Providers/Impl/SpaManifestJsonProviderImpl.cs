@@ -20,7 +20,7 @@ namespace HCore.Web.Providers.Impl
 
             string contentRootPath = hostingEnvironment.ContentRootPath;
 
-            // 0.js is development build artifact
+            // 0.js is a development build artifact
 
             Applies = File.Exists($"{contentRootPath}/ClientApp/build/manifest.json") &&
                       !File.Exists($"{contentRootPath}/ClientApp/build/0.js");
@@ -39,32 +39,32 @@ namespace HCore.Web.Providers.Impl
                     {
                         string jsChunk = value;
 
-                        HeaderIncludes += $"<link href=/{jsChunk} rel=prefetch>\n";
+                        HeaderIncludes += $"<link href={jsChunk} rel=prefetch>\n";
                     }
                 }
 
                 string appCss = mappings["app.css"];
 
-                HeaderIncludes += $"<link href=/{appCss} rel=preload as=style>\n";
+                HeaderIncludes += $"<link href={appCss} rel=preload as=style>\n";
 
                 string chunkVendorsCss = mappings["chunk-vendors.css"];
 
-                HeaderIncludes += $"<link href=/{chunkVendorsCss} rel=preload as=style>\n";
+                HeaderIncludes += $"<link href={chunkVendorsCss} rel=preload as=style>\n";
 
                 string appJs = mappings["app.js"];
 
-                HeaderIncludes += $"<link href=/{appJs} rel=preload as=script>\n";
+                HeaderIncludes += $"<link href={appJs} rel=preload as=script>\n";
 
                 string chunkVendorsJs = mappings["chunk-vendors.js"];
 
-                HeaderIncludes += $"<link href=/{chunkVendorsJs} rel=preload as=script>\n";
-                BodyIncludes += $"<script src=/{chunkVendorsJs}></script>\n";
+                HeaderIncludes += $"<link href={chunkVendorsJs} rel=preload as=script>\n";
+                BodyIncludes += $"<script src={chunkVendorsJs}></script>\n";
 
-                HeaderIncludes += $"<link href=/{chunkVendorsCss} rel=stylesheet>\n";
+                HeaderIncludes += $"<link href={chunkVendorsCss} rel=stylesheet>\n";
 
-                HeaderIncludes += $"<link href=/{appCss} rel=stylesheet>\n";
+                HeaderIncludes += $"<link href={appCss} rel=stylesheet>\n";
 
-                BodyIncludes += $"<script src=/{appJs}></script>\n";
+                BodyIncludes += $"<script src={appJs}></script>\n";
             }
         }
     }
