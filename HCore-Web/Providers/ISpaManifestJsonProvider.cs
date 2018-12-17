@@ -6,6 +6,8 @@ namespace HCore.Web.Providers
 {
     public interface ISpaManifestJsonProvider
     {
+        bool Applies { get; }
+
         string HeaderIncludes { get; }
         string BodyIncludes { get; }
     }

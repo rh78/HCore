@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace HCore.Web.Providers.Impl
 {
     internal class SpaManifestJsonProviderImpl : ISpaManifestJsonProvider
     {
+        public bool Applies { get; }
+
         public string HeaderIncludes { get; }
 
         public string BodyIncludes { get; }
@@ -18,10 +18,15 @@ namespace HCore.Web.Providers.Impl
             HeaderIncludes = "";
             BodyIncludes = "";
 
-            if (hostingEnvironment.IsProduction())
-            {
-                string contentRootPath = hostingEnvironment.ContentRootPath;
+            string contentRootPath = hostingEnvironment.ContentRootPath;
 
+            // 0.js is development build artifact
+
+            Applies = File.Exists($"{contentRootPath}/ClientApp/build/manifest.json") &&
+                      !File.Exists($"{contentRootPath}/ClientApp/build/0.js");
+                
+            if (Applies)
+            {             
                 string json = File.ReadAllText($"{contentRootPath}/ClientApp/build/manifest.json");
 
                 var mappings = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
