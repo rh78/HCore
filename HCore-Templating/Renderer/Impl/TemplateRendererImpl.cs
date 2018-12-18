@@ -1,4 +1,5 @@
 ﻿using HCore.Templating.Templates.ViewModels.Shared;
+using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,10 +40,10 @@ namespace HCore.Templating.Renderer.Impl
             _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
-        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model)
+        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel
         {
-            EnrichTenantInfo(model);
+            EnrichTenantInfo(model, tenantInfo);
 
             var actionContext = GetActionContext();
             var view = FindView(actionContext, viewName);
@@ -70,14 +71,12 @@ namespace HCore.Templating.Renderer.Impl
             }
         }
 
-        private void EnrichTenantInfo<TModel>(TModel model) 
+        private void EnrichTenantInfo<TModel>(TModel model, ITenantInfo tenantInfo) 
             where TModel : TemplateViewModel
         {
-            if (_tenantInfoAccessor == null)
-                return;
-
-            var tenantInfo = _tenantInfoAccessor.TenantInfo;
-
+            if (_tenantInfoAccessor != null && tenantInfo == null)
+                tenantInfo = _tenantInfoAccessor.TenantInfo;
+            
             if (tenantInfo == null)
                 return;
 
