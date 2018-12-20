@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 
 namespace HCore.Web.Exceptions
 {
@@ -93,6 +94,18 @@ namespace HCore.Web.Exceptions
 
         public RequestFailedApiException(string errorCode, string message, string uuid, string name) :
            base(message, uuid, name)
+        {
+            _errorCode = errorCode;
+        }
+
+        public RequestFailedApiException(string errorCode, string message, long? uuid, string name) :
+           base(message, uuid, name)
+        {
+            _errorCode = errorCode;
+        }
+
+        public RequestFailedApiException(string errorCode, string message, DateTimeOffset? dateTimeOffset) :
+           base(message, dateTimeOffset)
         {
             _errorCode = errorCode;
         }

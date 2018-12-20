@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using HCore.Web.Models;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,13 @@ namespace HCore.Web.Exceptions
             Name = name;
         }
 
+        public ApiException(string message, DateTimeOffset? dateTimeOffset)
+           : base(message)
+        {
+            Uuid = null;
+            Name = dateTimeOffset?.ToString("g", CultureInfo.CurrentCulture);            
+        }
+
         public ApiException(string message, string uuid, string name)
            : base(message)
         {
@@ -30,10 +38,10 @@ namespace HCore.Web.Exceptions
             Name = name;
         }
 
-        public ApiException(string message, long uuid, string name)
+        public ApiException(string message, long? uuid, string name)
           : base(message)
         {
-            Uuid = Convert.ToString(uuid);
+            Uuid = uuid != null ? Convert.ToString(uuid) : null;
             Name = name;
         }
 

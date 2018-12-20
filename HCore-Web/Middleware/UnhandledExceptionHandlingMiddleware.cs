@@ -76,7 +76,7 @@ namespace HCore.Web.Middleware
             {
                 if (!string.IsNullOrEmpty(e.Message) && e.Message.Contains("IDX20803"))
                 {
-                    resultException = new ServiceUnavailableApiException(ServiceUnavailableApiException.AuthorizationAuthorityNotAvailable, "The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later", null);
+                    resultException = new ServiceUnavailableApiException(ServiceUnavailableApiException.AuthorizationAuthorityNotAvailable, "The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later");
                 }
                 else
                 {

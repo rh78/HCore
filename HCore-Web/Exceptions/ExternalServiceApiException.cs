@@ -6,16 +6,23 @@ namespace HCore.Web.Exceptions
     {
         private readonly string _errorCode;
 
-        public ExternalServiceApiException(string errorCode, string message, string name) :
-            base(message, name)
+        public ExternalServiceApiException(string errorCode, string message) :
+            base(message)
         {
             _errorCode = errorCode;
 
         }
+
         public ExternalServiceApiException(string errorCode, string message, string uuid, string name) : 
             base(message, uuid, name)
         {
             _errorCode = errorCode;            
+        }
+
+        public ExternalServiceApiException(string errorCode, string message, long? uuid, string name) :
+            base(message, uuid, name)
+        {
+            _errorCode = errorCode;
         }
 
         public override int GetStatusCode()
