@@ -1,22 +1,45 @@
 ﻿using System;
 using System.Threading.Tasks;
+using HCore.Web.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace HCore.Web.Exceptions
 {
     public abstract class ApiException : Exception
-    {       
+    {
+        private string _uuid;
+        private string _name;
+
         public ApiException(string message)
             : base(message)
         {
 
         }
 
+        public ApiException(string message, string name)
+           : base(message)
+        {
+            _name = name;
+        }
+
+        public ApiException(string message, string uuid, string name)
+           : base(message)
+        {
+            _uuid = uuid;
+            _name = name;
+        }
+
+        public ApiException(string message, long uuid, string name)
+          : base(message)
+        {
+            _uuid = Convert.ToString(uuid);
+            _name = name;
+        }
+
         public abstract int GetStatusCode();
         public abstract string GetErrorCode();
-        public abstract object GetObject();
-
+        
         public async Task WriteResponseAsync(HttpContext context)
         {
             context.Response.StatusCode = GetStatusCode();
@@ -33,9 +56,15 @@ namespace HCore.Web.Exceptions
                 ErrorMessage = Message
             };
 
-            apiExceptionResult.ErrorDetails = SerializeErrorDetails(GetObject());
+            apiExceptionResult.ErrorDetails = GetErrorDetails();
             
             return apiExceptionResult;
+        }
+
+        public string SerializeErrorDetails()
+        {
+            return JsonConvert.SerializeObject(GetErrorDetails(), Formatting.None,
+                new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
         private string SerializeException()
@@ -44,9 +73,13 @@ namespace HCore.Web.Exceptions
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
-        private string SerializeErrorDetails(object o)
+        private ErrorDetails GetErrorDetails()
         {
-            return o != null ? JsonConvert.SerializeObject(o) : null;
+            return new ErrorDetails()
+            {
+                Uuid = _uuid,
+                Name = _name
+            };
         }
     }
 }

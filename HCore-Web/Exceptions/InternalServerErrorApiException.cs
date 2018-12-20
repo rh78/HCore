@@ -20,10 +20,5 @@ namespace HCore.Web.Exceptions
         {
             return "internal_server_error";
         }
-
-        public override object GetObject()
-        {
-            return null;
-        }
     }
 }

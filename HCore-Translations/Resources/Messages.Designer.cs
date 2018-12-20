@@ -115,7 +115,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die A backend service is currently not available ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The {name} backend service is currently not available ähnelt.
         /// </summary>
         public static string backend_service_not_available {
             get {

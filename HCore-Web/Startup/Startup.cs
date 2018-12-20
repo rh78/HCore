@@ -163,6 +163,8 @@ namespace HCore.Web.Startup
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            ConfigureExceptionHandling(app, env);
+
             ConfigureCore(app);
 
             ConfigureLogging(app, env);
@@ -171,16 +173,14 @@ namespace HCore.Web.Startup
             ConfigureResponseCompression(app, env);
             ConfigureStaticFiles(app, env);
             ConfigureCsp(app, env);
-            ConfigureRequestLocalization(app, env);
-            ConfigureExceptionHandling(app, env);            
+            ConfigureRequestLocalization(app, env);                
 
             ConfigureMvc(app, env);
         }
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-                app.UseDeveloperExceptionPage();            
+            
         }
 
         protected virtual void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)

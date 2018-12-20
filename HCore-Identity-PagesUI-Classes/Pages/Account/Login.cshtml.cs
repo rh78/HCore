@@ -123,7 +123,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 if (Equals(unauthorizedApiException.GetErrorCode(), UnauthorizedApiException.EmailNotConfirmed))
                 {
-                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = (string) unauthorizedApiException.GetObject() });
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
                 }
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));

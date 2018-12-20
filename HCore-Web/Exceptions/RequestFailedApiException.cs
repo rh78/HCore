@@ -6,7 +6,6 @@ namespace HCore.Web.Exceptions
     public class RequestFailedApiException : ApiException
     {
         private readonly string _errorCode;
-        private readonly ModelStateDictionary _modelState;
 
         public const string ArgumentInvalid = "argument_invalid";
         public const string ArgumentMissing = "argument_missing";
@@ -92,10 +91,10 @@ namespace HCore.Web.Exceptions
             _errorCode = errorCode;            
         }
 
-        public RequestFailedApiException(string errorCode, string message, ModelStateDictionary modelState) :
-           this(errorCode, message)
+        public RequestFailedApiException(string errorCode, string message, string uuid, string name) :
+           base(message, uuid, name)
         {
-            _modelState = modelState;
+            _errorCode = errorCode;
         }
 
         public override int GetStatusCode()
@@ -106,11 +105,6 @@ namespace HCore.Web.Exceptions
         public override string GetErrorCode()
         {
             return _errorCode;
-        }
-
-        public override object GetObject()
-        {
-            return _modelState;
-        }
+        }      
     }
 }

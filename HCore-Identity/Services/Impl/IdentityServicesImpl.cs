@@ -276,7 +276,7 @@ namespace HCore.Identity.Services.Impl
                     {
                         var exception = new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
 
-                        exception.SetUserUuid(user.Id);
+                        exception.UserUuid = user.Id;
 
                         throw exception;
                     }
@@ -312,7 +312,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
                     var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
@@ -451,7 +451,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
                     var changePasswordResult = await _userManager.ChangePasswordAsync(user, setUserPasswordSpec.OldPassword, setUserPasswordSpec.NewPassword).ConfigureAwait(false);
@@ -497,7 +497,7 @@ namespace HCore.Identity.Services.Impl
 
                 if (user == null)
                 {
-                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                 }
 
                 return user;
@@ -524,7 +524,7 @@ namespace HCore.Identity.Services.Impl
 
                 if (user == null)
                 {
-                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with email {emailAddress} was not found");
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with email {emailAddress} was not found", emailAddress);
                 }
 
                 return user;
@@ -561,7 +561,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (oldUser == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
                     bool changed = false;
@@ -658,7 +658,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                        throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);

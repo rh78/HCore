@@ -6,8 +6,14 @@ namespace HCore.Web.Exceptions
     {
         private readonly string _errorCode;
 
-        public ExternalServiceApiException(string errorCode, string message) : 
-            base(message)
+        public ExternalServiceApiException(string errorCode, string message, string name) :
+            base(message, name)
+        {
+            _errorCode = errorCode;
+
+        }
+        public ExternalServiceApiException(string errorCode, string message, string uuid, string name) : 
+            base(message, uuid, name)
         {
             _errorCode = errorCode;            
         }
@@ -20,11 +26,6 @@ namespace HCore.Web.Exceptions
         public override string GetErrorCode()
         {
             return _errorCode;
-        }
-
-        public override object GetObject()
-        {
-            return null;
         }
     }
 }

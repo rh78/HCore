@@ -14,7 +14,7 @@ namespace HCore.Web.Exceptions
         public const string TokenInvalidOrExpired = "token_invalid_or_expired";
         public const string CookieInvalidOrExpired = "cookie_invalid_or_expired";
 
-        private string _userUuid;
+        public string UserUuid { get; set; }
 
         public UnauthorizedApiException(string errorCode, string message) : 
             base(message)
@@ -30,16 +30,6 @@ namespace HCore.Web.Exceptions
         public override string GetErrorCode()
         {
             return _errorCode;
-        }
-
-        public override object GetObject()
-        {
-            return _userUuid;
-        }
-
-        public void SetUserUuid(string userUuid)
-        {
-            _userUuid = userUuid;
-        }
+        }        
     }
 }

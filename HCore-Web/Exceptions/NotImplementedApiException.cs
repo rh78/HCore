@@ -20,10 +20,5 @@ namespace HCore.Web.Exceptions
         {
             return "not_implemented";
         }
-
-        public override object GetObject()
-        {
-            return null;
-        }
     }
 }

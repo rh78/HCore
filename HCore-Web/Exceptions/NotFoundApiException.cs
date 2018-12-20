@@ -12,12 +12,18 @@ namespace HCore.Web.Exceptions
         public const string UserNoMemberOfUserGroup = "user_no_member_of_user_group";
         public const string TenantNotFound = "tenant_not_found";
 
-        public NotFoundApiException(string errorCode, string message) : 
-            base(message)
+        public NotFoundApiException(string errorCode, string message, string uuid) : 
+            base(message, uuid, null)
         {
             _errorCode = errorCode;            
         }
-       
+
+        public NotFoundApiException(string errorCode, string message, long uuid) :
+           base(message, uuid, null)
+        {
+            _errorCode = errorCode;
+        }
+
         public override int GetStatusCode()
         {
             return StatusCodes.Status404NotFound;
@@ -26,11 +32,6 @@ namespace HCore.Web.Exceptions
         public override string GetErrorCode()
         {
             return _errorCode;
-        }
-
-        public override object GetObject()
-        {
-            return null;
         }
     }
 }

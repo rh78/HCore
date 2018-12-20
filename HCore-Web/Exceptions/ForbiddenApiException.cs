@@ -25,10 +25,5 @@ namespace HCore.Web.Exceptions
         {
             return _errorCode;
         }
-
-        public override object GetObject()
-        {
-            return null;
-        }
     }
 }

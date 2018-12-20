@@ -21,26 +21,37 @@ namespace HCore.Web.Models
     [DataContract]
     public partial class ApiException : IEquatable<ApiException>
     {
+        private string _ErrorCode;
+
         /// <summary>
         /// The error code
         /// </summary>
         /// <value>The error code</value>
         [DataMember(Name = "error_code")]
-        public string ErrorCode { get; set; }
+        public string ErrorCode { get => _ErrorCode; set { _ErrorCode = value; ErrorCodeSet = true; } }
+
+        public bool ErrorCodeSet = false;
+
+        private string _ErrorMessage;
 
         /// <summary>
         /// The error message
         /// </summary>
         /// <value>The error message</value>
         [DataMember(Name = "error_message")]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get => _ErrorMessage; set { _ErrorMessage = value; ErrorMessageSet = true; } }
+
+        public bool ErrorMessageSet = false;
+
+        private ErrorDetails _ErrorDetails;
 
         /// <summary>
-        /// More details about the error, if available
+        /// Gets or Sets ErrorDetails
         /// </summary>
-        /// <value>More details about the error, if available</value>
         [DataMember(Name = "error_details")]
-        public string ErrorDetails { get; set; }
+        public ErrorDetails ErrorDetails { get => _ErrorDetails; set { _ErrorDetails = value; ErrorDetailsSet = true; } }
+
+        public bool ErrorDetailsSet = false;
 
         /// <summary>
         /// Returns the string presentation of the object

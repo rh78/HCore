@@ -62,7 +62,7 @@ namespace HCore.Identity.Providers.Impl
 
                 if (user == null)
                 {
-                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found");
+                    throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                 }
 
                 return await GetAccessTokenAsync(user, additionalClientClaims).ConfigureAwait(false);

@@ -48,7 +48,7 @@ namespace HCore.Tenants.Middleware
 
                     _logger.LogError($"No tenant found for host {hostString}");
 
-                    throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found");                    
+                    throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);                    
                 }
 
                 context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);                

@@ -9,8 +9,8 @@ namespace HCore.Web.Exceptions
         public const string AuthorizationAuthorityNotAvailable = "authorization_authority_not_available";
         public const string BackendServiceNotAvailable = "backend_service_not_available";
 
-        public ServiceUnavailableApiException(string errorCode, string message) : 
-            base(message)
+        public ServiceUnavailableApiException(string errorCode, string message, string name) : 
+            base(message, name)
         {
             _errorCode = errorCode;            
         }
@@ -23,11 +23,6 @@ namespace HCore.Web.Exceptions
         public override string GetErrorCode()
         {
             return _errorCode;
-        }
-
-        public override object GetObject()
-        {
-            return null;
-        }
+        }     
     }
 }
