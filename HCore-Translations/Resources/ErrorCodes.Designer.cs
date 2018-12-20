@@ -277,6 +277,42 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die An unexpected error occured ähnelt.
+        /// </summary>
+        public static string error_header {
+            get {
+                return ResourceManager.GetString("error_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We are sorry, but an unexpected error occured while processing your request. ähnelt.
+        /// </summary>
+        public static string error_header_text {
+            get {
+                return ResourceManager.GetString("error_header_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your request ID is: ähnelt.
+        /// </summary>
+        public static string error_request_id {
+            get {
+                return ResourceManager.GetString("error_request_id", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unexpected error ähnelt.
+        /// </summary>
+        public static string error_title {
+            get {
+                return ResourceManager.GetString("error_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The first name contains invalid characters ähnelt.
         /// </summary>
         public static string first_name_invalid {

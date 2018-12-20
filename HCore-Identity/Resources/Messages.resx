@@ -186,15 +186,6 @@
   <data name="email_not_confirmed_header_text" xml:space="preserve">
     <value>We sent a verification email message to your email address. Please check your email inbox and click the link in the message to verify your email address.</value>
   </data>
-  <data name="error_header" xml:space="preserve">
-    <value>An unexpected error occured</value>
-  </data>
-  <data name="error_request_id" xml:space="preserve">
-    <value>Your request ID is:</value>
-  </data>
-  <data name="error_header_text" xml:space="preserve">
-    <value>We are sorry, but an unexpected error occured while processing your request.</value>
-  </data>
   <data name="first_name" xml:space="preserve">
     <value>First Name</value>
   </data>
@@ -341,9 +332,6 @@
   </data>
   <data name="email_not_confirmed_title" xml:space="preserve">
     <value>Verify your email address</value>
-  </data>
-  <data name="error_title" xml:space="preserve">
-    <value>Unexpected error</value>
   </data>
   <data name="forgot_password_confirmation_title" xml:space="preserve">
     <value>Password reset email sent</value>

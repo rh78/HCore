@@ -408,4 +408,16 @@
   <data name="sort_order_invalid" xml:space="preserve">
     <value>The sort order is invalid</value>
   </data>
+  <data name="error_title" xml:space="preserve">
+    <value>Unexpected error</value>
+  </data>
+  <data name="error_header" xml:space="preserve">
+    <value>An unexpected error occured</value>
+  </data>
+  <data name="error_header_text" xml:space="preserve">
+    <value>We are sorry, but an unexpected error occured while processing your request.</value>
+  </data>
+  <data name="error_request_id" xml:space="preserve">
+    <value>Your request ID is:</value>
+  </data>
 </root>

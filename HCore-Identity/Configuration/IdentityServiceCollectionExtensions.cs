@@ -298,7 +298,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
-                    options.UserInteraction.ErrorUrl = "/Account/Error";
+                    options.UserInteraction.ErrorUrl = "/Error";
                     options.UserInteraction.ConsentUrl = "/Account/Consent";
                 });
             }
@@ -314,7 +314,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
-                    options.UserInteraction.ErrorUrl = "/Account/Error";
+                    options.UserInteraction.ErrorUrl = "/Error";
                     options.UserInteraction.ConsentUrl = "/Account/Consent";
 
                     options.IssuerUri = defaultClientAuthority;
