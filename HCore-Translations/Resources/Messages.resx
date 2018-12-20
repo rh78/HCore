@@ -420,4 +420,7 @@
   <data name="error_request_id" xml:space="preserve">
     <value>Your request ID is:</value>
   </data>
+  <data name="button_back" xml:space="preserve">
+    <value>Back</value>
+  </data>
 </root>

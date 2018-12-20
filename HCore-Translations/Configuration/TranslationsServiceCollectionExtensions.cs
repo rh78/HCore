@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {            
             services.AddSingleton<ITranslationsProvider, TranslationsProviderImpl>();
 
-            services.AddSingleton<IStringLocalizerProvider, ErrorCodesStringLocalizerProviderImpl>();
+            services.AddSingleton<IStringLocalizerProvider, MessagesStringLocalizerProviderImpl>();
 
             return services;
         }

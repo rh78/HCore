@@ -9,14 +9,11 @@
  */
 
 using System;
-using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using HCore.Translations.Resources;
 using HCore.Identity.Resources;
 
 namespace HCore.Identity.Models
@@ -34,10 +31,10 @@ namespace HCore.Identity.Models
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_missing")]
         [Display(ResourceType = typeof(Messages), Name = "email_address")]
         [DataMember(Name = "email")]
-        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_invalid")]
+        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_invalid")]
         public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
 		public bool EmailSet = false;
@@ -48,7 +45,7 @@ namespace HCore.Identity.Models
         /// The first name of the user
         /// </summary>
         /// <value>The first name of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "first_name_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "first_name_missing")]
         [Display(ResourceType = typeof(Messages), Name = "first_name")]
         [DataMember(Name = "first_name")]
         public string FirstName { get => _FirstName; set { _FirstName = value; FirstNameSet = true; } }
@@ -61,7 +58,7 @@ namespace HCore.Identity.Models
         /// The last name of the user
         /// </summary>
         /// <value>The last name of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "last_name_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "last_name_missing")]
         [Display(ResourceType = typeof(Messages), Name = "last_name")]
         [DataMember(Name = "last_name")]
         public string LastName { get => _LastName; set { _LastName = value; LastNameSet = true; } }
@@ -74,7 +71,7 @@ namespace HCore.Identity.Models
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_missing")]
         [Display(ResourceType = typeof(Messages), Name = "password")]
         [DataMember(Name = "password")]
         public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
@@ -87,10 +84,10 @@ namespace HCore.Identity.Models
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_confirmation_missing")]
         [Display(ResourceType = typeof(Messages), Name = "password_confirmation")]
         [DataMember(Name = "password_confirmation")]
-        [Compare("Password", ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_no_match")]
+        [Compare("Password", ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_confirmation_no_match")]
         public string PasswordConfirmation { get => _PasswordConfirmation; set { _PasswordConfirmation = value; PasswordConfirmationSet = true; } }
 		
 		public bool PasswordConfirmationSet = false;

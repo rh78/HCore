@@ -4,16 +4,16 @@ using System.Reflection;
 
 namespace HCore.Translations.Providers.Impl
 {
-    internal class ErrorCodesStringLocalizerProviderImpl : IStringLocalizerProvider
+    internal class MessagesStringLocalizerProviderImpl : IStringLocalizerProvider
     {
         public IStringLocalizer StringLocalizer { get; }
 
-        public ErrorCodesStringLocalizerProviderImpl(IStringLocalizerFactory stringLocalizerFactory)
+        public MessagesStringLocalizerProviderImpl(IStringLocalizerFactory stringLocalizerFactory)
         {
-            var type = typeof(ErrorCodes);
+            var type = typeof(Messages);
             var assemblyName = new AssemblyName(type.GetTypeInfo().Assembly.FullName);
             
-            StringLocalizer = stringLocalizerFactory.Create("ErrorCodes", assemblyName.Name);
+            StringLocalizer = stringLocalizerFactory.Create("Messages", assemblyName.Name);
         }
     }
 }

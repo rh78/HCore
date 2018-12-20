@@ -9,15 +9,12 @@
  */
 
 using System;
-using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using HCore.Identity.Resources;
-using HCore.Translations.Resources;
 
 namespace HCore.Identity.Models
 { 
@@ -34,7 +31,7 @@ namespace HCore.Identity.Models
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "old_password_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "old_password_missing")]
         [Display(ResourceType = typeof(Messages), Name = "old_password")]
         [DataMember(Name = "old_password")]
         public string OldPassword { get => _OldPassword; set { _OldPassword = value; OldPasswordSet = true; } }
@@ -47,7 +44,7 @@ namespace HCore.Identity.Models
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "new_password_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "new_password_missing")]
         [Display(ResourceType = typeof(Messages), Name = "new_password")]
         [DataMember(Name = "new_password")]
         public string NewPassword { get => _NewPassword; set { _NewPassword = value; NewPasswordSet = true; } }
@@ -60,10 +57,10 @@ namespace HCore.Identity.Models
         /// The password confirmation
         /// </summary>
         /// <value>The password confirmation</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_confirmation_missing")]
         [Display(ResourceType = typeof(Messages), Name = "new_password_confirmation")]
         [DataMember(Name = "new_password_confirmation")]
-        [Compare("NewPassword", ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "password_confirmation_no_match")]
+        [Compare("NewPassword", ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_confirmation_no_match")]
         public string NewPasswordConfirmation { get => _NewPasswordConfirmation; set { _NewPasswordConfirmation = value; NewPasswordConfirmationSet = true; } }
 		
 		public bool NewPasswordConfirmationSet = false;		

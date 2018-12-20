@@ -9,14 +9,11 @@
  */
 
 using System;
-using System.Linq;
 using System.Text;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using HCore.Translations.Resources;
 using HCore.Identity.Resources;
 
 namespace HCore.Identity.Models
@@ -34,10 +31,10 @@ namespace HCore.Identity.Models
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required(ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_missing")]
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_missing")]
         [Display(ResourceType = typeof(Messages), Name = "email_address")]
         [DataMember(Name = "email")]
-        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(ErrorCodes), ErrorMessageResourceName = "email_invalid")]
+        [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_invalid")]
         public string Email { get => _Email; set { _Email = value; EmailSet = true; } }
 		
 		public bool EmailSet = false;		

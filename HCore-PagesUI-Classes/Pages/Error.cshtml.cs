@@ -5,12 +5,15 @@ using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Resources;
+using System.Diagnostics;
 
 namespace HCore.PagesUI.Classes.Pages
 {
     public class ErrorModel : PageModel
     {
         private readonly IIdentityServerInteractionService _interaction;
+
+        public bool ShowRequestId { get; set; }
 
         public string RequestId { get; set; }
         public string Error { get; set; }
@@ -26,6 +29,8 @@ namespace HCore.PagesUI.Classes.Pages
         {
             // check if we have identity error
 
+            ShowRequestId = false;
+
             if (_interaction != null && !string.IsNullOrEmpty(errorId))
             {
                 // retrieve error details from identity server
@@ -38,13 +43,15 @@ namespace HCore.PagesUI.Classes.Pages
                     Error = message.Error;
                     Description = message.ErrorDescription;
 
+                    ShowRequestId = true;
+
                     return;
                 }
             }
 
             // check if we have other error
 
-            RequestId = HttpContext.TraceIdentifier;
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
 
             if (!string.IsNullOrEmpty(errorCode))
             {
@@ -53,7 +60,9 @@ namespace HCore.PagesUI.Classes.Pages
                 return;
             }
 
-            Error = ErrorCodes.internal_server_error;
+            Error = Messages.internal_server_error;
+
+            ShowRequestId = true;
         }
     }
 }
