@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using System.Web;
+using HCore.Translations.Providers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Web.Middleware
 {
     internal class UnhandledExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
+
+        private readonly ITranslationsProvider _translationsProvider;
+
         private readonly ILogger<UnhandledExceptionHandlingMiddleware> _logger;
 
         private int? _webPort;
@@ -19,7 +24,7 @@ namespace HCore.Web.Middleware
 
         private string _criticalFallbackUrl;
 
-        public UnhandledExceptionHandlingMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<UnhandledExceptionHandlingMiddleware> logger)
+        public UnhandledExceptionHandlingMiddleware(RequestDelegate next, IServiceProvider serviceProvider, IConfiguration configuration, ILogger<UnhandledExceptionHandlingMiddleware> logger)
         {
             _next = next;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,6 +46,8 @@ namespace HCore.Web.Middleware
             {
                 _apiPort = configuration.GetValue<int>("WebServer:ApiPort");
             }
+
+            _translationsProvider = serviceProvider.GetService<ITranslationsProvider>();
         }
 
         public async Task Invoke(HttpContext context)
@@ -109,7 +116,27 @@ namespace HCore.Web.Middleware
                 return;
             }
 
-            context.Response.Redirect($"/Error?errorCode={HttpUtility.UrlEncode(resultException.GetErrorCode())}&errorDescription={HttpUtility.UrlEncode(resultException.Message)}");
+            string errorCode = resultException.GetErrorCode();
+            string errorDescription = resultException.Message;
+
+            if (_translationsProvider != null)
+            {
+                string translatedMessage = _translationsProvider.GetString(errorCode);
+                if (translatedMessage != null && !string.Equals(errorCode, translatedMessage))
+                    errorDescription = translatedMessage;
+            }
+
+            string uuid = resultException.Uuid;
+
+            if (!string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(errorDescription))
+                errorDescription = errorDescription.Replace("{uuid}", uuid);
+
+            string name = resultException.Name;
+
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(errorDescription))
+                errorDescription = errorDescription.Replace("{name}", name);
+
+            context.Response.Redirect($"/Error?errorCode={HttpUtility.UrlEncode(errorCode ?? "")}&errorDescription={HttpUtility.UrlEncode(errorDescription ?? "")}");
         }
     }
 }

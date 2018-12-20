@@ -33,7 +33,7 @@ namespace HCore.Translations.Providers.Impl
             foreach(var stringLocalizer in _stringLocalizers)
             {
                 string text = stringLocalizer.GetString(key);
-                if (!string.IsNullOrEmpty(text))
+                if (text != null && !string.Equals(text, key))
                     return text;
             }
 

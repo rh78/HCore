@@ -8,8 +8,8 @@ namespace HCore.Web.Exceptions
 {
     public abstract class ApiException : Exception
     {
-        private string _uuid;
-        private string _name;
+        public string Uuid { get; private set; }
+        public string Name { get; private set; }
 
         public ApiException(string message)
             : base(message)
@@ -20,21 +20,21 @@ namespace HCore.Web.Exceptions
         public ApiException(string message, string name)
            : base(message)
         {
-            _name = name;
+            Name = name;
         }
 
         public ApiException(string message, string uuid, string name)
            : base(message)
         {
-            _uuid = uuid;
-            _name = name;
+            Uuid = uuid;
+            Name = name;
         }
 
         public ApiException(string message, long uuid, string name)
           : base(message)
         {
-            _uuid = Convert.ToString(uuid);
-            _name = name;
+            Uuid = Convert.ToString(uuid);
+            Name = name;
         }
 
         public abstract int GetStatusCode();
@@ -63,7 +63,12 @@ namespace HCore.Web.Exceptions
 
         public string SerializeErrorDetails()
         {
-            return JsonConvert.SerializeObject(GetErrorDetails(), Formatting.None,
+            var errorDetails = GetErrorDetails();
+
+            if (errorDetails == null)
+                return null;
+
+            return JsonConvert.SerializeObject(errorDetails, Formatting.None,
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
@@ -75,10 +80,13 @@ namespace HCore.Web.Exceptions
 
         private ErrorDetails GetErrorDetails()
         {
+            if (string.IsNullOrEmpty(Uuid) && string.IsNullOrEmpty(Name))
+                return null;
+
             return new ErrorDetails()
             {
-                Uuid = _uuid,
-                Name = _name
+                Uuid = Uuid,
+                Name = Name
             };
         }
     }
