@@ -38,13 +38,13 @@ namespace HCore.Web.Exceptions
             return apiExceptionResult;
         }
 
-        public string SerializeException()
+        private string SerializeException()
         {           
             return JsonConvert.SerializeObject(GetApiExceptionModel(), Formatting.None,
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
-        public string SerializeErrorDetails(object o)
+        private string SerializeErrorDetails(object o)
         {
             return o != null ? JsonConvert.SerializeObject(o) : null;
         }

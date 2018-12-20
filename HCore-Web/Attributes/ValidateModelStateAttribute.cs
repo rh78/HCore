@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -16,6 +15,7 @@ namespace HCore.Web.Attributes
     {
         // Setting the order to int.MinValue, using IOrderedFilter, to attempt executing
         // this filter *before* the BaseController's OnActionExecuting.
+
         public new int Order => int.MinValue + 1;
 
         /// <summary>
@@ -42,8 +42,6 @@ namespace HCore.Web.Attributes
 
             if (!context.ModelState.IsValid)
             {
-                RequestFailedApiException RequestFailedApiException = null;
-
                 string errorMessage = null;
 
                 foreach (var value in context.ModelState.Values)
@@ -61,18 +59,9 @@ namespace HCore.Web.Attributes
                 }
 
                 if (!string.IsNullOrEmpty(errorMessage))
-                    RequestFailedApiException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, errorMessage);
+                    throw new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, errorMessage);
                 else
-                    RequestFailedApiException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");
-
-                var contentResult = new ContentResult()
-                {
-                    Content = RequestFailedApiException.SerializeException(),
-                    ContentType = System.Net.Mime.MediaTypeNames.Application.Json,
-                    StatusCode = RequestFailedApiException.GetStatusCode()
-                };
-
-                context.Result = contentResult;
+                    throw new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, "The parameter validation failed with unknown reason");                
             }
         }
 
