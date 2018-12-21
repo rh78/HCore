@@ -12,16 +12,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using HCore.Translations.Providers;
-using jsreport.Binary.OSX;
-using jsreport.Local;
 using jsreport.Shared;
 using jsreport.Types;
-using Microsoft.Extensions.Localization;
+using HCore.Translations.Resources;
 
 // see https://scottsauber.com/2018/07/07/walkthrough-creating-an-html-email-template-with-razor-and-razor-class-libraries-and-rendering-it-from-a-net-standard-class-library/
 
@@ -34,20 +30,20 @@ namespace HCore.Templating.Renderer.Impl
         private readonly IServiceProvider _serviceProvider;
         private readonly HttpContext _context;
         private readonly IRenderService _renderService;
-        private readonly ITranslationsProvider _translationsProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
         public TemplateRendererImpl(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider, IHttpContextAccessor accessor, IRenderService renderService, ITranslationsProvider translationsProvider)
+            IServiceProvider serviceProvider, 
+            IHttpContextAccessor accessor, 
+            IRenderService renderService)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
             _renderService = renderService;
-            _translationsProvider = translationsProvider;
             _context = accessor.HttpContext;
     
             _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();
@@ -106,9 +102,9 @@ namespace HCore.Templating.Renderer.Impl
                         MarginBottom = "2cm",
                         HeaderTemplate = "",
                         FooterTemplate = "<span style='color:black; font-size:8pt; font-family: sans-serif !important; width:100%;text-align:right;margin-right:2cm;'>"
-                                         + _translationsProvider.GetString("page")
+                                         + Messages.page
                                          + " <span class=\"pageNumber\"></span> "
-                                         + _translationsProvider.GetString("of")
+                                         + Messages.of
                                          + " <span class=\"totalPages\"></span></span>"
                     }
                 }
