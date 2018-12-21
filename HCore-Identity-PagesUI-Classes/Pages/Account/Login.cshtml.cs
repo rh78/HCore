@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -71,7 +71,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     if (!string.IsNullOrEmpty(ReturnUrl))
                         return LocalRedirect(ReturnUrl);
                     else
-                        LocalRedirect("~/");
+                        return LocalRedirect("~/");
                 }
 
                 var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl);

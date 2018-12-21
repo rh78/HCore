@@ -12,9 +12,16 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using HCore.Translations.Providers;
+using jsreport.Binary.OSX;
+using jsreport.Local;
+using jsreport.Shared;
+using jsreport.Types;
+using Microsoft.Extensions.Localization;
 
 // see https://scottsauber.com/2018/07/07/walkthrough-creating-an-html-email-template-with-razor-and-razor-class-libraries-and-rendering-it-from-a-net-standard-class-library/
 
@@ -25,19 +32,26 @@ namespace HCore.Templating.Renderer.Impl
         private readonly IRazorViewEngine _viewEngine;
         private readonly ITempDataProvider _tempDataProvider;
         private readonly IServiceProvider _serviceProvider;
+        private readonly HttpContext _context;
+        private readonly IRenderService _renderService;
+        private readonly ITranslationsProvider _translationsProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
         public TemplateRendererImpl(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider, IHttpContextAccessor accessor, IRenderService renderService, ITranslationsProvider translationsProvider)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
-
+            _renderService = renderService;
+            _translationsProvider = translationsProvider;
+            _context = accessor.HttpContext;
+    
             _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();
+            
         }
 
         public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
@@ -64,11 +78,47 @@ namespace HCore.Templating.Renderer.Impl
                         _tempDataProvider),
                     output,
                     new HtmlHelperOptions());
+                viewContext.RouteData = _context.GetRouteData();
 
                 await view.RenderAsync(viewContext).ConfigureAwait(false);
 
                 return output.ToString();
             }
+        }
+
+        public async Task<MemoryStream> GeneratePdfFromViewAsync<TModel>(string viewName, TModel model, HttpContext context) where TModel : TemplateViewModel
+        {
+            var htmlContent = await RenderViewAsync(viewName, model);
+            
+            var pdf = await _renderService.RenderAsync(new RenderRequest()
+            {
+                Template = new Template()
+                {
+                    Content = htmlContent,
+                    Engine = Engine.None,
+                    Recipe = Recipe.ChromePdf,
+                    Chrome = new Chrome()
+                    {
+                        DisplayHeaderFooter = true,
+                        MarginTop = "2cm",
+                        MarginLeft = "2cm",
+                        MarginRight = "2cm",
+                        MarginBottom = "2cm",
+                        HeaderTemplate = "",
+                        FooterTemplate = "<span style='color:black; font-size:8pt; font-family: sans-serif !important; width:100%;text-align:right;margin-right:2cm;'>"
+                                         + _translationsProvider.GetString("page")
+                                         + " <span class=\"pageNumber\"></span> "
+                                         + _translationsProvider.GetString("of")
+                                         + " <span class=\"totalPages\"></span></span>"
+                    }
+                }
+            }).ConfigureAwait(false);
+            
+            var ms = new MemoryStream();
+
+            pdf.Content.CopyTo(ms);
+            
+            return ms;
         }
 
         private void EnrichTenantInfo<TModel>(TModel model, ITenantInfo tenantInfo) 
