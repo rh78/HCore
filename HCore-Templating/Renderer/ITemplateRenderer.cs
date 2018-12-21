@@ -2,7 +2,6 @@
 using HCore.Tenants.Models;
 ﻿using HCore.Templating.Templates.ViewModels.Shared;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace HCore.Templating.Renderer
 {
@@ -11,7 +10,7 @@ namespace HCore.Templating.Renderer
         Task<string> RenderViewAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel;
 
-        Task<MemoryStream> GeneratePdfFromViewAsync<TModel>(string viewName, TModel model, HttpContext context)
+        Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel;
     }
 }

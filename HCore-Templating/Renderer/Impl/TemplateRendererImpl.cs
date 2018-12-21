@@ -82,9 +82,10 @@ namespace HCore.Templating.Renderer.Impl
             }
         }
 
-        public async Task<MemoryStream> GeneratePdfFromViewAsync<TModel>(string viewName, TModel model, HttpContext context) where TModel : TemplateViewModel
+        public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null) 
+            where TModel : TemplateViewModel
         {
-            var htmlContent = await RenderViewAsync(viewName, model);
+            var htmlContent = await RenderViewAsync(viewName, model, tenantInfo);
             
             var pdf = await _renderService.RenderAsync(new RenderRequest()
             {
