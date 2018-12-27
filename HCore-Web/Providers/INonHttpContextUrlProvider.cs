@@ -4,7 +4,7 @@ namespace HCore.Web.Providers
 {
     public interface INonHttpContextUrlProvider
     {
-        Uri BaseUrl { get; }
+        string BaseUrl { get; }
         
         string BuildUrl(string path);        
     }
