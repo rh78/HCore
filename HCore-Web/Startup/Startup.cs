@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -281,6 +281,7 @@ namespace HCore.Web.Startup
         protected virtual void ConfigureGenericServices(IServiceCollection services)
         {
             services.AddScoped<IUrlProvider, UrlProviderImpl>();
+            services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
         }
     }

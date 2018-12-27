@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace HCore.Templating.Renderer.Impl
                         _tempDataProvider),
                     output,
                     new HtmlHelperOptions());
-                viewContext.RouteData = _context.GetRouteData();
+                viewContext.RouteData = _context?.GetRouteData() ?? new RouteData();
 
                 await view.RenderAsync(viewContext).ConfigureAwait(false);
 

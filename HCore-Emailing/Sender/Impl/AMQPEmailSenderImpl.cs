@@ -37,6 +37,9 @@ namespace HCore.Emailing.Sender.Impl
             if (to.TrueForAll(string.IsNullOrEmpty))
                 throw new Exception("At least one valid to address is required!");
 
+            if (string.IsNullOrEmpty(subject))
+                throw new Exception("A subject line is required!");
+
             long totalApproximateSize = 0;
 
             var emailSenderTask = new EmailSenderTask()

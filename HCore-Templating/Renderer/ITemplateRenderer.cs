@@ -2,6 +2,7 @@
 using HCore.Tenants.Models;
 ﻿using HCore.Templating.Templates.ViewModels.Shared;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace HCore.Templating.Renderer
 {
