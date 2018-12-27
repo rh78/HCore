@@ -37,17 +37,16 @@ namespace HCore.Templating.Renderer.Impl
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
             IServiceProvider serviceProvider, 
-            IHttpContextAccessor accessor, 
-            IRenderService renderService)
+            IHttpContextAccessor accessor)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
-            _renderService = renderService;
             _context = accessor.HttpContext;
-    
-            _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();
-            
+
+            _renderService = _serviceProvider.GetService<IRenderService>();
+
+            _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();            
         }
 
         public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
@@ -85,6 +84,9 @@ namespace HCore.Templating.Renderer.Impl
         public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null) 
             where TModel : TemplateViewModel
         {
+            if (_renderService == null)
+                throw new Exception("JSReport render service is not available");
+
             var htmlContent = await RenderViewAsync(viewName, model, tenantInfo);
             
             var pdf = await _renderService.RenderAsync(new RenderRequest()
