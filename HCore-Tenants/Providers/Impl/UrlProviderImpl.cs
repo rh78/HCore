@@ -40,10 +40,10 @@ namespace HCore.Tenants.Providers.Impl
 
         public string BuildApiUrl(string path)
         {
-            if (string.IsNullOrEmpty(WebUrl))
-                throw new Exception("No web URL is set up for this service");
+            if (string.IsNullOrEmpty(ApiUrl))
+                throw new Exception("No API URL is set up for this service");
 
-            return WebUrl + path;
+            return ApiUrl + path;
         }
     }
 }

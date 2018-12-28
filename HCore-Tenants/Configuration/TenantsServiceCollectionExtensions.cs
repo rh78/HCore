@@ -23,6 +23,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.Replace(descriptor);
 
+            services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
+            descriptor = new ServiceDescriptor(typeof(HCore.Web.Providers.INonHttpContextUrlProvider), typeof(NonHttpContextUrlProviderImpl), ServiceLifetime.Scoped);
+
+            services.Replace(descriptor);
+
             services.AddScoped<IStorageClientProvider, StorageClientProviderImpl>();
             descriptor = new ServiceDescriptor(typeof(HCore.Storage.Providers.IStorageClientProvider), typeof(StorageClientProviderImpl), ServiceLifetime.Scoped);
 
