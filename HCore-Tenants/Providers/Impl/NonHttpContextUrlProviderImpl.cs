@@ -7,8 +7,11 @@ namespace HCore.Tenants.Providers.Impl
     internal class NonHttpContextUrlProviderImpl : INonHttpContextUrlProvider
     {
         public string BaseUrl { get; private set; }
+
         public string WebUrl { get; private set; }
-        public string ApiUrl { get; private set; }
+
+        public string BackendApiUrl { get; private set; }
+        public string FrontendApiUrl { get; private set; }
 
         public NonHttpContextUrlProviderImpl(IHttpContextAccessor httpContextAccessor, ITenantInfoAccessor tenantInfoAccessor, IConfiguration configuration)
         {
@@ -20,7 +23,9 @@ namespace HCore.Tenants.Providers.Impl
                 BaseUrl = null;
 
             WebUrl = tenantInfoAccessor.TenantInfo.WebUrl;
-            ApiUrl = tenantInfoAccessor.TenantInfo.ApiUrl;
+
+            FrontendApiUrl = tenantInfoAccessor.TenantInfo.FrontendApiUrl;
+            BackendApiUrl = tenantInfoAccessor.TenantInfo.BackendApiUrl;
         }
 
         public string BuildUrl(string path)
@@ -39,12 +44,20 @@ namespace HCore.Tenants.Providers.Impl
             return WebUrl + path;
         }
 
-        public string BuildApiUrl(string path)
+        public string BuildBackendApiUrl(string path)
         {
-            if (string.IsNullOrEmpty(ApiUrl))
-                throw new Exception("No API URL is set up for this service");
+            if (string.IsNullOrEmpty(BackendApiUrl))
+                throw new Exception("No backend API URL is set up for this service");
 
-            return ApiUrl + path;
+            return BackendApiUrl + path;
+        }
+
+        public string BuildFrontendApiUrl(string path)
+        {
+            if (string.IsNullOrEmpty(FrontendApiUrl))
+                throw new Exception("No frontend API URL is set up for this service");
+
+            return FrontendApiUrl + path;
         }
     }
 }

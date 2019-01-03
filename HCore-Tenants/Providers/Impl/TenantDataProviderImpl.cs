@@ -54,8 +54,11 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(tenant.Name))
                         throw new Exception("The tenant name is empty");
 
-                    if (string.IsNullOrEmpty(tenant.ApiUrl))
-                        throw new Exception("The tenant API url is empty");
+                    if (string.IsNullOrEmpty(tenant.FrontendApiUrl))
+                        throw new Exception("The tenant frontend API URL is empty");
+
+                    if (string.IsNullOrEmpty(tenant.BackendApiUrl))
+                        throw new Exception("The tenant backend API url is empty");
 
                     if (string.IsNullOrEmpty(tenant.WebUrl))
                         throw new Exception("The tenant web url is empty");
@@ -75,13 +78,20 @@ namespace HCore.Tenants.Providers.Impl
                     string storageImplementation = tenant.StorageImplementation;
                     if (string.IsNullOrEmpty(storageImplementation))
                         storageImplementation = developer.StorageImplementation;
-                    
-                    if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
-                        throw new Exception("The tenant storage implementation specification is invalid");
 
-                    string storageConnectionString = tenant.StorageConnectionString;
-                    if (string.IsNullOrEmpty(storageConnectionString))
-                        storageConnectionString = developer.StorageConnectionString;
+                    // storage is optional
+
+                    string storageConnectionString = null;
+
+                    if (!string.IsNullOrEmpty(storageImplementation))
+                    {
+                        if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                            throw new Exception("The tenant storage implementation specification is invalid");
+
+                        storageConnectionString = tenant.StorageConnectionString;
+                        if (string.IsNullOrEmpty(storageConnectionString))
+                            storageConnectionString = developer.StorageConnectionString;
+                    }
 
                     int? primaryColor = tenant.PrimaryColor;
                     if (primaryColor == null)
@@ -133,7 +143,8 @@ namespace HCore.Tenants.Providers.Impl
                         SupportEmail = supportEmail,
                         NoreplyEmail = noreplyEmail,
                         ProductName = productName,
-                        ApiUrl = tenant.ApiUrl,
+                        BackendApiUrl = tenant.BackendApiUrl,
+                        FrontendApiUrl = tenant.FrontendApiUrl,
                         WebUrl = tenant.WebUrl
                     };
 
@@ -219,15 +230,17 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developer.IconIcoUrl))
                             throw new Exception("The developer icon ICO URL is empty");
 
-                        if (string.IsNullOrEmpty(developer.StorageImplementation))
-                            throw new Exception("The developer storage provider is empty");
-
+                        // storage is optional
+                        
                         string storageImplementation = developer.StorageImplementation;
-                        if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
-                            throw new Exception("The developer storage implementation specification is invalid");
+                        if (!string.IsNullOrEmpty(storageImplementation))
+                        {
+                            if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                                throw new Exception("The developer storage implementation specification is invalid");
 
-                        if (string.IsNullOrEmpty(developer.StorageConnectionString))
-                            throw new Exception("The developer storage connection string is empty");
+                            if (string.IsNullOrEmpty(developer.StorageConnectionString))
+                                throw new Exception("The developer storage connection string is empty");
+                        }
 
                         if (string.IsNullOrEmpty(developer.SupportEmail))
                             throw new Exception("The developer support email is empty");

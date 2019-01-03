@@ -20,7 +20,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SubdomainPattern { get; set; }
 
         [StringLength(MaxUrlLength)]
-        public string ApiUrl { get; set; }
+        public string BackendApiUrl { get; set; }
+
+        [StringLength(MaxUrlLength)]
+        public string FrontendApiUrl { get; set; }
 
         [StringLength(MaxUrlLength)]
         public string WebUrl { get; set; }

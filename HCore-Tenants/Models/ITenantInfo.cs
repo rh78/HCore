@@ -30,7 +30,9 @@
 
         string ProductName { get; }
 
-        string ApiUrl { get; }
+        string BackendApiUrl { get; }
+        string FrontendApiUrl { get; }
+
         string WebUrl { get; }
     }
 }

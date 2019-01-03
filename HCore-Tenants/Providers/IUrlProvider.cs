@@ -5,6 +5,8 @@
         string WebUrl { get; }
 
         string BuildWebUrl(string path);
-        string BuildApiUrl(string path);
+
+        string BuildBackendApiUrl(string path);
+        string BuildFrontendApiUrl(string path);
     }
 }

@@ -30,7 +30,9 @@
 
         public string ProductName { get; internal set; }
 
-        public string ApiUrl { get; set; }
+        public string BackendApiUrl { get; set; }
+        public string FrontendApiUrl { get; set; }
+
         public string WebUrl { get; set; }
     }
 }
