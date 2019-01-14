@@ -10,5 +10,10 @@ namespace HCore.Web.Providers
 
         string HeaderIncludes { get; }
         string BodyIncludes { get; }
+
+        string HeaderCssIncludes { get; }
+
+        string HeaderJsIncludes { get; }
+        string BodyJsIncludes { get; }
     }
 }
