@@ -60,6 +60,12 @@ namespace HCore.Web.Result
             Result = result;
         }
 
+        public ApiResult(int statusCode, TResult result)
+            : base(statusCode)
+        {
+            Result = result;
+        }
+
         public ApiResult(string locationHeader, TResult result)
             : base(locationHeader)
         {
