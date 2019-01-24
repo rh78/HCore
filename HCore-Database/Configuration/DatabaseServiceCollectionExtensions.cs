@@ -4,6 +4,7 @@ using HCore.Database.ElasticSearch;
 using HCore.Database.ElasticSearch.Impl;
 using System;
 using System.Reflection;
+using HCore.Database;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -49,17 +50,36 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Console.WriteLine($"Initializing SQL database context with key {configurationKey}...");
 
+            string implementation = configuration[$"Database:{configurationKey}:Implementation"];
+
+            if (string.IsNullOrEmpty(implementation))
+                throw new Exception("Database implementation specification is empty");
+
+            if (!implementation.Equals(DatabaseConstants.DatabaseImplementationSqlServer) && !implementation.Equals(DatabaseConstants.DatabaseImplementationPostgres))
+                throw new Exception("Database implementation specification is invalid");
+
             string connectionString = configuration[$"Database:{configurationKey}:ConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("SQL database connection string is empty");
 
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
-            services.AddDbContext<TContext>(options =>
+            if (implementation.Equals(DatabaseConstants.DatabaseImplementationSqlServer))
             {
-                options.UseSqlServer(connectionString, 
-                    sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
-            });
+                services.AddDbContext<TContext>(options =>
+                {
+                    options.UseSqlServer(connectionString,
+                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+                });
+            } 
+            else
+            {
+                services.AddDbContext<TContext>(options =>
+                {
+                    options.UseNpgsql(connectionString,
+                        postgresOptions => postgresOptions.MigrationsAssembly(migrationsAssembly));
+                });
+            }
 
             Console.WriteLine($"Initialized SQL database context with key {configurationKey}");
 

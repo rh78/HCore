@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using HCore.Database;
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace Microsoft.EntityFrameworkCore
@@ -9,15 +10,34 @@ namespace Microsoft.EntityFrameworkCore
         {
             Console.WriteLine($"Initializing SQL database context with key {configurationKey}...");
 
+            string implementation = configuration[$"Database:{configurationKey}:Implementation"];
+
+            if (string.IsNullOrEmpty(implementation))
+                throw new Exception("Database implementation specification is empty");
+
+            if (!implementation.Equals(DatabaseConstants.DatabaseImplementationSqlServer) && !implementation.Equals(DatabaseConstants.DatabaseImplementationPostgres))
+                throw new Exception("Database implementation specification is invalid");
+
             string connectionString = configuration[$"Database:{configurationKey}:ConnectionString"];
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("SQL database connection string is empty");
 
-            builder.UseSqlServer(connectionString, options =>
+            if (implementation.Equals(DatabaseConstants.DatabaseImplementationSqlServer))
             {
-                if (!string.IsNullOrEmpty(migrationsAssembly))
-                    options.MigrationsAssembly(migrationsAssembly);
-            });
+                builder.UseSqlServer(connectionString, options =>
+                {
+                    if (!string.IsNullOrEmpty(migrationsAssembly))
+                        options.MigrationsAssembly(migrationsAssembly);
+                });
+            }
+            else
+            {
+                builder.UseNpgsql(connectionString, options =>
+                {                   
+                    if (!string.IsNullOrEmpty(migrationsAssembly))
+                        options.MigrationsAssembly(migrationsAssembly);
+                });
+            }
 
             Console.WriteLine($"Initialized SQL database context with key {configurationKey}");
 

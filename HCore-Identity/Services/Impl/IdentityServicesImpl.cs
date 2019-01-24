@@ -71,7 +71,14 @@ namespace HCore.Identity.Services.Impl
                 {
                     // make sure we have no race conditions
 
-                    await _identityDbContext.Database.ExecuteSqlCommandAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE NormalizedEmailAddress = {0}", normalizedEmailAddress).ConfigureAwait(false);
+                    if (_identityDbContext.Database.ProviderName != null && _identityDbContext.Database.ProviderName.StartsWith("Npgsql"))
+                    {
+                        await _identityDbContext.Database.ExecuteSqlCommandAsync("SELECT \"Uuid\" FROM public.\"ReservedEmailAddresses\" WHERE \"NormalizedEmailAddress\" = {0} FOR UPDATE", normalizedEmailAddress).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await _identityDbContext.Database.ExecuteSqlCommandAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE NormalizedEmailAddress = {0}", normalizedEmailAddress).ConfigureAwait(false);
+                    }
 
                     IQueryable<ReservedEmailAddressModel> query = _identityDbContext.ReservedEmailAddresses;
                     
