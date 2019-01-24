@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <RootNamespace>HCore.Templating</RootNamespace>
     <AssemblyName>HCore.Templating</AssemblyName>
   </PropertyGroup>
@@ -12,7 +12,7 @@
     <PackageReference Include="jsreport.Binary.OSX" Version="2.2.1" />
     <PackageReference Include="jsreport.Binary.Linux" Version="2.2.2" />
     <PackageReference Include="jsreport.Local" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@ using System.Diagnostics;
 
 namespace HCore.PagesUI.Classes.Pages
 {
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : PageModel
     {
         private readonly IIdentityServerInteractionService _interaction;
@@ -23,8 +24,7 @@ namespace HCore.PagesUI.Classes.Pages
         {
             _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
         }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        
         public async Task OnGet(string errorId, string errorCode, string errorDescription)
         {
             // check if we have identity error
