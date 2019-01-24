@@ -11,5 +11,7 @@ namespace HCore.Rest.Client
         Task<IRestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request);
 
         RestClient Client { get; }
+
+        string GetLogContent(IRestRequest request, IRestResponse response);
     }
 }

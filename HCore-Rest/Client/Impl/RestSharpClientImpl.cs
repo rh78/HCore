@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HCore.Rest.Client.Impl.Serializer;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace HCore.Rest.Client.Impl
@@ -76,6 +78,43 @@ namespace HCore.Rest.Client.Impl
             } while (failedWithBackoff);
 
             return response;
+        }
+
+        public string GetLogContent(IRestRequest request, IRestResponse response)
+        {
+            var requestToLog = new
+            {
+                resource = request.Resource,
+
+                // Parameters are custom anonymous objects in order to have the parameter type as a nice string
+                // otherwise it will just show the enum value
+                parameters = request.Parameters.Select(parameter => new
+                {
+                    name = parameter.Name,
+                    value = parameter.Value,
+                    type = parameter.Type.ToString()
+                }),
+
+                // ToString() here to have the method as a nice string otherwise it will just show the enum value
+                method = request.Method.ToString(),
+
+                // This will generate the actual Uri used in the request
+                uri = Client.BuildUri(request),
+            };
+
+            var responseToLog = new
+            {
+                statusCode = response.StatusCode,
+                content = response.Content,
+                headers = response.Headers,
+
+                // The Uri that actually responded (could be different from the requestUri if a redirection occurred)
+
+                responseUri = response.ResponseUri,
+                errorMessage = response.ErrorMessage,
+            };
+
+            return $"Request: {JsonConvert.SerializeObject(requestToLog)}, Response: {JsonConvert.SerializeObject(responseToLog)}";
         }
     }
 }
