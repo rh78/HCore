@@ -32,7 +32,12 @@ namespace HCore.Cache.Impl
 
             return FromByteArray<T>(value);
         }
-        
+
+        public async Task InvalidateAsync(string key)
+        {
+            await _distributedCache.RemoveAsync(key).ConfigureAwait(false);
+        }
+
         private byte[] ToByteArray<T>(T value)
         {
             if (value == null)

@@ -27,6 +27,11 @@ namespace HCore.Cache.Impl
         public async Task<T> GetAsync<T>(string key) where T : class
         {
             return await _memcachedClient.GetAsync<T>(key).ConfigureAwait(false);
-        }        
+        }
+
+        public async Task InvalidateAsync(string key)
+        {
+            await _memcachedClient.RemoveAsync(key).ConfigureAwait(false);
+        }
     }
 }
