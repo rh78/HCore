@@ -1,66 +1,32 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Enyim.Caching;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
 namespace HCore.Cache.Impl
 {
-    internal class RedisCacheImpl : ICache
+    internal class MemcachedCacheImpl : ICache
     {
-        private readonly IDistributedCache _distributedCache;
+        private readonly IMemcachedClient _memcachedClient;
 
-        public RedisCacheImpl(IDistributedCache distributedCache)
+        // be careful, do not use Memcached 1.4.4 for Windows, it has wrong server time!
+        // download 1.4.5!
+        // https://blog.elijaa.org/2010/10/15/memcached-for-windows/
+
+        public MemcachedCacheImpl(IMemcachedClient memcachedClient)
         {
-            _distributedCache = distributedCache;
+            _memcachedClient = memcachedClient;
         }
 
-        public async Task StoreAsync(string key, object value, TimeSpan? expiresIn = null)
+        public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
-            await _distributedCache.SetAsync(key, ToByteArray(value), new DistributedCacheEntryOptions()
-            {
-                AbsoluteExpiration = expiresIn != null ? DateTimeOffset.Now.Add((TimeSpan)expiresIn) : (DateTimeOffset?)null
-            }).ConfigureAwait(false);
+            int cacheMinutes = (int)expiresIn.TotalMinutes;
+
+            await _memcachedClient.SetAsync(key, value, cacheMinutes).ConfigureAwait(false);
         }
         
         public async Task<T> GetAsync<T>(string key) where T : class
         {
-            byte[] value = await _distributedCache.GetAsync(key).ConfigureAwait(false);
-
-            if (value == null)
-                return null;
-
-            return FromByteArray<T>(value);
-        }
-        
-        private byte[] ToByteArray<T>(T value)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                binaryFormatter.Serialize(memoryStream, value);
-                return memoryStream.ToArray();
-            }
-        }
-
-        private T FromByteArray<T>(byte[] byteArray) where T : class
-        {
-            if (byteArray == null)
-            {
-                return default(T);
-            }
-
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-
-            using (MemoryStream memoryStream = new MemoryStream(byteArray))
-            {
-                return binaryFormatter.Deserialize(memoryStream) as T;
-            }
-        }
+            return await _memcachedClient.GetAsync<T>(key).ConfigureAwait(false);
+        }        
     }
 }

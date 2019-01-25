@@ -44,6 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddMemcached(options =>
                 {                    
                     configuration.GetSection("Cache:Memcached").Bind(options);
+
+                    options.Protocol = Enyim.Caching.Memcached.MemcachedProtocol.Binary;
                 });
 
                 services.AddSingleton<ICache, MemcachedCacheImpl>();

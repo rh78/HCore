@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace HCore.Cache.Impl
 {
-    internal class MemcachedCacheImpl : ICache
+    internal class RedisCacheImpl : ICache
     {
         private readonly IDistributedCache _distributedCache;
 
-        public MemcachedCacheImpl(IDistributedCache distributedCache)
+        public RedisCacheImpl(IDistributedCache distributedCache)
         {
             _distributedCache = distributedCache;
         }
 
-        public async Task StoreAsync(string key, object value, TimeSpan? expiresIn = null)
+        public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
             await _distributedCache.SetAsync(key, ToByteArray(value), new DistributedCacheEntryOptions()
             {
-                AbsoluteExpiration = expiresIn != null ? DateTimeOffset.Now.Add((TimeSpan)expiresIn) : (DateTimeOffset?)null
+                AbsoluteExpiration = DateTimeOffset.Now.Add(expiresIn)
             }).ConfigureAwait(false);
         }
         

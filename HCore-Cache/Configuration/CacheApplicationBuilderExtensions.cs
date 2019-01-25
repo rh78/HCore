@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -26,7 +27,15 @@ namespace Microsoft.AspNetCore.Builder
 
             // test the cache
 
-            cache.GetAsync<object>("dummy:1");
+            cache.StoreAsync("dummy:1", "value", TimeSpan.FromHours(5)).Wait();
+            var task = cache.GetAsync<string>("dummy:1");
+
+            task.Wait();
+
+            string value = task.Result;
+
+            if (!string.Equals(value, "value"))
+                throw new Exception("Cache does not work");
 
             return app;
         }
