@@ -4,8 +4,8 @@
 /HCore-Database/obj
 /HCore-Emailing/bin
 /HCore-Emailing/obj
-/HCore-Redis/bin
-/HCore-Redis/obj
+/HCore-Cache/bin
+/HCore-Cache/obj
 /HCore-Rest/bin
 /HCore-Rest/obj
 /HCore-Templating/bin

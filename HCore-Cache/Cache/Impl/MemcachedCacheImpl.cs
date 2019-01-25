@@ -4,9 +4,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
-namespace HCore.Redis.Cache.Impl
+namespace HCore.Cache.Impl
 {
-    internal class RedisCacheImpl : IRedisCache
+    internal class RedisCacheImpl : ICache
     {
         private readonly IDistributedCache _distributedCache;
 

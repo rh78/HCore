@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Identity-PagesUI-Clas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Identity-PagesUI-Views", "HCore-Identity-PagesUI-Views\HCore-Identity-PagesUI-Views.csproj", "{537091B1-DEE1-4F4A-87FB-C546652E5358}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Redis", "HCore-Redis\HCore-Redis.csproj", "{4A55AE27-3FE5-4069-8303-21E34985A361}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Cache", "HCore-Cache\HCore-Cache.csproj", "{4A55AE27-3FE5-4069-8303-21E34985A361}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Rest", "HCore-Rest\HCore-Rest.csproj", "{13F1A704-A8C8-4856-BFE8-1DCF91C604A3}"
 EndProject
