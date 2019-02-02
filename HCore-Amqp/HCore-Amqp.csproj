@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.1.6" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.0.1" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.3.0" />
   </ItemGroup>

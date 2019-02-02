@@ -5,9 +5,9 @@
     <RootNamespace>HCore.PagesUI.Classes</RootNamespace>
     <AssemblyName>HCore.PagesUI.Classes</AssemblyName>    
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
   </ItemGroup>
   
   <ItemGroup>
