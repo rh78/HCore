@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HCore.Emailing.Sender.Impl
@@ -87,6 +88,8 @@ namespace HCore.Emailing.Sender.Impl
                 mailMessage.IsBodyHtml = true;
 
                 mailMessage.Subject = subject;
+                mailMessage.SubjectEncoding = Encoding.UTF8;
+
                 mailMessage.Body = htmlMessage;
 
                 if (emailAttachments != null)
