@@ -351,4 +351,13 @@
   <data name="sign_in_title" xml:space="preserve">
     <value>Sign in</value>
   </data>
+  <data name="verification_email_resent" xml:space="preserve">
+    <value>The verification email has been sent, please check your email</value>
+  </data>
+  <data name="your_password_has_been_changed" xml:space="preserve">
+    <value>Your password has been changed</value>
+  </data>
+  <data name="your_profile_has_been_updated" xml:space="preserve">
+    <value>Your profile has been updated</value>
+  </data>
 </root>

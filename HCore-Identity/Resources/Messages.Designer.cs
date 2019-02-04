@@ -761,5 +761,32 @@ namespace HCore.Identity.Resources {
                 return ResourceManager.GetString("sign_in_title", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The verification email has been sent, please check your email ähnelt.
+        /// </summary>
+        public static string verification_email_resent {
+            get {
+                return ResourceManager.GetString("verification_email_resent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your password has been changed ähnelt.
+        /// </summary>
+        public static string your_password_has_been_changed {
+            get {
+                return ResourceManager.GetString("your_password_has_been_changed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Your profile has been updated ähnelt.
+        /// </summary>
+        public static string your_profile_has_been_updated {
+            get {
+                return ResourceManager.GetString("your_profile_has_been_updated", resourceCulture);
+            }
+        }
     }
 }

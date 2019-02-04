@@ -7,6 +7,7 @@ using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Services;
+using HCore.Identity.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -45,7 +46,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 await _identityServices.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 
-                StatusMessage = "Your password has been changed";
+                StatusMessage = Messages.your_password_has_been_changed;
 
                 return RedirectToPage();
             }

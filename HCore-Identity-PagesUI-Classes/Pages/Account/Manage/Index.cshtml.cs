@@ -8,6 +8,7 @@ using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
+using HCore.Identity.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -64,7 +65,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 await _identityServices.UpdateUserAsync(userUuid, Input, false).ConfigureAwait(false);
 
-                StatusMessage = "Your profile has been updated";
+                StatusMessage = Messages.your_profile_has_been_updated;
 
                 return RedirectToPage();
             }
@@ -98,7 +99,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 await _identityServices.ResendUserEmailConfirmationEmailAsync(userUuid).ConfigureAwait(false);
 
-                StatusMessage = "Verification email sent, please check your email";
+                StatusMessage = Messages.verification_email_resent;
 
                 return RedirectToPage();
             }
