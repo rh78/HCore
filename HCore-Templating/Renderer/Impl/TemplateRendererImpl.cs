@@ -133,17 +133,12 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantName = tenantInfo.Name;
             model.TenantLogoSvgUrl = tenantInfo.LogoSvgUrl;
             model.TenantLogoPngUrl = tenantInfo.LogoPngUrl;
-            model.TenantPrimaryColor = ConvertToHexColor(tenantInfo.PrimaryColor);
-            model.TenantSecondaryColor = ConvertToHexColor(tenantInfo.SecondaryColor);
-            model.TenantTextOnPrimaryColor = ConvertToHexColor(tenantInfo.TextOnPrimaryColor);
-            model.TenantTextOnSecondaryColor = ConvertToHexColor(tenantInfo.TextOnSecondaryColor);
+            model.TenantPrimaryColor = tenantInfo.PrimaryColorHex;
+            model.TenantSecondaryColor = tenantInfo.SecondaryColorHex;
+            model.TenantTextOnPrimaryColor = tenantInfo.TextOnPrimaryColorHex;
+            model.TenantTextOnSecondaryColor = tenantInfo.TextOnSecondaryColorHex;
             model.TenantSupportEmail = tenantInfo.SupportEmail;
             model.TenantProductName = tenantInfo.ProductName;
-        }
-
-        private string ConvertToHexColor(int? color)
-        {
-            return "#" + (color != null ? ((int)color).ToString("X6") : "000000");
         }
 
         private IView FindView(ActionContext actionContext, string viewName)
