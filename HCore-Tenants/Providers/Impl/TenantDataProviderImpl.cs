@@ -140,6 +140,10 @@ namespace HCore.Tenants.Providers.Impl
                         SecondaryColor = (int)secondaryColor,
                         TextOnPrimaryColor = (int)textOnPrimaryColor,
                         TextOnSecondaryColor = (int)textOnSecondaryColor,
+                        PrimaryColorHex = ConvertToHexColor(primaryColor),
+                        SecondaryColorHex = ConvertToHexColor(secondaryColor),
+                        TextOnPrimaryColorHex = ConvertToHexColor(textOnPrimaryColor),
+                        TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
                         SupportEmail = supportEmail,
                         NoreplyEmail = noreplyEmail,
                         ProductName = productName,
@@ -159,6 +163,11 @@ namespace HCore.Tenants.Providers.Impl
 
                     TenantInfos.Add(tenantInfo);
                 });
+            }
+
+            private string ConvertToHexColor(int? color)
+            {
+                return "#" + (color != null ? ((int)color).ToString("X6") : "000000");
             }
 
             internal ITenantInfo LookupTenantBySubDomain(string subDomainLookup)

@@ -25,6 +25,11 @@
         public int TextOnPrimaryColor { get; internal set; }
         public int TextOnSecondaryColor { get; internal set; }
 
+        public string PrimaryColorHex { get; internal set; }
+        public string SecondaryColorHex { get; internal set; }
+        public string TextOnPrimaryColorHex { get; internal set; }
+        public string TextOnSecondaryColorHex { get; internal set; }
+
         public string SupportEmail { get; internal set; }
         public string NoreplyEmail { get; internal set; }
 

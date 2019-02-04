@@ -25,6 +25,11 @@
         int TextOnPrimaryColor { get; }
         int TextOnSecondaryColor { get; }
 
+        string PrimaryColorHex { get; }
+        string SecondaryColorHex { get; }
+        string TextOnPrimaryColorHex { get; }
+        string TextOnSecondaryColorHex { get; }
+
         string SupportEmail { get; }
         string NoreplyEmail { get; }
 
