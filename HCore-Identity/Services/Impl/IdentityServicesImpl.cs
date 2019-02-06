@@ -156,6 +156,7 @@ namespace HCore.Identity.Services.Impl
             }
 
             userSpec.Password = ProcessPassword(userSpec.Password);
+            userSpec.PasswordConfirmation = ProcessPasswordConfirmation(userSpec.Password, userSpec.PasswordConfirmation);
 
             if (!userSpec.AcceptTermsAndConditions)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
