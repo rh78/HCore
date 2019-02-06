@@ -140,7 +140,6 @@ namespace HCore.Identity.Services.Impl
             }
 
             userSpec.Email = ProcessEmail(userSpec.Email);
-            userSpec.Password = ProcessPassword(userSpec.Password);
 
             if (_configurationProvider.SelfManagement)
             {
@@ -155,6 +154,8 @@ namespace HCore.Identity.Services.Impl
                     userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
                 }
             }
+
+            userSpec.Password = ProcessPassword(userSpec.Password);
 
             if (!userSpec.AcceptTermsAndConditions)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
