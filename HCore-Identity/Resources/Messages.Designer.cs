@@ -70,7 +70,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die I have read the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically to answer my request. ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die I have read the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically to fulfill our service. ähnelt.
         /// </summary>
         public static string accept_privacy_policy {
             get {
