@@ -139,12 +139,6 @@ namespace HCore.Identity.Services.Impl
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
             }
 
-            if (!userSpec.AcceptTermsAndConditions)
-                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
-
-            if (!userSpec.AcceptPrivacyPolicy)
-                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy");
-
             userSpec.Email = ProcessEmail(userSpec.Email);
             userSpec.Password = ProcessPassword(userSpec.Password);
 
@@ -160,7 +154,13 @@ namespace HCore.Identity.Services.Impl
                 {
                     userSpec.PhoneNumber = ProcessPhoneNumber(userSpec.PhoneNumber);
                 }
-            } 
+            }
+
+            if (!userSpec.AcceptTermsAndConditions)
+                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
+
+            if (!userSpec.AcceptPrivacyPolicy)
+                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy");
 
             try
             {
