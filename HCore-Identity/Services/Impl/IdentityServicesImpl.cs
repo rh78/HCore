@@ -135,7 +135,7 @@ namespace HCore.Identity.Services.Impl
         {
             if (isSelfRegistration)
             {
-                if (_configurationProvider.SelfRegistration)
+                if (!_configurationProvider.SelfRegistration)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
             }
 
