@@ -216,6 +216,12 @@
   <data name="password_confirmation_no_match" xml:space="preserve">
     <value>The password confirmation is not matching the password</value>
   </data>
+  <data name="please_accept_terms_and_conditions" xml:space="preserve">
+    <value>Please accept our Terms and Conditions</value>
+  </data>
+  <data name="please_accept_privacy_policy" xml:space="preserve">
+    <value>Please accept our Privacy Policy</value>
+  </data>
   <data name="password_does_not_match" xml:space="preserve">
     <value>The password does not match our records</value>
   </data>
