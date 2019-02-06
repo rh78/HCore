@@ -116,9 +116,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 if (tenantInfo != null)
                 {
-                    string tenantName = tenantInfo.Name;
-                    if (!string.IsNullOrEmpty(tenantName))
-                        ProductName = tenantName;
+                    string developerName = tenantInfo.DeveloperName;
+                    if (!string.IsNullOrEmpty(developerName))
+                        ProductName = developerName;
 
                     string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
                     if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))

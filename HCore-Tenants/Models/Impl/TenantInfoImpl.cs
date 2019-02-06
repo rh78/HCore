@@ -8,6 +8,7 @@
         public byte[] DeveloperCertificate { get; internal set; }
         public string DeveloperCertificatePassword { get; internal set; }
         public string DeveloperAuthCookieDomain { get; internal set; }
+        public string DeveloperName { get; internal set; }
 
         public string DeveloperPrivacyPolicyUrl { get; internal set; }
         public int? DeveloperPrivacyPolicyVersion { get; internal set; }

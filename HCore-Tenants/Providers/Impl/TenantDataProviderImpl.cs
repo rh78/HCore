@@ -129,6 +129,7 @@ namespace HCore.Tenants.Providers.Impl
                         DeveloperCertificate = developer.Certificate,
                         DeveloperCertificatePassword = developer.CertificatePassword,
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
+                        DeveloperName = developer.Name,
                         DeveloperPrivacyPolicyUrl = developer.PrivacyPolicyUrl,
                         DeveloperPrivacyPolicyVersion = developer.PrivacyPolicyVersion,
                         DeveloperTermsAndConditionsUrl = developer.TermsAndConditionsUrl,

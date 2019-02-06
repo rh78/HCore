@@ -8,6 +8,7 @@
         byte[] DeveloperCertificate { get; }
         string DeveloperCertificatePassword { get; }
         string DeveloperAuthCookieDomain { get; }
+        string DeveloperName { get; }
 
         string DeveloperPrivacyPolicyUrl { get; }
         int? DeveloperPrivacyPolicyVersion { get; }
