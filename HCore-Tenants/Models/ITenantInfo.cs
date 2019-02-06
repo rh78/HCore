@@ -9,6 +9,12 @@
         string DeveloperCertificatePassword { get; }
         string DeveloperAuthCookieDomain { get; }
 
+        string DeveloperPrivacyPolicyUrl { get; }
+        int? DeveloperPrivacyPolicyVersion { get; }
+
+        string DeveloperTermsAndConditionsUrl { get; }
+        int? DeveloperTermsAndConditionsVersion { get; }
+
         long TenantUuid { get; }
 
         string Name { get; }

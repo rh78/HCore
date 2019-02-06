@@ -17,5 +17,11 @@
         bool RequireEmailConfirmed { get; }
 
         string IdentityChangeTasksAmqpAddress { get; }
+
+        string PrivacyPolicyUrl { get; }
+        int PrivacyPolicyVersion { get; }
+
+        string TermsAndConditionsUrl { get; }
+        int TermsAndConditionsVersion { get; }       
     }
 }

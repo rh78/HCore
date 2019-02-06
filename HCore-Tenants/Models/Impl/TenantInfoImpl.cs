@@ -9,6 +9,12 @@
         public string DeveloperCertificatePassword { get; internal set; }
         public string DeveloperAuthCookieDomain { get; internal set; }
 
+        public string DeveloperPrivacyPolicyUrl { get; internal set; }
+        public int? DeveloperPrivacyPolicyVersion { get; internal set; }
+
+        public string DeveloperTermsAndConditionsUrl { get; internal set; }
+        public int? DeveloperTermsAndConditionsVersion { get; internal set; }
+
         public long TenantUuid { get; internal set; }
 
         public string Name { get; internal set; }

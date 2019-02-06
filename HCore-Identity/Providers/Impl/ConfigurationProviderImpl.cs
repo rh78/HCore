@@ -20,6 +20,12 @@ namespace HCore.Identity.Providers.Impl
 
         public bool RequireEmailConfirmed { get; private set; }
 
+        public string PrivacyPolicyUrl { get; private set; }
+        public int PrivacyPolicyVersion { get; private set; }
+
+        public string TermsAndConditionsUrl { get; private set; }
+        public int TermsAndConditionsVersion { get; private set; }
+
         public string IdentityChangeTasksAmqpAddress { get; private set; }
         
         public ConfigurationProviderImpl(IConfiguration configuration)
@@ -54,6 +60,23 @@ namespace HCore.Identity.Providers.Impl
 
                 IdentityChangeTasksAmqpAddress = amqpAddressesSplit.FirstOrDefault(address => address.EndsWith(IdentityCoreConstants.IdentityChangeTasksAddressSuffix));
             }
+
+            PrivacyPolicyUrl = configuration["Identity:DefaultPrivacyPolicyUrl"];
+            if (string.IsNullOrEmpty(PrivacyPolicyUrl))
+                throw new Exception("Identity default privacy policy URL is empty");
+
+            PrivacyPolicyVersion = configuration.GetValue<int>("Identity:DefaultPrivacyPolicyVersion");
+            if (PrivacyPolicyVersion <= 0)
+                throw new Exception("Identity default privacy policy version is invalid");
+
+            TermsAndConditionsUrl = configuration["Identity:DefaultTermsAndConditionsUrl"];
+            if (string.IsNullOrEmpty(TermsAndConditionsUrl))
+                throw new Exception("Identity default terms and conditions URL is empty");
+
+            TermsAndConditionsVersion = configuration.GetValue<int>("Identity:DefaultTermsAndConditionsVersion");
+            if (TermsAndConditionsVersion <= 0)
+                throw new Exception("Identity default terms and conditions version is invalid");
+
         }
     }
 }

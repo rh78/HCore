@@ -20,6 +20,8 @@ using HCore.Identity.Amqp;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using HCore.Web.Providers;
+using HCore.Tenants.Providers;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -34,7 +36,12 @@ namespace HCore.Identity.Services.Impl
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
-        private readonly IConfigurationProvider _configurationProvider;
+        private readonly IConfigurationProvider _configurationProvider;       
+
+        private readonly INowProvider _nowProvider;
+
+        private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
         private readonly IServiceProvider _serviceProvider;
 
         public IdentityServicesImpl(
@@ -46,6 +53,7 @@ namespace HCore.Identity.Services.Impl
             IUrlHelper urlHelper,
             SqlServerIdentityDbContext identityDbContext,
             IConfigurationProvider configurationProvider,
+            INowProvider nowProvider,
             IServiceProvider serviceProvider)
         {
             _signInManager = signInManager;
@@ -56,7 +64,12 @@ namespace HCore.Identity.Services.Impl
             _urlHelper = urlHelper;
             _identityDbContext = identityDbContext;
             _configurationProvider = configurationProvider;
+
+            _nowProvider = nowProvider;
+
             _serviceProvider = serviceProvider;
+
+            _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
         public async Task<string> ReserveUserUuidAsync(string emailAddress)
@@ -174,6 +187,39 @@ namespace HCore.Identity.Services.Impl
                     {
                         user.EmailConfirmed = true;
                     }
+
+                    user.PrivacyPolicyAccepted = _nowProvider.Now;
+                    user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
+                    user.PrivacyPolicyVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
+
+                    user.TermsAndConditionsAccepted = _nowProvider.Now;
+                    user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
+                    user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
+
+                    if (_tenantInfoAccessor != null)
+                    {
+                        var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                        if (tenantInfo != null)
+                        {
+                            string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
+                            if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
+                                user.PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
+
+                            int? tenantPrivacyPolicyVersion = tenantInfo.DeveloperPrivacyPolicyVersion;
+                            if (tenantPrivacyPolicyVersion != null && tenantPrivacyPolicyVersion > 0)
+                                user.PrivacyPolicyVersionAccepted = tenantPrivacyPolicyVersion;
+
+                            string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
+                            if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
+                                user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+
+                            int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
+                            if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
+                                user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
+                        }
+                    }
+                                        
 
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 

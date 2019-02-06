@@ -32,6 +32,12 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxAuthCookieDomainLength)]
         public string AuthCookieDomain { get; set; }
 
+        public string PrivacyPolicyUrl { get; set; }
+        public int? PrivacyPolicyVersion { get; set; }
+
+        public string TermsAndConditionsUrl { get; set; }
+        public int? TermsAndConditionsVersion { get; set; }
+
         public byte[] Certificate { get; set; }
 
         [StringLength(MaxCertificatePasswordLength)]
