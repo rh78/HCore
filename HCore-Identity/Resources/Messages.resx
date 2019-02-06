@@ -360,4 +360,13 @@
   <data name="your_profile_has_been_updated" xml:space="preserve">
     <value>Your profile has been updated</value>
   </data>
+  <data name="accept_privacy_policy" xml:space="preserve">
+    <value>I have read the {0} &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically to answer my request.</value>
+  </data>
+  <data name="accept_terms_and_conditions" xml:space="preserve">
+    <value>I accept the {0} &lt;a href="{1}" target="_blank"&gt;Terms and Conditions&lt;/a&gt;.</value>
+  </data>
+  <data name="accept_communication" xml:space="preserve">
+    <value>I consent to receive email communications about {0} products and business in accordance with the &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time.</value>
+  </data>
 </root>

@@ -85,6 +85,8 @@ namespace HCore.Web.Exceptions
         public const string CannotDeleteLastSystemUserGroupMember = "cannot_delete_last_system_user_group_member";
         public const string SortByInvalid = "sort_by_invalid";
         public const string SortOrderInvalid = "sort_order_invalid";
+        public const string PleaseAcceptPrivacyPolicy = "please_accept_privacy_policy";
+        public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

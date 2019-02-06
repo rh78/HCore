@@ -29,6 +29,10 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public string TermsAndConditionsUrl { get; set; }
         public int? TermsAndConditionsVersionAccepted { get; set; }
 
+        public DateTimeOffset? CommunicationAccepted { get; set; }
+        public string CommunicationUrl { get; set; }
+        public int? CommunicationVersionAccepted { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))

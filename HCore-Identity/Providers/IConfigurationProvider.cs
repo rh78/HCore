@@ -22,6 +22,8 @@
         int PrivacyPolicyVersion { get; }
 
         string TermsAndConditionsUrl { get; }
-        int TermsAndConditionsVersion { get; }       
+        int TermsAndConditionsVersion { get; }   
+        
+        string ProductName { get; }
     }
 }

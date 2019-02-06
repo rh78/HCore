@@ -61,6 +61,33 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I consent to receive email communications about {0} products and business in accordance with the &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time. ähnelt.
+        /// </summary>
+        public static string accept_communication {
+            get {
+                return ResourceManager.GetString("accept_communication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I have read the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically to answer my request. ähnelt.
+        /// </summary>
+        public static string accept_privacy_policy {
+            get {
+                return ResourceManager.GetString("accept_privacy_policy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die I accept the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Terms and Conditions&lt;/a&gt;. ähnelt.
+        /// </summary>
+        public static string accept_terms_and_conditions {
+            get {
+                return ResourceManager.GetString("accept_terms_and_conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Access denied ähnelt.
         /// </summary>
         public static string access_to_page_denied_header {

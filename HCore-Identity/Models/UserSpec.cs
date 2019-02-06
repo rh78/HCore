@@ -114,7 +114,15 @@ namespace HCore.Identity.Models
         public bool? PhoneNumberConfirmed { get => _PhoneNumberConfirmed; set { _PhoneNumberConfirmed = value; PhoneNumberConfirmedSet = true; } }
 
         public bool PhoneNumberConfirmedSet = false;
-      
+
+        [Required]
+        public bool AcceptTermsAndConditions { get; set; }
+
+        [Required]
+        public bool AcceptPrivacyPolicy { get; set; }
+
+        public bool AcceptCommunication { get; set; }
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>

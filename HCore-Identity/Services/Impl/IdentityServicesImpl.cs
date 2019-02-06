@@ -135,9 +135,15 @@ namespace HCore.Identity.Services.Impl
         {
             if (isSelfRegistration)
             {
-                if (!_configurationProvider.SelfRegistration)
+                if (_configurationProvider.SelfRegistration)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
             }
+
+            if (!userSpec.AcceptTermsAndConditions)
+                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
+
+            if (!userSpec.AcceptPrivacyPolicy)
+                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy");
 
             userSpec.Email = ProcessEmail(userSpec.Email);
             userSpec.Password = ProcessPassword(userSpec.Password);
@@ -192,6 +198,13 @@ namespace HCore.Identity.Services.Impl
                     user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
                     user.PrivacyPolicyVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
 
+                    if (userSpec.AcceptCommunication)
+                    {
+                        user.CommunicationAccepted = _nowProvider.Now;
+                        user.CommunicationUrl = _configurationProvider.PrivacyPolicyUrl;
+                        user.CommunicationVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
+                    }
+
                     user.TermsAndConditionsAccepted = _nowProvider.Now;
                     user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
                     user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
@@ -204,11 +217,21 @@ namespace HCore.Identity.Services.Impl
                         {
                             string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
                             if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
+                            {
                                 user.PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
+
+                                if (userSpec.AcceptCommunication)
+                                    user.CommunicationUrl = tenantPrivacyPolicyUrl;
+                            }
 
                             int? tenantPrivacyPolicyVersion = tenantInfo.DeveloperPrivacyPolicyVersion;
                             if (tenantPrivacyPolicyVersion != null && tenantPrivacyPolicyVersion > 0)
+                            {
                                 user.PrivacyPolicyVersionAccepted = tenantPrivacyPolicyVersion;
+
+                                if (userSpec.AcceptCommunication)
+                                    user.CommunicationVersionAccepted = tenantPrivacyPolicyVersion;
+                            }
 
                             string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
                             if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
@@ -219,7 +242,6 @@ namespace HCore.Identity.Services.Impl
                                 user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
                         }
                     }
-                                        
 
                     var result = await _userManager.CreateAsync(user, userSpec.Password).ConfigureAwait(false);
 

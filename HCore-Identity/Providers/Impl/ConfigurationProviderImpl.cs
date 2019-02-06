@@ -26,6 +26,8 @@ namespace HCore.Identity.Providers.Impl
         public string TermsAndConditionsUrl { get; private set; }
         public int TermsAndConditionsVersion { get; private set; }
 
+        public string ProductName { get; private set; }
+
         public string IdentityChangeTasksAmqpAddress { get; private set; }
         
         public ConfigurationProviderImpl(IConfiguration configuration)
@@ -77,6 +79,9 @@ namespace HCore.Identity.Providers.Impl
             if (TermsAndConditionsVersion <= 0)
                 throw new Exception("Identity default terms and conditions version is invalid");
 
+            ProductName = configuration["Identity:DefaultProductName"];
+            if (string.IsNullOrEmpty(ProductName))
+                throw new Exception("Identity default product name is invalid");
         }
     }
 }
