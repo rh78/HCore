@@ -91,26 +91,6 @@
     </script>
 }
 
-@if (Model.SubmitSegmentAnonymousUserUuid)
-{
-    <script language="JavaScript">
-        var segmentAnonymousUserUuid = getCookieValue('ajs_anonymous_id');
-
-        if (segmentAnonymousUserUuid) {
-            var element = document.getElementById('segmentAnonmyousUserUuid');
-
-            if (element) {
-                element.value = segmentAnonymousUserUuid;
-            }
-        }
-
-        function getCookieValue(a) {
-            var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
-            return b ? b.pop() : '';
-        }
-    </script>
-}
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

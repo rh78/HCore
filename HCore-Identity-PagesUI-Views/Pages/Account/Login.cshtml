@@ -54,14 +54,33 @@
     }
     else
     {
-
         <div class="col-md-4 col-md-offset-4">
-            <div class="alert alert-warning">                
-               @Messages.sign_in_no_login_schemes_text
+            <div class="alert alert-warning">
+                @Messages.sign_in_no_login_schemes_text
             </div>
         </div>
     }
 </div>
+
+@if (Model.SubmitSegmentAnonymousUserUuid)
+{
+    <script language="JavaScript">
+        var segmentAnonymousUserUuid = getCookieValue('ajs_anonymous_id');
+
+        if (segmentAnonymousUserUuid) {
+            var element = document.getElementById('segmentAnonmyousUserUuid');
+
+            if (element) {
+                element.value = segmentAnonymousUserUuid;
+            }
+        }
+
+        function getCookieValue(a) {
+            var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+            return b ? b.pop() : '';
+        }
+    </script>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
