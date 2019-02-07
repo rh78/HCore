@@ -62,7 +62,9 @@ namespace HCore.Identity.Models
         [DataMember(Name="remember")]
 		public bool Remember { get => _Remember != null ? (bool)_Remember : false; set { _Remember = value; RememberSet = true; } }
 		
-		public bool RememberSet = false;		
+		public bool RememberSet = false;	
+        
+        public string SegmentAnonymousUserUuid { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

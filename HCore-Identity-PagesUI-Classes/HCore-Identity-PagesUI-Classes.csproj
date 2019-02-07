@@ -12,6 +12,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />
+    <ProjectReference Include="..\HCore-Segment\HCore-Segment.csproj" />
   </ItemGroup>
 
 </Project>

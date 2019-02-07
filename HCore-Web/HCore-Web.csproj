@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HCore-Segment\HCore-Segment.csproj" />
     <ProjectReference Include="..\HCore-Translations\HCore-Translations.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AssemblyName>HCore.Segment</AssemblyName>
+    <RootNamespace>HCore.Segment</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Analytics.MultiPlatformTest" Version="0.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
+  </ItemGroup>
+
+</Project>

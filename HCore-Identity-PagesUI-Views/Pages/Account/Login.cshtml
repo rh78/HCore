@@ -22,7 +22,7 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="Input.Password"></label>
-                        <input type="password" autocomplete="off" asp-for="Input.Password" class="form-control" />                       
+                        <input type="password" autocomplete="off" asp-for="Input.Password" class="form-control" />
                     </div>
                     <div class="form-group">
                         <div class="checkbox">
@@ -32,9 +32,10 @@
                             </label>
                         </div>
                     </div>
+                    <input type="hidden" asp-for="Input.SegmentAnonymousUserUuid" id="segmentAnonmyousUserUuid" />
                     <div class="form-group">
                         <button type="submit" name="action" value="submit" class="btn btn-default">@Messages.button_sign_in</button>
-                        <button name="action" value="cancel" class="btn btn-default cancel">@Messages.button_cancel</button>                        
+                        <button name="action" value="cancel" class="btn btn-default cancel">@Messages.button_cancel</button>
                     </div>
                     <div class="form-group">
                         <p>

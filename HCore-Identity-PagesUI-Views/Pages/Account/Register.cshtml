@@ -65,10 +65,51 @@
                     </label>
                 </div>
             </div>
+            <input type="hidden" asp-for="Input.SegmentAnonymousUserUuid" id="segmentAnonmyousUserUuid" />
             <button type="submit" class="btn btn-default">@Messages.button_register</button>
         </form>
     </div>
 </div>
+
+@if (Model.SubmitSegmentAnonymousUserUuid)
+{
+    <script language="JavaScript">
+        var segmentAnonymousUserUuid = getCookieValue('ajs_anonymous_id');
+
+        if (segmentAnonymousUserUuid) {
+            var element = document.getElementById('segmentAnonmyousUserUuid');
+
+            if (element) {
+                element.value = segmentAnonymousUserUuid;
+            }
+        }
+
+        function getCookieValue(a) {
+            var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+            return b ? b.pop() : '';
+        }
+    </script>
+}
+
+@if (Model.SubmitSegmentAnonymousUserUuid)
+{
+    <script language="JavaScript">
+        var segmentAnonymousUserUuid = getCookieValue('ajs_anonymous_id');
+
+        if (segmentAnonymousUserUuid) {
+            var element = document.getElementById('segmentAnonmyousUserUuid');
+
+            if (element) {
+                element.value = segmentAnonymousUserUuid;
+            }
+        }
+
+        function getCookieValue(a) {
+            var b = document.cookie.match('(^|;)\\s*' + a + '\\s*=\\s*([^;]+)');
+            return b ? b.pop() : '';
+        }
+    </script>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

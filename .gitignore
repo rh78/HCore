@@ -8,6 +8,8 @@
 /HCore-Cache/obj
 /HCore-Rest/bin
 /HCore-Rest/obj
+/HCore-Segment/bin
+/HCore-Segment/obj
 /HCore-Templating/bin
 /HCore-Templating/obj
 /HCore-Web/bin

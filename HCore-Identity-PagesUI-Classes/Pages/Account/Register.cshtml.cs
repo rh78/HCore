@@ -13,6 +13,9 @@ using HCore.Tenants.Providers;
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
+using HCore.Segment.Providers;
+using Segment.Model;
+using System.Collections.Generic;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -22,6 +25,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;        
         private readonly IEventService _events;
+
+        private readonly ISegmentProvider _segmentProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
@@ -36,6 +41,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             
             _events = events;
 
+            _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
+
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
@@ -46,9 +53,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public string PrivacyPolicyUrl { get; set; }
         public string TermsAndConditionsUrl { get; set; }
 
+        public bool SubmitSegmentAnonymousUserUuid { get; set; }
+
         public void OnGet(string emailAddress = null)
         {
-            ProcessGdprData();
+            PrepareModel();
 
             emailAddress = ProcessEmail(emailAddress);
 
@@ -77,13 +86,15 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public async Task<IActionResult> OnPostAsync()
         {
-            ProcessGdprData();
+            PrepareModel();
 
             ModelState.Clear();
 
             try
             {
                 UserModel user = await _identityServices.CreateUserAsync(Input, isSelfRegistration: true).ConfigureAwait(false);
+
+                PerformTracking(user);
 
                 if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
                 {
@@ -104,8 +115,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-        private void ProcessGdprData()
+        private void PrepareModel()
         {
+            if (_segmentProvider != null)
+            {
+                SubmitSegmentAnonymousUserUuid = true;
+            }
+
             ProductName = _configurationProvider.ProductName;
             PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
             TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
@@ -127,6 +143,46 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
                     if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
                         TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+                }
+            }
+        }
+
+        private void PerformTracking(UserModel user)
+        {
+            if (_segmentProvider != null)
+            {
+                var segmentClient = _segmentProvider.GetSegmentClient();
+
+                if (!string.IsNullOrEmpty(Input.SegmentAnonymousUserUuid))
+                {
+                    string segmentAnonymousUserUuid = Input.SegmentAnonymousUserUuid;
+                    segmentAnonymousUserUuid = segmentAnonymousUserUuid.Replace("%22", "");
+
+                    segmentClient.Alias(segmentAnonymousUserUuid, user.Id);
+                }
+
+                segmentClient.Identify(user.Id, new Traits()
+                    {
+                        { "firstName", user.FirstName },
+                        { "lastName", user.LastName },
+                        { "createdAt", user.TermsAndConditionsAccepted?.ToString("o") },
+                        { "email", user.Email }
+                    });
+
+                if (_tenantInfoAccessor != null)
+                {
+                    var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                    segmentClient.Track(user.Id, "Registered", new Dictionary<string, object>()
+                        {
+                            { "developerName", tenantInfo?.DeveloperName },
+                            { "tenantId", tenantInfo?.TenantUuid },
+                            { "tenantName", tenantInfo?.Name }
+                        });
+                }
+                else
+                {
+                    segmentClient.Track(user.Id, "Registered");
                 }
             }
         }

@@ -13,6 +13,12 @@ using IdentityServer4.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Providers;
+using HCore.Tenants.Providers;
+using HCore.Segment.Providers;
+using System;
+using Segment.Model;
+using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -27,13 +33,18 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
 
+        private readonly ISegmentProvider _segmentProvider;
+
+        private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
         public LoginModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
-            IEventService events)
+            IEventService events,
+            IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
             _configurationProvider = configurationProvider;
@@ -41,6 +52,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+
+            _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
+
+            _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
         public string UserName { get; set; }
@@ -52,6 +67,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         [BindProperty]
         public UserSignInSpec Input { get; set; }
+
+        public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
         public async Task OnGetAsync(string returnUrl = null)
         {            
@@ -102,6 +119,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 UserModel user = await _identityServices.SignInUserAsync(Input).ConfigureAwait(false);
 
+                PerformTracking(user);
+
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
                 
                 if (IsLocalAuthorization)
@@ -144,6 +163,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private async Task PrepareModelAsync(string returnUrl)
         {
+            if (_segmentProvider != null)
+            {
+                SubmitSegmentAnonymousUserUuid = true;
+            }
+
             if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = "~/";
 
@@ -170,6 +194,46 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             ReturnUrl = returnUrl;
             UserName = context?.LoginHint;
+        }
+
+        private void PerformTracking(UserModel user)
+        {
+            if (_segmentProvider != null)
+            {
+                var segmentClient = _segmentProvider.GetSegmentClient();
+
+                if (!string.IsNullOrEmpty(Input.SegmentAnonymousUserUuid))
+                {
+                    string segmentAnonymousUserUuid = Input.SegmentAnonymousUserUuid;
+                    segmentAnonymousUserUuid = segmentAnonymousUserUuid.Replace("%22", "");
+
+                    segmentClient.Alias(segmentAnonymousUserUuid, user.Id);
+                }
+
+                segmentClient.Identify(user.Id, new Traits()
+                    {
+                        { "firstName", user.FirstName },
+                        { "lastName", user.LastName },
+                        { "createdAt", user.TermsAndConditionsAccepted?.ToString("o") },
+                        { "email", user.Email }
+                    });
+
+                if (_tenantInfoAccessor != null)
+                {
+                    var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                    segmentClient.Track(user.Id, "Logged in", new Dictionary<string, object>()
+                        {
+                            { "developerName", tenantInfo?.DeveloperName },
+                            { "tenantId", tenantInfo?.TenantUuid },
+                            { "tenantName", tenantInfo?.Name }
+                        });
+                }
+                else
+                {
+                    segmentClient.Track(user.Id, "Logged in");
+                }
+            }
         }
     }
 }

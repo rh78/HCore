@@ -123,6 +123,8 @@ namespace HCore.Identity.Models
 
         public bool AcceptCommunication { get; set; }
 
+        public string SegmentAnonymousUserUuid { get; set; }
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>

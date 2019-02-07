@@ -50,6 +50,7 @@ namespace HCore.Web.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigureLogging(services);
             ConfigureHttpContextAccessor(services);
             ConfigureLocalization(services);
             ConfigureUrlHelper(services);
@@ -60,6 +61,16 @@ namespace HCore.Web.Startup
             ConfigureGenericServices(services);
 
             ConfigureCoreServices(services);            
+        }
+
+        private void ConfigureLogging(IServiceCollection services)
+        {
+            bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
+
+            if (useSegment)
+            {
+                services.AddSegment(Configuration);
+            }
         }
 
         protected virtual void ConfigureHttpContextAccessor(IServiceCollection services)
@@ -180,7 +191,12 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
         {
-            
+            bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
+
+            if (useSegment)
+            {
+                app.UseSegment();
+            }
         }
 
         protected virtual void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)
