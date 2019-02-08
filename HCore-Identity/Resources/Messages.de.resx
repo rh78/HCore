@@ -118,255 +118,255 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="access_to_page_denied_header_text" xml:space="preserve">
-    <value>Sorry, but you do not have permissions to view this page.</value>
+    <value>Leider haben Sie nicht die Berechtigung, diese Seite zu besuchen.</value>
   </data>
   <data name="access_to_page_denied_header" xml:space="preserve">
-    <value>Access denied</value>
+    <value>Zugang verweigert</value>
   </data>
   <data name="button_cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Abbrechen</value>
   </data>
   <data name="button_create_user_account" xml:space="preserve">
-    <value>Create user account</value>
+    <value>Benutzerkonto anlegen</value>
   </data>
   <data name="button_log_out" xml:space="preserve">
-    <value>Log out</value>
+    <value>Abmelden</value>
   </data>
   <data name="button_register" xml:space="preserve">
-    <value>Register</value>
+    <value>Registrieren</value>
   </data>
   <data name="button_reset_password" xml:space="preserve">
-    <value>Reset password</value>
+    <value>Passwort zurücksetzen</value>
   </data>
   <data name="button_save" xml:space="preserve">
-    <value>Save</value>
+    <value>Speichern</value>
   </data>
   <data name="button_sign_in" xml:space="preserve">
-    <value>Sign in</value>
+    <value>Anmelden</value>
   </data>
   <data name="button_submit" xml:space="preserve">
-    <value>Submit</value>
+    <value>Absenden</value>
   </data>
   <data name="change_password_button_text" xml:space="preserve">
-    <value>Change password</value>
+    <value>Passwort ändern</value>
   </data>
   <data name="change_password_title" xml:space="preserve">
-    <value>Change password</value>
+    <value>Passwort ändern</value>
   </data>
   <data name="confirm_email_header" xml:space="preserve">
-    <value>Email address verified</value>
+    <value>E-Mail-Adresse bestätigt</value>
   </data>
   <data name="confirm_email_header_text" xml:space="preserve">
-    <value>You successfully verified your email address. Thank you very much!</value>
+    <value>Sie haben Ihre E-Mail-Adresse erfolgreich bestätigt. Vielen Dank!</value>
   </data>
   <data name="email_address" xml:space="preserve">
-    <value>Email</value>
+    <value>E-Mail</value>
   </data>
   <data name="email_confirmation_send_header_text_suffix" xml:space="preserve">
-    <value>.</value>
+    <value>um sich anzumelden.</value>
   </data>
   <data name="email_confirmation_sent_header" xml:space="preserve">
-    <value>The verification email was sent</value>
+    <value>Die Bestätigungs-Nachricht wurde gesendet</value>
   </data>
   <data name="email_confirmation_sent_header_text" xml:space="preserve">
-    <value>Please check your email inbox to verify your email address.</value>
+    <value>Bitte überprüfen Sie Ihr E-Mail-Postfach um Ihre E-Mail-Adresse zu bestätigen.</value>
   </data>
   <data name="email_confirmation_sent_header_text_link" xml:space="preserve">
-    <value>please click here to log in</value>
+    <value>hier</value>
   </data>
   <data name="email_confirmation_sent_header_text_prefix" xml:space="preserve">
-    <value>Then</value>
+    <value>Danach klicken Sie bitte</value>
   </data>
   <data name="email_not_confirmed_button_resend" xml:space="preserve">
-    <value>Resend verification email</value>
+    <value>Bestätigungs-Nachricht erneut senden</value>
   </data>
   <data name="email_not_confirmed_header" xml:space="preserve">
-    <value>Please verify your email address</value>
+    <value>Bitte bestätigen Sie Ihre E-Mail-Adresse</value>
   </data>
   <data name="email_not_confirmed_header_text" xml:space="preserve">
-    <value>We sent a verification email message to your email address. Please check your email inbox and click the link in the message to verify your email address.</value>
+    <value>Wir haben eine Bestätigungs-Nachricht an Ihre E-Mail-Adresse gesendet. Bitte überprüfen Sie Ihr E-Mail-Postfach und klicken Sie den Link in der Nachricht um Ihre E-Mail-Adresse zu bestätigen.</value>
   </data>
   <data name="first_name" xml:space="preserve">
-    <value>First Name</value>
+    <value>Vorname</value>
   </data>
   <data name="forgot_password_confirmation_header" xml:space="preserve">
-    <value>Your password reset email was sent</value>
+    <value>Die E-Mail-Nachricht wurde gesendet</value>
   </data>
   <data name="forgot_password_confirmation_header_text_link" xml:space="preserve">
-    <value>click here to log in</value>
+    <value>hier klicken</value>
   </data>
   <data name="forgot_password_confirmation_header_text" xml:space="preserve">
-    <value>We sent a password reset email message to your email address. Please check your email inbox and click the link in the message to reset your password.</value>
+    <value>Wir haben eine E-Mail-Nachricht an Sie gesendet. Bitte überprüfen Sie Ihr E-Mail-Postfach und klicken Sie den Link in der Nachricht um Ihr Passwort zurückzusetzen.</value>
   </data>
   <data name="forgot_password_confirmation_header_text_prefix" xml:space="preserve">
-    <value>You can also</value>
+    <value>Sie können auch</value>
   </data>
   <data name="forgot_password_confirmation_header_text_suffix" xml:space="preserve">
-    <value>.</value>
+    <value>um sich anzumelden.</value>
   </data>
   <data name="confirm_email_header_text_prefix" xml:space="preserve">
-    <value>Please</value>
+    <value>Klicken Sie bitte</value>
   </data>
   <data name="confirm_email_header_text_suffix" xml:space="preserve">
-    <value>.</value>
+    <value>um sich anzumelden.</value>
   </data>
   <data name="confirm_email_header_text_link" xml:space="preserve">
-    <value>click here to log in</value>
+    <value>hier</value>
   </data>
   <data name="forgot_password_header" xml:space="preserve">
-    <value>Did you forget your password?</value>
+    <value>Haben Sie Ihr Passwort vergessen?</value>
   </data>
   <data name="forgot_password_header_text" xml:space="preserve">
-    <value>No problem, we can send a link to your email address which you can use to reset your password. Please just enter your email address below.</value>
+    <value>Kein Problem, wir können Ihnen einen Link an Ihre E-Mail-Adresse senden, mit dem Sie Ihr Passwort zurücksetzen können. Geben Sie einfach Ihre E-Mail-Adresse ein.</value>
   </data>
   <data name="last_name" xml:space="preserve">
-    <value>Last Name</value>
+    <value>Nachname</value>
   </data>
   <data name="log_out_confirmed_header" xml:space="preserve">
-    <value>You are now logged out</value>
+    <value>Sie wurden abgemeldet</value>
   </data>
   <data name="log_out_confirmed_redirect_text_link" xml:space="preserve">
-    <value>here</value>
+    <value>hier</value>
   </data>
   <data name="log_out_confirmed_redirect_text_prefix" xml:space="preserve">
-    <value>Click</value>
+    <value>Klicken Sie bitte</value>
   </data>
   <data name="log_out_confirmed_redirect_text_suffix" xml:space="preserve">
-    <value>to return to the main page.</value>
+    <value>um zur Hauptseite zurückzukehren.</value>
   </data>
   <data name="log_out_confirmed_header_text" xml:space="preserve">
-    <value>We hope to see you back again soon!</value>
+    <value>Hoffentlich besuchen Sie uns bald wieder!</value>
   </data>
   <data name="log_out_title" xml:space="preserve">
-    <value>Log out</value>
+    <value>Abmelden</value>
   </data>
   <data name="log_out_header" xml:space="preserve">
-    <value>Would you like to log out?</value>
+    <value>Wollen Sie sich abmelden?</value>
   </data>
   <data name="log_out_header_text" xml:space="preserve">
-    <value>Please click the button below to confirm.</value>
+    <value>Bitte klicken Sie die Schaltfläche unten, um die Abmeldung zu bestätigen.</value>
   </data>
   <data name="manage_account_header" xml:space="preserve">
-    <value>Manage your account</value>
+    <value>Benutzerkonto verwalten</value>
   </data>
   <data name="manage_account_password_link" xml:space="preserve">
-    <value>Password</value>
+    <value>Passwort</value>
   </data>
   <data name="manage_account_profile_link" xml:space="preserve">
-    <value>Profile</value>
+    <value>Profil</value>
   </data>
   <data name="manage_account_subheader" xml:space="preserve">
-    <value>Change your account settings</value>
+    <value>Ändern Sie Ihre Konto-Einstellungen</value>
   </data>
   <data name="new_password" xml:space="preserve">
-    <value>New Password</value>
+    <value>Neues Passwort</value>
   </data>
   <data name="new_password_confirmation" xml:space="preserve">
-    <value>Confirm New Password</value>
+    <value>Neues Passwort bestätigen</value>
   </data>
   <data name="old_password" xml:space="preserve">
-    <value>Old Password</value>
+    <value>Altes Passwort</value>
   </data>
   <data name="password" xml:space="preserve">
-    <value>Password</value>
+    <value>Passwort</value>
   </data>
   <data name="password_confirmation" xml:space="preserve">
-    <value>Confirm Password</value>
+    <value>Passwort bestätigen</value>
   </data>
   <data name="profile_title" xml:space="preserve">
-    <value>Profile</value>
+    <value>Profil</value>
   </data>
   <data name="profile_resend_verification_email_link" xml:space="preserve">
-    <value>Resend confirmation email</value>
+    <value>Bestätigungs-Nachricht erneut senden</value>
   </data>
   <data name="register_header" xml:space="preserve">
-    <value>Registration</value>
+    <value>Registrieren</value>
   </data>
   <data name="register_header_text" xml:space="preserve">
-    <value>Register for your new user account now.</value>
+    <value>Registrieren Sie jetzt Ihr neues Benutzerkonto.</value>
   </data>
   <data name="remember" xml:space="preserve">
-    <value>Remember login</value>
+    <value>Anmeldung merken</value>
   </data>
   <data name="reset_password_confirmation_header" xml:space="preserve">
-    <value>Your password has been reset</value>
+    <value>Ihr Passwort wurde zurückgesetzt</value>
   </data>
   <data name="reset_password_confirmation_header_text" xml:space="preserve">
-    <value>Your password has been reset successfully.</value>
+    <value>Ihr Passwort wurde erfolgreich zurückgesetzt.</value>
   </data>
   <data name="reset_password_confirmation_header_text_link" xml:space="preserve">
-    <value>click here to log in</value>
+    <value>hier</value>
   </data>
   <data name="reset_password_confirmation_header_text_prefix" xml:space="preserve">
-    <value>Please</value>
+    <value>Bitte klicken Sie</value>
   </data>
   <data name="reset_password_confirmation_header_text_suffix" xml:space="preserve">
-    <value>.</value>
+    <value>um sich anzumelden.</value>
   </data>
   <data name="reset_password_header" xml:space="preserve">
-    <value>Reset your password</value>
+    <value>Passwort zurücksetzen</value>
   </data>
   <data name="sign_in_button_forgot_password" xml:space="preserve">
-    <value>Forgot password?</value>
+    <value>Passwort vergessen?</value>
   </data>
   <data name="sign_in_button_register" xml:space="preserve">
-    <value>Register new user account</value>
+    <value>Neues Benutzerkonto anlegen</value>
   </data>
   <data name="sign_in_header" xml:space="preserve">
-    <value>Sign in</value>
+    <value>Anmelden</value>
   </data>
   <data name="sign_in_header_text" xml:space="preserve">
-    <value>Welcome! Please enter your user credentials to sign in.</value>
+    <value>Willkommen! Bitte geben Sie Ihre Zugangsdaten ein, um sich anzumelden.</value>
   </data>
   <data name="sign_in_no_login_schemes_text" xml:space="preserve">
-    <value>There are no login schemes configured for this client.</value>
+    <value>Für diesen Klienten sind leider keine Login-Schematas konfiguriert.</value>
   </data>
   <data name="access_to_page_denied_title" xml:space="preserve">
-    <value>Access denied</value>
+    <value>Zugang verweigert</value>
   </data>
   <data name="confirm_email_title" xml:space="preserve">
-    <value>Email address verified</value>
+    <value>E-Mail-Adresse bestätigt</value>
   </data>
   <data name="email_confirmation_sent_title" xml:space="preserve">
-    <value>Verification email sent</value>
+    <value>Bestätigungs-Nachricht gesendet</value>
   </data>
   <data name="email_not_confirmed_title" xml:space="preserve">
-    <value>Verify your email address</value>
+    <value>Bestätigen Sie Ihre E-Mail-Adresse</value>
   </data>
   <data name="forgot_password_confirmation_title" xml:space="preserve">
-    <value>Password reset email sent</value>
+    <value>E-Mail-Nachricht gesendet</value>
   </data>
   <data name="forgot_password_title" xml:space="preserve">
-    <value>Forgot password</value>
+    <value>Passwort vergessen</value>
   </data>
   <data name="register_title" xml:space="preserve">
-    <value>Registration</value>
+    <value>Registrieren</value>
   </data>
   <data name="reset_password_confirmation_title" xml:space="preserve">
-    <value>Password reset</value>
+    <value>Passwort zurückgesetzt</value>
   </data>
   <data name="reset_password_title" xml:space="preserve">
-    <value>Reset password</value>
+    <value>Passwort zurücksetzen</value>
   </data>
   <data name="sign_in_title" xml:space="preserve">
-    <value>Sign in</value>
+    <value>Anmelden</value>
   </data>
   <data name="verification_email_resent" xml:space="preserve">
-    <value>The verification email has been sent, please check your email</value>
+    <value>Die Bestätigungs-Nachricht wurde gesendet, bitte überprüfen Sie Ihr E-Mail-Postfach</value>
   </data>
   <data name="your_password_has_been_changed" xml:space="preserve">
-    <value>Your password has been changed</value>
+    <value>Ihr Passwort wurde geändert</value>
   </data>
   <data name="your_profile_has_been_updated" xml:space="preserve">
-    <value>Your profile has been updated</value>
+    <value>Ihr Profil wurde aktualisiert</value>
   </data>
   <data name="accept_privacy_policy" xml:space="preserve">
-    <value>I have read the {0} &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy.</value>
+    <value>Ich habe die {0}&lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzbestimmung elektronisch erfasst und gespeichert werden.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
-    <value>I accept the {0} &lt;a href="{1}" target="_blank"&gt;Terms and Conditions&lt;/a&gt;.</value>
+    <value>Ich akzeptiere die {0} &lt;a href="{1}" target="_blank"&gt;Nutzungsbedingungen&lt;/a&gt;.</value>
   </data>
   <data name="accept_communication" xml:space="preserve">
-    <value>I consent to receive email communications about {0} products and business in accordance with the &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time.</value>
+    <value>Ich bin damit einverstanden, in Übereinstimmung mit der &lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; E-Mail-Nachrichten über {0} Produkte und Neuigkeiten zu erhalten. Ich habe verstanden, dass ich diese Zustimmung jederzeit widerrufen kann.</value>
   </data>
 </root>
