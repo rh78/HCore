@@ -364,7 +364,7 @@
     <value>Ich habe die {0} &lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzbestimmung elektronisch erfasst und gespeichert werden.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
-    <value>Ich akzeptiere die {0} &lt;a href="{1}" target="_blank"&gt;Nutzungsbedingungen&lt;/a&gt;.</value>
+    <value>Ich akzeptiere die &lt;a href="{1}" target="_blank"&gt;Allgemeinen Geschäftsbedingungen&lt;/a&gt; von {0}.</value>
   </data>
   <data name="accept_communication" xml:space="preserve">
     <value>Ich bin damit einverstanden, in Übereinstimmung mit der &lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; E-Mail-Nachrichten über {0} Produkte und Neuigkeiten zu erhalten. Ich habe verstanden, dass ich diese Zustimmung jederzeit widerrufen kann.</value>
