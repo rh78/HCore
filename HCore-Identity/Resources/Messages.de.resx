@@ -361,7 +361,7 @@
     <value>Ihr Profil wurde aktualisiert</value>
   </data>
   <data name="accept_privacy_policy" xml:space="preserve">
-    <value>Ich habe die {0}&lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzbestimmung elektronisch erfasst und gespeichert werden.</value>
+    <value>Ich habe die {0} &lt;a href="{1}" target="_blank"&gt;Datenschutzbestimmung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzbestimmung elektronisch erfasst und gespeichert werden.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
     <value>Ich akzeptiere die {0} &lt;a href="{1}" target="_blank"&gt;Nutzungsbedingungen&lt;/a&gt;.</value>
