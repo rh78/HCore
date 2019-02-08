@@ -118,316 +118,316 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="access_token_expired" xml:space="preserve">
-    <value>The access token is invalid or expired</value>
+    <value>Das Zugangstoken ist ungültig oder abgelaufen</value>
   </data>
   <data name="account_locked_out" xml:space="preserve">
-    <value>The user account is locked out</value>
+    <value>Das Benutzerkonto ist gesperrt</value>
   </data>
   <data name="api_credentials_missing" xml:space="preserve">
-    <value>The API credentials are missing</value>
+    <value>Die API-Anmeldeinformationen fehlen</value>
   </data>
   <data name="client_id_invalid" xml:space="preserve">
-    <value>The client ID contains invalid characters</value>
+    <value>Die Client-ID enthält ungültige Zeichen</value>
   </data>
   <data name="client_id_missing" xml:space="preserve">
-    <value>The client ID is missing</value>
+    <value>Die Client-ID fehlt</value>
   </data>
   <data name="client_id_too_long" xml:space="preserve">
-    <value>The client ID is too long</value>
+    <value>Die Client-ID ist zu lang</value>
   </data>
   <data name="client_secret_invalid" xml:space="preserve">
-    <value>The client secret contains invalid characters</value>
+    <value>Das Client-Secret enthält ungültige Zeichen</value>
   </data>
   <data name="client_secret_missing" xml:space="preserve">
-    <value>The client secret is missing</value>
+    <value>Das Client-Secret fehlt</value>
   </data>
   <data name="client_secret_too_long" xml:space="preserve">
-    <value>The client secret is too long</value>
+    <value>Das Client-Secret ist zu lang</value>
   </data>
   <data name="code_invalid" xml:space="preserve">
-    <value>The code contains invalid characters</value>
+    <value>Der Code enthält ungültige Zeichen</value>
   </data>
   <data name="code_missing" xml:space="preserve">
-    <value>The code is missing</value>
+    <value>Der Code fehlt</value>
   </data>
   <data name="code_too_long" xml:space="preserve">
-    <value>The code is too long</value>
+    <value>Der Code ist zu lang</value>
   </data>
   <data name="duplicate_user_name" xml:space="preserve">
-    <value>This user name already exists</value>
+    <value>Dieser Benutzername ist schon vergeben</value>
   </data>
   <data name="email_invalid" xml:space="preserve">
-    <value>The email address is invalid</value>
+    <value>Die E-Mail-Adresse ist ungültig</value>
   </data>
   <data name="email_missing" xml:space="preserve">
-    <value>The email address is missing</value>
+    <value>Die E-Mail-Adresse fehlt</value>
   </data>
   <data name="email_too_long" xml:space="preserve">
-    <value>The email address is too long</value>
+    <value>Die E-Mail-Adresse ist zu lang</value>
   </data>
   <data name="internal_server_error" xml:space="preserve">
-    <value>An unexpected server error occured</value>
+    <value>Ein unerwarteter Serverfehler ist aufgetreten</value>
   </data>
   <data name="invalid_credentials" xml:space="preserve">
-    <value>The user credentials are not valid</value>
+    <value>Die Anmeldedaten sind nicht gültig</value>
   </data>
   <data name="issuer_invalid" xml:space="preserve">
-    <value>The issuer is invalid</value>
+    <value>Der Aussteller ist ungültig</value>
   </data>
   <data name="issuer_missing" xml:space="preserve">
-    <value>The issuer is missing</value>
+    <value>Der Aussteller fehlt</value>
   </data>
   <data name="issuer_too_long" xml:space="preserve">
-    <value>The issuer is too long</value>
+    <value>Der Aussteller ist zu lang</value>
   </data>
   <data name="max_paging_limit_exceeded" xml:space="preserve">
-    <value>The paging limit must not exceed 50 records</value>
+    <value>Die Paging-Grenze darf 50 Datensätze nicht überschreiten</value>
   </data>
   <data name="max_paging_offset_exceeded" xml:space="preserve">
-    <value>The paging offset must not exceed 500 records</value>
+    <value>Der Paging-Offset darf 500 Datensätze nicht überschreiten</value>
   </data>
   <data name="name_invalid" xml:space="preserve">
-    <value>The name contains invalid characters</value>
+    <value>Der Name enthält ungültige Zeichen</value>
   </data>
   <data name="name_missing" xml:space="preserve">
-    <value>The name is missing</value>
+    <value>Der Name fehlt</value>
   </data>
   <data name="name_too_long" xml:space="preserve">
-    <value>The name is too long</value>
+    <value>Der Name ist zu lang</value>
   </data>
   <data name="not_found" xml:space="preserve">
-    <value>The record was not found</value>
+    <value>Der Datensatz wurde nicht gefunden</value>
   </data>
   <data name="not_implemented" xml:space="preserve">
-    <value>This functionality is not yet implemented</value>
+    <value>Diese Funktionalität ist noch nicht implementiert</value>
   </data>
   <data name="no_records_specified" xml:space="preserve">
-    <value>Please provide records for the update operation</value>
+    <value>Für den Update-Vorgang sind Datensätze nötig</value>
   </data>
   <data name="paging_limit_invalid" xml:space="preserve">
-    <value>The paging limit must be equal to or greater than zero</value>
+    <value>Die Paging-Grenze muss größer oder gleich Null sein</value>
   </data>
   <data name="paging_offset_invalid" xml:space="preserve">
-    <value>The paging offset must be equal to or greater than zero</value>
+    <value>Der Paging-Offset muss gleich oder größer als Null sein</value>
   </data>
   <data name="password_confirmation_missing" xml:space="preserve">
-    <value>The password confirmation is missing</value>
+    <value>Die Passwort-Bestätigung fehlt</value>
   </data>
   <data name="password_confirmation_no_match" xml:space="preserve">
-    <value>The password confirmation is not matching the password</value>
+    <value>Die Passwort-Bestätigung stimmt nicht mit dem Passwort überein</value>
   </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
-    <value>Please accept our Terms and Conditions</value>
+    <value>Bitte akzeptieren Sie unsere Allgemeinen Geschäftsbedingungen</value>
   </data>
   <data name="please_accept_privacy_policy" xml:space="preserve">
-    <value>Please accept our Privacy Policy</value>
+    <value>Bitte akzeptieren Sie unsere Datenschutzerklärung</value>
   </data>
   <data name="password_does_not_match" xml:space="preserve">
-    <value>The password does not match our records</value>
+    <value>Das Passwort stimmt nicht mit unseren Aufzeichnungen überein</value>
   </data>
   <data name="password_missing" xml:space="preserve">
-    <value>The password is missing</value>
+    <value>Das Passwort fehlt</value>
   </data>
   <data name="password_requires_non_alphanumeric" xml:space="preserve">
-    <value>The password requires non alphanumeric characters</value>
+    <value>Das Passwort erfordert nicht alphanumerische Zeichen</value>
   </data>
   <data name="password_too_long" xml:space="preserve">
-    <value>The password is too long</value>
+    <value>Das Passwort ist zu lang</value>
   </data>
   <data name="password_too_short" xml:space="preserve">
-    <value>The password is too short</value>
+    <value>Das Passwort ist zu kurz</value>
   </data>
   <data name="permission_denied" xml:space="preserve">
-    <value>The permission to access this location was denied</value>
+    <value>Die Zugang wurde verweigert</value>
   </data>
   <data name="phone_number_invalid" xml:space="preserve">
-    <value>The phone number is invalid</value>
+    <value>Die Telefonnummer ist ungültig</value>
   </data>
   <data name="phone_number_missing" xml:space="preserve">
-    <value>The phone number is missing</value>
+    <value>Die Telefonnummer fehlt</value>
   </data>
   <data name="phone_number_too_long" xml:space="preserve">
-    <value>The phone number is too long</value>
+    <value>Die Telefonnummer ist zu lang</value>
   </data>
   <data name="private_key_invalid" xml:space="preserve">
-    <value>The private key is invalid, decoding failed</value>
+    <value>Der private Schlüssel ist ungültig, die Dekodierung ist fehlgeschlagen</value>
   </data>
   <data name="private_key_missing" xml:space="preserve">
-    <value>The private key is missing</value>
+    <value>Der private Schlüssel fehlt</value>
   </data>
   <data name="private_key_no_delimiters" xml:space="preserve">
-    <value>The private key string contains no private key delimiters</value>
+    <value>Die private Schlüsselzeichenfolge enthält keine Trennzeichen für private Schlüssel</value>
   </data>
   <data name="private_key_no_private_key" xml:space="preserve">
-    <value>The private key data given does not contain private key data</value>
+    <value>Die angegebenen privaten Schlüsseldaten enthalten keinen privaten Schlüssel</value>
   </data>
   <data name="private_key_too_long" xml:space="preserve">
-    <value>The private key is too long</value>
+    <value>Der private Schlüssel ist zu lang</value>
   </data>
   <data name="redirect_url_invalid" xml:space="preserve">
-    <value>The redirect URL is invalid</value>
+    <value>Die Weiterleitungs-URL ist ungültig</value>
   </data>
   <data name="redirect_url_missing" xml:space="preserve">
-    <value>The redirect URL is missing</value>
+    <value>Die Weiterleitungs-URL fehlt</value>
   </data>
   <data name="redirect_url_must_be_absolute" xml:space="preserve">
-    <value>The redirect URL must be absolute</value>
+    <value>Die Weiterleitungs-URL muss absolut sein</value>
   </data>
   <data name="redirect_url_not_required" xml:space="preserve">
-    <value>The redirect URL is not required</value>
+    <value>Die Weiterleitungs-URL ist nicht erforderlich</value>
   </data>
   <data name="redirect_url_too_long" xml:space="preserve">
-    <value>The redirect URL is too long</value>
+    <value>Die Weiterleitungs-URL ist zu lang</value>
   </data>
   <data name="security_token_invalid" xml:space="preserve">
-    <value>The security token is invalid or expired</value>
+    <value>Das Sicherheitstoken ist ungültig oder abgelaufen</value>
   </data>
   <data name="state_invalid" xml:space="preserve">
-    <value>The state is invalid</value>
+    <value>Der State ist ungültig</value>
   </data>
   <data name="subject_invalid" xml:space="preserve">
-    <value>The subject is invalid</value>
+    <value>Das Subjekt ist ungültig</value>
   </data>
   <data name="subject_missing" xml:space="preserve">
-    <value>The subject is missing</value>
+    <value>Das Subjekt fehlt</value>
   </data>
   <data name="subject_too_long" xml:space="preserve">
-    <value>The subject is too long</value>
+    <value>Das Subjekt ist zu lang</value>
   </data>
   <data name="too_many_update_records" xml:space="preserve">
-    <value>Please only update up to 50 records at once</value>
+    <value>Bitte aktualisieren Sie nur bis zu 50 Datensätze gleichzeitig</value>
   </data>
   <data name="user_credentials_missing" xml:space="preserve">
-    <value>The user credentials are missing</value>
+    <value>Die Anmeldedaten fehlen</value>
   </data>
   <data name="user_group_not_found" xml:space="preserve">
-    <value>The user group was not found</value>
+    <value>Die Benutzergruppe wurde nicht gefunden</value>
   </data>
   <data name="user_group_uuid_invalid" xml:space="preserve">
-    <value>The user group UUID is invalid</value>
+    <value>Die Benutzergruppen-UUID ist ungültig</value>
   </data>
   <data name="user_group_uuid_missing" xml:space="preserve">
-    <value>The user group UUID is missing</value>
+    <value>Die Benutzergruppen-UUID fehlt</value>
   </data>
   <data name="user_name_invalid" xml:space="preserve">
-    <value>The user name contains invalid characters</value>
+    <value>Der Benutzername enthält ungültige Zeichen</value>
   </data>
   <data name="user_name_missing" xml:space="preserve">
-    <value>The user name is missing</value>
+    <value>Der Benutzername fehlt</value>
   </data>
   <data name="user_name_too_long" xml:space="preserve">
-    <value>The user name is too long</value>
+    <value>Der Benutzername ist zu lang</value>
   </data>
   <data name="user_not_found" xml:space="preserve">
-    <value>The user was not found</value>
+    <value>Der Benutzer wurde nicht gefunden</value>
   </data>
   <data name="user_uuid_invalid" xml:space="preserve">
-    <value>The user UUID contains invalid characters</value>
+    <value>Die Benutzer-UUID enthält ungültige Zeichen</value>
   </data>
   <data name="user_uuid_missing" xml:space="preserve">
-    <value>The user UUID is missing</value>
+    <value>Die Benutzer-UUID fehlt</value>
   </data>
   <data name="user_uuid_too_long" xml:space="preserve">
-    <value>The user UUID is too long</value>
+    <value>Die Benutzer-UUID ist zu lang</value>
   </data>
   <data name="uuid_invalid" xml:space="preserve">
-    <value>The UUID is invalid</value>
+    <value>Die UUID ist ungültig</value>
   </data>
   <data name="uuid_missing" xml:space="preserve">
-    <value>The UUID is missing</value>
+    <value>Die UUID fehlt</value>
   </data>
   <data name="user_details_not_supported" xml:space="preserve">
-    <value>This system does not support managing user detail data</value>
+    <value>Dieses System unterstützt die Verwaltung von Benutzer-Detaildaten nicht</value>
   </data>
   <data name="user_no_member_of_user_group" xml:space="preserve">
-    <value>The user is no member of the user group</value>
+    <value>Der Benutzer ist kein Mitglied der Benutzergruppe</value>
   </data>
   <data name="scroll_uuid_invalid" xml:space="preserve">
-    <value>The scroll UUID contains invalid characters</value>
+    <value>Die Scroll-UUID enthält ungültige Zeichen</value>
   </data>
   <data name="scroll_uuid_too_long" xml:space="preserve">
-    <value>The scroll UUID is too long</value>
+    <value>Die Scroll-UUID ist zu lang</value>
   </data>
   <data name="argument_invalid" xml:space="preserve">
-    <value>The argument is invalid</value>
+    <value>Das Argument ist ungültig</value>
   </data>
   <data name="argument_missing" xml:space="preserve">
-    <value>The argument is missing</value>
+    <value>Das Argument fehlt</value>
   </data>
   <data name="tenant_not_found" xml:space="preserve">
-    <value>The tenant was not found</value>
+    <value>Der Mandant wurde nicht gefunden</value>
   </data>
   <data name="authorization_authority_not_available" xml:space="preserve">
-    <value>The authorization authority for this service is currently not available. Your access credentials cannot be validated. Please try again later</value>
+    <value>Die Autorisierungsstelle für diesen Dienst ist derzeit nicht verfügbar. Ihre Zugangsdaten können nicht überprüft werden. Bitte versuchen Sie es später erneut</value>
   </data>
   <data name="token_invalid_or_expired" xml:space="preserve">
-    <value>The access token is invalid or expired</value>
+    <value>Das Zugangstoken ist ungültig oder abgelaufen</value>
   </data>
   <data name="cookie_invalid_or_expired" xml:space="preserve">
-    <value>The cookie is invalid or expired</value>
+    <value>Das Cookie ist ungültig oder abgelaufen</value>
   </data>
   <data name="first_name_invalid" xml:space="preserve">
-    <value>The first name contains invalid characters</value>
+    <value>Der Vorname enthält ungültige Zeichen</value>
   </data>
   <data name="first_name_missing" xml:space="preserve">
-    <value>The first name is missing</value>
+    <value>Der Vorname fehlt</value>
   </data>
   <data name="first_name_too_long" xml:space="preserve">
-    <value>The first name is too long</value>
+    <value>Der Vorname ist zu lang</value>
   </data>
   <data name="last_name_invalid" xml:space="preserve">
-    <value>The last name contains invalid characters</value>
+    <value>Der Nachname enthält ungültige Zeichen</value>
   </data>
   <data name="last_name_missing" xml:space="preserve">
-    <value>The last name is missing</value>
+    <value>Der Nachname fehlt</value>
   </data>
   <data name="last_name_too_long" xml:space="preserve">
-    <value>The last name is too long</value>
+    <value>Der Nachname ist zu lang</value>
   </data>
   <data name="self_registration_not_allowed" xml:space="preserve">
-    <value>It is not allowed to register users in self-service on this system</value>
+    <value>Es ist nicht möglich, Benutzer auf diesem System im Self-Service zu registrieren</value>
   </data>
   <data name="self_service_not_allowed" xml:space="preserve">
-    <value>It is not allowed to modify user data in self-service on this system</value>
+    <value>Es ist nicht möglich, Benutzerdaten auf diesem System im Self-Service zu ändern</value>
   </data>
   <data name="email_not_confirmed" xml:space="preserve">
-    <value>The email address is not yet confirmed</value>
+    <value>Die E-Mail-Adresse ist noch nicht bestätigt</value>
   </data>
   <data name="new_password_missing" xml:space="preserve">
-    <value>The new password is missing</value>
+    <value>Das neue Passwort fehlt</value>
   </data>
   <data name="old_password_missing" xml:space="preserve">
-    <value>The old password is missing</value>
+    <value>Das alte Passwort fehlt</value>
   </data>
   <data name="cannot_delete_last_system_user_group_member" xml:space="preserve">
-    <value>System user groups must contain at least one member</value>
+    <value>System-Benutzergruppen müssen mindestens ein Mitglied enthalten</value>
   </data>
   <data name="backend_service_not_available" xml:space="preserve">
-    <value>The {name} backend service is currently not available</value>
+    <value>Der Backend-Service {name} ist derzeit nicht verfügbar</value>
   </data>
   <data name="email_already_exists" xml:space="preserve">
-    <value>A user account with that email address already exists</value>
+    <value>Ein Benutzerkonto mit dieser E-Mail-Adresse ist bereits vorhanden</value>
   </data>
   <data name="sort_by_invalid" xml:space="preserve">
-    <value>The sort by value is invalid</value>
+    <value>Der Sortierungs-Wert ist ungültig</value>
   </data>
   <data name="sort_order_invalid" xml:space="preserve">
-    <value>The sort order is invalid</value>
+    <value>Die Sortierreihenfolge ist ungültig</value>
   </data>
   <data name="error_title" xml:space="preserve">
-    <value>Unexpected error</value>
+    <value>Unerwarteter Fehler</value>
   </data>
   <data name="error_header" xml:space="preserve">
-    <value>An unexpected error occured</value>
+    <value>Ein unerwarteter Fehler ist aufgetreten</value>
   </data>
   <data name="error_header_text" xml:space="preserve">
-    <value>We are sorry, but an unexpected error occured while processing your request.</value>
+    <value>Es tut uns leid, aber bei der Bearbeitung Ihrer Anfrage ist ein unerwarteter Fehler aufgetreten.</value>
   </data>
   <data name="error_request_id" xml:space="preserve">
-    <value>Your request ID is:</value>
+    <value>Ihre Anforderungs-ID lautet:</value>
   </data>
   <data name="button_back" xml:space="preserve">
-    <value>Back</value>
+    <value>Zurück</value>
   </data>
   <data name="page" xml:space="preserve">
     <value>Seite</value>

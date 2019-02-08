@@ -430,9 +430,9 @@
     <value>Back</value>
   </data>
   <data name="page" xml:space="preserve">
-    <value>Seite</value>
+    <value>Page</value>
   </data>
   <data name="of" xml:space="preserve">
-    <value>von</value>
+    <value>of</value>
   </data>
 </root>
