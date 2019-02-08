@@ -187,7 +187,7 @@
     <value>We sent a verification email message to your email address. Please check your email inbox and click the link in the message to verify your email address.</value>
   </data>
   <data name="first_name" xml:space="preserve">
-    <value>First Name</value>
+    <value>First name</value>
   </data>
   <data name="forgot_password_confirmation_header" xml:space="preserve">
     <value>Your password reset email was sent</value>
@@ -220,7 +220,7 @@
     <value>No problem, we can send a link to your email address which you can use to reset your password. Please just enter your email address below.</value>
   </data>
   <data name="last_name" xml:space="preserve">
-    <value>Last Name</value>
+    <value>Last name</value>
   </data>
   <data name="log_out_confirmed_header" xml:space="preserve">
     <value>You are now logged out</value>
@@ -256,22 +256,22 @@
     <value>Profile</value>
   </data>
   <data name="manage_account_subheader" xml:space="preserve">
-    <value>Change your account settings</value>
+    <value>You can change your account settings here</value>
   </data>
   <data name="new_password" xml:space="preserve">
-    <value>New Password</value>
+    <value>New password</value>
   </data>
   <data name="new_password_confirmation" xml:space="preserve">
-    <value>Confirm New Password</value>
+    <value>Confirm new password</value>
   </data>
   <data name="old_password" xml:space="preserve">
-    <value>Old Password</value>
+    <value>Old password</value>
   </data>
   <data name="password" xml:space="preserve">
     <value>Password</value>
   </data>
   <data name="password_confirmation" xml:space="preserve">
-    <value>Confirm Password</value>
+    <value>Confirm password</value>
   </data>
   <data name="profile_title" xml:space="preserve">
     <value>Profile</value>
