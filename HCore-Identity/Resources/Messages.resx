@@ -273,6 +273,9 @@
   <data name="password_confirmation" xml:space="preserve">
     <value>Confirm password</value>
   </data>
+  <data name="notification_culture" xml:space="preserve">
+    <value>Notification language</value>
+  </data>
   <data name="profile_title" xml:space="preserve">
     <value>Profile</value>
   </data>

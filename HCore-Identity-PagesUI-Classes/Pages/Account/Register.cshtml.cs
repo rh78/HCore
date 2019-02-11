@@ -16,6 +16,7 @@ using System.ComponentModel.DataAnnotations;
 using HCore.Segment.Providers;
 using Segment.Model;
 using System.Collections.Generic;
+using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -30,10 +31,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
+        private readonly ITranslationsProvider _translationsProvider;
+
         public RegisterModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,            
             IEventService events,
+            ITranslationsProvider translationsProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
@@ -44,6 +48,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
+
+            _translationsProvider = translationsProvider;
         }
 
         [BindProperty]
@@ -109,7 +115,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             }
             catch (ApiException e)
             {
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
             }
 
             return Page();

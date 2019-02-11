@@ -9,6 +9,7 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Resources;
+using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -17,11 +18,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
     public partial class IndexModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
+        private readonly ITranslationsProvider _translationsProvider;
 
         public IndexModel(
-            IIdentityServices identityServices)
+            IIdentityServices identityServices,
+            ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
+            _translationsProvider = translationsProvider;
         }
 
         [TempData]
@@ -44,7 +48,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                NotificationCulture = user.NotificationCulture
             };
 
             Email = Input.Email;
@@ -71,7 +76,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             }
             catch (ApiException e)
             {
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
 
                 if (user != null)
                 {
@@ -105,7 +110,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             }
             catch (ApiException e)
             {
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
 
                 if (user != null)
                 {

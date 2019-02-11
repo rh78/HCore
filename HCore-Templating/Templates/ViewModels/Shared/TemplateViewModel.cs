@@ -12,5 +12,6 @@
         public string TenantTextOnSecondaryColor { get; set; }
         public string TenantSupportEmail { get; set; }
         public string TenantProductName { get; set; }
+        public string TenantDefaultCulture { get; set; }
     }
 }

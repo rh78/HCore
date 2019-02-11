@@ -43,6 +43,12 @@ namespace HCore.PagesUI.Classes.Pages
                     Error = message.Error;
                     Description = message.ErrorDescription;
 
+                    if (!string.IsNullOrEmpty(Description) &&
+                        !Description.EndsWith("."))
+                    {
+                        Description = $"{Description}.";
+                    }
+
                     ShowRequestId = true;
 
                     return;
@@ -57,10 +63,16 @@ namespace HCore.PagesUI.Classes.Pages
             {
                 Error = errorDescription;
 
+                if (!string.IsNullOrEmpty(Error) &&
+                        !Error.EndsWith("."))
+                {
+                    Error = $"{Error}.";
+                }
+
                 return;
             }
 
-            Error = Messages.internal_server_error;
+            Error = $"{Messages.internal_server_error}.";
 
             ShowRequestId = true;
         }

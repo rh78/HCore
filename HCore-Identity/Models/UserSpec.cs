@@ -115,6 +115,15 @@ namespace HCore.Identity.Models
 
         public bool PhoneNumberConfirmedSet = false;
 
+        private string _NotificationCulture;
+
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "notification_culture_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "notification_culture")]
+        [DataMember(Name = "notification_culture")]
+        public string NotificationCulture { get => _NotificationCulture; set { _NotificationCulture = value; NotificationCultureSet = true; } }
+
+        public bool NotificationCultureSet = false;
+
         [Required]
         public bool AcceptTermsAndConditions { get; set; }
 
@@ -140,6 +149,7 @@ namespace HCore.Identity.Models
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
             sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
+            sb.Append("  NotificationCulture: ").Append(NotificationCulture).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -210,6 +220,11 @@ namespace HCore.Identity.Models
                     PhoneNumberConfirmed == other.PhoneNumberConfirmed ||
                     PhoneNumberConfirmed != null &&
                     PhoneNumberConfirmed.Equals(other.PhoneNumberConfirmed)
+                ) &&
+                (
+                    NotificationCulture == other.NotificationCulture ||
+                    NotificationCulture != null &&
+                    NotificationCulture.Equals(other.NotificationCulture)
                 );
         }
 
@@ -232,11 +247,13 @@ namespace HCore.Identity.Models
                     if (Password != null)
                         hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)
-                    hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
+                        hashCode = hashCode * 59 + PasswordConfirmation.GetHashCode();
                     if (PhoneNumber != null)
                         hashCode = hashCode * 59 + PhoneNumber.GetHashCode();
                     if (PhoneNumberConfirmed != null)
                         hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
+                    if (NotificationCulture != null)
+                        hashCode = hashCode * 59 + NotificationCulture.GetHashCode();
                 return hashCode;
             }
         }

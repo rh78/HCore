@@ -502,7 +502,25 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die von ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The notification culture is invalid ähnelt.
+        /// </summary>
+        public static string notification_culture_invalid {
+            get {
+                return ResourceManager.GetString("notification_culture_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The notification language is missing ähnelt.
+        /// </summary>
+        public static string notification_culture_missing {
+            get {
+                return ResourceManager.GetString("notification_culture_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die of ähnelt.
         /// </summary>
         public static string of {
             get {
@@ -520,7 +538,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Seite ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Page ähnelt.
         /// </summary>
         public static string page {
             get {

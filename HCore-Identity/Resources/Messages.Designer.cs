@@ -358,7 +358,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die First Name ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die First name ähnelt.
         /// </summary>
         public static string first_name {
             get {
@@ -448,7 +448,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Last Name ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Last name ähnelt.
         /// </summary>
         public static string last_name {
             get {
@@ -556,7 +556,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Change your account settings ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die You can change your account settings here ähnelt.
         /// </summary>
         public static string manage_account_subheader {
             get {
@@ -565,7 +565,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die New Password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die New password ähnelt.
         /// </summary>
         public static string new_password {
             get {
@@ -574,7 +574,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm New Password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm new password ähnelt.
         /// </summary>
         public static string new_password_confirmation {
             get {
@@ -583,7 +583,16 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Old Password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Notification language ähnelt.
+        /// </summary>
+        public static string notification_culture {
+            get {
+                return ResourceManager.GetString("notification_culture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Old password ähnelt.
         /// </summary>
         public static string old_password {
             get {
@@ -601,7 +610,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm Password ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Confirm password ähnelt.
         /// </summary>
         public static string password_confirmation {
             get {

@@ -120,21 +120,7 @@ namespace HCore.Web.Middleware
             string errorDescription = resultException.Message;
 
             if (_translationsProvider != null)
-            {
-                string translatedMessage = _translationsProvider.GetString(errorCode);
-                if (translatedMessage != null && !string.Equals(errorCode, translatedMessage))
-                    errorDescription = translatedMessage;
-            }
-
-            string uuid = resultException.Uuid;
-
-            if (!string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(errorDescription))
-                errorDescription = errorDescription.Replace("{uuid}", uuid);
-
-            string name = resultException.Name;
-
-            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(errorDescription))
-                errorDescription = errorDescription.Replace("{name}", name);
+                errorDescription = _translationsProvider.TranslateError(resultException.GetErrorCode(), resultException.Message, resultException.Uuid, resultException.Name);
 
             context.Response.Redirect($"/Error?errorCode={HttpUtility.UrlEncode(errorCode ?? "")}&errorDescription={HttpUtility.UrlEncode(errorDescription ?? "")}");
         }

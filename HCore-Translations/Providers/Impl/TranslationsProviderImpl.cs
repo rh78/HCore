@@ -42,7 +42,7 @@ namespace HCore.Translations.Providers.Impl
         
         public string GetJson()
         {
-            string currentCulture = CultureInfo.CurrentCulture.ToString();
+            string currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
             if (_cachedJson.ContainsKey(currentCulture))
                 return _cachedJson[currentCulture];
@@ -73,6 +73,29 @@ namespace HCore.Translations.Providers.Impl
             _cachedJson[currentCulture] = json;
 
             return json;
+        }
+
+        public string TranslateError(string errorCode, string errorMessage, string uuid, string name)
+        {
+            if (string.IsNullOrEmpty(errorCode))
+                return errorMessage;
+
+            string translatedErrorMessage = GetString(errorCode);
+            if (string.IsNullOrEmpty(translatedErrorMessage) ||
+                string.Equals(translatedErrorMessage, errorCode))
+            {
+                // not found
+
+                return errorMessage;
+            }
+
+            if (!string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(translatedErrorMessage))
+                translatedErrorMessage = translatedErrorMessage.Replace("{uuid}", uuid);
+
+            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(translatedErrorMessage))
+                translatedErrorMessage = translatedErrorMessage.Replace("{name}", name);
+
+            return translatedErrorMessage;
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace HCore.Tenants.Providers.Impl
@@ -121,6 +122,10 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(productName))
                         productName = developer.ProductName;
 
+                    string defaultCulture = tenant.DefaultCulture;
+                    if (string.IsNullOrEmpty(defaultCulture))
+                        defaultCulture = "en";
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -154,7 +159,8 @@ namespace HCore.Tenants.Providers.Impl
                         ProductName = productName,
                         BackendApiUrl = tenant.BackendApiUrl,
                         FrontendApiUrl = tenant.FrontendApiUrl,
-                        WebUrl = tenant.WebUrl
+                        WebUrl = tenant.WebUrl,
+                        DefaultCulture = defaultCulture
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

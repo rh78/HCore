@@ -80,6 +80,18 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureLocalization(IServiceCollection services)
         {
+            var englishCultureInfo = CultureInfo.GetCultureInfo("en");
+            var germanCultureInfo = CultureInfo.GetCultureInfo("de");
+
+            var cultures = new CultureInfo[] { englishCultureInfo, germanCultureInfo };
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture(englishCultureInfo);
+                options.SupportedCultures = cultures;
+                options.SupportedUICultures = cultures;
+            });
+
             services.AddLocalization(options =>
             {
                 options.ResourcesPath = "Resources";
@@ -268,17 +280,7 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
         {
-            var englishCultureInfo = CultureInfo.GetCultureInfo("en");
-            var germanCultureInfo = CultureInfo.GetCultureInfo("de");
-
-            var cultures = new CultureInfo[] { englishCultureInfo, germanCultureInfo };
-
-            app.UseRequestLocalization(new RequestLocalizationOptions
-            {
-                DefaultRequestCulture = new RequestCulture(englishCultureInfo),
-                SupportedCultures = cultures,
-                SupportedUICultures = cultures
-            });
+            app.UseRequestLocalization();
         }
 
         protected virtual void ConfigureExceptionHandling(IApplicationBuilder app, IHostingEnvironment env)

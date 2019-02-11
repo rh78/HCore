@@ -8,7 +8,6 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using HCore.Identity.Attributes;
 using IdentityServer4.Models;
-using HCore.Web.Result;
 using IdentityServer4.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
@@ -19,6 +18,7 @@ using System;
 using Segment.Model;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -37,6 +37,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
+        private readonly ITranslationsProvider _translationsProvider;
+
         public LoginModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,
@@ -44,6 +46,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
+            ITranslationsProvider translationsProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
@@ -56,6 +59,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
+
+            _translationsProvider = translationsProvider;
         }
 
         public string UserName { get; set; }
@@ -147,13 +152,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
 
-                ModelState.AddModelError(string.Empty, unauthorizedApiException.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(
+                    unauthorizedApiException.GetErrorCode(), unauthorizedApiException.Message, unauthorizedApiException.Uuid, unauthorizedApiException.Name));
             }
             catch (ApiException e)
             {
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
 
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
             }
 
             await PrepareModelAsync(ReturnUrl);

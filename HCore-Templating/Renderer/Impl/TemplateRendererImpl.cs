@@ -139,6 +139,7 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantTextOnSecondaryColor = tenantInfo.TextOnSecondaryColorHex;
             model.TenantSupportEmail = tenantInfo.SupportEmail;
             model.TenantProductName = tenantInfo.ProductName;
+            model.TenantDefaultCulture = tenantInfo.DefaultCulture;
         }
 
         private IView FindView(ActionContext actionContext, string viewName)

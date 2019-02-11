@@ -87,6 +87,7 @@ namespace HCore.Web.Exceptions
         public const string SortOrderInvalid = "sort_order_invalid";
         public const string PleaseAcceptPrivacyPolicy = "please_accept_privacy_policy";
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
+        public const string NotificationCultureInvalid = "notification_culture_invalid";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

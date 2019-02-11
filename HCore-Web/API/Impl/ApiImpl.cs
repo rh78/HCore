@@ -98,6 +98,21 @@ namespace HCore.Web.API.Impl
             return email;
         }
 
+        public static CultureInfo ProcessNotificationCulture(string notificationCulture)
+        {
+            if (string.IsNullOrEmpty(notificationCulture))
+                return null;
+
+            try
+            {
+                return CultureInfo.GetCultureInfo(notificationCulture);
+            }
+            catch (Exception)
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.NotificationCultureInvalid, "The notification culture is invalid");
+            }        
+        }
+
         public static void ProcessBulkUpdateCount(int count)
         {
             if (count <= 0)

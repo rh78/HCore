@@ -216,6 +216,9 @@
   <data name="password_confirmation_no_match" xml:space="preserve">
     <value>Die Passwort-Bestätigung stimmt nicht mit dem Passwort überein</value>
   </data>
+  <data name="notification_culture_missing" xml:space="preserve">
+    <value>Die Benachrichtigungs-Sprache fehlt</value>
+  </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Bitte akzeptieren Sie unsere Allgemeinen Geschäftsbedingungen</value>
   </data>
@@ -434,5 +437,8 @@
   </data>
   <data name="of" xml:space="preserve">
     <value>von</value>
+  </data>
+  <data name="notification_culture_invalid" xml:space="preserve">
+    <value>Die Benachrichtigungs-Sprache ist ungültig</value>
   </data>
 </root>

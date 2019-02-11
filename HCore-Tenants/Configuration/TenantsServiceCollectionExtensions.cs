@@ -1,6 +1,7 @@
 ﻿using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Providers;
 using HCore.Tenants.Providers.Impl;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -39,6 +40,11 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddCors();
             }
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.RequestCultureProviders.Insert(2, new TenantDefaultCultureRequestCultureProvider());
+            });
 
             return new TenantsBuilder(services);
         }

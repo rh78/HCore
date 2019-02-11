@@ -1,4 +1,6 @@
-﻿namespace HCore.Tenants.Models
+﻿using System.Globalization;
+
+namespace HCore.Tenants.Models
 {
     public interface ITenantInfo
     {
@@ -41,6 +43,8 @@
         string NoreplyEmail { get; }
 
         string ProductName { get; }
+
+        string DefaultCulture { get; }
 
         string BackendApiUrl { get; }
         string FrontendApiUrl { get; }

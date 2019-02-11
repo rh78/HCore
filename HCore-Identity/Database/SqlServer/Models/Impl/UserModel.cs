@@ -21,6 +21,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         [StringLength(MaxFirstNameLength)]
         public string LastName { get; set; }
 
+        public string NotificationCulture { get; set; }
+
         public DateTimeOffset? PrivacyPolicyAccepted { get; set; }
         public string PrivacyPolicyUrl { get; set; }
         public int? PrivacyPolicyVersionAccepted { get; set; }

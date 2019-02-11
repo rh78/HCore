@@ -196,6 +196,8 @@ namespace HCore.Identity.Services.Impl
                         user.EmailConfirmed = true;
                     }
 
+                    user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
                     user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
                     user.PrivacyPolicyVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
@@ -685,6 +687,18 @@ namespace HCore.Identity.Services.Impl
                         }
                     }
 
+                    if (!string.IsNullOrEmpty(userSpec.NotificationCulture))
+                    {
+                        userSpec.NotificationCulture = ProcessNotificationCulture(userSpec.NotificationCulture)?.ToString();
+
+                        if (!string.Equals(oldUser.NotificationCulture, userSpec.NotificationCulture))
+                        {
+                            oldUser.NotificationCulture = userSpec.NotificationCulture;
+
+                            changed = true;
+                        }
+                    }
+
                     if (changed)
                     {
                         var updateResult = await _userManager.UpdateAsync(oldUser);
@@ -835,6 +849,21 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, "The phone number is invalid");
 
             return phoneNumber;
+        }
+
+        private CultureInfo ProcessNotificationCulture(string notificationCulture)
+        {
+            if (string.IsNullOrEmpty(notificationCulture))
+                return null;
+
+            try
+            {
+                return CultureInfo.GetCultureInfo(notificationCulture);
+            }
+            catch (Exception)
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.NotificationCultureInvalid, "The notification culture is invalid");
+            }
         }
 
         private string ProcessPassword(string password)

@@ -1,4 +1,6 @@
-﻿namespace HCore.Tenants.Models.Impl
+﻿using System.Globalization;
+
+namespace HCore.Tenants.Models.Impl
 {
     internal class TenantInfoImpl : ITenantInfo
     {
@@ -41,6 +43,8 @@
         public string NoreplyEmail { get; internal set; }
 
         public string ProductName { get; internal set; }
+
+        public string DefaultCulture { get; internal set; }
 
         public string BackendApiUrl { get; set; }
         public string FrontendApiUrl { get; set; }

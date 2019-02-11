@@ -8,6 +8,7 @@ using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Services;
 using HCore.Identity.Resources;
+using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -16,11 +17,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
     public class ChangePasswordModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
+        private readonly ITranslationsProvider _translationsProvider;
 
         public ChangePasswordModel(
-            IIdentityServices identityServices)
+            IIdentityServices identityServices,
+            ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
+            _translationsProvider = translationsProvider;
         }
 
         [BindProperty]
@@ -52,7 +56,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             }
             catch (ApiException e)
             {
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
             }
 
             return Page();

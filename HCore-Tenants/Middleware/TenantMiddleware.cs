@@ -2,7 +2,6 @@
 using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -51,7 +50,7 @@ namespace HCore.Tenants.Middleware
                     throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);                    
                 }
 
-                context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);                
+                context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);
             }
 
             await _next.Invoke(context).ConfigureAwait(false);

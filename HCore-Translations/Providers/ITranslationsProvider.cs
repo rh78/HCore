@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace HCore.Translations.Providers
 {
@@ -6,5 +6,7 @@ namespace HCore.Translations.Providers
     {
         string GetString(string key);
         string GetJson();
+
+        string TranslateError(string errorCode, string errorMessage, string uuid, string name);
     }
 }

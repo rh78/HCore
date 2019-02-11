@@ -5,6 +5,7 @@ using HCore.Identity.Attributes;
 using HCore.Web.Exceptions;
 using HCore.Identity.Models;
 using HCore.Identity.Services;
+using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -12,6 +13,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class ConfirmEmailModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
+        private readonly ITranslationsProvider _translationsProvider;
 
         public ConfirmEmailModel(
             IIdentityServices identityServices)
@@ -34,7 +36,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             }
             catch (ApiException e)
             {
-                ModelState.AddModelError(string.Empty, e.Message);
+                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
 
                 return LocalRedirect("~/");
             }            
