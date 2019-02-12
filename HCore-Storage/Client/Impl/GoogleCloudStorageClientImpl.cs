@@ -1,5 +1,6 @@
 ﻿using Google;
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Storage.v1.Data;
 using Google.Cloud.Storage.V1;
 using HCore.Web.Exceptions;
 using System;
@@ -72,7 +73,13 @@ namespace HCore.Storage.Client.Impl
             {
                 try
                 {
-                    await storageClient.CreateBucketAsync(_projectId, containerName).ConfigureAwait(false);
+                    var bucket = new Bucket()
+                    {
+                        Name = containerName,
+                        Location = "eu"
+                    };
+
+                    await storageClient.CreateBucketAsync(_projectId, bucket).ConfigureAwait(false);
                 }
                 catch (Google.GoogleApiException e)
                 when (e.HttpStatusCode == HttpStatusCode.Conflict)
