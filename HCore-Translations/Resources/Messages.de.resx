@@ -441,4 +441,10 @@
   <data name="notification_culture_invalid" xml:space="preserve">
     <value>Die Benachrichtigungs-Sprache ist ungültig</value>
   </data>
+  <data name="cloud_storage_file_access_denied" xml:space="preserve">
+    <value>Der Zugriff auf die Datei wurde verweigert</value>
+  </data>
+  <data name="cloud_storage_file_not_found" xml:space="preserve">
+    <value>Die Datei wurde nicht gefunden</value>
+  </data>
 </root>

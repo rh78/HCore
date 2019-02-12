@@ -1,8 +1,11 @@
-﻿using Google.Apis.Auth.OAuth2;
+﻿using Google;
+using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Storage.V1;
+using HCore.Web.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,11 +38,29 @@ namespace HCore.Storage.Client.Impl
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
-            using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+            try
             {
-                var blockBlob = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+                using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+                {
+                    var blockBlob = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
 
-                await storageClient.DownloadObjectAsync(blockBlob, stream).ConfigureAwait(false);
+                    await storageClient.DownloadObjectAsync(blockBlob, stream).ConfigureAwait(false);
+                }
+            } catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (e.HttpStatusCode == HttpStatusCode.Forbidden ||
+                    e.HttpStatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw e;
+                }
             }
         }
 
@@ -54,7 +75,7 @@ namespace HCore.Storage.Client.Impl
                     await storageClient.CreateBucketAsync(_projectId, containerName).ConfigureAwait(false);
                 }
                 catch (Google.GoogleApiException e)
-                when (e.Error.Code == 409)
+                when (e.HttpStatusCode == HttpStatusCode.Conflict)
                 {
                     // bucket already exists, that's fine
                 }
@@ -72,7 +93,7 @@ namespace HCore.Storage.Client.Impl
                     await storageClient.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
                 }
                 catch (Google.GoogleApiException e)
-                when (e.Error.Code == 404)
+                when (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
                     // not found, that's fine
                 }

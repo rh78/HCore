@@ -196,6 +196,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Access to the file was denied ähnelt.
+        /// </summary>
+        public static string cloud_storage_file_access_denied {
+            get {
+                return ResourceManager.GetString("cloud_storage_file_access_denied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The file was not found ähnelt.
+        /// </summary>
+        public static string cloud_storage_file_not_found {
+            get {
+                return ResourceManager.GetString("cloud_storage_file_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The code contains invalid characters ähnelt.
         /// </summary>
         public static string code_invalid {

@@ -6,6 +6,9 @@ namespace HCore.Web.Exceptions
     {
         private readonly string _errorCode;
 
+        public const string CloudStorageFileNotFound = "cloud_storage_file_not_found";
+        public const string CloudStorageFileAccessDenied = "cloud_storage_file_access_denied";
+
         public ExternalServiceApiException(string errorCode, string message) :
             base(message)
         {

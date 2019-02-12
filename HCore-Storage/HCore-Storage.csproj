@@ -12,4 +12,8 @@
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="9.4.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
+  </ItemGroup>
+
 </Project>
