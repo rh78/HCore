@@ -163,7 +163,7 @@
     <value>E-Mail</value>
   </data>
   <data name="email_confirmation_send_header_text_suffix" xml:space="preserve">
-    <value>um sich anzumelden.</value>
+    <value> um sich anzumelden.</value>
   </data>
   <data name="email_confirmation_sent_header" xml:space="preserve">
     <value>Die Bestätigungs-Nachricht wurde gesendet</value>
@@ -202,13 +202,13 @@
     <value>Sie können auch</value>
   </data>
   <data name="forgot_password_confirmation_header_text_suffix" xml:space="preserve">
-    <value>um sich anzumelden.</value>
+    <value> um sich anzumelden.</value>
   </data>
   <data name="confirm_email_header_text_prefix" xml:space="preserve">
     <value>Klicken Sie bitte</value>
   </data>
   <data name="confirm_email_header_text_suffix" xml:space="preserve">
-    <value>um sich anzumelden.</value>
+    <value> um sich anzumelden.</value>
   </data>
   <data name="confirm_email_header_text_link" xml:space="preserve">
     <value>hier</value>
@@ -304,7 +304,7 @@
     <value>Bitte klicken Sie</value>
   </data>
   <data name="reset_password_confirmation_header_text_suffix" xml:space="preserve">
-    <value>um sich anzumelden.</value>
+    <value> um sich anzumelden.</value>
   </data>
   <data name="reset_password_header" xml:space="preserve">
     <value>Passwort zurücksetzen</value>
