@@ -184,7 +184,7 @@
     <value>Die Paging-Grenze darf 50 Datensätze nicht überschreiten</value>
   </data>
   <data name="max_paging_offset_exceeded" xml:space="preserve">
-    <value>Der Paging-Offset darf 500 Datensätze nicht überschreiten</value>
+    <value>Der Paging-Offset darf 5000 Datensätze nicht überschreiten</value>
   </data>
   <data name="name_invalid" xml:space="preserve">
     <value>Der Name enthält ungültige Zeichen</value>

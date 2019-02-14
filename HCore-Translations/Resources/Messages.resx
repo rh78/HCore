@@ -184,7 +184,7 @@
     <value>The paging limit must not exceed 50 records</value>
   </data>
   <data name="max_paging_offset_exceeded" xml:space="preserve">
-    <value>The paging offset must not exceed 500 records</value>
+    <value>The paging offset must not exceed 5000 records</value>
   </data>
   <data name="name_invalid" xml:space="preserve">
     <value>The name contains invalid characters</value>

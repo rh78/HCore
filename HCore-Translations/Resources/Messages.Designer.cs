@@ -448,7 +448,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The paging offset must not exceed 500 records ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The paging offset must not exceed 5000 records ähnelt.
         /// </summary>
         public static string max_paging_offset_exceeded {
             get {
