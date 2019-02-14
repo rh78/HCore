@@ -73,19 +73,29 @@ namespace HCore.Storage.Client.Impl
             {
                 try
                 {
-                    var bucket = new Bucket()
-                    {
-                        Name = containerName,
-                        Location = "eu"
-                    };
-
-                    await storageClient.CreateBucketAsync(_projectId, bucket).ConfigureAwait(false);
+                    await storageClient.GetBucketAsync(containerName).ConfigureAwait(false);
                 }
-                catch (Google.GoogleApiException e)
-                when (e.HttpStatusCode == HttpStatusCode.Conflict)
+                catch (GoogleApiException e)
+                when (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
-                    // bucket already exists, that's fine
-                }
+                    // we need to create the bucket
+
+                    try
+                    {
+                        var bucket = new Bucket()
+                        {
+                            Name = containerName,
+                            Location = "eu"
+                        };
+
+                        await storageClient.CreateBucketAsync(_projectId, bucket).ConfigureAwait(false);
+                    }
+                    catch (GoogleApiException)
+                    when (e.HttpStatusCode == HttpStatusCode.Conflict)
+                    {
+                        // bucket already exists, that's fine
+                    }
+                }                
                 
                 // check if object exists
                 try
@@ -99,7 +109,7 @@ namespace HCore.Storage.Client.Impl
 
                     await storageClient.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
                 }
-                catch (Google.GoogleApiException e)
+                catch (GoogleApiException e)
                 when (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
                     // not found, that's fine
