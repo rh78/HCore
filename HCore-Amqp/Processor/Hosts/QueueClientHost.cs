@@ -63,7 +63,14 @@ namespace HCore.Amqp.Processor.Hosts
                 if (!string.Equals(message.ContentType, "application/json"))
                     throw new Exception($"Invalid content type for AMQP message: {message.ContentType}");
 
-                await _messenger.ProcessMessageAsync(Address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
+                if (message.Body != null)
+                {
+                    await _messenger.ProcessMessageAsync(Address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
+                } 
+                else
+                {
+                    await _messenger.ProcessMessageAsync(Address, null).ConfigureAwait(false);
+                }
 
                 await queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
             }
