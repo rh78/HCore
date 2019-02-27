@@ -140,11 +140,24 @@ namespace HCore.Web.Startup
                     options.MaxAge = TimeSpan.FromDays(60);
                 });
 
-                services.AddHttpsRedirection(options =>
+                int redirectHttpToHttpsTargetWebPort = Configuration.GetValue<int>("WebServer:RedirectHttpToHttpsTargetWebPort");
+
+                if (redirectHttpToHttpsTargetWebPort > 0)
                 {
-                    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                    options.HttpsPort = 443;
-                });
+                    services.AddHttpsRedirection(options =>
+                    {
+                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                        options.HttpsPort = redirectHttpToHttpsTargetWebPort;
+                    });
+                }
+                else
+                {
+                    services.AddHttpsRedirection(options =>
+                    {
+                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                        options.HttpsPort = _port;
+                    });
+                }
             }
 
             services.AddResponseCompression(options =>
