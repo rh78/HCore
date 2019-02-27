@@ -143,7 +143,7 @@ namespace HCore.Web.Startup
                 services.AddHttpsRedirection(options =>
                 {
                     options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                    options.HttpsPort = _port;
+                    options.HttpsPort = 443;
                 });
             }
 
