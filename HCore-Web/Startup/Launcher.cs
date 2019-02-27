@@ -186,6 +186,11 @@ namespace HCore.Web.Startup
 
                         options.Listen(IPAddress.Any, webPort, listenOptions =>
                             listenOptions.UseHttps(certificate));
+
+                        int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
+
+                        if (redirectHttpToHttpsWebPort > 0)
+                            options.Listen(IPAddress.Any, redirectHttpToHttpsWebPort);
                     }
 
                     if (useApi)
@@ -238,6 +243,21 @@ namespace HCore.Web.Startup
                 webServerUrl += ":" + webPort;
 
                 urls.Add(webServerUrl);
+
+                if (useHttps)
+                {
+                    int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
+
+                    if (redirectHttpToHttpsWebPort > 0)
+                    {
+                        webServerUrl = useHttps ? "https://" : "http://";
+
+                        webServerUrl += urlPattern;
+                        webServerUrl += ":" + redirectHttpToHttpsWebPort;
+
+                        urls.Add(webServerUrl);
+                    }
+                }
             }
 
             if (useApi)
