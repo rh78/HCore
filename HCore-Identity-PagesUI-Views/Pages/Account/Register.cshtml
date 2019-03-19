@@ -41,14 +41,17 @@
                 <label asp-for="Input.PasswordConfirmation"></label>
                 <input type="password" autocomplete="off" asp-for="Input.PasswordConfirmation" class="form-control" />
             </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label asp-for="Input.AcceptTermsAndConditions">
-                        <input asp-for="Input.AcceptTermsAndConditions" />
-                        @Html.Raw(string.Format(Messages.accept_terms_and_conditions, Model.ProductName, Model.TermsAndConditionsUrl))
-                    </label>
+            @if (Model.RequiresTermsAndConditions)
+            {
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="Input.AcceptTermsAndConditions">
+                            <input asp-for="Input.AcceptTermsAndConditions" />
+                            @Html.Raw(string.Format(Messages.accept_terms_and_conditions, Model.ProductName, Model.TermsAndConditionsUrl))
+                        </label>
+                    </div>
                 </div>
-            </div>
+            }
             <div class="form-group">
                 <div class="checkbox">
                     <label asp-for="Input.AcceptPrivacyPolicy">
