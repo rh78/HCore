@@ -15,6 +15,8 @@ namespace HCore.Tenants.Models.Impl
         public string DeveloperPrivacyPolicyUrl { get; internal set; }
         public int? DeveloperPrivacyPolicyVersion { get; internal set; }
 
+        public bool RequiresTermsAndConditions { get; internal set; }
+
         public string DeveloperTermsAndConditionsUrl { get; internal set; }
         public int? DeveloperTermsAndConditionsVersion { get; internal set; }
 

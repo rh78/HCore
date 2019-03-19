@@ -15,6 +15,8 @@ namespace HCore.Tenants.Models
         string DeveloperPrivacyPolicyUrl { get; }
         int? DeveloperPrivacyPolicyVersion { get; }
 
+        bool RequiresTermsAndConditions { get; }
+
         string DeveloperTermsAndConditionsUrl { get; }
         int? DeveloperTermsAndConditionsVersion { get; }
 

@@ -35,6 +35,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string PrivacyPolicyUrl { get; set; }
         public int? PrivacyPolicyVersion { get; set; }
 
+        public bool RequiresTermsAndConditions { get; set; }
+
         public string TermsAndConditionsUrl { get; set; }
         public int? TermsAndConditionsVersion { get; set; }
 

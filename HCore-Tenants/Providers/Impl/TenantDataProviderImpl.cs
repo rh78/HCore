@@ -64,6 +64,10 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(tenant.WebUrl))
                         throw new Exception("The tenant web url is empty");
 
+                    bool? requiresTermsAndConditions = tenant.RequiresTermsAndConditions;
+                    if (requiresTermsAndConditions == null)
+                        requiresTermsAndConditions = developer.RequiresTermsAndConditions;
+
                     string logoSvgUrl = tenant.LogoSvgUrl;
                     if (string.IsNullOrEmpty(logoSvgUrl))
                         logoSvgUrl = developer.LogoSvgUrl;
@@ -141,6 +145,7 @@ namespace HCore.Tenants.Providers.Impl
                         DeveloperTermsAndConditionsVersion = developer.TermsAndConditionsVersion,
                         TenantUuid = tenant.Uuid,
                         Name = tenant.Name,
+                        RequiresTermsAndConditions = requiresTermsAndConditions ?? true,
                         LogoSvgUrl = logoSvgUrl,
                         LogoPngUrl = logoPngUrl,
                         IconIcoUrl = iconIcoUrl,

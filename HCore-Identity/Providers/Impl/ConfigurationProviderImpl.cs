@@ -23,6 +23,7 @@ namespace HCore.Identity.Providers.Impl
         public string PrivacyPolicyUrl { get; private set; }
         public int PrivacyPolicyVersion { get; private set; }
 
+        public bool RequiresTermsAndConditions { get; private set; }
         public string TermsAndConditionsUrl { get; private set; }
         public int TermsAndConditionsVersion { get; private set; }
 
@@ -71,13 +72,18 @@ namespace HCore.Identity.Providers.Impl
             if (PrivacyPolicyVersion <= 0)
                 throw new Exception("Identity default privacy policy version is invalid");
 
-            TermsAndConditionsUrl = configuration["Identity:DefaultTermsAndConditionsUrl"];
-            if (string.IsNullOrEmpty(TermsAndConditionsUrl))
-                throw new Exception("Identity default terms and conditions URL is empty");
+            RequiresTermsAndConditions = configuration.GetValue<bool>("Identity:DefaultRequiresTermsAndConditions");
 
-            TermsAndConditionsVersion = configuration.GetValue<int>("Identity:DefaultTermsAndConditionsVersion");
-            if (TermsAndConditionsVersion <= 0)
-                throw new Exception("Identity default terms and conditions version is invalid");
+            if (RequiresTermsAndConditions)
+            {
+                TermsAndConditionsUrl = configuration["Identity:DefaultTermsAndConditionsUrl"];
+                if (string.IsNullOrEmpty(TermsAndConditionsUrl))
+                    throw new Exception("Identity default terms and conditions URL is empty");
+
+                TermsAndConditionsVersion = configuration.GetValue<int>("Identity:DefaultTermsAndConditionsVersion");
+                if (TermsAndConditionsVersion <= 0)
+                    throw new Exception("Identity default terms and conditions version is invalid");
+            }
 
             ProductName = configuration["Identity:DefaultProductName"];
             if (string.IsNullOrEmpty(ProductName))

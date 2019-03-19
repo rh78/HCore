@@ -158,8 +158,21 @@ namespace HCore.Identity.Services.Impl
             userSpec.Password = ProcessPassword(userSpec.Password);
             userSpec.PasswordConfirmation = ProcessPasswordConfirmation(userSpec.Password, userSpec.PasswordConfirmation);
 
-            if (!userSpec.AcceptTermsAndConditions)
-                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
+            bool requiresTermsAndConditions = _configurationProvider.RequiresTermsAndConditions;
+
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                    requiresTermsAndConditions = tenantInfo.RequiresTermsAndConditions;
+            }
+
+            if (requiresTermsAndConditions)
+            {
+                if (!userSpec.AcceptTermsAndConditions)
+                    throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
+            }
 
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy");
@@ -209,9 +222,12 @@ namespace HCore.Identity.Services.Impl
                         user.CommunicationVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
                     }
 
-                    user.TermsAndConditionsAccepted = _nowProvider.Now;
-                    user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
-                    user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
+                    if (requiresTermsAndConditions)
+                    {
+                        user.TermsAndConditionsAccepted = _nowProvider.Now;
+                        user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
+                        user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
+                    }
 
                     if (_tenantInfoAccessor != null)
                     {
@@ -237,13 +253,16 @@ namespace HCore.Identity.Services.Impl
                                     user.CommunicationVersionAccepted = tenantPrivacyPolicyVersion;
                             }
 
-                            string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
-                            if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
-                                user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+                            if (requiresTermsAndConditions)
+                            {
+                                string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
+                                if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
+                                    user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
 
-                            int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
-                            if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
-                                user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
+                                int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
+                                if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
+                                    user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
+                            }
                         }
                     }
 

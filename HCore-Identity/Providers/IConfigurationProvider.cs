@@ -21,6 +21,7 @@
         string PrivacyPolicyUrl { get; }
         int PrivacyPolicyVersion { get; }
 
+        bool RequiresTermsAndConditions { get; }
         string TermsAndConditionsUrl { get; }
         int TermsAndConditionsVersion { get; }   
         

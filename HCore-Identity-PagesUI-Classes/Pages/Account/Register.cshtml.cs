@@ -57,6 +57,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public string ProductName { get; set; }
         public string PrivacyPolicyUrl { get; set; }
+        public bool RequiresTermsAndConditions { get; set; }
         public string TermsAndConditionsUrl { get; set; }
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
@@ -130,6 +131,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             ProductName = _configurationProvider.ProductName;
             PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
+            RequiresTermsAndConditions = _configurationProvider.RequiresTermsAndConditions;
             TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
 
             if (_tenantInfoAccessor != null)
@@ -146,9 +148,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
                         PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
 
-                    string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
-                    if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
-                        TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+                    RequiresTermsAndConditions = tenantInfo.RequiresTermsAndConditions;
+
+                    if (RequiresTermsAndConditions)
+                    {
+                        string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
+                        if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
+                            TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+                    }
                 }
             }
         }
@@ -171,7 +178,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     {
                         { "firstName", user.FirstName },
                         { "lastName", user.LastName },
-                        { "createdAt", user.TermsAndConditionsAccepted?.ToString("o") },
+                        { "createdAt", user.PrivacyPolicyAccepted?.ToString("o") },
                         { "email", user.Email }
                     });
 

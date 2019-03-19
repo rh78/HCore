@@ -31,6 +31,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(DeveloperModel.MaxNameLength)]
         public string Name { get; set; }
 
+        public bool? RequiresTermsAndConditions { get; set; }
+
         [StringLength(DeveloperModel.MaxLogoUrlLength)]
         public string LogoSvgUrl { get; set; }
 
