@@ -82,7 +82,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 return;
             }
 
-            var context = await _interaction.GetLogoutContextAsync(logoutId);
+            var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
 
             if (context == null || string.IsNullOrEmpty(context.SessionId))
             {
@@ -120,7 +120,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 // raise the logout event
                 
-                await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
+                await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName())).ConfigureAwait(false);
             }
 
             LoggedOut = true;
@@ -134,7 +134,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // get context information (client name, post logout redirect URI and iframe for federated signout)
 
-            var context = await _interaction.GetLogoutContextAsync(logoutId);
+            var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
 
             if (context == null || string.IsNullOrEmpty(context.SessionId))
             {

@@ -82,7 +82,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         
         public async Task<IActionResult> OnPostAsync(string action = null)
         {
-            await PrepareModelAsync(ReturnUrl);
+            await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);
 
             if (!string.Equals(action, "submit"))
             {
@@ -96,7 +96,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                         return LocalRedirect("~/");
                 }
 
-                var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl);
+                var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl).ConfigureAwait(false);
 
                 if (context != null)
                 {
@@ -104,7 +104,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     // denied the consent (even if this client does not require consent).
                     // this will send back an access denied OIDC error response to the client.
 
-                    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied);
+                    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied).ConfigureAwait(false);
 
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
 
@@ -150,19 +150,19 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
+                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
 
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(
                     unauthorizedApiException.GetErrorCode(), unauthorizedApiException.Message, unauthorizedApiException.Uuid, unauthorizedApiException.Name));
             }
             catch (ApiException e)
             {
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials"));
+                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
 
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
             }
 
-            await PrepareModelAsync(ReturnUrl);
+            await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);
 
             return Page();            
         }
@@ -180,7 +180,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             EnableLocalLogin = false;
             bool isLocalUrl = Url.IsLocalUrl(returnUrl);
 
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+            var context = await _interaction.GetAuthorizationContextAsync(returnUrl).ConfigureAwait(false);
 
             if (context == null && isLocalUrl)
             {
@@ -192,7 +192,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             if (context?.ClientId != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId);
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId).ConfigureAwait(false);
 
                 if (client != null)               
                     EnableLocalLogin = client.EnableLocalLogin;                                    
