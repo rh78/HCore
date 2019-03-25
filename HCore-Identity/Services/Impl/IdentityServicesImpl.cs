@@ -720,7 +720,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (changed)
                     {
-                        var updateResult = await _userManager.UpdateAsync(oldUser);
+                        var updateResult = await _userManager.UpdateAsync(oldUser).ConfigureAwait(false);
 
                         if (!updateResult.Succeeded)
                         {

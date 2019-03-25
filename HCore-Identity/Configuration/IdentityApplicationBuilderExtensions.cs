@@ -190,7 +190,7 @@ namespace Microsoft.AspNetCore.Builder
             {
                 var serviceProvider = scope.ServiceProvider;
 
-                ValidateAsync(serviceProvider).GetAwaiter().GetResult();
+                ValidateAsync(serviceProvider).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 
@@ -198,17 +198,17 @@ namespace Microsoft.AspNetCore.Builder
         {
             var schemes = services.GetRequiredService<IAuthenticationSchemeProvider>();
 
-            if (await schemes.GetDefaultAuthenticateSchemeAsync() == null)
+            if (await schemes.GetDefaultAuthenticateSchemeAsync().ConfigureAwait(false) == null)
             {
                 Console.WriteLine("No authentication scheme has been set");
             }
             else
             {
-                string defaultAuthenticationScheme = (await schemes.GetDefaultAuthenticateSchemeAsync())?.Name;
-                string defaultSignInScheme = (await schemes.GetDefaultSignInSchemeAsync())?.Name;
-                string defaultSignOutScheme = (await schemes.GetDefaultSignOutSchemeAsync())?.Name;
-                string defaultChallengeScheme = (await schemes.GetDefaultChallengeSchemeAsync())?.Name;
-                string defaultForbidScheme = (await schemes.GetDefaultForbidSchemeAsync())?.Name;
+                string defaultAuthenticationScheme = (await schemes.GetDefaultAuthenticateSchemeAsync().ConfigureAwait(false))?.Name;
+                string defaultSignInScheme = (await schemes.GetDefaultSignInSchemeAsync().ConfigureAwait(false))?.Name;
+                string defaultSignOutScheme = (await schemes.GetDefaultSignOutSchemeAsync().ConfigureAwait(false))?.Name;
+                string defaultChallengeScheme = (await schemes.GetDefaultChallengeSchemeAsync().ConfigureAwait(false))?.Name;
+                string defaultForbidScheme = (await schemes.GetDefaultForbidSchemeAsync().ConfigureAwait(false))?.Name;
 
                 Console.WriteLine($"Using {defaultAuthenticationScheme} as default ASP.NET Core scheme for authentication");
                 Console.WriteLine($"Using {defaultSignInScheme} as default ASP.NET Core scheme for sign-in");

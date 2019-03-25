@@ -105,7 +105,7 @@ namespace HCore.Amqp.Processor.Hosts
         {
             if (_queueClient != null)
             {
-                await _queueClient.CloseAsync();
+                await _queueClient.CloseAsync().ConfigureAwait(false);
 
                 _queueClient = null;
             }

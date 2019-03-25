@@ -52,7 +52,7 @@ namespace HCore.Web.Middleware
 
             if (httpMethod == "GET" && path.StartsWith(_options.RoutePrefix))
             {                
-                var authorizationResult = await _authorizationService.AuthorizeAsync(context.User, _options.PolicyName);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(context.User, _options.PolicyName).ConfigureAwait(false);
 
                 if (!authorizationResult.Succeeded)
                 {

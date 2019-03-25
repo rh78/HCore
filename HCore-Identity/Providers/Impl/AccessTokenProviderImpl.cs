@@ -130,7 +130,7 @@ namespace HCore.Identity.Providers.Impl
                 
                 accessToken.Issuer = defaultClientAuthority;
                 
-                var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken);
+                var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken).ConfigureAwait(false);
 
                 return accessTokenValue;
             }
@@ -156,7 +156,7 @@ namespace HCore.Identity.Providers.Impl
             claims.AddRange(await _claimsService.GetAccessTokenClaimsAsync(
                 request.Subject,
                 request.Resources,
-                request.ValidatedRequest));
+                request.ValidatedRequest).ConfigureAwait(false));
 
             if (request.ValidatedRequest.Client.IncludeJwtId)
             {

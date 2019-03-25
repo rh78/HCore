@@ -88,7 +88,7 @@ namespace HCore.Templating.Renderer.Impl
             if (_renderService == null)
                 throw new Exception("JSReport render service is not available");
 
-            var htmlContent = await RenderViewAsync(viewName, model, tenantInfo);
+            var htmlContent = await RenderViewAsync(viewName, model, tenantInfo).ConfigureAwait(false);
             
             var pdf = await _renderService.RenderAsync(new RenderRequest()
             {

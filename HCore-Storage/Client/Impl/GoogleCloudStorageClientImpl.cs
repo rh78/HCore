@@ -139,7 +139,7 @@ namespace HCore.Storage.Client.Impl
 
             var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
 
-            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get);
+            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
 
             return signedUrl;
         }
