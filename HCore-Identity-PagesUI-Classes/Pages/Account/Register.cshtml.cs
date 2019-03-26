@@ -260,7 +260,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                return Regex.Replace(str, @"[^\w\.@-\s]", "",
+                return Regex.Replace(str, @"[^\w\.@\-\s]", "",
                                      RegexOptions.None, TimeSpan.FromSeconds(1.5));
             }
             // If we timeout when replacing invalid characters, 
