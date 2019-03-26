@@ -256,9 +256,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // Replace invalid characters with empty strings.
 
+            str = WebUtility.UrlDecode(str);
+
             try
             {
-                return Regex.Replace(str, @"[^\w\.@-]", "",
+                return Regex.Replace(str, @"[^\w\.@- ]", "",
                                      RegexOptions.None, TimeSpan.FromSeconds(1.5));
             }
             // If we timeout when replacing invalid characters, 
