@@ -17,6 +17,8 @@ using HCore.Segment.Providers;
 using Segment.Model;
 using System.Collections.Generic;
 using HCore.Translations.Providers;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -62,18 +64,31 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
-        public void OnGet(string emailAddress = null)
+        public void OnGet(string emailAddress = null, string firstName = null, string lastName = null)
         {
             PrepareModel();
 
             emailAddress = ProcessEmail(emailAddress);
 
+            Input = new UserSpec();
+
             if (!string.IsNullOrEmpty(emailAddress))
             {
-                Input = new UserSpec()
-                {
-                    Email = emailAddress
-                };
+                Input.Email = emailAddress;
+            }
+
+            firstName = ProcessFirstName(firstName);
+
+            if (!string.IsNullOrEmpty(firstName))
+            {
+                Input.FirstName = firstName;
+            }
+
+            lastName = ProcessLastName(lastName);
+
+            if (!string.IsNullOrEmpty(lastName))
+            {
+                Input.LastName = lastName;
             }
         }
 
@@ -89,6 +104,38 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 return null;
 
             return emailAddress;
+        }
+
+        private string ProcessFirstName(string firstName)
+        {
+            if (string.IsNullOrEmpty(firstName))
+                return null;
+
+            if (firstName.Length > UserModel.MaxFirstNameLength)
+                return null;
+
+            firstName = CleanInput(firstName);            
+
+            if (string.IsNullOrEmpty(firstName))
+                return null;
+
+            return firstName;
+        }
+
+        private string ProcessLastName(string lastName)
+        {
+            if (string.IsNullOrEmpty(lastName))
+                return null;
+
+            if (lastName.Length > UserModel.MaxLastNameLength)
+                return null;
+
+            lastName = CleanInput(lastName);
+
+            if (string.IsNullOrEmpty(lastName))
+                return null;
+
+            return lastName;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -197,6 +244,28 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 {
                     segmentClient.Track(user.Id, "Registered");
                 }
+            }
+        }
+
+        // see https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-strip-invalid-characters-from-a-string
+
+        private string CleanInput(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return str;
+
+            // Replace invalid characters with empty strings.
+
+            try
+            {
+                return Regex.Replace(str, @"[^\w\.@-]", "",
+                                     RegexOptions.None, TimeSpan.FromSeconds(1.5));
+            }
+            // If we timeout when replacing invalid characters, 
+            // we should return Empty.
+            catch (RegexMatchTimeoutException)
+            {
+                return null;
             }
         }
     }
