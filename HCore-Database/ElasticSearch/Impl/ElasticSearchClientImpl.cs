@@ -244,28 +244,41 @@ namespace HCore.Database.ElasticSearch.Impl
                         TokenSeparator = " ",
                         IncrementGap = 1000
                     })
-                    .EdgeNGram("autocomplete_filter", edgeNGram => edgeNGram
+                    .EdgeNGram("edge_ngram_filter", edgeNGram => edgeNGram
                         .MinGram(1)
-                        .MaxGram(20)
+                        .MaxGram(50)
                     )
-                    .EdgeNGram("partialsearch_filter", edgeNGram => edgeNGram
+                    .NGram("ngram_filter", nGram => nGram
                         .MinGram(3)
-                        .MaxGram(20)
+                        .MaxGram(50)
                     )
                 )
                 .Analyzers(analyzer => analyzer
-                    .Custom("autocomplete_index", custom => custom
+                    .Custom("edge_ngram_concatenate_index", custom => custom
                         .Tokenizer("standard")
-                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "autocomplete_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "edge_ngram_filter" })
                     )
-                    .Custom("autocomplete_search", custom => custom
+                    .Custom("edge_ngram_partial_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "edge_ngram_filter" })
+                    )
+                    .Custom("ngram_concatenate_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "ngram_filter" })
+                    )
+                    .Custom("ngram_partial_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "ngram_filter" })
+                    )
+                    .Custom("concatenate_search", custom => custom
                         .Tokenizer("standard")
                         .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter" })
                     )
-                    .Custom("partialsearch_index", custom => custom
+                    .Custom("partial_search", custom => custom
                         .Tokenizer("standard")
-                        .Filters(new string[] { "lowercase", "asciifolding", "partialsearch_filter" })
-                ));
+                        .Filters(new string[] { "lowercase", "asciifolding" })
+                    )
+                );
         }
 
         private IndexVersion GetIndexVersion(string indexName)
