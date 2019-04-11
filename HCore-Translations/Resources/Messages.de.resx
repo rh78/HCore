@@ -241,7 +241,7 @@
     <value>Das Passwort ist zu kurz</value>
   </data>
   <data name="permission_denied" xml:space="preserve">
-    <value>Die Zugang wurde verweigert</value>
+    <value>Der Zugang wurde verweigert</value>
   </data>
   <data name="phone_number_invalid" xml:space="preserve">
     <value>Die Telefonnummer ist ungültig</value>
