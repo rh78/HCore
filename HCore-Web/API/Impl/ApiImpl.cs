@@ -84,10 +84,15 @@ namespace HCore.Web.API.Impl
             return emailAddress;
         }
 
-        public string ProcessEmailAddressStrict(string email)
+        public static string ProcessEmailAddressStrict(string email, bool required)
         {
             if (string.IsNullOrEmpty(email))
-                throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
+            {
+                if (required)
+                    throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
+
+                return null;
+            }
 
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
