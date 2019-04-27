@@ -12,6 +12,7 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace HCore.Web.Startup
 {
@@ -131,10 +132,46 @@ namespace HCore.Web.Startup
             if (!useWeb && !useApi)
                 throw new Exception("Please specify which kind of service (web or API) you want to use");
 
+            int numberOfCores = _configuration.GetValue<int>("WebServer:NumberOfCores");
+
+            if (numberOfCores <= 0)
+                throw new Exception("Please specify the number of cores that the server provides");
+
+            long maxRequestBodySizeKB = _configuration.GetValue<long>("WebServer:MaxRequestBodySizeKB");
+
+            // see https://www.monitis.com/blog/improving-asp-net-performance-part3-threading/
+
+            ThreadPool.SetMinThreads(88 * numberOfCores, 88 * numberOfCores);
+            ThreadPool.SetMaxThreads(250 * numberOfCores, 250 * numberOfCores);
+
+            int minWorkerThreads, minWorkerIoThreads;
+            int maxWorkerThreads, maxWorkerIoThreads;
+
+            ThreadPool.GetMinThreads(out minWorkerThreads, out minWorkerIoThreads);
+            ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxWorkerIoThreads);
+
+            Console.WriteLine($"Thread limits: {minWorkerThreads}/{minWorkerIoThreads} - {maxWorkerThreads}/{maxWorkerIoThreads}");
+
             _builder.UseKestrel((builderContext, options) =>
             {
                 options.Configure(builderContext.Configuration.GetSection("Kestrel"));
 
+                // try to avoid thread starvation problems
+
+                // see https://www.strathweb.com/2019/02/be-careful-when-manually-handling-json-requests-in-asp-net-core/
+
+                // TODO enable in ASP.NET Core 3.0, where it should work - for 2.2 it has too many side effects
+
+                // options.AllowSynchronousIO = false;
+
+                // see https://www.monitis.com/blog/improving-asp-net-performance-part3-threading/
+                
+                options.Limits.MaxConcurrentConnections = 24 * numberOfCores;
+                options.Limits.MaxConcurrentUpgradedConnections = 24 * numberOfCores;
+                
+                if (maxRequestBodySizeKB > 0)
+                    options.Limits.MaxRequestBodySize = maxRequestBodySizeKB * 1024;
+                
                 if (useHttps)
                 {
                     string httpsCertificateAssembly = null;

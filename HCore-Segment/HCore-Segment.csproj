@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <AssemblyName>HCore.Segment</AssemblyName>
     <RootNamespace>HCore.Segment</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Analytics.MultiPlatformTest" Version="0.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
   </ItemGroup>
 
 </Project>

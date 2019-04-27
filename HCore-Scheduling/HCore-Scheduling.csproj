@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <AssemblyName>HCore.Scheduling</AssemblyName>
     <RootNamespace>HCore.Scheduling</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
     <PackageReference Include="Quartz" Version="3.0.7" />
     <PackageReference Include="Quartz.Serialization.Json" Version="3.0.7" />
   </ItemGroup>

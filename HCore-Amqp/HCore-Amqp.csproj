@@ -2,15 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <RootNamespace>HCore.Amqp</RootNamespace>
     <AssemblyName>HCore.Amqp</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AMQPNetLite.Core" Version="2.1.6" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
-    <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.3.0" />
+    <PackageReference Include="AMQPNetLite.Core" Version="2.1.7" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
+    <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.4.0" />
   </ItemGroup>
 
 </Project>

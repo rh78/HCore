@@ -19,11 +19,11 @@ namespace HCore.Rest.Client.Impl
         {
             Client = new RestClient();
 
-            Client.AddHandler("application/json", NewtonsoftJsonSerializer.Default);
-            Client.AddHandler("text/json", NewtonsoftJsonSerializer.Default);
-            Client.AddHandler("text/x-json", NewtonsoftJsonSerializer.Default);
-            Client.AddHandler("text/javascript", NewtonsoftJsonSerializer.Default);
-            Client.AddHandler("*+json", NewtonsoftJsonSerializer.Default);
+            Client.AddHandler("application/json", () => { return NewtonsoftJsonSerializer.Default; });
+            Client.AddHandler("text/json", () => { return NewtonsoftJsonSerializer.Default; });
+            Client.AddHandler("text/x-json", () => { return NewtonsoftJsonSerializer.Default; });
+            Client.AddHandler("text/javascript", () => { return NewtonsoftJsonSerializer.Default; });
+            Client.AddHandler("*+json", () => { return NewtonsoftJsonSerializer.Default; });
         }
 
         public Uri BaseUrl { get => Client.BaseUrl; set => Client.BaseUrl = value; }

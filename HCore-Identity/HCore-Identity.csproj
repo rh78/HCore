@@ -2,16 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <RootNamespace>HCore.Identity</RootNamespace>
     <AssemblyName>HCore.Identity</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="3.10.5" />
-    <PackageReference Include="IdentityServer4" Version="2.3.2" />
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.3.0" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.3.2" />
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
+    <PackageReference Include="IdentityModel" Version="3.10.9" />
+    <PackageReference Include="IdentityServer4" Version="2.4.0" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="2.4.0" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="2.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup>    
