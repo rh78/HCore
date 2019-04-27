@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <RootNamespace>HCore.Identity.PagesUI.Views</RootNamespace>
     <AssemblyName>HCore.Identity.PagesUI.Views</AssemblyName>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>    
@@ -110,7 +111,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup>
