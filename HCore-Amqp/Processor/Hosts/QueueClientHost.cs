@@ -165,6 +165,9 @@ namespace HCore.Amqp.Processor.Hosts
                     {
                         semaphore.Release();
                     }
+
+                    if (!CancellationToken.IsCancellationRequested)
+                        await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                 }
             } while (error);
         }        
