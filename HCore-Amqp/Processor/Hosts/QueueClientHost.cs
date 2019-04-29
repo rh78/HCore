@@ -111,7 +111,7 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        public async Task SendMessageAsync(AMQPMessage messageBody, DateTimeOffset? whenToRun = null)
+        public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null)
         {
             QueueClient queueClient;
             bool error;
@@ -135,10 +135,10 @@ namespace HCore.Amqp.Processor.Hosts
                         MessageId = Guid.NewGuid().ToString()
                     };
 
-                    if (whenToRun == null)
+                    if (timeOffsetSeconds == null)
                         await queueClient.SendAsync(message).ConfigureAwait(false);
                     else
-                        await queueClient.ScheduleMessageAsync(message, (DateTimeOffset)whenToRun).ConfigureAwait(false);
+                        await queueClient.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

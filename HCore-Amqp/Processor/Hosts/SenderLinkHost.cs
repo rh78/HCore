@@ -24,7 +24,7 @@ namespace HCore.Amqp.Processor.Hosts
             _senderLink = new SenderLink(session, $"{Address}-sender", Address);
         }
 
-        public async Task SendMessageAsync(AMQPMessage messageBody, DateTimeOffset? whenToRun = null)
+        public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null)
         {
             // whenToRun is not supported with RabbitMQ!
 
