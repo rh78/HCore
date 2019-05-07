@@ -1,8 +1,10 @@
-﻿using Microsoft.Azure.Storage;
+﻿using HCore.Web.Exceptions;
+using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace HCore.Storage.Client.Impl
@@ -20,11 +22,37 @@ namespace HCore.Storage.Client.Impl
 
         public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
         {
-            var container = _cloudBlobClient.GetContainerReference(containerName);
+            try
+            {
+                var container = _cloudBlobClient.GetContainerReference(containerName);
 
-            var blockBlob = container.GetBlockBlobReference(fileName);
+                var blockBlob = container.GetBlockBlobReference(fileName);
 
-            await blockBlob.DownloadToStreamAsync(stream).ConfigureAwait(false);
+                await blockBlob.DownloadToStreamAsync(stream).ConfigureAwait(false);
+            }
+            catch (StorageException storageException)
+            {
+                var requestInformation = storageException.RequestInformation;
+
+                if (requestInformation == null)
+                    throw;
+
+                var httpStatusCode = requestInformation.HttpStatusCode;
+
+                if (httpStatusCode == (int)HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (httpStatusCode == (int)HttpStatusCode.Forbidden ||
+                    httpStatusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         public async Task UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
