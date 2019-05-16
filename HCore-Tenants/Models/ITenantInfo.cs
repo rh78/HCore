@@ -44,6 +44,8 @@ namespace HCore.Tenants.Models
         string SupportEmail { get; }
         string NoreplyEmail { get; }
 
+        string CustomInvitationEmailText { get; }
+
         string ProductName { get; }
 
         string DefaultCulture { get; }

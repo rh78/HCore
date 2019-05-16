@@ -122,6 +122,10 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(noreplyEmail))
                         noreplyEmail = developer.NoreplyEmail;
 
+                    string customInvitationEmailText = tenant.CustomInvitationEmailText;
+                    if (string.IsNullOrEmpty(customInvitationEmailText))
+                        customInvitationEmailText = null;
+
                     string productName = tenant.ProductName;
                     if (string.IsNullOrEmpty(productName))
                         productName = developer.ProductName;
@@ -161,6 +165,7 @@ namespace HCore.Tenants.Providers.Impl
                         TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
                         SupportEmail = supportEmail,
                         NoreplyEmail = noreplyEmail,
+                        CustomInvitationEmailText = customInvitationEmailText,
                         ProductName = productName,
                         BackendApiUrl = tenant.BackendApiUrl,
                         FrontendApiUrl = tenant.FrontendApiUrl,
