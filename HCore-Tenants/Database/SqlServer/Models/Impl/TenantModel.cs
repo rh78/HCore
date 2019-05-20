@@ -53,7 +53,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SupportEmail { get; set; }
         public string NoreplyEmail { get; set; }
 
-        public string CustomInvitationEmailText { get; set; }
+        public string CustomInvitationEmailTextPrefix { get; set; }
+        public string CustomInvitationEmailTextSuffix { get; set; }
 
         public string ProductName { get; set; }
 

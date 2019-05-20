@@ -72,6 +72,8 @@ namespace HCore.Web.API.Impl
 
         public static string ProcessEmailAddress(string emailAddress)
         {
+            emailAddress = emailAddress?.Trim();
+
             if (string.IsNullOrEmpty(emailAddress))
                 return null;
 
@@ -86,6 +88,8 @@ namespace HCore.Web.API.Impl
 
         public static string ProcessEmailAddressStrict(string email, bool required)
         {
+            email = email?.Trim();
+
             if (string.IsNullOrEmpty(email))
             {
                 if (required)

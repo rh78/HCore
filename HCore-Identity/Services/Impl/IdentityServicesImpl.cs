@@ -819,6 +819,8 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessEmail(string email)
         {
+            email = email?.Trim();
+
             if (string.IsNullOrEmpty(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
             
@@ -833,6 +835,8 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessFirstName(string firstName)
         {
+            firstName = firstName?.Trim();
+
             if (string.IsNullOrEmpty(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
             
@@ -847,6 +851,8 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessLastName(string lastName)
         {
+            lastName = lastName?.Trim();
+
             if (string.IsNullOrEmpty(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
             
@@ -861,6 +867,8 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessPhoneNumber(string phoneNumber)
         {
+            phoneNumber = phoneNumber?.Trim();
+
             if (string.IsNullOrEmpty(phoneNumber))
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberMissing, "The phone number is missing");
             
