@@ -26,6 +26,11 @@ using HCore.Identity.Providers.Impl;
 using HCore.Identity.Services.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Validators.Impl;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using HCore.Tenants;
+using IdentityServer4;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -59,7 +64,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (useJwt)
             {
+                // will also configure external authentication services
+
                 ConfigureJwtAuthentication(services, tenantsBuilder, configuration);
+            }
+            else
+            {
+                ConfigureExternalAuthenticationServices(services, tenantsBuilder, configuration);
             }
 
             // see https://github.com/IdentityServer/IdentityServer4.Samples/blob/release/Quickstarts/Combined_AspNetIdentity_and_EntityFrameworkStorage/src/IdentityServerWithAspIdAndEF/Startup.cs#L84
@@ -207,6 +218,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     jwt.TokenValidationParameters = tokenValidationParameters;
                 });
 
+                ConfigureExternalAuthenticationServices(authenticationBuilder, tenantsBuilder, configuration);
+
                 services.AddAuthorization(options =>
                 {
                     options.AddPolicy(IdentityCoreConstants.JwtPolicy, policy =>
@@ -231,6 +244,48 @@ namespace Microsoft.Extensions.DependencyInjection
             }             
         }
 
+        private static void ConfigureExternalAuthenticationServices(IServiceCollection services, TenantsBuilder tenantsBuilder, IConfiguration configuration)
+        {
+            var authenticationBuilder = services.AddAuthentication();
+
+            if (tenantsBuilder != null)
+            {
+                ConfigureExternalAuthenticationServices(authenticationBuilder, tenantsBuilder, configuration);
+            }
+        }
+
+        private static void ConfigureExternalAuthenticationServices(AuthenticationBuilder authenticationBuilder, TenantsBuilder tenantsBuilder, IConfiguration configuration)
+        {
+            if (tenantsBuilder != null)
+            {
+                authenticationBuilder.AddOpenIdConnect(IdentityCoreConstants.ExternalOidcScheme, openIdConnect =>
+                {
+                    // will be configured dynamically
+
+                    openIdConnect.ClientId = "N/A";
+                    openIdConnect.Authority = "https://nowhere.nowhere";
+                });
+
+                tenantsBuilder.WithPerTenantOptions<OpenIdConnectOptions>((openIdConnect, tenantInfo) =>
+                {
+                    if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                    {
+                        string clientId = tenantInfo.ClientId;
+                        string clientSecret = tenantInfo.ClientSecret;
+                        string oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
+
+                        openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                        openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
+                        
+                        openIdConnect.Authority = oidcEndpointUrl;
+
+                        openIdConnect.ClientId = clientId;
+                        openIdConnect.ClientSecret = clientSecret;
+                    }
+                });
+            }
+        }
+
         private static bool CheckScopes(ClaimsPrincipal user, string[] requiredScopes)
         {
             foreach (var requiredScope in requiredScopes)
@@ -253,6 +308,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SignIn.RequireConfirmedEmail = requireEmailConfirmed;
             });
 
+            // IdentityModelEventSource.ShowPII = true;
+
             identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
             identityBuilder.AddDefaultTokenProviders();
 
@@ -272,7 +329,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo) =>
                 {
                     options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
-                    options.Cookie.Name = tenantInfo.DeveloperUuid + ".HCore.Identity.session";
+
+                    if (string.IsNullOrEmpty(tenantInfo.ExternalAuthenticationMethod))
+                    {
+                        options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.HCore.Identity.session";
+                    }
+                    else
+                    {
+                        options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.{tenantInfo.TenantUuid}.HCore.Identity.Session";
+                    }
                 });
             }
 

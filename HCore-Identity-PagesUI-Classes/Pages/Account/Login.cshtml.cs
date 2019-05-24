@@ -19,6 +19,8 @@ using Segment.Model;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Providers;
+using HCore.Tenants;
+using IdentityServer4;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -75,11 +77,111 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {            
-            await PrepareModelAsync(returnUrl).ConfigureAwait(false);            
+            await PrepareModelAsync(returnUrl).ConfigureAwait(false);
+
+            if (_tenantInfoAccessor != null)
+            {
+                string externalAuthenticationMethod = _tenantInfoAccessor.TenantInfo?.ExternalAuthenticationMethod;
+
+                if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                {
+                    return await ChallengeOidcAsync().ConfigureAwait(false);
+                }
+            }
+
+            return Page();
         }
-        
+
+#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+        private async Task<IActionResult> ChallengeOidcAsync()
+#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+        {
+            // initiate roundtrip to external authentication provider
+
+            if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
+                throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid");
+
+            // start challenge and roundtrip the return URL and scheme 
+
+            var props = new AuthenticationProperties
+            {
+                RedirectUri = Url.Page("./Login", pageHandler: "OidcCallback", values: new { ReturnUrl }),
+                Items =
+                {
+                    { "scheme", IdentityServerConstants.ExternalCookieAuthenticationScheme },
+                }
+            };
+
+            return Challenge(props, IdentityCoreConstants.ExternalOidcScheme);
+        }
+
+        public async Task<IActionResult> OnGetOidcCallback()
+        {
+            // Post processing of external authentication
+
+            // Read external identity from the temporary cookie
+
+            var authenticateResult = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+
+            if (authenticateResult?.Succeeded != true)
+                throw new Exception("The OIDC authentication failed");
+
+            // Delete temporary cookie used during external authentication
+
+            await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+
+            // retrieve return URL
+
+            var returnUrl = authenticateResult.Properties.RedirectUri;
+            if (string.IsNullOrEmpty(returnUrl))
+                returnUrl = "~/";
+
+            await PrepareModelAsync(returnUrl).ConfigureAwait(false);
+
+            try
+            {
+                UserModel user = await _identityServices.SignInUserAsync(authenticateResult).ConfigureAwait(false);
+
+                PerformTracking(user);
+
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
+
+                if (IsLocalAuthorization)
+                {
+                    if (!string.IsNullOrEmpty(ReturnUrl))
+                        return LocalRedirect(ReturnUrl);
+                    else
+                        LocalRedirect("~/");
+                }
+
+                if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                {
+                    return Redirect(ReturnUrl);
+                }
+
+                return LocalRedirect("~/");
+            }
+            catch (UnauthorizedApiException unauthorizedApiException)
+            {
+                if (Equals(unauthorizedApiException.GetErrorCode(), UnauthorizedApiException.EmailNotConfirmed))
+                {
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
+                }
+
+                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+
+                throw;
+            }
+            catch (ApiException)
+            {
+                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
         public async Task<IActionResult> OnPostAsync(string action = null)
         {
             await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);

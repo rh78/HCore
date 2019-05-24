@@ -22,6 +22,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using HCore.Web.Providers;
 using HCore.Tenants.Providers;
+using Microsoft.AspNetCore.Authentication;
+using IdentityModel;
+using System.Security.Claims;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -327,6 +330,202 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
+        // create through external authentication provider
+
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string provider, string providerUserId, ClaimsPrincipal externalUser, List<Claim> claims)
+        {
+            if (!_configurationProvider.SelfRegistration)
+                throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
+
+            string email = ProcessEmail(externalUser);
+            bool emailConfirmed = ProcessEmailConfirmed(externalUser);
+
+            if (!emailConfirmed)
+                throw new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
+
+            string firstName = null;
+            string lastName = null;
+            string phoneNumber = null;
+
+            if (_configurationProvider.SelfManagement)
+            {
+                if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
+                {
+                    firstName = ProcessFirstName(externalUser);
+                    lastName = ProcessLastName(externalUser);
+                }
+
+                if (_configurationProvider.ManagePhoneNumber && _configurationProvider.RegisterPhoneNumber)
+                {
+                    phoneNumber = ProcessPhoneNumber(externalUser);
+                }
+            }            
+
+            /* bool requiresTermsAndConditions = _configurationProvider.RequiresTermsAndConditions;
+
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                    requiresTermsAndConditions = tenantInfo.RequiresTermsAndConditions;
+            }
+
+            if (requiresTermsAndConditions)
+            {
+                if (!userSpec.AcceptTermsAndConditions)
+                    throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptTermsAndConditions, "Please accept the terms and conditions");
+            }
+
+            if (!userSpec.AcceptPrivacyPolicy)
+                throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
+
+            email = $"{developerUuid}:{tenantUuid}:{email}";
+
+            try
+            {
+                string newUserUuid = await ReserveUserUuidAsync(email).ConfigureAwait(false);
+
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var existingUser = await _userManager.FindByEmailAsync(email).ConfigureAwait(false);
+
+                    if (existingUser != null)
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
+
+                    var user = new UserModel { Id = newUserUuid, UserName = email, Email = email };
+
+                    if (_configurationProvider.SelfManagement)
+                    {
+                        if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
+                        {
+                            user.FirstName = firstName;
+                            user.LastName = lastName;
+                        }
+
+                        if (_configurationProvider.ManagePhoneNumber && _configurationProvider.RegisterPhoneNumber)
+                        {
+                            user.PhoneNumber = phoneNumber;
+                        }
+                    }
+
+                    user.EmailConfirmed = true;
+
+                    user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
+                    user.PrivacyPolicyAccepted = _nowProvider.Now;
+                    user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
+                    user.PrivacyPolicyVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
+
+                    /* if (userSpec.AcceptCommunication)
+                    {
+                        user.CommunicationAccepted = _nowProvider.Now;
+                        user.CommunicationUrl = _configurationProvider.PrivacyPolicyUrl;
+                        user.CommunicationVersionAccepted = _configurationProvider.PrivacyPolicyVersion;
+                    }
+
+                    if (requiresTermsAndConditions)
+                    {
+                        user.TermsAndConditionsAccepted = _nowProvider.Now;
+                        user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
+                        user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
+                    } */
+
+                    if (_tenantInfoAccessor != null)
+                    {
+                        var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                        if (tenantInfo != null)
+                        {
+                            string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
+                            if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
+                            {
+                                user.PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
+
+                                /* if (userSpec.AcceptCommunication)
+                                    user.CommunicationUrl = tenantPrivacyPolicyUrl; */
+                            }
+
+                            int? tenantPrivacyPolicyVersion = tenantInfo.DeveloperPrivacyPolicyVersion;
+                            if (tenantPrivacyPolicyVersion != null && tenantPrivacyPolicyVersion > 0)
+                            {
+                                user.PrivacyPolicyVersionAccepted = tenantPrivacyPolicyVersion;
+
+                                /* if (userSpec.AcceptCommunication)
+                                    user.CommunicationVersionAccepted = tenantPrivacyPolicyVersion; */
+                            }
+
+                            /* if (requiresTermsAndConditions)
+                            {
+                                string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
+                                if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
+                                    user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+
+                                int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
+                                if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
+                                    user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
+                            } */
+                        }
+                    }
+
+                    var result = await _userManager.CreateAsync(user).ConfigureAwait(false);
+
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User created a new external account with no password");
+
+                        /* if (!emailIsAlreadyConfirmed)
+                        {
+                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
+
+                            var currentCultureInfo = CultureInfo.CurrentCulture;
+
+                            var callbackUrl = _urlHelper.Page(
+                                "/Account/ConfirmEmail",
+                                pageHandler: null,
+                                values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
+                                protocol: "https");
+
+                            EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
+                                new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
+
+                            await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                        }  */
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+
+                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
+
+                        /* if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                        { */
+                            await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                        /* } */
+
+                        return user;
+                    }
+                    else
+                    {
+                        HandleIdentityError(result.Errors);
+                        
+                        // to satisfy the compiler
+                        throw new InternalServerErrorApiException();
+                    }
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when registering external user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
         public async Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec)
         {
             userSignInSpec.Email = ProcessEmail(userSignInSpec.Email);
@@ -347,6 +546,111 @@ namespace HCore.Identity.Services.Impl
 
                     var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, remember, lockoutOnFailure: true).ConfigureAwait(false);
 
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User signed in");
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+
+                        return user;
+                    }
+
+                    // authorization failed 
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+
+                    if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account is locked out");
+
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountLockedOut, "The user account is locked out");
+                    }
+                    else if (result.IsNotAllowed)
+                    {
+                        var exception = new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
+
+                        exception.UserUuid = user.Id;
+
+                        throw exception;
+                    }
+                    else
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
+                    }
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when signing in user: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        // sign in through external authentication provider
+
+        public async Task<UserModel> SignInUserAsync(AuthenticateResult authenticateResult)
+        {
+            try
+            {
+                if (_tenantInfoAccessor == null)
+                {
+                    // this should not be possible
+
+                    throw new Exception("Tenant info accessor is NULL for external authentication provider user signin");
+                }
+
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                var developerUuid = tenantInfo.DeveloperUuid;
+                var tenantUuid = tenantInfo.TenantUuid;
+
+                var externalUser = authenticateResult.Principal;
+
+                // try to determine the unique id of the external user(issued by the provider)
+                // the most common claim type for that are the sub claim and the NameIdentifier
+                // depending on the external provider, some other claim type might be used
+
+                var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
+                    externalUser.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+                {
+                    throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing");
+                }
+
+                // remove the user id claim so we don't include it as an extra claim if/when we provision the user
+
+                var claims = externalUser.Claims.ToList();
+
+                claims.Remove(userIdClaim);
+
+                var provider = authenticateResult.Properties.Items["scheme"];
+                provider = $"{developerUuid}:{tenantUuid}:{provider}";
+
+                var providerUserId = userIdClaim.Value;
+
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    var user = await _userManager.FindByLoginAsync(provider, providerUserId).ConfigureAwait(false);
+
+                    if (user == null)
+                    {
+                        user = await CreateUserAsync(developerUuid, tenantUuid, provider, providerUserId, externalUser, claims).ConfigureAwait(false);
+
+                        return user;
+                    }
+
+                    var result = await _signInManager.ExternalLoginSignInAsync(provider, providerUserId, isPersistent: false, bypassTwoFactor: true).ConfigureAwait(false);
+                    
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User signed in");
@@ -833,6 +1137,31 @@ namespace HCore.Identity.Services.Impl
             return email;
         }
 
+        private string ProcessEmail(ClaimsPrincipal claimsPrincipal)
+        {
+            var emailClaim = claimsPrincipal.FindFirst(JwtClaimTypes.Email) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.Email);
+
+            if (emailClaim == null)
+                throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
+
+            string email = emailClaim.Value;
+
+            return ProcessEmail(email);
+        }
+
+        private bool ProcessEmailConfirmed(ClaimsPrincipal claimsPrincipal)
+        {
+            var emailConfirmedClaim = claimsPrincipal.FindFirst(JwtClaimTypes.EmailVerified);
+
+            if (emailConfirmedClaim == null)
+                return false;
+
+            string emailConfirmedValue = emailConfirmedClaim.Value;
+
+            return string.Equals(emailConfirmedValue, "true");
+        }
+
         private string ProcessFirstName(string firstName)
         {
             firstName = firstName?.Trim();
@@ -847,6 +1176,19 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, "The fist name is too long");
 
             return firstName;
+        }
+
+        private string ProcessFirstName(ClaimsPrincipal claimsPrincipal)
+        {
+            var firstNameClaim = claimsPrincipal.FindFirst(JwtClaimTypes.GivenName) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.GivenName);
+
+            if (firstNameClaim == null)
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
+
+            string firstName = firstNameClaim.Value;
+
+            return ProcessFirstName(firstName);
         }
 
         private string ProcessLastName(string lastName)
@@ -865,6 +1207,19 @@ namespace HCore.Identity.Services.Impl
             return lastName;
         }
 
+        private string ProcessLastName(ClaimsPrincipal claimsPrincipal)
+        {
+            var lastNameClaim = claimsPrincipal.FindFirst(JwtClaimTypes.FamilyName) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.Surname);
+
+            if (lastNameClaim == null)
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
+
+            string lastName = lastNameClaim.Value;
+
+            return ProcessLastName(lastName);
+        }
+
         private string ProcessPhoneNumber(string phoneNumber)
         {
             phoneNumber = phoneNumber?.Trim();
@@ -876,6 +1231,21 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, "The phone number is invalid");
 
             return phoneNumber;
+        }
+
+        private string ProcessPhoneNumber(ClaimsPrincipal claimsPrincipal)
+        {
+            var phoneNumberClaim = claimsPrincipal.FindFirst(JwtClaimTypes.PhoneNumber) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.HomePhone) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.MobilePhone) ??
+                   claimsPrincipal.FindFirst(ClaimTypes.OtherPhone);
+
+            if (phoneNumberClaim == null)
+                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberMissing, "The phone number is missing");
+
+            string phoneNumber = phoneNumberClaim.Value;
+
+            return ProcessPhoneNumber(phoneNumber);
         }
 
         private CultureInfo ProcessNotificationCulture(string notificationCulture)

@@ -13,6 +13,7 @@ namespace HCore.Web.Exceptions
         public const string PasswordDoesNotMatch = "password_does_not_match";
         public const string TokenInvalidOrExpired = "token_invalid_or_expired";
         public const string CookieInvalidOrExpired = "cookie_invalid_or_expired";
+        public const string ExternalUserIdIsMissing = "external_user_id_is_missing";
 
         public string UserUuid { get; set; }
 

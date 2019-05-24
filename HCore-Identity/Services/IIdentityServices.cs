@@ -1,5 +1,6 @@
 ﻿using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Models;
+using Microsoft.AspNetCore.Authentication;
 using System.Threading.Tasks;
 
 namespace HCore.Identity.Services
@@ -15,6 +16,8 @@ namespace HCore.Identity.Services
         Task SetUserPasswordAsync(string userUuid, SetUserPasswordSpec setUserPasswordSpec);
 
         Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec);
+        Task<UserModel> SignInUserAsync(AuthenticateResult authenticateResult);
+
         Task SignOutUserAsync();
 
         Task<UserModel> GetUserAsync(string userUuid);

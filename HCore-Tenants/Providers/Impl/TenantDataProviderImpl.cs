@@ -138,6 +138,32 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(defaultCulture))
                         defaultCulture = "en";
 
+                    string externalAuthorizationMethod = tenant.ExternalAuthenticationMethod;
+
+                    // external authorization is optional
+
+                    string clientId = null;
+                    string clientSecret = null;
+                    string oidcEndpointUrl = null;
+
+                    if (!string.IsNullOrEmpty(externalAuthorizationMethod))
+                    {
+                        if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
+                            throw new Exception("The tenant external authentication method specification is invalid");
+
+                        clientId = tenant.ClientId;
+                        if (string.IsNullOrEmpty(clientId))
+                            throw new Exception("The tenant client ID is missing");
+
+                        clientSecret = tenant.ClientSecret;
+                        if (string.IsNullOrEmpty(clientSecret))
+                            throw new Exception("The tenant client secret is missing");
+
+                        oidcEndpointUrl = tenant.OidcEndpointUrl;
+                        if (string.IsNullOrEmpty(oidcEndpointUrl))
+                            throw new Exception("The tenant OIDC endpoint URL is missing");
+                    }
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -175,7 +201,11 @@ namespace HCore.Tenants.Providers.Impl
                         BackendApiUrl = tenant.BackendApiUrl,
                         FrontendApiUrl = tenant.FrontendApiUrl,
                         WebUrl = tenant.WebUrl,
-                        DefaultCulture = defaultCulture
+                        DefaultCulture = defaultCulture,
+                        ExternalAuthenticationMethod = externalAuthorizationMethod,
+                        ClientId = clientId,
+                        ClientSecret = clientSecret,
+                        OidcEndpointUrl = oidcEndpointUrl
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

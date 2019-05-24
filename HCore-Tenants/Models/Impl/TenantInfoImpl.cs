@@ -55,5 +55,12 @@ namespace HCore.Tenants.Models.Impl
         public string FrontendApiUrl { get; set; }
 
         public string WebUrl { get; set; }
+
+        public string ExternalAuthenticationMethod { get; set; }
+
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+
+        public string OidcEndpointUrl { get; set; }
     }
 }

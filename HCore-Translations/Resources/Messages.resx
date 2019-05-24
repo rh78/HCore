@@ -369,6 +369,9 @@
   <data name="cookie_invalid_or_expired" xml:space="preserve">
     <value>The cookie is invalid or expired</value>
   </data>
+  <data name="external_user_id_is_missing" xml:space="preserve">
+    <value>The external user ID is missing</value>
+  </data>
   <data name="first_name_invalid" xml:space="preserve">
     <value>The first name contains invalid characters</value>
   </data>

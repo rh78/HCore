@@ -30,7 +30,7 @@ namespace HCore.Tenants.Options.Impl
 
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, name);
 
             return base.GetOrAdd(adjustedOptionsName, () => TenantsFactoryWrapper(name, adjustedOptionsName, createOptions));
         }
@@ -39,7 +39,7 @@ namespace HCore.Tenants.Options.Impl
         {
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, name);
 
             if (base.TryAdd(adjustedOptionsName, options))
             {
@@ -78,14 +78,17 @@ namespace HCore.Tenants.Options.Impl
             return result;
         }
 
-        private string AdjustOptionsName(long? developerUuid, string name)
+        private string AdjustOptionsName(long? developerUuid, long? tenantUuid, string name)
         {
             if (developerUuid == null)
                 throw new Exception("Developer UUID is empty");
 
+            if (tenantUuid == null)
+                throw new Exception("Tenant UUID is empty");
+
             // Hash so that prefix + option name can't cause a collision. 
 
-            byte[] buffer = Encoding.UTF8.GetBytes(Convert.ToString(developerUuid) ?? "");
+            byte[] buffer = Encoding.UTF8.GetBytes($"{developerUuid}:{tenantUuid}");
 
             var sha1 = System.Security.Cryptography.SHA1.Create();
             var hash = sha1.ComputeHash(buffer);

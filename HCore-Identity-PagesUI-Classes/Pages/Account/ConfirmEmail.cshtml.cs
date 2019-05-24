@@ -16,9 +16,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly ITranslationsProvider _translationsProvider;
 
         public ConfirmEmailModel(
-            IIdentityServices identityServices)
+            IIdentityServices identityServices,
+            ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
+            _translationsProvider = translationsProvider;
         }
 
         public async Task<IActionResult> OnGetAsync(string userUuid, string code)

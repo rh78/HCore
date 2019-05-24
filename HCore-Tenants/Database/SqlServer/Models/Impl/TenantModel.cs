@@ -60,6 +60,13 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string DefaultCulture { get; set; }
 
+        public string ExternalAuthenticationMethod { get; set; }
+
+        public string ClientId { get; set; }
+        public string ClientSecret { get; set; }
+
+        public string OidcEndpointUrl { get; set; }
+
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
