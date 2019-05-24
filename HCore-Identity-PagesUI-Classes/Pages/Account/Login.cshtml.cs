@@ -100,6 +100,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         {
             // initiate roundtrip to external authentication provider
 
+            if (string.IsNullOrEmpty(ReturnUrl))
+                ReturnUrl = "~/";
+
             if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
                 throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid");
 
@@ -110,6 +113,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 RedirectUri = Url.Page("./Login", pageHandler: "OidcCallback", values: new { ReturnUrl }),
                 Items =
                 {
+                    { "returnUrl", ReturnUrl },
                     { "scheme", IdentityServerConstants.ExternalCookieAuthenticationScheme },
                 }
             };
@@ -121,27 +125,33 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         {
             // Post processing of external authentication
 
-            // Read external identity from the temporary cookie
-
-            var authenticateResult = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
-
-            if (authenticateResult?.Succeeded != true)
-                throw new Exception("The OIDC authentication failed");
-
-            // Delete temporary cookie used during external authentication
-
-            await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
-
-            // retrieve return URL
-
-            var returnUrl = authenticateResult.Properties.RedirectUri;
-            if (string.IsNullOrEmpty(returnUrl))
-                returnUrl = "~/";
-
-            await PrepareModelAsync(returnUrl).ConfigureAwait(false);
-
             try
             {
+                // Read external identity from the temporary cookie
+
+                var authenticateResult = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+
+                if (authenticateResult?.Succeeded != true)
+                    throw new Exception("The OIDC authentication failed");
+
+                // Delete temporary cookie used during external authentication
+
+                await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+
+                // retrieve return URL
+
+                var returnUrl = authenticateResult.Properties.GetString("returnUrl");
+                if (string.IsNullOrEmpty(returnUrl))
+                    returnUrl = "~/";
+
+                await PrepareModelAsync(returnUrl).ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(ReturnUrl))
+                    ReturnUrl = "~/";
+
+                if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
+                    throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid");
+
                 UserModel user = await _identityServices.SignInUserAsync(authenticateResult).ConfigureAwait(false);
 
                 PerformTracking(user);
@@ -170,13 +180,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+                await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false);
 
                 throw;
             }
             catch (ApiException)
             {
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+                await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false);
 
                 throw;
             }

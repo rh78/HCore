@@ -19,7 +19,7 @@ namespace HCore.Identity.Resources {
     // -Klasse über ein Tool wie ResGen oder Visual Studio automatisch generiert.
     // Um einen Member hinzuzufügen oder zu entfernen, bearbeiten Sie die .ResX-Datei und führen dann ResGen
     // mit der /str-Option erneut aus, oder Sie erstellen Ihr VS-Projekt neu.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Messages {
@@ -192,6 +192,15 @@ namespace HCore.Identity.Resources {
         public static string change_password_button_text {
             get {
                 return ResourceManager.GetString("change_password_button_text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You can not change your password here, because your user account is externally managed. Please talk to your system administrator for more information. ähnelt.
+        /// </summary>
+        public static string change_password_not_possible {
+            get {
+                return ResourceManager.GetString("change_password_not_possible", resourceCulture);
             }
         }
         

@@ -70,6 +70,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This operation cannot be performed, because the user account is externally managed ähnelt.
+        /// </summary>
+        public static string account_is_externally_managed {
+            get {
+                return ResourceManager.GetString("account_is_externally_managed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The user account is locked out ähnelt.
         /// </summary>
         public static string account_locked_out {

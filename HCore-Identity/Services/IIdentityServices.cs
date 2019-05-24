@@ -25,6 +25,6 @@ namespace HCore.Identity.Services
 
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
-        Task<string> ReserveUserUuidAsync(string emailAddress);
+        Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true);
     }
 }

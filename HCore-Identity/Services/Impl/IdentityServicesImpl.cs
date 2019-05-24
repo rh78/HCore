@@ -25,12 +25,15 @@ using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Authentication;
 using IdentityModel;
 using System.Security.Claims;
+using System.Text;
 
 namespace HCore.Identity.Services.Impl
 {
     internal class IdentityServicesImpl : IIdentityServices
     {
         public const int MaxCodeLength = 512;
+
+        public const string AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+:";
 
         private readonly SignInManager<UserModel> _signInManager;
         private readonly UserManager<UserModel> _userManager;
@@ -75,9 +78,10 @@ namespace HCore.Identity.Services.Impl
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
-        public async Task<string> ReserveUserUuidAsync(string emailAddress)
+        public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true)
         {
-            emailAddress = ProcessEmail(emailAddress);
+            if (processEmailAddress)
+                emailAddress = ProcessEmail(emailAddress);
 
             string normalizedEmailAddress = emailAddress.Trim().ToUpper();
 
@@ -332,16 +336,13 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string provider, string providerUserId, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserId, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             if (!_configurationProvider.SelfRegistration)
                 throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
 
             string email = ProcessEmail(externalUser);
-            bool emailConfirmed = ProcessEmailConfirmed(externalUser);
-
-            if (!emailConfirmed)
-                throw new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
+            bool emailIsAlreadyConfirmed = ProcessEmailConfirmed(externalUser);
 
             string firstName = null;
             string lastName = null;
@@ -380,20 +381,38 @@ namespace HCore.Identity.Services.Impl
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
 
-            email = $"{developerUuid}:{tenantUuid}:{email}";
+            string scopedEmail = $"{developerUuid}:{tenantUuid}:{email}";
 
             try
             {
-                string newUserUuid = await ReserveUserUuidAsync(email).ConfigureAwait(false);
-
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var existingUser = await _userManager.FindByEmailAsync(email).ConfigureAwait(false);
+                    var existingUser = await _userManager.FindByEmailAsync(scopedEmail).ConfigureAwait(false);
 
                     if (existingUser != null)
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
-                    var user = new UserModel { Id = newUserUuid, UserName = email, Email = email };
+                    string preferredUserName = ProcessPreferredUserName(externalUser);
+
+                    if (!string.IsNullOrEmpty(preferredUserName))
+                    {
+                        preferredUserName = $"{developerUuid}:{tenantUuid}:{preferredUserName}";
+                    }
+
+                    if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
+                    {
+                        preferredUserName = providerUserId;
+                    }
+
+                    if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
+                    {
+                        // preferred user name and provider user ID contains invalid character, generate new ID
+
+                        preferredUserName = Guid.NewGuid().ToString();
+                        preferredUserName = $"{developerUuid}:{tenantUuid}:{preferredUserName}";
+                    }
+
+                    var user = new UserModel { Id = providerUserId, UserName = preferredUserName, Email = scopedEmail };
 
                     if (_configurationProvider.SelfManagement)
                     {
@@ -409,7 +428,10 @@ namespace HCore.Identity.Services.Impl
                         }
                     }
 
-                    user.EmailConfirmed = true;
+                    if (emailIsAlreadyConfirmed)
+                    {
+                        user.EmailConfirmed = true;
+                    }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
@@ -472,9 +494,9 @@ namespace HCore.Identity.Services.Impl
 
                     if (result.Succeeded)
                     {
-                        _logger.LogInformation("User created a new external account with no password");
+                        _logger.LogInformation("External user created without password");
 
-                        /* if (!emailIsAlreadyConfirmed)
+                        if (!emailIsAlreadyConfirmed)
                         {
                             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
@@ -489,8 +511,8 @@ namespace HCore.Identity.Services.Impl
                             EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
                                 new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
-                            await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
-                        }  */
+                            await _emailSender.SendEmailAsync(email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -498,10 +520,10 @@ namespace HCore.Identity.Services.Impl
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
 
-                        /* if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
-                        { */
+                        if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                        {
                             await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
-                        /* } */
+                        }
 
                         return user;
                     }
@@ -633,48 +655,33 @@ namespace HCore.Identity.Services.Impl
 
                 claims.Remove(userIdClaim);
 
-                var provider = authenticateResult.Properties.Items["scheme"];
-                provider = $"{developerUuid}:{tenantUuid}:{provider}";
+                var providerUserId = $"{developerUuid}:{tenantUuid}:{userIdClaim.Value}";
 
-                var providerUserId = userIdClaim.Value;
+                var user = await _userManager.FindByIdAsync(providerUserId).ConfigureAwait(false);
+
+                // stay outside of transaction
+
+                if (user == null)
+                {
+                    user = await CreateUserAsync(developerUuid, tenantUuid, providerUserId, externalUser, claims).ConfigureAwait(false);
+
+                    return user;
+                }
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var user = await _userManager.FindByLoginAsync(provider, providerUserId).ConfigureAwait(false);
+                    user = await _userManager.FindByIdAsync(user.Id).ConfigureAwait(false);
 
-                    if (user == null)
-                    {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, provider, providerUserId, externalUser, claims).ConfigureAwait(false);
+                    bool isLockedOut = await _userManager.IsLockedOutAsync(user).ConfigureAwait(false);
 
-                        return user;
-                    }
-
-                    var result = await _signInManager.ExternalLoginSignInAsync(provider, providerUserId, isPersistent: false, bypassTwoFactor: true).ConfigureAwait(false);
-                    
-                    if (result.Succeeded)
-                    {
-                        _logger.LogInformation("User signed in");
-
-                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-                        transaction.Commit();
-
-                        return user;
-                    }
-
-                    // authorization failed 
-
-                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-                    transaction.Commit();
-
-                    if (result.IsLockedOut)
+                    if (isLockedOut)
                     {
                         _logger.LogWarning("User account is locked out");
 
                         throw new UnauthorizedApiException(UnauthorizedApiException.AccountLockedOut, "The user account is locked out");
                     }
-                    else if (result.IsNotAllowed)
+
+                    if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
                     {
                         var exception = new UnauthorizedApiException(UnauthorizedApiException.EmailNotConfirmed, "The email address is not yet confirmed");
 
@@ -682,10 +689,16 @@ namespace HCore.Identity.Services.Impl
 
                         throw exception;
                     }
-                    else
-                    {
-                        throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
-                    }
+
+                    await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+                    
+                    _logger.LogInformation("External user signed in");
+
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+
+                    return user;
                 }
             }
             catch (ApiException e)
@@ -694,7 +707,7 @@ namespace HCore.Identity.Services.Impl
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error when signing in user: {e}");
+                _logger.LogError($"Error when signing in external user: {e}");
 
                 throw new InternalServerErrorApiException();
             }
@@ -854,6 +867,13 @@ namespace HCore.Identity.Services.Impl
                     if (user == null)
                     {
                         throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
+                    }
+
+                    if (user.PasswordHash == null)
+                    {
+                        // externally managed
+
+                        throw new RequestFailedApiException(RequestFailedApiException.AccountIsExternallyManaged, "This operation cannot be performed, because the user account is externally managed");
                     }
 
                     var changePasswordResult = await _userManager.ChangePasswordAsync(user, setUserPasswordSpec.OldPassword, setUserPasswordSpec.NewPassword).ConfigureAwait(false);
@@ -1184,7 +1204,7 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.GivenName);
 
             if (firstNameClaim == null)
-                throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
+                return null;
 
             string firstName = firstNameClaim.Value;
 
@@ -1213,7 +1233,7 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.Surname);
 
             if (lastNameClaim == null)
-                throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
+                return null;
 
             string lastName = lastNameClaim.Value;
 
@@ -1246,6 +1266,21 @@ namespace HCore.Identity.Services.Impl
             string phoneNumber = phoneNumberClaim.Value;
 
             return ProcessPhoneNumber(phoneNumber);
+        }
+
+        private string ProcessPreferredUserName(ClaimsPrincipal claimsPrincipal)
+        {
+            var preferredUserNameClaim = claimsPrincipal.FindFirst(JwtClaimTypes.PreferredUserName);
+
+            if (preferredUserNameClaim == null)
+                return null;
+
+            string preferredUserName = preferredUserNameClaim.Value;
+
+            if (string.IsNullOrEmpty(preferredUserName))
+                return null;
+
+            return preferredUserName;
         }
 
         private CultureInfo ProcessNotificationCulture(string notificationCulture)

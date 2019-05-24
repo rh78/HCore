@@ -10,12 +10,12 @@ namespace HCore.Web.API.Impl
 {
     public class ApiImpl
     {
-        public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9_.-]+$");
-        public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=/]+$");
+        public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9\._\-\:]+$");
+        public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=:/]+$");
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
-        public const int MaxExternalUuidLength = 50;
+        public const int MaxExternalUuidLength = 100;
         public const int MaxEmailAddressLength = 50;
 
         public const int MaxBulkUpdateCount = 50;

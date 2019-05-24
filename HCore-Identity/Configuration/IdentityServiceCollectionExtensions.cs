@@ -281,6 +281,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.ClientId = clientId;
                         openIdConnect.ClientSecret = clientSecret;
+
+                        openIdConnect.Scope.Add("openid");
+                        openIdConnect.Scope.Add("email");
+                        openIdConnect.Scope.Add("phone");
+                        openIdConnect.Scope.Add("profile");
                     }
                 });
             }
@@ -344,6 +349,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.Configure<IdentityOptions>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+
+                // add ':' for our external user names
+                options.User.AllowedUserNameCharacters = IdentityServicesImpl.AllowedUserNameCharacters;
+
                 options.Password.RequireDigit = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireNonAlphanumeric = false;

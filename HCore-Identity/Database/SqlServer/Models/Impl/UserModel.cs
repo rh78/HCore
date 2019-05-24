@@ -6,7 +6,7 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 { 
     public class UserModel : IdentityUser
     {
-        public const int MaxUserUuidLength = 50;
+        public const int MaxUserUuidLength = 100;
         public const int MaxUserNameLength = 50;
         public const int MaxEmailAddressLength = 50;
 

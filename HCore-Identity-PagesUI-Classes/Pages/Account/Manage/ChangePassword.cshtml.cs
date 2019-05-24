@@ -30,6 +30,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         [BindProperty]
         public SetUserPasswordSpec Input { get; set; }
 
+        public bool PasswordChangePossible { get; set; }
+
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -37,7 +39,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             var userUuid = User.GetUserUuid();
 
-            var apiResult = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);            
+            var userModel = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
+
+            PasswordChangePossible = userModel.PasswordHash != null;
         }
 
         public async Task<IActionResult> OnPostAsync()
