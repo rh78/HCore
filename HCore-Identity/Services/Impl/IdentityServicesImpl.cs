@@ -1216,7 +1216,7 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.GivenName);
 
             if (firstNameClaim == null)
-                return null;
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
 
             string firstName = firstNameClaim.Value;
 
@@ -1245,7 +1245,7 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.Surname);
 
             if (lastNameClaim == null)
-                return null;
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
 
             string lastName = lastNameClaim.Value;
 
