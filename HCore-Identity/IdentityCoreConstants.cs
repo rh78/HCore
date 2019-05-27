@@ -19,5 +19,7 @@
         public const string ActionNotify = "notify";
 
         public const int AccessTokenValidityInSeconds = 3600;
+
+        public const string UuidSeparator = ":";
     }
 }

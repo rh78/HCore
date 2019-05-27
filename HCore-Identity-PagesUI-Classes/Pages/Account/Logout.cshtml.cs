@@ -114,9 +114,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             if (User?.Identity.IsAuthenticated == true)
             {
-                // delete local authentication cookie
+                // delete authentication cookies
 
-                await _identityServices.SignOutUserAsync().ConfigureAwait(false);
+                await _identityServices.SignOutUserAsync(HttpContext).ConfigureAwait(false);
 
                 // raise the logout event
                 

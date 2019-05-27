@@ -1,6 +1,7 @@
 ﻿using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
 namespace HCore.Identity.Services
@@ -18,7 +19,7 @@ namespace HCore.Identity.Services
         Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec);
         Task<UserModel> SignInUserAsync(AuthenticateResult authenticateResult);
 
-        Task SignOutUserAsync();
+        Task SignOutUserAsync(HttpContext httpContext);
 
         Task<UserModel> GetUserAsync(string userUuid);
         Task<UserModel> GetUserByEmailAsync(string emailAddress);

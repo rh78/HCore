@@ -26,6 +26,8 @@ using Microsoft.AspNetCore.Authentication;
 using IdentityModel;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using HCore.Tenants;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -381,7 +383,7 @@ namespace HCore.Identity.Services.Impl
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
 
-            string scopedEmail = $"{developerUuid}:{tenantUuid}:{email}";
+            string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{email}";
 
             try
             {
@@ -396,7 +398,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (!string.IsNullOrEmpty(preferredUserName))
                     {
-                        preferredUserName = $"{developerUuid}:{tenantUuid}:{preferredUserName}";
+                        preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
                     }
 
                     if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
@@ -409,7 +411,7 @@ namespace HCore.Identity.Services.Impl
                         // preferred user name and provider user ID contains invalid character, generate new ID
 
                         preferredUserName = Guid.NewGuid().ToString();
-                        preferredUserName = $"{developerUuid}:{tenantUuid}:{preferredUserName}";
+                        preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
                     }
 
                     var user = new UserModel { Id = providerUserId, UserName = preferredUserName, Email = scopedEmail };
@@ -655,7 +657,7 @@ namespace HCore.Identity.Services.Impl
 
                 claims.Remove(userIdClaim);
 
-                var providerUserId = $"{developerUuid}:{tenantUuid}:{userIdClaim.Value}";
+                var providerUserId = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
 
                 var user = await _userManager.FindByIdAsync(providerUserId).ConfigureAwait(false);
 
@@ -902,9 +904,19 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task SignOutUserAsync()
+        public async Task SignOutUserAsync(HttpContext httpContext)
         {
             await _signInManager.SignOutAsync().ConfigureAwait(false);
+
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                {
+                    await httpContext.SignOutAsync(IdentityCoreConstants.ExternalOidcScheme).ConfigureAwait(false);
+                }
+            }
 
             _logger.LogInformation("User logged out");
         }
