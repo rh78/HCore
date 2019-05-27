@@ -156,7 +156,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 }
                 else
                 {
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.Email, user.Id, user.Email)).ConfigureAwait(false);
+                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
                 }
 
                 return LocalRedirect("~/");
@@ -226,7 +226,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                         { "firstName", user.FirstName },
                         { "lastName", user.LastName },
                         { "createdAt", user.PrivacyPolicyAccepted?.ToString("o") },
-                        { "email", user.Email }
+                        { "email", user.GetEmail() }
                     });
 
                 if (_tenantInfoAccessor != null)

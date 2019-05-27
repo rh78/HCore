@@ -1,11 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace HCore.Identity.Database.SqlServer.Models.Impl
 { 
     public class UserModel : IdentityUser
     {
+        public static readonly Regex ScopedEmail = new Regex(@"^[0-9]+:[0-9]+:.+$");
+
         public const int MaxUserUuidLength = 100;
         public const int MaxUserNameLength = 50;
         public const int MaxEmailAddressLength = 50;
@@ -40,6 +44,28 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
                 return $"{FirstName} {LastName}";
             
+            return GetEmail();
+        }
+
+        public string GetEmail()
+        {
+            if (string.IsNullOrEmpty(Email))
+                return Email;
+
+            if (ScopedEmail.IsMatch(Email))
+            {
+                // we have scoped email prefix
+
+                string[] emailParts = Email.Split(":");
+
+                string unscopedEmail = string.Join(":", emailParts.Skip(2));
+
+                if (string.IsNullOrEmpty(unscopedEmail))
+                    return null;
+
+                return unscopedEmail;
+            }
+
             return Email;
         }
     }

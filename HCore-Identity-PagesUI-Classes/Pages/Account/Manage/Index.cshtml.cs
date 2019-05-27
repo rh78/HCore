@@ -45,7 +45,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
             Input = new UserSpec()
             {
-                Email = user.Email,
+                Email = user.GetEmail(),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
@@ -80,9 +80,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 if (user != null)
                 {
-                    Input.Email = user.Email;
+                    Input.Email = user.GetEmail();
 
-                    Email = user.Email;
+                    Email = user.GetEmail();
                     EmailConfirmed = user.EmailConfirmed;
                 }
             }
@@ -114,9 +114,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 if (user != null)
                 {
-                    Input.Email = user.Email;
+                    Input.Email = user.GetEmail();
 
-                    Email = user.Email;
+                    Email = user.GetEmail();
                     EmailConfirmed = user.EmailConfirmed;
                 }
             }

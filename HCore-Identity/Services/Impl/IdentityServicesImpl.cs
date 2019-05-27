@@ -343,7 +343,7 @@ namespace HCore.Identity.Services.Impl
             if (!_configurationProvider.SelfRegistration)
                 throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
 
-            string email = ProcessEmail(externalUser);
+            string unscopedEmail = ProcessEmail(externalUser);
             bool emailIsAlreadyConfirmed = ProcessEmailConfirmed(externalUser);
 
             string firstName = null;
@@ -383,7 +383,7 @@ namespace HCore.Identity.Services.Impl
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
 
-            string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{email}";
+            string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{unscopedEmail}";
 
             try
             {
@@ -513,7 +513,7 @@ namespace HCore.Identity.Services.Impl
                             EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
                                 new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
-                            await _emailSender.SendEmailAsync(email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                            await _emailSender.SendEmailAsync(unscopedEmail, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -1120,7 +1120,7 @@ namespace HCore.Identity.Services.Impl
                     EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
                         new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
 
-                    await _emailSender.SendEmailAsync(user.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+                    await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 

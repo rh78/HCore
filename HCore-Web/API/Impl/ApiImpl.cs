@@ -12,6 +12,7 @@ namespace HCore.Web.API.Impl
     {
         public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9\._\-\:]+$");
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=:/]+$");
+        public static readonly Regex ScopedEmail = new Regex(@"^[0-9]+:[0-9]+:.+$");
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
@@ -77,6 +78,16 @@ namespace HCore.Web.API.Impl
             if (string.IsNullOrEmpty(emailAddress))
                 return null;
 
+            if (ScopedEmail.IsMatch(emailAddress))
+            {
+                string[] emailParts = emailAddress.Split(":");
+
+                emailAddress = string.Join(":", emailParts.Skip(2)).Trim();
+
+                if (string.IsNullOrEmpty(emailAddress))
+                    return null;
+            }
+
             if (!SafeString.IsMatch(emailAddress))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, $"The email address is invalid");
 
@@ -84,6 +95,35 @@ namespace HCore.Web.API.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.EmailTooLong, $"The email address is too long");
 
             return emailAddress;
+        }
+
+        public static long? ProcessScopedTenantUuid(string emailAddress)
+        {
+            emailAddress = emailAddress?.Trim();
+
+            if (string.IsNullOrEmpty(emailAddress))
+                return null;
+
+            if (ScopedEmail.IsMatch(emailAddress))
+            {
+                string[] emailParts = emailAddress.Split(":");
+
+                string tenantUuidString = emailParts[1];
+                
+                if (string.IsNullOrEmpty(tenantUuidString))
+                    return null;
+
+                try
+                {
+                    return Convert.ToInt64(tenantUuidString);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            return null;
         }
 
         public static string ProcessEmailAddressStrict(string email, bool required)
