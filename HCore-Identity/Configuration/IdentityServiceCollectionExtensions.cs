@@ -335,7 +335,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
 
-                    if (string.IsNullOrEmpty(tenantInfo.ExternalAuthenticationMethod))
+                    if (!tenantInfo.UsersAreExternallyManaged)
                     {
                         options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.HCore.Identity.session";
                     }

@@ -88,6 +88,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die This operation cannot be performed, because the user groups and accounts are externally managed ähnelt.
+        /// </summary>
+        public static string accounts_are_externally_managed {
+            get {
+                return ResourceManager.GetString("accounts_are_externally_managed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The API credentials are missing ähnelt.
         /// </summary>
         public static string api_credentials_missing {

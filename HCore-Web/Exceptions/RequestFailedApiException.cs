@@ -89,7 +89,8 @@ namespace HCore.Web.Exceptions
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
         public const string NotificationCultureInvalid = "notification_culture_invalid";
         public const string AccountIsExternallyManaged = "account_is_externally_managed";
-            
+        public const string AccountsAreExternallyManaged = "accounts_are_externally_managed";
+
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)
         {

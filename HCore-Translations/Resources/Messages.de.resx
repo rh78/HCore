@@ -447,6 +447,9 @@
   <data name="account_is_externally_managed" xml:space="preserve">
     <value>Dieser Vorgang kann nicht durchgeführt werden, weil das Benutzerkonto extern verwaltet wird</value>
   </data>
+  <data name="accounts_are_externally_managed" xml:space="preserve">
+    <value>Dieser Vorgang kann nicht durchgeführt werden, weil die Benutzergruppen und -konten extern verwaltet werden</value>
+  </data>
   <data name="cloud_storage_file_access_denied" xml:space="preserve">
     <value>Der Zugriff auf die Datei wurde verweigert</value>
   </data>

@@ -145,6 +145,7 @@ namespace HCore.Tenants.Providers.Impl
                     string clientId = null;
                     string clientSecret = null;
                     string oidcEndpointUrl = null;
+                    bool usersAreExternallyManaged = false;
 
                     if (!string.IsNullOrEmpty(externalAuthorizationMethod))
                     {
@@ -162,6 +163,8 @@ namespace HCore.Tenants.Providers.Impl
                         oidcEndpointUrl = tenant.OidcEndpointUrl;
                         if (string.IsNullOrEmpty(oidcEndpointUrl))
                             throw new Exception("The tenant OIDC endpoint URL is missing");
+
+                        usersAreExternallyManaged = true;
                     }
 
                     var tenantInfo = new TenantInfoImpl()
@@ -205,7 +208,8 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
                         ClientId = clientId,
                         ClientSecret = clientSecret,
-                        OidcEndpointUrl = oidcEndpointUrl
+                        OidcEndpointUrl = oidcEndpointUrl,
+                        UsersAreExternallyManaged = usersAreExternallyManaged
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

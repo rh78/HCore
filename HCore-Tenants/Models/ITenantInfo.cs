@@ -62,5 +62,7 @@ namespace HCore.Tenants.Models
         string ClientSecret { get; }
 
         string OidcEndpointUrl { get; }
+
+        bool UsersAreExternallyManaged { get; }
     }
 }

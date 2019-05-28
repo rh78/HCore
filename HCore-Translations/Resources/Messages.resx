@@ -447,6 +447,9 @@
   <data name="account_is_externally_managed" xml:space="preserve">
     <value>This operation cannot be performed, because the user account is externally managed</value>
   </data>
+  <data name="accounts_are_externally_managed" xml:space="preserve">
+    <value>This operation cannot be performed, because the user groups and accounts are externally managed</value>
+  </data>
   <data name="cloud_storage_file_access_denied" xml:space="preserve">
     <value>Access to the file was denied</value>
   </data>
