@@ -56,13 +56,36 @@ namespace HCore.Tenants.Models
 
         string WebUrl { get; }
 
+        bool UsersAreExternallyManaged { get; }
+
         string ExternalAuthenticationMethod { get; }
 
-        string ClientId { get; }
-        string ClientSecret { get; }
+        string OidcClientId { get; }
+        string OidcClientSecret { get; }
 
         string OidcEndpointUrl { get; }
 
-        bool UsersAreExternallyManaged { get; }
+        string ExternalDirectoryType { get; }
+        string ExternalDirectoryHost { get; }
+        int? ExternalDirectoryPort { get; }
+
+        bool? ExternalDirectoryUsesSsl { get; }
+
+        byte[] ExternalDirectorySslCertificate { get; }
+
+        string ExternalDirectoryAccountDistinguishedName { get; }
+
+        string ExternalDirectoryPassword { get; }
+
+        string ExternalDirectoryLoginAttribute { get; }
+
+        string ExternalDirectoryBaseContexts { get; }
+
+        string ExternalDirectoryUserFilter { get; }
+        string ExternalDirectoryGroupFilter { get; }
+
+        int? ExternalDirectorySyncIntervalSeconds { get; }
+
+        string ExternalDirectoryAdministratorGroupUuid { get; }
     }
 }

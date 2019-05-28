@@ -1,4 +1,5 @@
-﻿using HCore.Storage;
+﻿using HCore.Directory;
+using HCore.Storage;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
@@ -138,31 +139,101 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(defaultCulture))
                         defaultCulture = "en";
 
+                    bool usersAreExternallyManaged = false;
+
                     string externalAuthorizationMethod = tenant.ExternalAuthenticationMethod;
 
                     // external authorization is optional
 
-                    string clientId = null;
-                    string clientSecret = null;
+                    string oidcClientId = null;
+                    string oidcClientSecret = null;
                     string oidcEndpointUrl = null;
-                    bool usersAreExternallyManaged = false;
+
+                    string externalDirectoryType = null;
+                    string externalDirectoryHost = null;
+                    int? externalDirectoryPort = null;
+
+                    bool? externalDirectoryUsesSsl = null;
+
+                    byte[] externalDirectorySslCertificate = null;
+
+                    string externalDirectoryAccountDistinguishedName = null;
+
+                    string externalDirectoryPassword = null;
+
+                    string externalDirectoryLoginAttribute = null;
+
+                    string externalDirectoryBaseContexts = null;
+
+                    string externalDirectoryUserFilter = null;
+                    string externalDirectoryGroupFilter = null;
+
+                    int? externalDirectorySyncIntervalSeconds = null;
+
+                    string externalDirectoryAdministratorGroupUuid = null;
 
                     if (!string.IsNullOrEmpty(externalAuthorizationMethod))
                     {
                         if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
                             throw new Exception("The tenant external authentication method specification is invalid");
 
-                        clientId = tenant.ClientId;
-                        if (string.IsNullOrEmpty(clientId))
-                            throw new Exception("The tenant client ID is missing");
+                        oidcClientId = tenant.OidcClientId;
+                        if (string.IsNullOrEmpty(oidcClientId))
+                            throw new Exception("The tenant OIDC client ID is missing");
 
-                        clientSecret = tenant.ClientSecret;
-                        if (string.IsNullOrEmpty(clientSecret))
-                            throw new Exception("The tenant client secret is missing");
+                        oidcClientSecret = tenant.OidcClientSecret;
+                        if (string.IsNullOrEmpty(oidcClientSecret))
+                            throw new Exception("The tenant OIDC client secret is missing");
 
                         oidcEndpointUrl = tenant.OidcEndpointUrl;
                         if (string.IsNullOrEmpty(oidcEndpointUrl))
                             throw new Exception("The tenant OIDC endpoint URL is missing");
+
+                        externalDirectoryType = tenant.ExternalDirectoryType;
+
+                        if (string.IsNullOrEmpty(externalDirectoryType))
+                            throw new Exception("The tenant external directory type is missing");
+
+                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) && !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS))
+                            throw new Exception("The tenant external directory type specification is invalid");
+
+                        externalDirectoryHost = tenant.ExternalDirectoryHost;
+
+                        if (string.IsNullOrEmpty(externalDirectoryHost))
+                            throw new Exception("The tenant external directory host is missing");
+
+                        externalDirectoryUsesSsl = tenant.ExternalDirectoryUsesSsl ?? false;
+
+                        externalDirectoryPort = tenant.ExternalDirectoryPort;
+
+                        if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
+                            throw new Exception("The tenant external directory port is invalid");
+
+                        externalDirectorySslCertificate = tenant.ExternalDirectorySslCertificate;
+
+                        externalDirectoryAccountDistinguishedName = tenant.ExternalDirectoryAccountDistinguishedName;
+                        if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
+                            throw new Exception("The tenant external directory account distinguished name is missing");
+
+                        externalDirectoryPassword = tenant.ExternalDirectoryPassword;
+                        if (string.IsNullOrEmpty(externalDirectoryPassword))
+                            throw new Exception("The tenant external directory password is missing");
+
+                        externalDirectoryLoginAttribute = tenant.ExternalDirectoryLoginAttribute;
+
+                        externalDirectoryBaseContexts = tenant.ExternalDirectoryBaseContexts;
+
+                        externalDirectoryUserFilter = tenant.ExternalDirectoryUserFilter;
+                        externalDirectoryGroupFilter = tenant.ExternalDirectoryGroupFilter;
+
+                        externalDirectorySyncIntervalSeconds = tenant.ExternalDirectorySyncIntervalSeconds;
+
+                        if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
+                            throw new Exception("The tenant external directory sync interval is invalid");
+
+                        externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
+                        if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
+                            throw new Exception("The tenant external directory administrator group UUID is missing");
 
                         usersAreExternallyManaged = true;
                     }
@@ -205,11 +276,24 @@ namespace HCore.Tenants.Providers.Impl
                         FrontendApiUrl = tenant.FrontendApiUrl,
                         WebUrl = tenant.WebUrl,
                         DefaultCulture = defaultCulture,
+                        UsersAreExternallyManaged = usersAreExternallyManaged,
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
-                        ClientId = clientId,
-                        ClientSecret = clientSecret,
-                        OidcEndpointUrl = oidcEndpointUrl,
-                        UsersAreExternallyManaged = usersAreExternallyManaged
+                        OidcClientId = oidcClientId,
+                        OidcClientSecret = oidcClientSecret,
+                        OidcEndpointUrl = oidcEndpointUrl,                        
+                        ExternalDirectoryType = externalDirectoryType,
+                        ExternalDirectoryHost = externalDirectoryHost,
+                        ExternalDirectoryPort = externalDirectoryPort,
+                        ExternalDirectoryUsesSsl = externalDirectoryUsesSsl,
+                        ExternalDirectorySslCertificate = externalDirectorySslCertificate,
+                        ExternalDirectoryAccountDistinguishedName = externalDirectoryAccountDistinguishedName,
+                        ExternalDirectoryPassword = externalDirectoryPassword,
+                        ExternalDirectoryLoginAttribute = externalDirectoryLoginAttribute,
+                        ExternalDirectoryBaseContexts = externalDirectoryBaseContexts,
+                        ExternalDirectoryUserFilter = externalDirectoryUserFilter,
+                        ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
+                        ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
+                        ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

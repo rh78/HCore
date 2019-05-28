@@ -62,10 +62,33 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string ExternalAuthenticationMethod { get; set; }
 
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
+        public string OidcClientId { get; set; }
+        public string OidcClientSecret { get; set; }
 
         public string OidcEndpointUrl { get; set; }
+
+        public string ExternalDirectoryType { get; set; }
+        public string ExternalDirectoryHost { get; set; }
+        public int? ExternalDirectoryPort { get; set; }
+
+        public bool? ExternalDirectoryUsesSsl { get; set; }
+
+        public byte[] ExternalDirectorySslCertificate { get; set; }
+
+        public string ExternalDirectoryAccountDistinguishedName { get; set; }
+
+        public string ExternalDirectoryPassword { get; set; }
+
+        public string ExternalDirectoryLoginAttribute { get; set; }
+
+        public string ExternalDirectoryBaseContexts { get; set; }
+
+        public string ExternalDirectoryUserFilter { get; set; }
+        public string ExternalDirectoryGroupFilter { get; set; }
+
+        public int? ExternalDirectorySyncIntervalSeconds { get; set; }
+
+        public string ExternalDirectoryAdministratorGroupUuid { get; set; }
 
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }

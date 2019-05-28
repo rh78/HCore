@@ -32,4 +32,6 @@
 /HCore-Scheduling/obj
 /HCore-Storage/bin
 /HCore-Storage/obj
+/HCore-Directory/bin
+/HCore-Directory/obj
 /.vs

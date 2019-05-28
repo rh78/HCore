@@ -270,8 +270,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
-                        string clientId = tenantInfo.ClientId;
-                        string clientSecret = tenantInfo.ClientSecret;
+                        string oidcClientId = tenantInfo.OidcClientId;
+                        string oidcClientSecret = tenantInfo.OidcClientSecret;
                         string oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
@@ -279,8 +279,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         
                         openIdConnect.Authority = oidcEndpointUrl;
 
-                        openIdConnect.ClientId = clientId;
-                        openIdConnect.ClientSecret = clientSecret;
+                        openIdConnect.ClientId = oidcClientId;
+                        openIdConnect.ClientSecret = oidcClientSecret;
 
                         openIdConnect.Scope.Add("openid");
                         openIdConnect.Scope.Add("email");

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2003
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Amqp", "HCore-Amqp\HCore-Amqp.csproj", "{76169CC5-D1A7-4A0B-B219-5647F2C0B69D}"
 EndProject
@@ -35,7 +35,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-PagesUI-Classes", "HC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-PagesUI-Views", "HCore-PagesUI-Views\HCore-PagesUI-Views.csproj", "{95586FCC-99C3-45A8-BC09-FABA24788ACE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore-Segment", "HCore-Segment\HCore-Segment.csproj", "{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Segment", "HCore-Segment\HCore-Segment.csproj", "{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore-Directory", "HCore-Directory\HCore-Directory.csproj", "{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +113,10 @@ Global
 		{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
