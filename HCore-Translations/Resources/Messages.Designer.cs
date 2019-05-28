@@ -367,6 +367,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The external user was not found ähnelt.
+        /// </summary>
+        public static string external_user_not_found {
+            get {
+                return ResourceManager.GetString("external_user_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The first name contains invalid characters ähnelt.
         /// </summary>
         public static string first_name_invalid {
