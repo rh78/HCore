@@ -268,6 +268,8 @@ namespace HCore.Tenants.Providers.Impl
                         externalDirectoryLoginAttribute = tenant.ExternalDirectoryLoginAttribute;
 
                         externalDirectoryBaseContexts = tenant.ExternalDirectoryBaseContexts;
+                        if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
+                            throw new Exception("The tenant external directory base contexts are missing");
 
                         externalDirectoryUserFilter = tenant.ExternalDirectoryUserFilter;
                         externalDirectoryGroupFilter = tenant.ExternalDirectoryGroupFilter;
