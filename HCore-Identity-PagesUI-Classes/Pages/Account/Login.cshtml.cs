@@ -85,9 +85,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 string externalAuthenticationMethod = _tenantInfoAccessor.TenantInfo?.ExternalAuthenticationMethod;
 
-                if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
+                    string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
                 {
-                    return await ChallengeOidcAsync().ConfigureAwait(false);
+                    return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
                 }
             }
 
@@ -95,7 +96,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         }
 
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
-        private async Task<IActionResult> ChallengeOidcAsync()
+        private async Task<IActionResult> ChallengeExternalAsync(string externalAuthenticationMethod)
 #pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
         {
             // initiate roundtrip to external authentication provider
@@ -110,18 +111,26 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             var props = new AuthenticationProperties
             {
-                RedirectUri = Url.Page("./Login", pageHandler: "OidcCallback", values: new { ReturnUrl }),
+                RedirectUri = Url.Page("./Login", pageHandler: "ExternalCallback", values: new { ReturnUrl }),
                 Items =
                 {
-                    { "returnUrl", ReturnUrl },
-                    { "scheme", IdentityServerConstants.ExternalCookieAuthenticationScheme },
+                    { "returnUrl", ReturnUrl }
                 }
             };
 
-            return Challenge(props, IdentityCoreConstants.ExternalOidcScheme);
+            if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+            {
+                return Challenge(props, IdentityCoreConstants.ExternalOidcScheme);
+            }
+            else if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+            {
+                return Challenge(props, IdentityCoreConstants.ExternalSamlScheme);
+            }
+            else
+                throw new NotImplementedException();
         }
 
-        public async Task<IActionResult> OnGetOidcCallback()
+        public async Task<IActionResult> OnGetExternalCallback()
         {
             // Post processing of external authentication
 
@@ -132,7 +141,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 var authenticateResult = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
 
                 if (authenticateResult?.Succeeded != true)
-                    throw new Exception("The OIDC authentication failed");
+                    throw new Exception("The external authentication failed");
 
                 // Delete temporary cookie used during external authentication
 
@@ -214,7 +223,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 {
                     // If the user cancels, send a result back into IdentityServer as if they 
                     // denied the consent (even if this client does not require consent).
-                    // this will send back an access denied OIDC error response to the client.
+                    // this will send back an access denied external error response to the client.
 
                     await _interaction.GrantConsentAsync(context, ConsentResponse.Denied).ConfigureAwait(false);
 

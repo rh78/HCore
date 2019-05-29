@@ -696,6 +696,10 @@ namespace HCore.Identity.Services.Impl
                 {
                     await httpContext.SignOutAsync(IdentityCoreConstants.ExternalOidcScheme).ConfigureAwait(false);
                 }
+                else if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                {
+                    await httpContext.SignOutAsync(IdentityCoreConstants.ExternalSamlScheme).ConfigureAwait(false);
+                }
             }
 
             _logger.LogInformation("User logged out");

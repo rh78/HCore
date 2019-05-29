@@ -1,12 +1,13 @@
-﻿namespace HCore.Tenants.Models.Impl
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace HCore.Tenants.Models.Impl
 {
     internal class DeveloperInfoImpl : IDeveloperInfo
     {
         public long DeveloperUuid { get; internal set; }
         public string Authority { get; internal set; }
         public string Audience { get; internal set; }
-        public byte[] Certificate { get; internal set; }
-        public string CertificatePassword { get; internal set; }
+        public X509Certificate2 Certificate { get; internal set; }
         public string AuthCookieDomain { get; internal set; }
 
         public string Name { get; internal set; }

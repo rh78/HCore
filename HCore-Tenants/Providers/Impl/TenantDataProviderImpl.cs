@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Providers.Impl
 {
@@ -47,10 +48,14 @@ namespace HCore.Tenants.Providers.Impl
                 {
                     string subdomainPattern = tenant.SubdomainPattern;
 
-                    if (developer.Certificate != null && developer.Certificate.Length > 0 &&
-                        string.IsNullOrEmpty(developer.CertificatePassword))
+                    X509Certificate2 developerCertificate = null;
+
+                    if (!string.IsNullOrEmpty(developer.Certificate))
                     {
-                        throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
+                        if (string.IsNullOrEmpty(developer.CertificatePassword))
+                            throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
+
+                        developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developer.Certificate), developer.CertificatePassword);
                     }
 
                     if (string.IsNullOrEmpty(tenant.Name))
@@ -149,13 +154,21 @@ namespace HCore.Tenants.Providers.Impl
                     string oidcClientSecret = null;
                     string oidcEndpointUrl = null;
 
+                    string samlEntityId = null;
+                    string samlMetadataLocation = null;
+
+                    string samlProviderUrl = null;
+                    Uri samlLogoutUrl = null;
+                    
+                    X509Certificate2 samlCertificate = null;
+
                     string externalDirectoryType = null;
                     string externalDirectoryHost = null;
                     int? externalDirectoryPort = null;
 
                     bool? externalDirectoryUsesSsl = null;
 
-                    byte[] externalDirectorySslCertificate = null;
+                    X509Certificate2 externalDirectorySslCertificate = null;
 
                     string externalDirectoryAccountDistinguishedName = null;
 
@@ -174,20 +187,45 @@ namespace HCore.Tenants.Providers.Impl
 
                     if (!string.IsNullOrEmpty(externalAuthorizationMethod))
                     {
-                        if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
+                        if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc) && !externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                             throw new Exception("The tenant external authentication method specification is invalid");
 
-                        oidcClientId = tenant.OidcClientId;
-                        if (string.IsNullOrEmpty(oidcClientId))
-                            throw new Exception("The tenant OIDC client ID is missing");
+                        if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
+                        {
+                            oidcClientId = tenant.OidcClientId;
+                            if (string.IsNullOrEmpty(oidcClientId))
+                                throw new Exception("The tenant OIDC client ID is missing");
 
-                        oidcClientSecret = tenant.OidcClientSecret;
-                        if (string.IsNullOrEmpty(oidcClientSecret))
-                            throw new Exception("The tenant OIDC client secret is missing");
+                            oidcClientSecret = tenant.OidcClientSecret;
+                            if (string.IsNullOrEmpty(oidcClientSecret))
+                                throw new Exception("The tenant OIDC client secret is missing");
 
-                        oidcEndpointUrl = tenant.OidcEndpointUrl;
-                        if (string.IsNullOrEmpty(oidcEndpointUrl))
-                            throw new Exception("The tenant OIDC endpoint URL is missing");
+                            oidcEndpointUrl = tenant.OidcEndpointUrl;
+                            if (string.IsNullOrEmpty(oidcEndpointUrl))
+                                throw new Exception("The tenant OIDC endpoint URL is missing");
+                        }
+                        else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
+                        {
+                            samlEntityId = tenant.SamlEntityId;
+                            if (string.IsNullOrEmpty(samlEntityId))
+                                throw new Exception("The tenant SAML entity ID is missing");
+
+                            samlMetadataLocation = tenant.SamlMetadataLocation;
+                            if (string.IsNullOrEmpty(samlMetadataLocation))
+                                throw new Exception("The tenant SAML metadata location is missing");
+
+                            samlProviderUrl = tenant.SamlProviderUrl;
+                            if (string.IsNullOrEmpty(samlProviderUrl))
+                                throw new Exception("The tenant SAML provider URL is missing");
+
+                            if (!string.IsNullOrEmpty(tenant.SamlLogoutUrl))
+                                samlLogoutUrl = new Uri(tenant.SamlLogoutUrl);
+                            else
+                                throw new Exception("The tenant SAML logout URL is missing");
+
+                            if (!string.IsNullOrEmpty(tenant.SamlCertificate))
+                                samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.SamlCertificate));
+                        }
 
                         /* externalDirectoryType = tenant.ExternalDirectoryType;
 
@@ -209,7 +247,11 @@ namespace HCore.Tenants.Providers.Impl
                         if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
                             throw new Exception("The tenant external directory port is invalid");
 
-                        externalDirectorySslCertificate = tenant.ExternalDirectorySslCertificate;
+                        if (!string.IsNullOrEmpty(tenant.ExternalDirectorySslCertificate))
+                            externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.ExternalDirectorySslCertificate));
+
+                        if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
+                            throw new Exception("The tenant external directory SSL certificate is missing");
 
                         externalDirectoryAccountDistinguishedName = tenant.ExternalDirectoryAccountDistinguishedName;
                         if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
@@ -243,8 +285,7 @@ namespace HCore.Tenants.Providers.Impl
                         DeveloperUuid = developer.Uuid,
                         DeveloperAuthority = developer.Authority,
                         DeveloperAudience = developer.Audience,
-                        DeveloperCertificate = developer.Certificate,
-                        DeveloperCertificatePassword = developer.CertificatePassword,
+                        DeveloperCertificate = developerCertificate,
                         DeveloperAuthCookieDomain = developer.AuthCookieDomain,
                         DeveloperName = developer.Name,
                         DeveloperPrivacyPolicyUrl = developer.PrivacyPolicyUrl,
@@ -280,7 +321,12 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
                         OidcClientId = oidcClientId,
                         OidcClientSecret = oidcClientSecret,
-                        OidcEndpointUrl = oidcEndpointUrl,                        
+                        OidcEndpointUrl = oidcEndpointUrl,     
+                        SamlEntityId = samlEntityId,
+                        SamlMetadataLocation = samlMetadataLocation,
+                        SamlProviderUrl = samlProviderUrl,
+                        SamlLogoutUrl = samlLogoutUrl,
+                        SamlCertificate = samlCertificate,
                         ExternalDirectoryType = externalDirectoryType,
                         ExternalDirectoryHost = externalDirectoryHost,
                         ExternalDirectoryPort = externalDirectoryPort,
@@ -362,6 +408,16 @@ namespace HCore.Tenants.Providers.Impl
 
                         Tenants.AddRange(developerWrapper.TenantInfos);
 
+                        X509Certificate2 developerCertificate = null;
+
+                        if (!string.IsNullOrEmpty(developer.Certificate))
+                        {
+                            if (string.IsNullOrEmpty(developer.CertificatePassword))
+                                throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
+
+                            developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developer.Certificate), developer.CertificatePassword);
+                        }
+
                         if (string.IsNullOrEmpty(developer.Authority))
                             throw new Exception("The developer authority is empty");
 
@@ -409,8 +465,7 @@ namespace HCore.Tenants.Providers.Impl
                             DeveloperUuid = developer.Uuid,
                             Authority = developer.Authority,
                             Audience = developer.Audience,
-                            Certificate = developer.Certificate,
-                            CertificatePassword = developer.CertificatePassword,
+                            Certificate = developerCertificate,
                             AuthCookieDomain = developer.AuthCookieDomain,
                             Name = developer.Name,
                             LogoSvgUrl = developer.LogoSvgUrl,
@@ -511,6 +566,26 @@ namespace HCore.Tenants.Providers.Impl
                 return null;
 
             return _developerMappingsByUuid[developerUuid].LookupTenantByUuid(tenantUuid);
+        }
+
+        internal static byte[] GetCertificateBytesFromPEM(string pemString)
+        {
+            const string section = "CERTIFICATE";
+
+            var header = String.Format("-----BEGIN {0}-----", section);
+            var footer = String.Format("-----END {0}-----", section);
+
+            var start = pemString.IndexOf(header, StringComparison.Ordinal);
+            if (start < 0)
+                return null;
+
+            start += header.Length;
+            var end = pemString.IndexOf(footer, start, StringComparison.Ordinal) - start;
+
+            if (end < 0)
+                return null;
+
+            return Convert.FromBase64String(pemString.Substring(start, end));
         }
     }
 }

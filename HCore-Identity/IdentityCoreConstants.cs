@@ -6,6 +6,7 @@
         public const string JwtScheme = "jwt";
 
         public const string ExternalOidcScheme = "oidc.external";
+        public const string ExternalSamlScheme = "saml.external";
 
         public const string JwtPolicy = "JwtPolicy";
 

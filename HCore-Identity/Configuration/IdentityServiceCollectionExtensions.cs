@@ -31,6 +31,9 @@ using HCore.Tenants;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Logging;
+using Sustainsys.Saml2.AspNetCore2;
+using Sustainsys.Saml2;
+using Sustainsys.Saml2.Metadata;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -208,11 +211,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         ValidIssuer = tenantInfo.DeveloperAuthority
                     };                        
 
-                    if (tenantInfo.DeveloperCertificate != null && tenantInfo.DeveloperCertificate.Length > 0)
+                    if (tenantInfo.DeveloperCertificate != null)
                     {
                         // if we cannot resolve it from some discovery endpoint
 
-                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(new X509Certificate2(tenantInfo.DeveloperCertificate, tenantInfo.DeveloperCertificatePassword));
+                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(tenantInfo.DeveloperCertificate);
                     }
 
                     jwt.TokenValidationParameters = tokenValidationParameters;
@@ -270,9 +273,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
-                        string oidcClientId = tenantInfo.OidcClientId;
-                        string oidcClientSecret = tenantInfo.OidcClientSecret;
-                        string oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
+                        var oidcClientId = tenantInfo.OidcClientId;
+                        var oidcClientSecret = tenantInfo.OidcClientSecret;
+                        var oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -286,6 +289,42 @@ namespace Microsoft.Extensions.DependencyInjection
                         openIdConnect.Scope.Add("email");
                         openIdConnect.Scope.Add("phone");
                         openIdConnect.Scope.Add("profile");
+                    }
+                });
+
+                authenticationBuilder.AddSaml2(IdentityCoreConstants.ExternalSamlScheme, saml =>
+                {
+                    // will be configured dynamically
+                });
+
+                tenantsBuilder.WithPerTenantOptions<Saml2Options>((saml, tenantInfo) =>
+                {
+                    if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                    {
+                        var samlEntityId = tenantInfo.SamlEntityId;
+                        var samlMetadataLocation = tenantInfo.SamlMetadataLocation;
+
+                        var samlProviderUrl = tenantInfo.SamlProviderUrl;
+                        var samlLogoutUrl = tenantInfo.SamlLogoutUrl;
+
+                        var samlCertificate = tenantInfo.SamlCertificate;
+
+                        saml.SPOptions.EntityId = new EntityId(samlEntityId);
+                        
+                        saml.IdentityProviders.Add(
+                            new IdentityProvider(new EntityId(samlProviderUrl), saml.SPOptions)
+                            {
+                                LoadMetadata = true,
+                                MetadataLocation = samlMetadataLocation,
+                                SingleLogoutServiceUrl = samlLogoutUrl
+                            }
+                        );
+
+                        if (samlCertificate != null)
+                            saml.SPOptions.ServiceCertificates.Add(samlCertificate);
+
+                        saml.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                        saml.SignOutScheme = IdentityServerConstants.SignoutScheme;
                     }
                 });
             }

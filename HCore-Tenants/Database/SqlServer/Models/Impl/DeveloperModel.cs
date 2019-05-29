@@ -40,7 +40,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string TermsAndConditionsUrl { get; set; }
         public int? TermsAndConditionsVersion { get; set; }
 
-        public byte[] Certificate { get; set; }
+        public string Certificate { get; set; }
 
         [StringLength(MaxCertificatePasswordLength)]
         public string CertificatePassword { get; set; }

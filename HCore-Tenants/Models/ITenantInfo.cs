@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models
 {
@@ -7,8 +8,7 @@ namespace HCore.Tenants.Models
         long DeveloperUuid { get; }
         string DeveloperAuthority { get; }
         string DeveloperAudience { get; }
-        byte[] DeveloperCertificate { get; }
-        string DeveloperCertificatePassword { get; }
+        X509Certificate2 DeveloperCertificate { get; }
         string DeveloperAuthCookieDomain { get; }
         string DeveloperName { get; }
 
@@ -65,13 +65,21 @@ namespace HCore.Tenants.Models
 
         string OidcEndpointUrl { get; }
 
+        string SamlEntityId { get; }
+        string SamlMetadataLocation { get; }
+
+        string SamlProviderUrl { get; }
+        Uri SamlLogoutUrl { get; }
+
+        X509Certificate2 SamlCertificate { get; }
+
         string ExternalDirectoryType { get; }
         string ExternalDirectoryHost { get; }
         int? ExternalDirectoryPort { get; }
 
         bool? ExternalDirectoryUsesSsl { get; }
 
-        byte[] ExternalDirectorySslCertificate { get; }
+        X509Certificate2 ExternalDirectorySslCertificate { get; }
 
         string ExternalDirectoryAccountDistinguishedName { get; }
 

@@ -1,12 +1,13 @@
-﻿namespace HCore.Tenants.Models
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace HCore.Tenants.Models
 {
     public interface IDeveloperInfo
     {
         long DeveloperUuid { get; }
         string Authority { get; }
         string Audience { get; }
-        byte[] Certificate { get; }
-        string CertificatePassword { get; }
+        X509Certificate2 Certificate { get; }
         string AuthCookieDomain { get; }
 
         string Name { get; }

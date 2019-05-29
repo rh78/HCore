@@ -67,13 +67,22 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
+        public string SamlEntityId { get; set; }
+
+        public string SamlMetadataLocation { get; set; }
+
+        public string SamlProviderUrl { get; set; }
+        public string SamlLogoutUrl { get; set; }
+
+        public string SamlCertificate { get; set; }
+
         public string ExternalDirectoryType { get; set; }
         public string ExternalDirectoryHost { get; set; }
         public int? ExternalDirectoryPort { get; set; }
 
         public bool? ExternalDirectoryUsesSsl { get; set; }
 
-        public byte[] ExternalDirectorySslCertificate { get; set; }
+        public string ExternalDirectorySslCertificate { get; set; }
 
         public string ExternalDirectoryAccountDistinguishedName { get; set; }
 
