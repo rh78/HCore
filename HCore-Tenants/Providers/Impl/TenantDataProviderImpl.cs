@@ -227,13 +227,17 @@ namespace HCore.Tenants.Providers.Impl
                                 samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.SamlCertificate));
                         }
 
-                        /* externalDirectoryType = tenant.ExternalDirectoryType;
+                        externalDirectoryType = tenant.ExternalDirectoryType;
 
                         if (string.IsNullOrEmpty(externalDirectoryType))
                             throw new Exception("The tenant external directory type is missing");
 
-                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) && !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS))
+                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS) &&
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP))
+                        {
                             throw new Exception("The tenant external directory type specification is invalid");
+                        }
 
                         externalDirectoryHost = tenant.ExternalDirectoryHost;
 
@@ -275,7 +279,7 @@ namespace HCore.Tenants.Providers.Impl
 
                         externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
                         if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
-                            throw new Exception("The tenant external directory administrator group UUID is missing"); */
+                            throw new Exception("The tenant external directory administrator group UUID is missing");
 
                         usersAreExternallyManaged = true;
                     }

@@ -4,6 +4,7 @@
     {
         public const string DirectoryTypeAD = "ad";
         public const string DirectoryTypeADLDS = "adlds";
+        public const string DirectoryTypeLDAP = "ldap";
 
         public const int DirectoryPortLDAP = 389;
         public const int DirectoryPortLDAPS = 636;
