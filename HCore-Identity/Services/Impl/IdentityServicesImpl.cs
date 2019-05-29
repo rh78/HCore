@@ -451,7 +451,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
+                        throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserNotFound, "The external user was not found");
                     }
 
                     bool isLockedOut = await _userManager.IsLockedOutAsync(user).ConfigureAwait(false);

@@ -189,7 +189,7 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(oidcEndpointUrl))
                             throw new Exception("The tenant OIDC endpoint URL is missing");
 
-                        externalDirectoryType = tenant.ExternalDirectoryType;
+                        /* externalDirectoryType = tenant.ExternalDirectoryType;
 
                         if (string.IsNullOrEmpty(externalDirectoryType))
                             throw new Exception("The tenant external directory type is missing");
@@ -233,7 +233,7 @@ namespace HCore.Tenants.Providers.Impl
 
                         externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
                         if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
-                            throw new Exception("The tenant external directory administrator group UUID is missing");
+                            throw new Exception("The tenant external directory administrator group UUID is missing"); */
 
                         usersAreExternallyManaged = true;
                     }
