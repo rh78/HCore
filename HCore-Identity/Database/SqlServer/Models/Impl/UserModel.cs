@@ -68,5 +68,31 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 
             return Email;
         }
+
+        public long? GetScopedTenantUuid()
+        {
+            if (string.IsNullOrEmpty(Email))
+                return null;
+
+            if (ScopedEmail.IsMatch(Email))
+            {
+                // we have scoped email prefix
+
+                string[] emailParts = Email.Split(":");
+
+                string scopedTenantUuidString = emailParts[1];
+
+                try
+                {
+                    return Convert.ToInt64(scopedTenantUuidString);
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            return null;
+        }
     }
 }
