@@ -72,7 +72,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SamlMetadataLocation { get; set; }
 
         public string SamlProviderUrl { get; set; }
-        public string SamlLogoutUrl { get; set; }
 
         public string SamlCertificate { get; set; }
 

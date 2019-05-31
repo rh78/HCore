@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -24,6 +25,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 
         [StringLength(MaxFirstNameLength)]
         public string LastName { get; set; }
+
+        public List<string> MemberOf { get; set; }
 
         public string NotificationCulture { get; set; }
 

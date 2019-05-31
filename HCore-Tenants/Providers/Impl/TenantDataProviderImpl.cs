@@ -5,12 +5,15 @@ using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Providers.Impl
@@ -35,7 +38,7 @@ namespace HCore.Tenants.Providers.Impl
             
             public DeveloperModel Developer { get; private set; }
 
-            public DeveloperWrapper(DeveloperModel developer)
+            public DeveloperWrapper(DeveloperModel developer, X509Certificate2 standardSamlCertificate)
             {
                 Developer = developer;
 
@@ -158,7 +161,6 @@ namespace HCore.Tenants.Providers.Impl
                     string samlMetadataLocation = null;
 
                     string samlProviderUrl = null;
-                    Uri samlLogoutUrl = null;
                     
                     X509Certificate2 samlCertificate = null;
 
@@ -218,13 +220,12 @@ namespace HCore.Tenants.Providers.Impl
                             if (string.IsNullOrEmpty(samlProviderUrl))
                                 throw new Exception("The tenant SAML provider URL is missing");
 
-                            if (!string.IsNullOrEmpty(tenant.SamlLogoutUrl))
-                                samlLogoutUrl = new Uri(tenant.SamlLogoutUrl);
-                            else
-                                throw new Exception("The tenant SAML logout URL is missing");
-
                             if (!string.IsNullOrEmpty(tenant.SamlCertificate))
                                 samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.SamlCertificate));
+                            else
+                            {
+                                samlCertificate = standardSamlCertificate;
+                            }
                         }
 
                         externalDirectoryType = tenant.ExternalDirectoryType;
@@ -232,56 +233,64 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(externalDirectoryType))
                             throw new Exception("The tenant external directory type is missing");
 
-                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
+                        if (/* !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
                             !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS) &&
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP))
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP) && */
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
                         {
                             throw new Exception("The tenant external directory type specification is invalid");
                         }
 
-                        externalDirectoryHost = tenant.ExternalDirectoryHost;
+                        // TODO: LDAP etc. is not yet implemented
 
-                        if (string.IsNullOrEmpty(externalDirectoryHost))
-                            throw new Exception("The tenant external directory host is missing");
+                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
+                        {
+                            // dynamic directory types will create users on-demand when logging in
 
-                        externalDirectoryUsesSsl = tenant.ExternalDirectoryUsesSsl ?? false;
+                            externalDirectoryHost = tenant.ExternalDirectoryHost;
 
-                        externalDirectoryPort = tenant.ExternalDirectoryPort;
+                            if (string.IsNullOrEmpty(externalDirectoryHost))
+                                throw new Exception("The tenant external directory host is missing");
 
-                        if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
-                            throw new Exception("The tenant external directory port is invalid");
+                            externalDirectoryUsesSsl = tenant.ExternalDirectoryUsesSsl ?? false;
 
-                        if (!string.IsNullOrEmpty(tenant.ExternalDirectorySslCertificate))
-                            externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.ExternalDirectorySslCertificate));
+                            externalDirectoryPort = tenant.ExternalDirectoryPort;
 
-                        if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
-                            throw new Exception("The tenant external directory SSL certificate is missing");
+                            if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
+                                throw new Exception("The tenant external directory port is invalid");
 
-                        externalDirectoryAccountDistinguishedName = tenant.ExternalDirectoryAccountDistinguishedName;
-                        if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
-                            throw new Exception("The tenant external directory account distinguished name is missing");
+                            if (!string.IsNullOrEmpty(tenant.ExternalDirectorySslCertificate))
+                                externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.ExternalDirectorySslCertificate));
 
-                        externalDirectoryPassword = tenant.ExternalDirectoryPassword;
-                        if (string.IsNullOrEmpty(externalDirectoryPassword))
-                            throw new Exception("The tenant external directory password is missing");
+                            if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
+                                throw new Exception("The tenant external directory SSL certificate is missing");
 
-                        externalDirectoryLoginAttribute = tenant.ExternalDirectoryLoginAttribute;
+                            externalDirectoryAccountDistinguishedName = tenant.ExternalDirectoryAccountDistinguishedName;
+                            if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
+                                throw new Exception("The tenant external directory account distinguished name is missing");
 
-                        externalDirectoryBaseContexts = tenant.ExternalDirectoryBaseContexts;
-                        if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
-                            throw new Exception("The tenant external directory base contexts are missing");
+                            externalDirectoryPassword = tenant.ExternalDirectoryPassword;
+                            if (string.IsNullOrEmpty(externalDirectoryPassword))
+                                throw new Exception("The tenant external directory password is missing");
 
-                        externalDirectoryUserFilter = tenant.ExternalDirectoryUserFilter;
-                        externalDirectoryGroupFilter = tenant.ExternalDirectoryGroupFilter;
+                            externalDirectoryLoginAttribute = tenant.ExternalDirectoryLoginAttribute;
 
-                        externalDirectorySyncIntervalSeconds = tenant.ExternalDirectorySyncIntervalSeconds;
+                            externalDirectoryBaseContexts = tenant.ExternalDirectoryBaseContexts;
+                            if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
+                                throw new Exception("The tenant external directory base contexts are missing");
 
-                        if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
-                            throw new Exception("The tenant external directory sync interval is invalid");
+                            externalDirectoryUserFilter = tenant.ExternalDirectoryUserFilter;
+                            externalDirectoryGroupFilter = tenant.ExternalDirectoryGroupFilter;
 
-                        externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
-                        if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
-                            throw new Exception("The tenant external directory administrator group UUID is missing");
+                            externalDirectorySyncIntervalSeconds = tenant.ExternalDirectorySyncIntervalSeconds;
+
+                            if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
+                                throw new Exception("The tenant external directory sync interval is invalid");
+
+                            externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
+                            if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
+                                throw new Exception("The tenant external directory administrator group UUID is missing");
+                        }
 
                         usersAreExternallyManaged = true;
                     }
@@ -331,7 +340,6 @@ namespace HCore.Tenants.Providers.Impl
                         SamlEntityId = samlEntityId,
                         SamlMetadataLocation = samlMetadataLocation,
                         SamlProviderUrl = samlProviderUrl,
-                        SamlLogoutUrl = samlLogoutUrl,
                         SamlCertificate = samlCertificate,
                         ExternalDirectoryType = externalDirectoryType,
                         ExternalDirectoryHost = externalDirectoryHost,
@@ -389,6 +397,10 @@ namespace HCore.Tenants.Providers.Impl
         {
             var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
+            var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+            var standardSamlCertificate = ReadStandardSamlCertificate(configuration);
+
             using (var scope = scopeFactory.CreateScope())
             {
                 using (var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerTenantDbContext>())
@@ -407,7 +419,7 @@ namespace HCore.Tenants.Providers.Impl
 
                     developers.ForEach(developer =>
                     {
-                        var developerWrapper = new DeveloperWrapper(developer);
+                        var developerWrapper = new DeveloperWrapper(developer, standardSamlCertificate);
 
                         _developerMappings.Add(developer.HostPattern, developerWrapper);
                         _developerMappingsByUuid.Add(developer.Uuid, developerWrapper);
@@ -592,6 +604,45 @@ namespace HCore.Tenants.Providers.Impl
                 return null;
 
             return Convert.FromBase64String(pemString.Substring(start, end));
+        }
+
+        private X509Certificate2 ReadStandardSamlCertificate(IConfiguration configuration)
+        {
+            string samlCertificateAssembly = configuration["Identity:Saml:Certificate:Assembly"];
+            if (string.IsNullOrEmpty(samlCertificateAssembly))
+                throw new Exception("SAML certificate assembly not found");
+
+            string samlCertificateName = configuration["Identity:Saml:Certificate:Name"];
+
+            if (string.IsNullOrEmpty(samlCertificateName))
+                throw new Exception("SAML certificate name not found");
+
+            string samlCertificatePassword = configuration["Identity:Saml:Certificate:Password"];
+
+            if (string.IsNullOrEmpty(samlCertificatePassword))
+                throw new Exception("SAML certificate password not found");
+
+            X509Certificate2 certificate = null;
+
+            Assembly samlAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                SingleOrDefault(assembly => assembly.GetName().Name == samlCertificateAssembly);
+
+            if (samlAssembly == null)
+                throw new Exception("SAML certificate assembly is not present in the list of assemblies");
+
+            var resourceStream = samlAssembly.GetManifestResourceStream(samlCertificateName);
+
+            if (resourceStream == null)
+                throw new Exception("SAML certificate resource not found");
+
+            using (var memory = new MemoryStream((int)resourceStream.Length))
+            {
+                resourceStream.CopyTo(memory);
+
+                certificate = new X509Certificate2(memory.ToArray(), samlCertificatePassword);
+            }
+
+            return certificate;
         }
     }
 }

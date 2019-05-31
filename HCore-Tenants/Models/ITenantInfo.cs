@@ -69,7 +69,6 @@ namespace HCore.Tenants.Models
         string SamlMetadataLocation { get; }
 
         string SamlProviderUrl { get; }
-        Uri SamlLogoutUrl { get; }
 
         X509Certificate2 SamlCertificate { get; }
 

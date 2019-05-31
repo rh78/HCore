@@ -109,21 +109,30 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // start challenge and roundtrip the return URL and scheme 
 
-            var props = new AuthenticationProperties
+            if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
             {
-                RedirectUri = Url.Page("./Login", pageHandler: "ExternalCallback", values: new { ReturnUrl }),
-                Items =
+                var props = new AuthenticationProperties
+                {
+                    RedirectUri = Url.Page("./Login", pageHandler: "ExternalCallback", values: new { ReturnUrl }),
+                    Items =
                 {
                     { "returnUrl", ReturnUrl }
                 }
-            };
+                };
 
-            if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
-            {
                 return Challenge(props, IdentityCoreConstants.ExternalOidcScheme);
             }
             else if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
             {
+                var props = new AuthenticationProperties
+                {
+                    RedirectUri = Url.Page("./Login", pageHandler: "ExternalCallback", values: new { ReturnUrl }),
+                    Items =
+                    {
+                        { "returnUrl", ReturnUrl }
+                    }
+                };
+
                 return Challenge(props, IdentityCoreConstants.ExternalSamlScheme);
             }
             else

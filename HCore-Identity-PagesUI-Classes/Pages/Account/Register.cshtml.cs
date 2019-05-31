@@ -64,8 +64,20 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
-        public void OnGet(string emailAddress = null, string firstName = null, string lastName = null)
+        public IActionResult OnGet(string emailAddress = null, string firstName = null, string lastName = null)
         {
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo.ExternalAuthenticationMethod != null)
+                {
+                    // do not allow local registration, if users are externally managed
+
+                    return LocalRedirect("~/");
+                }
+            }
+
             PrepareModel();
 
             emailAddress = ProcessEmail(emailAddress);
@@ -90,6 +102,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 Input.LastName = lastName;
             }
+
+            return Page();
         }
 
         private string ProcessEmail(string emailAddress)

@@ -285,6 +285,10 @@ namespace Microsoft.Extensions.DependencyInjection
                         openIdConnect.ClientId = oidcClientId;
                         openIdConnect.ClientSecret = oidcClientSecret;
 
+                        // make sure we get user group membership information
+
+                        openIdConnect.GetClaimsFromUserInfoEndpoint = true;
+
                         openIdConnect.Scope.Add("openid");
                         openIdConnect.Scope.Add("email");
                         openIdConnect.Scope.Add("phone");
@@ -305,7 +309,6 @@ namespace Microsoft.Extensions.DependencyInjection
                         var samlMetadataLocation = tenantInfo.SamlMetadataLocation;
 
                         var samlProviderUrl = tenantInfo.SamlProviderUrl;
-                        var samlLogoutUrl = tenantInfo.SamlLogoutUrl;
 
                         var samlCertificate = tenantInfo.SamlCertificate;
 
@@ -315,13 +318,18 @@ namespace Microsoft.Extensions.DependencyInjection
                             new IdentityProvider(new EntityId(samlProviderUrl), saml.SPOptions)
                             {
                                 LoadMetadata = true,
-                                MetadataLocation = samlMetadataLocation,
-                                SingleLogoutServiceUrl = samlLogoutUrl
+                                MetadataLocation = samlMetadataLocation
                             }
                         );
 
                         if (samlCertificate != null)
-                            saml.SPOptions.ServiceCertificates.Add(samlCertificate);
+                        {
+                            saml.SPOptions.ServiceCertificates.Add(new ServiceCertificate()
+                            {
+                                Certificate = samlCertificate,
+                                Use = CertificateUse.Signing
+                            });
+                        }
 
                         saml.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         saml.SignOutScheme = IdentityServerConstants.SignoutScheme;
