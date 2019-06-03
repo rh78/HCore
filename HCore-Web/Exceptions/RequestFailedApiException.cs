@@ -88,6 +88,7 @@ namespace HCore.Web.Exceptions
         public const string PleaseAcceptPrivacyPolicy = "please_accept_privacy_policy";
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
         public const string NotificationCultureInvalid = "notification_culture_invalid";
+        public const string CurrencyInvalid = "currency_invalid";
         public const string AccountIsExternallyManaged = "account_is_externally_managed";
         public const string AccountsAreExternallyManaged = "accounts_are_externally_managed";
 

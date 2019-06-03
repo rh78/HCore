@@ -219,6 +219,9 @@
   <data name="notification_culture_missing" xml:space="preserve">
     <value>The notification language is missing</value>
   </data>
+  <data name="currency:missing" xml:space="preserve">
+    <value>The currency is missing</value>
+  </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Please accept our Terms and Conditions</value>
   </data>

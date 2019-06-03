@@ -59,6 +59,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string ProductName { get; set; }
 
         public string DefaultCulture { get; set; }
+        public string DefaultCurrency { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
 

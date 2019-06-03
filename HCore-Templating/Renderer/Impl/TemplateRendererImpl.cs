@@ -140,6 +140,7 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantSupportEmail = tenantInfo.SupportEmail;
             model.TenantProductName = tenantInfo.ProductName;
             model.TenantDefaultCulture = tenantInfo.DefaultCulture;
+            model.TenantDefaultCurrency = tenantInfo.DefaultCurrency;
         }
 
         private IView FindView(ActionContext actionContext, string viewName)

@@ -13,5 +13,6 @@
         public string TenantSupportEmail { get; set; }
         public string TenantProductName { get; set; }
         public string TenantDefaultCulture { get; set; }
+        public string TenantDefaultCurrency { get; set; }
     }
 }

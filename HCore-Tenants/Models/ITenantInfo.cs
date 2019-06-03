@@ -50,6 +50,7 @@ namespace HCore.Tenants.Models
         string ProductName { get; }
 
         string DefaultCulture { get; }
+        string DefaultCurrency { get; }
 
         string BackendApiUrl { get; }
         string FrontendApiUrl { get; }

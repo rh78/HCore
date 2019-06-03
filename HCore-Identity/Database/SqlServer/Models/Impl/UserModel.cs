@@ -29,6 +29,7 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public List<string> MemberOf { get; set; }
 
         public string NotificationCulture { get; set; }
+        public string Currency { get; set; }
 
         public DateTimeOffset? PrivacyPolicyAccepted { get; set; }
         public string PrivacyPolicyUrl { get; set; }

@@ -1165,6 +1165,18 @@ namespace HCore.Identity.Services.Impl
                         }
                     }
 
+                    if (!string.IsNullOrEmpty(userSpec.Currency))
+                    {
+                        userSpec.Currency = ProcessCurrency(userSpec.Currency)?.ToString();
+
+                        if (!string.Equals(oldUser.Currency, userSpec.Currency))
+                        {
+                            oldUser.Currency = userSpec.Currency;
+
+                            changed = true;
+                        }
+                    }
+
                     if (changed)
                     {
                         var updateResult = await _userManager.UpdateAsync(oldUser).ConfigureAwait(false);
@@ -1465,6 +1477,20 @@ namespace HCore.Identity.Services.Impl
             {
                 throw new RequestFailedApiException(RequestFailedApiException.NotificationCultureInvalid, "The notification culture is invalid");
             }
+        }
+
+        private string ProcessCurrency(string currency)
+        {
+            if (string.IsNullOrEmpty(currency))
+                return null;
+
+            if (string.Equals(currency, "eur") ||
+                string.Equals(currency, "usd"))
+            {
+                return currency;
+            }
+
+            throw new RequestFailedApiException(RequestFailedApiException.CurrencyInvalid, "The currency is invalid");
         }
 
         private string ProcessPassword(string password)

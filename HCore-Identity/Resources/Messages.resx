@@ -276,6 +276,9 @@
   <data name="notification_culture" xml:space="preserve">
     <value>Notification language</value>
   </data>
+  <data name="currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
   <data name="profile_title" xml:space="preserve">
     <value>Profile</value>
   </data>

@@ -268,6 +268,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currency is missing ähnelt.
+        /// </summary>
+        public static string currency_missing {
+            get {
+                return ResourceManager.GetString("currency:missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die This user name already exists ähnelt.
         /// </summary>
         public static string duplicate_user_name {

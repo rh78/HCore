@@ -49,7 +49,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
-                NotificationCulture = user.NotificationCulture
+                NotificationCulture = user.NotificationCulture,
+                Currency = user.Currency
             };
 
             Email = Input.Email;

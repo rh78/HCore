@@ -147,6 +147,10 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(defaultCulture))
                         defaultCulture = "en";
 
+                    string defaultCurrency = tenant.DefaultCurrency;
+                    if (string.IsNullOrEmpty(defaultCurrency))
+                        defaultCurrency = "eur";
+
                     bool usersAreExternallyManaged = false;
 
                     string externalAuthorizationMethod = tenant.ExternalAuthenticationMethod;
@@ -332,6 +336,7 @@ namespace HCore.Tenants.Providers.Impl
                         FrontendApiUrl = tenant.FrontendApiUrl,
                         WebUrl = tenant.WebUrl,
                         DefaultCulture = defaultCulture,
+                        DefaultCurrency = defaultCurrency,
                         UsersAreExternallyManaged = usersAreExternallyManaged,
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
                         OidcClientId = oidcClientId,

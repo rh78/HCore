@@ -124,6 +124,15 @@ namespace HCore.Identity.Models
 
         public bool NotificationCultureSet = false;
 
+        private string _Currency;
+
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "currency_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "currency")]
+        [DataMember(Name = "currency")]
+        public string Currency { get => _Currency; set { _Currency = value; CurrencySet = true; } }
+
+        public bool CurrencySet = false;
+
         [Required]
         public bool AcceptTermsAndConditions { get; set; }
 
@@ -150,6 +159,7 @@ namespace HCore.Identity.Models
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
             sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
             sb.Append("  NotificationCulture: ").Append(NotificationCulture).Append("\n");
+            sb.Append("  Currency: ").Append(Currency).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -225,6 +235,11 @@ namespace HCore.Identity.Models
                     NotificationCulture == other.NotificationCulture ||
                     NotificationCulture != null &&
                     NotificationCulture.Equals(other.NotificationCulture)
+                ) &&
+                (
+                    Currency == other.Currency ||
+                    Currency != null &&
+                    Currency.Equals(other.Currency)
                 );
         }
 
@@ -254,6 +269,8 @@ namespace HCore.Identity.Models
                         hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
                     if (NotificationCulture != null)
                         hashCode = hashCode * 59 + NotificationCulture.GetHashCode();
+                    if (Currency != null)
+                        hashCode = hashCode * 59 + Currency.GetHashCode();
                 return hashCode;
             }
         }
