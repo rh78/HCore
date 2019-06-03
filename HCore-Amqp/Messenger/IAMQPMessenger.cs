@@ -8,6 +8,7 @@ namespace HCore.Amqp.Messenger
     {
         Task InitializeAsync();
 
-        Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null);              
+        Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null);
+        Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null);
     }
 }

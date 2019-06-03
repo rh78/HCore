@@ -7,6 +7,7 @@ using Microsoft.Azure.ServiceBus.Management;
 using HCore.Amqp.Processor.Hosts;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
+using Newtonsoft.Json;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -106,6 +107,23 @@ namespace HCore.Amqp.Messenger.Impl
                 throw new Exception($"Address {address} is not available for AMQP sending");
 
             await _queueClientHosts[address].SendMessageAsync(body, timeOffsetSeconds).ConfigureAwait(false);
+        }
+
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null)
+        {
+            try
+            {
+                await ProcessMessageAsync(address, JsonConvert.SerializeObject(body)).ConfigureAwait(false);
+            } 
+            catch (Exception e)
+            {
+                if (!_cancellationToken.IsCancellationRequested)
+                {
+                    Console.WriteLine($"AMQP exception in sender link for address {address}: {e}");
+
+                    await SendMessageAsync(address, body, timeOffsetSeconds).ConfigureAwait(false);
+                }
+            }
         }
 
         public async Task ProcessMessageAsync(string address, string messageBodyJson)

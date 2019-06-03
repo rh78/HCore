@@ -515,7 +515,7 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
+                        await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
 
                         if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
                         {
@@ -786,7 +786,7 @@ namespace HCore.Identity.Services.Impl
                         // we need to always send the change notification, because maybe user groups
                         // in dependent systems have changed and we then need to fix user group assignments
 
-                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
+                        await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
                     }
 
                     return user;
@@ -1533,7 +1533,7 @@ namespace HCore.Identity.Services.Impl
             throw new InternalServerErrorApiException();
         }
 
-        private async Task SendUserChangeNotificationAsync(string userUuid)
+        private async Task SendUserChangeNotificationAsync(string userUuid, bool trySynchronousFirst = false)
         {
             if (!string.IsNullOrEmpty(_configurationProvider.IdentityChangeTasksAmqpAddress))
             {
@@ -1548,7 +1548,10 @@ namespace HCore.Identity.Services.Impl
 
                 var amqpMessenger = _serviceProvider.GetRequiredService<IAMQPMessenger>();
 
-                await amqpMessenger.SendMessageAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
+                if (!trySynchronousFirst)
+                    await amqpMessenger.SendMessageAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
+                else
+                    await amqpMessenger.SendMessageTrySynchronousFirstAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
             }
         }
     }
