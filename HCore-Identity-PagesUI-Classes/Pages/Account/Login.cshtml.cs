@@ -338,7 +338,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 var segmentClient = _segmentProvider.GetSegmentClient();
 
-                if (!string.IsNullOrEmpty(Input.SegmentAnonymousUserUuid))
+                if (Input != null && !string.IsNullOrEmpty(Input.SegmentAnonymousUserUuid))
                 {
                     string segmentAnonymousUserUuid = Input.SegmentAnonymousUserUuid;
                     segmentAnonymousUserUuid = segmentAnonymousUserUuid.Replace("%22", "");
