@@ -222,6 +222,9 @@
   <data name="currency_missing" xml:space="preserve">
     <value>Die Währung fehlt</value>
   </data>
+  <data name="currency_invalid" xml:space="preserve">
+    <value>Die Währung ist ungültig</value>
+  </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Bitte akzeptieren Sie unsere Allgemeinen Geschäftsbedingungen</value>
   </data>

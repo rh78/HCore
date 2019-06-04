@@ -268,11 +268,20 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The currency is invalid ähnelt.
+        /// </summary>
+        public static string currency_invalid {
+            get {
+                return ResourceManager.GetString("currency_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The currency is missing ähnelt.
         /// </summary>
         public static string currency_missing {
             get {
-                return ResourceManager.GetString("currency:missing", resourceCulture);
+                return ResourceManager.GetString("currency_missing", resourceCulture);
             }
         }
         
