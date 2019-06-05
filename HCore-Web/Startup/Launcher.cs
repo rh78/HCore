@@ -152,6 +152,12 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Thread limits: {minWorkerThreads}/{minWorkerIoThreads} - {maxWorkerThreads}/{maxWorkerIoThreads}");
 
+            int availableWorkerThreads, availableWorkerIoThreads;
+
+            ThreadPool.GetAvailableThreads(out availableWorkerThreads, out availableWorkerIoThreads);
+
+            Console.WriteLine($"Available threads: {availableWorkerThreads}/{availableWorkerThreads}");
+
             _builder.UseKestrel((builderContext, options) =>
             {
                 options.Configure(builderContext.Configuration.GetSection("Kestrel"));
