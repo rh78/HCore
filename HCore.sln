@@ -37,7 +37,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-PagesUI-Views", "HCor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Segment", "HCore-Segment\HCore-Segment.csproj", "{F8A8DEA6-A13C-49D2-AD19-9A929EF36146}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore-Directory", "HCore-Directory\HCore-Directory.csproj", "{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Directory", "HCore-Directory\HCore-Directory.csproj", "{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore-Pusher", "HCore-Pusher\HCore-Pusher.csproj", "{05512797-C580-4FB3-AEA1-7A1C122AA4CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

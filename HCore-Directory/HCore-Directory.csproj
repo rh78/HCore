@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
     <RootNamespace>HCore.Directory</RootNamespace>
     <AssemblyName>HCore.Directory</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="2.3.8" />
+
   </ItemGroup>
 
 </Project>

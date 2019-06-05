@@ -34,4 +34,6 @@
 /HCore-Storage/obj
 /HCore-Directory/bin
 /HCore-Directory/obj
+/HCore-Pusher/bin
+/HCore-Pusher/obj
 /.vs
