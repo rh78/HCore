@@ -19,10 +19,16 @@ namespace HCore.Pusher.Messenger.Impl
             _pusher = new PusherServer.Pusher(appId, appKey, appSecret, options);
         }
 
+        public string AuthenticateListener(string channelId, string socketId)
+        {
+            var authenticationData = _pusher.Authenticate(channelId, socketId);
+
+            return authenticationData.auth;
+        }
+
         public async Task SendMessageAsync(string channelName, string eventName, object data)
         {
-            var result = await _pusher.TriggerAsync(channelName, eventName, data).ConfigureAwait(false);
-
+            await _pusher.TriggerAsync(channelName, eventName, data).ConfigureAwait(false);            
         }
     }
 }

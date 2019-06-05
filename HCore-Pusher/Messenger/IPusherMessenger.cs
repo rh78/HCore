@@ -4,6 +4,8 @@ namespace HCore.Pusher.Messenger
 {
     public interface IPusherMessenger
     {
-        Task SendMessageAsync(string channelName, string eventName, object data);
+        string AuthenticateListener(string channelId, string socketId);
+
+        Task SendMessageAsync(string channelName, string eventName, object data);        
     }
 }
