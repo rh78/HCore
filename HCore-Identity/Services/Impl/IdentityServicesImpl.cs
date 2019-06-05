@@ -221,6 +221,7 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                    user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
                     user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
@@ -431,6 +432,7 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                    user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
                     user.PrivacyPolicyUrl = _configurationProvider.PrivacyPolicyUrl;
@@ -1530,6 +1532,21 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.CodeTooLong, "The code is too long");
 
             return code;
+        }
+
+        private string GetDefaultCurrency()
+        {
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                {
+                    return tenantInfo.DefaultCurrency;
+                }
+            }
+
+            return "eur";
         }
 
         private void HandleIdentityError(IEnumerable<IdentityError> errors)
