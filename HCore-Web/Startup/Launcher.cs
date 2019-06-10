@@ -158,7 +158,7 @@ namespace HCore.Web.Startup
 
             ServicePointManager.DefaultConnectionLimit = 12 * numberOfCores;
 
-            Console.WriteLine($"Default connection limit {ServicePointManager.DefaultConnectionLimit}");
+            Console.WriteLine($"Default connection limit: {ServicePointManager.DefaultConnectionLimit}");
 
             int availableWorkerThreads, availableWorkerIoThreads;
 
