@@ -152,6 +152,14 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Thread limits: {minWorkerThreads}/{minWorkerIoThreads} - {maxWorkerThreads}/{maxWorkerIoThreads}");
 
+            ServicePointManager.UseNagleAlgorithm = false;
+
+            // see https://support.microsoft.com/de-de/help/821268/contention-poor-performance-and-deadlocks-when-you-make-calls-to-web-s
+
+            ServicePointManager.DefaultConnectionLimit = 12 * numberOfCores;
+
+            Console.WriteLine($"Default connection limit {ServicePointManager.DefaultConnectionLimit}");
+
             int availableWorkerThreads, availableWorkerIoThreads;
 
             ThreadPool.GetAvailableThreads(out availableWorkerThreads, out availableWorkerIoThreads);
