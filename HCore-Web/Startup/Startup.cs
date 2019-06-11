@@ -140,23 +140,30 @@ namespace HCore.Web.Startup
                     options.MaxAge = TimeSpan.FromDays(60);
                 });
 
-                int redirectHttpToHttpsTargetWebPort = Configuration.GetValue<int>("WebServer:RedirectHttpToHttpsTargetWebPort");
+                int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
 
-                if (redirectHttpToHttpsTargetWebPort > 0)
+                if (httpHealthCheckPort <= 0)
                 {
-                    services.AddHttpsRedirection(options =>
+                    // we can not do redirects to HTTPS if we have a health check running
+
+                    int redirectHttpToHttpsTargetWebPort = Configuration.GetValue<int>("WebServer:RedirectHttpToHttpsTargetWebPort");
+
+                    if (redirectHttpToHttpsTargetWebPort > 0)
                     {
-                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                        options.HttpsPort = redirectHttpToHttpsTargetWebPort;
-                    });
-                }
-                else
-                {
-                    services.AddHttpsRedirection(options =>
+                        services.AddHttpsRedirection(options =>
+                        {
+                            options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                            options.HttpsPort = redirectHttpToHttpsTargetWebPort;
+                        });
+                    }
+                    else
                     {
-                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                        options.HttpsPort = _port;
-                    });
+                        services.AddHttpsRedirection(options =>
+                        {
+                            options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                            options.HttpsPort = _port;
+                        });
+                    }
                 }
             }
 
