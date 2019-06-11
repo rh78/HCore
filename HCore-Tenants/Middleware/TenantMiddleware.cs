@@ -45,9 +45,27 @@ namespace HCore.Tenants.Middleware
                 {
                     // we could not find any tenant
 
-                    _logger.LogError($"No tenant found for host {hostString}");
+                    // check if we have a health check running here
 
-                    throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);                    
+                    var healthCheckPort = _tenantDataProvider.HealthCheckPort;
+
+                    if (healthCheckPort != null &&
+                        context.Request.Host.Port == healthCheckPort)
+                    {
+                        var healthCheckTenantHost = _tenantDataProvider.HealthCheckTenantHost;
+
+                        if (!string.IsNullOrEmpty(healthCheckTenantHost))
+                        {
+                            tenantInfo = _tenantDataProvider.LookupTenantByHost(healthCheckTenantHost);
+                        }
+                    }
+
+                    if (tenantInfo == null)
+                    {
+                        _logger.LogError($"No tenant found for host {hostString}");
+
+                        throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
+                    }
                 }
 
                 context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);

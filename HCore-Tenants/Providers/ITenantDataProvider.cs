@@ -9,6 +9,9 @@ namespace HCore.Tenants.Providers
         List<IDeveloperInfo> Developers { get; }
 
         ITenantInfo LookupTenantByHost(string host);
-        ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid);       
+        ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid);
+        
+        int? HealthCheckPort { get; }
+        string HealthCheckTenantHost { get; }
     }
 }

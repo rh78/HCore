@@ -243,7 +243,14 @@ namespace HCore.Web.Startup
                 if (!env.IsDevelopment())
                     app.UseHsts();
 
-                app.UseHttpsRedirection();
+                int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+
+                if (httpHealthCheckPort <= 0)
+                {
+                    // we can not do redirects to HTTPS if we have a health check running
+
+                    app.UseHttpsRedirection();
+                }
             }
         }
 

@@ -27,6 +27,9 @@ namespace HCore.Tenants.Providers.Impl
         public List<IDeveloperInfo> Developers { get; internal set; }
         public List<ITenantInfo> Tenants { get; internal set; }
 
+        public int? HealthCheckPort { get; internal set; }
+        public string HealthCheckTenantHost { get; internal set; }
+
         private readonly ILogger<TenantDataProviderImpl> _logger;
 
         private class DeveloperWrapper
@@ -403,6 +406,16 @@ namespace HCore.Tenants.Providers.Impl
             var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+
+            int httpHealthCheckPort = configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+            string tenantHealthCheckTenant = configuration["Identity:Tenants:HealthCheckTenant"];
+
+            if (httpHealthCheckPort > 0 &&
+                !string.IsNullOrEmpty(tenantHealthCheckTenant))
+            {
+                HealthCheckPort = httpHealthCheckPort;
+                HealthCheckTenantHost = tenantHealthCheckTenant;
+            }
 
             var standardSamlCertificate = ReadStandardSamlCertificate(configuration);
 
