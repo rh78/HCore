@@ -530,7 +530,7 @@ namespace HCore.Tenants.Providers.Impl
         {
             if (string.IsNullOrEmpty(host))
             {
-                _logger.LogError($"Host is empty for tenant parsing");
+                _logger.LogDebug($"Host is empty for tenant parsing");
 
                 return null;
             }
@@ -548,21 +548,21 @@ namespace HCore.Tenants.Providers.Impl
 
             if (parts.Length < 3)
             {
-                _logger.LogError($"Host {host} does not have enough parts for tenant parsing");
+                _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
                 return null;
             }
 
             if (parts.Length > 3)
             {
-                _logger.LogError($"Host {host} has too many parts for tenant parsing");
+                _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
 
                 return null;
             }
 
             if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]) || string.IsNullOrEmpty(parts[2]))
             {
-                _logger.LogError($"Host {host} has empty parts which is not allowed for tenant parsing");
+                _logger.LogDebug($"Host {host} has empty parts which is not allowed for tenant parsing");
 
                 return null;
             }
