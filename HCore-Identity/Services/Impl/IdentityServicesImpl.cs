@@ -1297,7 +1297,8 @@ namespace HCore.Identity.Services.Impl
         private string ProcessEmail(ClaimsPrincipal claimsPrincipal)
         {
             var emailClaim = claimsPrincipal.FindFirst(JwtClaimTypes.Email) ??
-                   claimsPrincipal.FindFirst(ClaimTypes.Email);
+                   claimsPrincipal.FindFirst(ClaimTypes.Email) ??
+                   claimsPrincipal.FindFirst("EmailAddress"); // from SSO Circle
 
             if (emailClaim == null)
             {
@@ -1342,7 +1343,8 @@ namespace HCore.Identity.Services.Impl
         private string ProcessFirstName(ClaimsPrincipal claimsPrincipal)
         {
             var firstNameClaim = claimsPrincipal.FindFirst(JwtClaimTypes.GivenName) ??
-                   claimsPrincipal.FindFirst(ClaimTypes.GivenName);
+                   claimsPrincipal.FindFirst(ClaimTypes.GivenName) ??
+                   claimsPrincipal.FindFirst("FirstName"); // from SSO Circle
 
             if (firstNameClaim == null)
             {
@@ -1375,7 +1377,8 @@ namespace HCore.Identity.Services.Impl
         private string ProcessLastName(ClaimsPrincipal claimsPrincipal)
         {
             var lastNameClaim = claimsPrincipal.FindFirst(JwtClaimTypes.FamilyName) ??
-                   claimsPrincipal.FindFirst(ClaimTypes.Surname);
+                   claimsPrincipal.FindFirst(ClaimTypes.Surname) ??
+                   claimsPrincipal.FindFirst("LastName"); // from SSO Circle
 
             if (lastNameClaim == null)
             {
@@ -1407,7 +1410,8 @@ namespace HCore.Identity.Services.Impl
             var phoneNumberClaim = claimsPrincipal.FindFirst(JwtClaimTypes.PhoneNumber) ??
                    claimsPrincipal.FindFirst(ClaimTypes.HomePhone) ??
                    claimsPrincipal.FindFirst(ClaimTypes.MobilePhone) ??
-                   claimsPrincipal.FindFirst(ClaimTypes.OtherPhone);
+                   claimsPrincipal.FindFirst(ClaimTypes.OtherPhone) ??
+                   claimsPrincipal.FindFirst("PhoneNumber"); // (unconfirmed)
 
             if (phoneNumberClaim == null)
             {
