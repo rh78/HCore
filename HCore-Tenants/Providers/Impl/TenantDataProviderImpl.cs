@@ -165,11 +165,14 @@ namespace HCore.Tenants.Providers.Impl
                     string oidcEndpointUrl = null;
 
                     string samlEntityId = null;
+
                     string samlMetadataLocation = null;
 
                     string samlProviderUrl = null;
                     
                     X509Certificate2 samlCertificate = null;
+
+                    bool samlAllowWeakSigningAlgorithm = false;
 
                     string externalDirectoryType = null;
                     string externalDirectoryHost = null;
@@ -233,6 +236,8 @@ namespace HCore.Tenants.Providers.Impl
                             {
                                 samlCertificate = standardSamlCertificate;
                             }
+
+                            samlAllowWeakSigningAlgorithm = tenant.SamlAllowWeakSigningAlgorithm ?? false;
                         }
 
                         externalDirectoryType = tenant.ExternalDirectoryType;
@@ -349,6 +354,7 @@ namespace HCore.Tenants.Providers.Impl
                         SamlMetadataLocation = samlMetadataLocation,
                         SamlProviderUrl = samlProviderUrl,
                         SamlCertificate = samlCertificate,
+                        SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
                         ExternalDirectoryType = externalDirectoryType,
                         ExternalDirectoryHost = externalDirectoryHost,
                         ExternalDirectoryPort = externalDirectoryPort,

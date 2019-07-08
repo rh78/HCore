@@ -76,6 +76,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string SamlCertificate { get; set; }
 
+        public bool? SamlAllowWeakSigningAlgorithm { get; set; }
+
         public string ExternalDirectoryType { get; set; }
         public string ExternalDirectoryHost { get; set; }
         public int? ExternalDirectoryPort { get; set; }

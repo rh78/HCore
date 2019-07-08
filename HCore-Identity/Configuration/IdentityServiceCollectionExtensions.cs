@@ -313,6 +313,14 @@ namespace Microsoft.Extensions.DependencyInjection
                         var samlCertificate = tenantInfo.SamlCertificate;
 
                         saml.SPOptions.EntityId = new EntityId(samlEntityId);
+
+                        if (tenantInfo.SamlAllowWeakSigningAlgorithm)
+                        {
+                            // OK this is less secure, but sometimes we're having trouble
+                            // e.g. with SSO Circle that still uses SHA1
+
+                            saml.SPOptions.MinIncomingSigningAlgorithm = "SHA1";
+                        }
                         
                         saml.IdentityProviders.Add(
                             new IdentityProvider(new EntityId(samlProviderUrl), saml.SPOptions)

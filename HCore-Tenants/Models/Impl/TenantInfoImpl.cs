@@ -68,11 +68,14 @@ namespace HCore.Tenants.Models.Impl
         public string OidcEndpointUrl { get; set; }
 
         public string SamlEntityId { get; set;  }
+
         public string SamlMetadataLocation { get; set; }
 
         public string SamlProviderUrl { get; set; }
 
         public X509Certificate2 SamlCertificate { get; set; }
+
+        public bool SamlAllowWeakSigningAlgorithm { get; set; }
 
         public string ExternalDirectoryType { get; set; }
         public string ExternalDirectoryHost { get; set; }
