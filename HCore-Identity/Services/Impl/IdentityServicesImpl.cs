@@ -1300,7 +1300,11 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.Email);
 
             if (emailClaim == null)
+            {
+                PrintClaimsPrincipalDebug(claimsPrincipal);
+
                 throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
+            }
 
             string email = emailClaim.Value;
 
@@ -1341,7 +1345,11 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.GivenName);
 
             if (firstNameClaim == null)
+            {
+                PrintClaimsPrincipalDebug(claimsPrincipal);
+
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
+            }
 
             string firstName = firstNameClaim.Value;
 
@@ -1370,7 +1378,11 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.Surname);
 
             if (lastNameClaim == null)
+            {
+                PrintClaimsPrincipalDebug(claimsPrincipal);
+
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
+            }
 
             string lastName = lastNameClaim.Value;
 
@@ -1398,11 +1410,25 @@ namespace HCore.Identity.Services.Impl
                    claimsPrincipal.FindFirst(ClaimTypes.OtherPhone);
 
             if (phoneNumberClaim == null)
+            {
+                PrintClaimsPrincipalDebug(claimsPrincipal);
+
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberMissing, "The phone number is missing");
+            }
 
             string phoneNumber = phoneNumberClaim.Value;
 
             return ProcessPhoneNumber(phoneNumber);
+        }
+
+        private void PrintClaimsPrincipalDebug(ClaimsPrincipal claimsPrincipal)
+        {
+            var claims = claimsPrincipal.Claims;
+
+            foreach(var claim in claims)
+            {
+                _logger.LogError($"Claim '{claim.Type}' with value '{claim.Value}' found, but not matching");
+            }
         }
 
         private HashSet<string> ProcessMemberOf(ClaimsPrincipal claimsPrincipal)
