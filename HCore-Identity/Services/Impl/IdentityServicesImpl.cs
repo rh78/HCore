@@ -1451,6 +1451,9 @@ namespace HCore.Identity.Services.Impl
 
         private bool EqualsMemberOf(List<string> oldMemberOf, HashSet<string> newMemberOf)
         {
+            if (oldMemberOf == null && newMemberOf == null)
+                return true;
+
             if (oldMemberOf == null && newMemberOf != null)
                 return false;
 
