@@ -317,6 +317,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 IsLocalAuthorization = true;
                 EnableLocalLogin = true;
 
+                ReturnUrl = returnUrl;
+
                 return;
             }
 
