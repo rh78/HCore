@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using HCore.Translations.Providers;
 using System.Text.RegularExpressions;
 using System.Net;
+using System.Globalization;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -219,6 +220,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     }
                 }
             }
+
+            if (!string.IsNullOrEmpty(PrivacyPolicyUrl))
+                PrivacyPolicyUrl = PrivacyPolicyUrl + $"?lang={CultureInfo.CurrentCulture.TwoLetterISOLanguageName}";
+
+            if (!string.IsNullOrEmpty(TermsAndConditionsUrl))
+                TermsAndConditionsUrl = TermsAndConditionsUrl + $"?lang={CultureInfo.CurrentCulture.TwoLetterISOLanguageName}";
         }
 
         private void PerformTracking(UserModel user)
