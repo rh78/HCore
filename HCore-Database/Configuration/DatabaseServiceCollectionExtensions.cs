@@ -5,6 +5,7 @@ using HCore.Database.ElasticSearch.Impl;
 using System;
 using System.Reflection;
 using HCore.Database;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -70,6 +71,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     options.UseSqlServer(connectionString,
                         sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+
+                    options.ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
                 });
             } 
             else
@@ -78,6 +81,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     options.UseNpgsql(connectionString,
                         postgresOptions => postgresOptions.MigrationsAssembly(migrationsAssembly));
+
+                    options.ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning));
                 });
             }
 
