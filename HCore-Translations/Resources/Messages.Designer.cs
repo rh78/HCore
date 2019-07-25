@@ -259,6 +259,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The continuation UUID is invalid ähnelt.
+        /// </summary>
+        public static string continuation_uuid_invalid {
+            get {
+                return ResourceManager.GetString("continuation_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The cookie is invalid or expired ähnelt.
         /// </summary>
         public static string cookie_invalid_or_expired {

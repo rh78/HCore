@@ -357,6 +357,9 @@
   <data name="scroll_uuid_too_long" xml:space="preserve">
     <value>The scroll UUID is too long</value>
   </data>
+  <data name="continuation_uuid_invalid" xml:space="preserve">
+    <value>The continuation UUID is invalid</value>
+  </data>
   <data name="argument_invalid" xml:space="preserve">
     <value>The argument is invalid</value>
   </data>

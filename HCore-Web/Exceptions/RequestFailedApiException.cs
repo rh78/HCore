@@ -75,6 +75,7 @@ namespace HCore.Web.Exceptions
         public const string SecurityTokenInvalid = "security_token_invalid";
         public const string ScrollUuidInvalid = "scroll_uuid_invalid";
         public const string ScrollUuidTooLong = "scroll_uuid_too_long";
+        public const string ContinuationUuidInvalid = "continuation_uuid_invalid";
         public const string FirstNameMissing = "first_name_missing";
         public const string FirstNameInvalid = "first_name_invalid";
         public const string FirstNameTooLong = "first_name_too_long";
