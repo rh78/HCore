@@ -15,7 +15,7 @@ namespace HCore.Storage.Client.Impl
 {
     public class GoogleCloudStorageClientImpl : IStorageClient
     {
-        private const int ChunkSize = 128 * 1024 * 1024; // 128 MB
+        private const int ChunkSize = 5 * 1024 * 1024; // 5 MB
 
         private readonly string _projectId;
         private readonly string _credentialsJson;
