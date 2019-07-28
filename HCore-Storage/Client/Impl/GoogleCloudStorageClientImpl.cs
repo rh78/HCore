@@ -15,6 +15,8 @@ namespace HCore.Storage.Client.Impl
 {
     public class GoogleCloudStorageClientImpl : IStorageClient
     {
+        private const int ChunkSize = 128 * 1024 * 1024; // 128 MB
+
         private readonly string _projectId;
         private readonly string _credentialsJson;
 
@@ -45,7 +47,10 @@ namespace HCore.Storage.Client.Impl
                 {
                     var blockBlob = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
 
-                    await storageClient.DownloadObjectAsync(blockBlob, stream).ConfigureAwait(false);
+                    await storageClient.DownloadObjectAsync(blockBlob, stream, new DownloadObjectOptions()
+                    {
+                        ChunkSize = ChunkSize
+                    }).ConfigureAwait(false);
                 }
             } catch (GoogleApiException e)
             {
@@ -127,7 +132,10 @@ namespace HCore.Storage.Client.Impl
                     blockBlob.Metadata = additionalHeaders;
                 }
                 
-                await storageClient.UploadObjectAsync(blockBlob, stream).ConfigureAwait(false);                
+                await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
+                {
+                    ChunkSize = ChunkSize
+                }).ConfigureAwait(false);                
             }
         }
 
