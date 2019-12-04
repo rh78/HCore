@@ -72,6 +72,7 @@ namespace HCore.Web.Exceptions
         public const string ValidationFailed = "validation_failed";
         public const string DuplicateUserName = "duplicate_user_name";
         public const string PasswordRequiresNonAlphanumeric = "password_requires_non_alphanumeric";
+        public const string PasswordRequiresDigit = "password_requires_digit";
         public const string SecurityTokenInvalid = "security_token_invalid";
         public const string ScrollUuidInvalid = "scroll_uuid_invalid";
         public const string ScrollUuidTooLong = "scroll_uuid_too_long";
@@ -92,6 +93,7 @@ namespace HCore.Web.Exceptions
         public const string CurrencyInvalid = "currency_invalid";
         public const string AccountIsExternallyManaged = "account_is_externally_managed";
         public const string AccountsAreExternallyManaged = "accounts_are_externally_managed";
+        public const string RecaptchaValidationFailed = "recaptcha_validation_failed";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

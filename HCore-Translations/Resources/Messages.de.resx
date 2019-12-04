@@ -240,6 +240,9 @@
   <data name="password_requires_non_alphanumeric" xml:space="preserve">
     <value>Das Passwort erfordert nicht alphanumerische Zeichen</value>
   </data>
+  <data name="password_requires_digit" xml:space="preserve">
+    <value>Das Passwort muss mindestens eine Ziffer enthalten</value>
+  </data>
   <data name="password_too_long" xml:space="preserve">
     <value>Das Passwort ist zu lang</value>
   </data>
@@ -461,6 +464,9 @@
   </data>
   <data name="accounts_are_externally_managed" xml:space="preserve">
     <value>Dieser Vorgang kann nicht durchgeführt werden, weil die Benutzergruppen und -konten extern verwaltet werden</value>
+  </data>
+  <data name="recaptcha_validation_failed" xml:space="preserve">
+    <value>Die Google reCAPTCHA Validierung ist leider fehlgeschlagen</value>
   </data>
   <data name="cloud_storage_file_access_denied" xml:space="preserve">
     <value>Der Zugriff auf die Datei wurde verweigert</value>

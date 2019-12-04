@@ -1,8 +1,17 @@
 ﻿@page
+@using reCAPTCHA.AspNetCore
+@using System.Threading;
 @model RegisterModel
 @{
     ViewData["Title"] = Messages.register_title;
 }
+
+<style>
+    .g-recaptcha {
+        padding-top: 0px;
+        padding-bottom: 25px;
+    }
+</style>
 
 <div class="row">
     <div class="col-md-4 col-md-offset-4">
@@ -68,6 +77,12 @@
                     </label>
                 </div>
             </div>
+
+            @if (Model.Recaptcha != null)
+            {
+                @Html.Recaptcha(Model.Recaptcha, language: Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName);
+            }
+
             <input type="hidden" asp-for="Input.SegmentAnonymousUserUuid" id="segmentAnonmyousUserUuid" />
             <button type="submit" class="btn btn-default">@Messages.button_register</button>
         </form>

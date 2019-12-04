@@ -6,9 +6,11 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Resources;
 using System.Diagnostics;
+using HCore.Identity.Attributes;
 
 namespace HCore.PagesUI.Classes.Pages
 {
+    [SecurityHeaders]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : PageModel
     {

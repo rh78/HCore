@@ -6,6 +6,10 @@ using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Services;
 using HCore.Translations.Providers;
+using reCAPTCHA.AspNetCore;
+using System;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -17,14 +21,24 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public ForgotPasswordModel(
             IIdentityServices identityServices,
-            ITranslationsProvider translationsProvider)
+            ITranslationsProvider translationsProvider,
+            IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
+
+            var recaptchaSettings = serviceProvider.GetService<IOptions<RecaptchaSettings>>();
+
+            if (recaptchaSettings != null)
+            {
+                Recaptcha = recaptchaSettings.Value;
+            }
         }
 
         [BindProperty]
         public UserForgotPasswordSpec Input { get; set; }
+
+        public RecaptchaSettings Recaptcha { get; set; }
         
         public async Task<IActionResult> OnPostAsync()
         {
@@ -32,7 +46,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                await _identityServices.UserForgotPasswordAsync(Input).ConfigureAwait(false);
+                await _identityServices.UserForgotPasswordAsync(Input, request: Request).ConfigureAwait(false);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

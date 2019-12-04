@@ -20,6 +20,8 @@ using HCore.Translations.Providers;
 using System.Text.RegularExpressions;
 using System.Net;
 using System.Globalization;
+using reCAPTCHA.AspNetCore;
+using Microsoft.Extensions.Options;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -53,6 +55,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
             _translationsProvider = translationsProvider;
+
+            var recaptchaSettings = serviceProvider.GetService<IOptions<RecaptchaSettings>>();
+
+            if (recaptchaSettings != null)
+            {
+                Recaptcha = recaptchaSettings.Value;
+            }
         }
 
         [BindProperty]
@@ -64,6 +73,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public string TermsAndConditionsUrl { get; set; }
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
+
+        public RecaptchaSettings Recaptcha { get; set; }
 
         public IActionResult OnGet(string emailAddress = null, string firstName = null, string lastName = null)
         {
@@ -161,7 +172,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                UserModel user = await _identityServices.CreateUserAsync(Input, isSelfRegistration: true).ConfigureAwait(false);
+                UserModel user = await _identityServices.CreateUserAsync(Input, isSelfRegistration: true, request: Request).ConfigureAwait(false);
 
                 PerformTracking(user);
 

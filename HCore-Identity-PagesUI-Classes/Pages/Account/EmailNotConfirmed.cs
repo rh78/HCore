@@ -51,7 +51,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             ModelState.Clear();
 
             try
-                {
+            {
                 await _identityServices.ResendUserEmailConfirmationEmailAsync(Input.UserUuid).ConfigureAwait(false);
 
                 return RedirectToPage("./EmailConfirmationSent");

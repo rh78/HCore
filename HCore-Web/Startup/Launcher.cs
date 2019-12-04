@@ -188,26 +188,27 @@ namespace HCore.Web.Startup
                 
                 if (useHttps)
                 {
-                    string httpsCertificateAssembly = null;
-                    string httpsCertificateName = null;
-                    string httpsCertificatePassword = null;
+                    // Important: Only enable TLS 1.2 and TLS 1.3 to comply with SSL Server tests.
+                    //            TLS 1.1, TLS 1.0 and SSLv3 are considered insecure by todays standards.
 
-                    if (useHttps)
+                    options.ConfigureHttpsDefaults(httpsOptions =>
                     {
-                        httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
-                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                            throw new Exception("HTTPS certificate assembly not found");
+                        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                    });
 
-                        httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
+                    string httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
+                    if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                        throw new Exception("HTTPS certificate assembly not found");
 
-                        if (string.IsNullOrEmpty(httpsCertificateName))
-                            throw new Exception("HTTPS certificate name not found");
+                    string httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
 
-                        httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
+                    if (string.IsNullOrEmpty(httpsCertificateName))
+                        throw new Exception("HTTPS certificate name not found");
 
-                        if (string.IsNullOrEmpty(httpsCertificatePassword))
-                            throw new Exception("HTTPS certificate password not found");
-                    }
+                    string httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
+
+                    if (string.IsNullOrEmpty(httpsCertificatePassword))
+                        throw new Exception("HTTPS certificate password not found");
 
                     // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
 

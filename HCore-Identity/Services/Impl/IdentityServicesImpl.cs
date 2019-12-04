@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Http;
 using HCore.Tenants;
 using HCore.Directory;
 using HCore.Identity.Internal;
+using reCAPTCHA.AspNetCore;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -51,6 +52,8 @@ namespace HCore.Identity.Services.Impl
         private readonly INowProvider _nowProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
+        private readonly IRecaptchaService _recaptchaService;
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -80,6 +83,8 @@ namespace HCore.Identity.Services.Impl
             _serviceProvider = serviceProvider;
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
+
+            _recaptchaService = serviceProvider.GetService<IRecaptchaService>();
         }
 
         public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true)
@@ -142,7 +147,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null)
         {
             if (isSelfRegistration)
             {
@@ -187,6 +192,14 @@ namespace HCore.Identity.Services.Impl
 
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy");
+
+            if (_recaptchaService != null && request != null)
+            {
+                var recaptchaValidationResult = await _recaptchaService.Validate(request);
+
+                if (!recaptchaValidationResult.success)
+                    throw new RequestFailedApiException(RequestFailedApiException.RecaptchaValidationFailed, "The reCAPTCHA validation failed");
+            }
 
             try
             {
@@ -851,9 +864,17 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec)
+        public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec, HttpRequest request = null)
         {
             userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email);
+
+            if (_recaptchaService != null && request != null)
+            {
+                var recaptchaValidationResult = await _recaptchaService.Validate(request);
+
+                if (!recaptchaValidationResult.success)
+                    throw new RequestFailedApiException(RequestFailedApiException.RecaptchaValidationFailed, "The reCAPTCHA validation failed");
+            }
 
             try
             {
@@ -1594,6 +1615,10 @@ namespace HCore.Identity.Services.Impl
                     throw new RequestFailedApiException(RequestFailedApiException.DuplicateUserName, "This user name already exists");
                 else if (string.Equals(error.Code, "PasswordRequiresNonAlphanumeric"))
                     throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
+                else if (string.Equals(error.Code, "PasswordRequiresDigit"))
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresDigit, "The password requires digits");
+                else if (string.Equals(error.Code, "PasswordTooShort"))
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordTooShort, "The password is too short");
                 else if (string.Equals(error.Code, "InvalidToken"))
                     throw new RequestFailedApiException(RequestFailedApiException.SecurityTokenInvalid, "The security token is invalid or expired");
                 else if (string.Equals(error.Code, "PasswordMismatch"))

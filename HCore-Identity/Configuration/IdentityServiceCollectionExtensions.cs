@@ -34,6 +34,8 @@ using Microsoft.IdentityModel.Logging;
 using Sustainsys.Saml2.AspNetCore2;
 using Sustainsys.Saml2;
 using Sustainsys.Saml2.Metadata;
+using Microsoft.AspNetCore.Http;
+using reCAPTCHA.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -97,6 +99,15 @@ namespace Microsoft.Extensions.DependencyInjection
             if (useIdentity || useJwt)
             {
                 services.AddScoped<IAuthServices, AuthServicesImpl>();
+            }
+
+            bool useRecaptcha = configuration.GetValue<bool>("Identity:UseRecaptcha");
+
+            if (useRecaptcha)
+            {
+                services.Configure<RecaptchaSettings>(configuration.GetSection("Identity:Recaptcha"));
+
+                services.AddTransient<IRecaptchaService, RecaptchaService>();
             }
 
             return services;
@@ -383,6 +394,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     options.Cookie.Domain = authCookieDomain;
                     options.Cookie.Name = "HCore.Identity.session";
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 });
             } else
             {
@@ -398,6 +410,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.{tenantInfo.TenantUuid}.HCore.Identity.Session";
                     }
+
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 });
             }
 
@@ -408,10 +422,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 // add ':' for our external user names
                 options.User.AllowedUserNameCharacters = IdentityServicesImpl.AllowedUserNameCharacters;
 
-                options.Password.RequireDigit = false;
+                options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 8;
             });
         }
 

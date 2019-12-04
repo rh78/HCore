@@ -133,11 +133,16 @@ namespace HCore.Web.Startup
 
             if (_useHttps)
             {
+                services.AddAntiforgery(options =>
+                {
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                });
+
                 services.AddHsts(options =>
                 {
                     options.Preload = true;
                     options.IncludeSubDomains = true;
-                    options.MaxAge = TimeSpan.FromDays(60);
+                    options.MaxAge = TimeSpan.FromDays(90);
                 });
 
                 int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");

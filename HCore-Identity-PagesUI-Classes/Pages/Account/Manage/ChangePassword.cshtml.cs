@@ -48,6 +48,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             ModelState.Clear();
 
+            PasswordChangePossible = true;
+
             try
             {
                 var userUuid = User.GetUserUuid();
