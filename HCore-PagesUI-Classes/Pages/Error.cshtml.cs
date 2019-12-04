@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Resources;
 using System.Diagnostics;
 using HCore.Identity.Attributes;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HCore.PagesUI.Classes.Pages
 {
@@ -22,8 +23,14 @@ namespace HCore.PagesUI.Classes.Pages
         public string Error { get; set; }
         public string Description { get; set; }
 
-        public ErrorModel(IServiceProvider serviceProvider)
+        private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        public ErrorModel(
+            IDataProtectionProvider dataProtectionProvider,
+            IServiceProvider serviceProvider)
         {
+            _dataProtectionProvider = dataProtectionProvider;
+
             _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
         }
         
@@ -63,6 +70,22 @@ namespace HCore.PagesUI.Classes.Pages
 
             if (!string.IsNullOrEmpty(errorCode))
             {
+                if (string.Equals(errorCode, "page_not_found"))
+                {
+                    errorDescription = $"{Messages.page_not_found}.";
+                }
+                else if (!string.IsNullOrEmpty(errorDescription))
+                {
+                    try
+                    {
+                        errorDescription = _dataProtectionProvider.CreateProtector("Error").Unprotect(errorDescription);
+                    }
+                    catch (Exception)
+                    {
+                        errorDescription = $"{Messages.error_message_is_invalid}.";
+                    }
+                }
+
                 Error = errorDescription;
 
                 if (!string.IsNullOrEmpty(Error) &&

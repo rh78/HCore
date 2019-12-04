@@ -367,6 +367,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The error message is invalid.
+        /// </summary>
+        public static string error_message_is_invalid {
+            get {
+                return ResourceManager.GetString("error_message_is_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your request ID is:.
         /// </summary>
         public static string error_request_id {
@@ -624,6 +633,15 @@ namespace HCore.Translations.Resources {
         public static string page {
             get {
                 return ResourceManager.GetString("page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The page was not found.
+        /// </summary>
+        public static string page_not_found {
+            get {
+                return ResourceManager.GetString("page_not_found", resourceCulture);
             }
         }
         

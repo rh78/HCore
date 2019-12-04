@@ -474,4 +474,10 @@
   <data name="cloud_storage_file_not_found" xml:space="preserve">
     <value>Die Datei wurde nicht gefunden</value>
   </data>
+  <data name="page_not_found" xml:space="preserve">
+    <value>Die Seite wurde nicht gefunden</value>
+  </data>
+  <data name="error_message_is_invalid" xml:space="preserve">
+    <value>Die Fehlermeldung ist ungültig</value>
+  </data>
 </root>

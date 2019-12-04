@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System.Web;
 using HCore.Translations.Providers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HCore.Web.Middleware
 {
@@ -24,7 +25,14 @@ namespace HCore.Web.Middleware
 
         private string _criticalFallbackUrl;
 
-        public UnhandledExceptionHandlingMiddleware(RequestDelegate next, IServiceProvider serviceProvider, IConfiguration configuration, ILogger<UnhandledExceptionHandlingMiddleware> logger)
+        private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        public UnhandledExceptionHandlingMiddleware(
+            RequestDelegate next,
+            IDataProtectionProvider dataProtectionProvider,
+            IServiceProvider serviceProvider, 
+            IConfiguration configuration, 
+            ILogger<UnhandledExceptionHandlingMiddleware> logger)
         {
             _next = next;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -48,6 +56,8 @@ namespace HCore.Web.Middleware
             }
 
             _translationsProvider = serviceProvider.GetService<ITranslationsProvider>();
+
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         public async Task Invoke(HttpContext context)
@@ -121,6 +131,9 @@ namespace HCore.Web.Middleware
 
             if (_translationsProvider != null)
                 errorDescription = _translationsProvider.TranslateError(resultException.GetErrorCode(), resultException.Message, resultException.Uuid, resultException.Name);
+
+            if (!string.IsNullOrEmpty(errorDescription))
+                errorDescription = _dataProtectionProvider.CreateProtector("Error").Protect(errorDescription);
 
             context.Response.Redirect($"/Error?errorCode={HttpUtility.UrlEncode(errorCode ?? "")}&errorDescription={HttpUtility.UrlEncode(errorDescription ?? "")}");
         }

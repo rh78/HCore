@@ -6,6 +6,8 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Models;
 using HCore.Identity.Services;
 using HCore.Translations.Providers;
+using Microsoft.AspNetCore.DataProtection;
+using System;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -15,12 +17,17 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
 
+        private readonly IDataProtectionProvider _dataProtectionProvider;
+
         public EmailNotConfirmedModel(
             IIdentityServices identityServices,
-            ITranslationsProvider translationsProvider)
+            ITranslationsProvider translationsProvider,
+            IDataProtectionProvider dataProtectionProvider)
         {
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
+
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         [TempData]
@@ -37,6 +44,15 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             }
             else
             {
+                try
+                {
+                    userUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Unprotect(userUuid);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("The user UUID is invalid.");
+                }
+
                 Input = new UserUuidSpec
                 {
                     UserUuid = userUuid

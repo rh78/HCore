@@ -21,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Providers;
 using HCore.Tenants;
 using IdentityServer4;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -41,6 +42,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITranslationsProvider _translationsProvider;
 
+        private readonly IDataProtectionProvider _dataProtectionProvider;
+
         public LoginModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,
@@ -49,6 +52,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
             ITranslationsProvider translationsProvider,
+            IDataProtectionProvider dataProtectionProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
@@ -63,6 +67,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
             _translationsProvider = translationsProvider;
+
+            _dataProtectionProvider = dataProtectionProvider;
         }
 
         public string UserName { get; set; }
@@ -195,7 +201,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 if (Equals(unauthorizedApiException.GetErrorCode(), UnauthorizedApiException.EmailNotConfirmed))
                 {
-                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
+                    var protectedUserUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Protect(unauthorizedApiException.UserUuid);
+
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false);
@@ -277,7 +285,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 if (Equals(unauthorizedApiException.GetErrorCode(), UnauthorizedApiException.EmailNotConfirmed))
                 {
-                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = unauthorizedApiException.UserUuid });
+                    var protectedUserUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Protect(unauthorizedApiException.UserUuid);
+
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
 
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);

@@ -22,6 +22,7 @@ using System.Net;
 using System.Globalization;
 using reCAPTCHA.AspNetCore;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -38,11 +39,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITranslationsProvider _translationsProvider;
 
+        private readonly IDataProtectionProvider _dataProtectionProvider;
+
         public RegisterModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,            
             IEventService events,
             ITranslationsProvider translationsProvider,
+            IDataProtectionProvider dataProtectionProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
@@ -55,6 +59,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
             _translationsProvider = translationsProvider;
+
+            _dataProtectionProvider = dataProtectionProvider;
 
             var recaptchaSettings = serviceProvider.GetService<IOptions<RecaptchaSettings>>();
 
@@ -178,7 +184,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
                 {
-                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = user.Id });
+                    var protectedUserUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Protect(user.Id);
+
+                    return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
                 else
                 {
