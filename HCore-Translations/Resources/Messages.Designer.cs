@@ -484,6 +484,60 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key 1 contains invalid characters.
+        /// </summary>
+        public static string key_1_invalid {
+            get {
+                return ResourceManager.GetString("key_1_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key 1 is missing.
+        /// </summary>
+        public static string key_1_missing {
+            get {
+                return ResourceManager.GetString("key_1_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key 1 is too long.
+        /// </summary>
+        public static string key_1_too_long {
+            get {
+                return ResourceManager.GetString("key_1_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key 2 contains invalid characters.
+        /// </summary>
+        public static string key_2_invalid {
+            get {
+                return ResourceManager.GetString("key_2_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key 2 is missing.
+        /// </summary>
+        public static string key_2_missing {
+            get {
+                return ResourceManager.GetString("key_2_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key 2 is too long.
+        /// </summary>
+        public static string key_2_too_long {
+            get {
+                return ResourceManager.GetString("key_2_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The last name contains invalid characters.
         /// </summary>
         public static string last_name_invalid {

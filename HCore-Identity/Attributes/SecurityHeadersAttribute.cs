@@ -36,7 +36,7 @@ namespace HCore.Identity.Attributes
                           "frame-src 'self' https://*.smint.io https://www.google.com; " +
                           "img-src *; " +
                           "media-src *; " +
-                          "sandbox allow-forms allow-same-origin allow-scripts allow-popups; " +
+                          "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
                           "base-uri 'self'; " +
                           "upgrade-insecure-requests;";
 
@@ -48,11 +48,14 @@ namespace HCore.Identity.Attributes
                 {
                     context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
                 }
+
+                // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
+
                 // and once again for IE
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy"))
+                /* if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy"))
                 {
                     context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", csp);
-                }
+                } */
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
                 if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))

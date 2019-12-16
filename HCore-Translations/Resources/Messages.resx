@@ -144,6 +144,24 @@
   <data name="client_secret_too_long" xml:space="preserve">
     <value>The client secret is too long</value>
   </data>
+  <data name="key_1_invalid" xml:space="preserve">
+    <value>Key 1 contains invalid characters</value>
+  </data>
+  <data name="key_1_missing" xml:space="preserve">
+    <value>Key 1 is missing</value>
+  </data>
+  <data name="key_1_too_long" xml:space="preserve">
+    <value>Key 1 is too long</value>
+  </data>
+  <data name="key_2_invalid" xml:space="preserve">
+    <value>Key 2 contains invalid characters</value>
+  </data>
+  <data name="key_2_missing" xml:space="preserve">
+    <value>Key 2 is missing</value>
+  </data>
+  <data name="key_2_too_long" xml:space="preserve">
+    <value>Key 2 is too long</value>
+  </data>
   <data name="code_invalid" xml:space="preserve">
     <value>The code contains invalid characters</value>
   </data>

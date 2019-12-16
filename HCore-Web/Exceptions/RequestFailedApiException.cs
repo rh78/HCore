@@ -21,6 +21,12 @@ namespace HCore.Web.Exceptions
         public const string ClientSecretMissing = "client_secret_missing";
         public const string ClientSecretInvalid = "client_secret_invalid";
         public const string ClientSecretTooLong = "client_secret_too_long";
+        public const string Key1Missing = "key_1_missing";
+        public const string Key1Invalid = "key_1_invalid";
+        public const string Key1TooLong = "key_1_too_long";
+        public const string Key2Missing = "key_2_missing";
+        public const string Key2Invalid = "key_2_invalid";
+        public const string Key2TooLong = "key_2_too_long";
         public const string RedirectUrlNotRequired = "redirect_url_not_required";
         public const string RedirectUrlMissing = "redirect_url_missing";
         public const string RedirectUrlInvalid = "redirect_url_invalid";

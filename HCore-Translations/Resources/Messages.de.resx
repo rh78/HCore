@@ -144,6 +144,24 @@
   <data name="client_secret_too_long" xml:space="preserve">
     <value>Das Client-Secret ist zu lang</value>
   </data>
+  <data name="key_1_invalid" xml:space="preserve">
+    <value>Der 1. Schlüssel enthält ungültige Zeichen</value>
+  </data>
+  <data name="key_1_missing" xml:space="preserve">
+    <value>Der 1. Schlüssel fehlt</value>
+  </data>
+  <data name="key_1_too_long" xml:space="preserve">
+    <value>Der 1. Schlüssel ist zu lang</value>
+  </data>
+  <data name="key_2_invalid" xml:space="preserve">
+    <value>Der 2. Schlüssel enthält ungültige Zeichen</value>
+  </data>
+  <data name="key_2_missing" xml:space="preserve">
+    <value>Der 2. Schlüssel fehlt</value>
+  </data>
+  <data name="key_2_too_long" xml:space="preserve">
+    <value>Der 2. Schlüssel ist zu lang</value>
+  </data>
   <data name="code_invalid" xml:space="preserve">
     <value>Der Code enthält ungültige Zeichen</value>
   </data>
