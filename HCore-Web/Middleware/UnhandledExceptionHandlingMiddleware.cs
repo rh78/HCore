@@ -24,6 +24,7 @@ namespace HCore.Web.Middleware
         private int? _apiPort;
 
         private string _criticalFallbackUrl;
+        private string _tenantSelectorFallbackUrl;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
@@ -41,9 +42,13 @@ namespace HCore.Web.Middleware
             bool useApi = configuration.GetValue<bool>("WebServer:UseApi");
 
             _criticalFallbackUrl = configuration["WebServer:CriticalFallbackUrl"];
+            _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
 
             if (string.IsNullOrEmpty(_criticalFallbackUrl))
                 throw new Exception("The critical fallback URL is not set");
+
+            if (string.IsNullOrEmpty(_tenantSelectorFallbackUrl))
+                _tenantSelectorFallbackUrl = null;
 
             if (useWeb)
             {
@@ -113,10 +118,22 @@ namespace HCore.Web.Middleware
                 return;
             }
 
+            string path = context.Request.Path;
+
+            if (string.Equals(resultException.GetErrorCode(), NotFoundApiException.TenantNotFound) &&
+                _tenantSelectorFallbackUrl != null &&
+                !string.Equals(path, _tenantSelectorFallbackUrl))
+            {
+                // redirect to the tenant selector
+
+                context.Response.Redirect(_tenantSelectorFallbackUrl);
+
+                return;
+            }
+
             // we have a call to our web interface, we need to go to the error page
             // but not twice, because then we'd run in circles
 
-            string path = context.Request.Path;
             if (!string.IsNullOrEmpty(path) && path.ToLower().StartsWith("/error"))
             {
                 // we ARE already on the error page, use critical fallback URL

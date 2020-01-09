@@ -100,6 +100,9 @@ namespace HCore.Web.Exceptions
         public const string AccountIsExternallyManaged = "account_is_externally_managed";
         public const string AccountsAreExternallyManaged = "accounts_are_externally_managed";
         public const string RecaptchaValidationFailed = "recaptcha_validation_failed";
+        public const string DomainMissing = "domain_missing";
+        public const string DomainInvalid = "domain_invalid";
+        public const string DomainNotFound = "domain_not_found";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

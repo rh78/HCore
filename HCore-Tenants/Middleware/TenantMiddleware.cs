@@ -2,6 +2,8 @@
 using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -13,13 +15,17 @@ namespace HCore.Tenants.Middleware
 
         private readonly ITenantDataProvider _tenantDataProvider;
 
+        private string _tenantSelectorFallbackUrl;
+
         private readonly ILogger<TenantsMiddleware> _logger;
 
-        public TenantsMiddleware(RequestDelegate next, ITenantDataProvider tenantDataProvider, ILogger<TenantsMiddleware> logger)
+        public TenantsMiddleware(RequestDelegate next, ITenantDataProvider tenantDataProvider, ILogger<TenantsMiddleware> logger, IConfiguration configuration)
         {
             _next = next;
 
             _tenantDataProvider = tenantDataProvider;
+
+            _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
 
             _logger = logger;
         }
@@ -66,6 +72,18 @@ namespace HCore.Tenants.Middleware
 
                         throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
                     }
+                } 
+                else if (tenantInfo.TenantUuid == 0)
+                {
+                    if (string.IsNullOrEmpty(_tenantSelectorFallbackUrl))
+                        throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
+
+                    // only allow the tenant selector fallback URL on the tenant selector tenant
+
+                    var path = context.Request.GetEncodedUrl();
+
+                    if (!string.Equals(path, _tenantSelectorFallbackUrl))
+                        throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
                 }
 
                 context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);
