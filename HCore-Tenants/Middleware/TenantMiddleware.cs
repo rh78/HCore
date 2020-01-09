@@ -82,8 +82,11 @@ namespace HCore.Tenants.Middleware
 
                     var path = context.Request.GetEncodedUrl();
 
-                    if (!string.Equals(path, _tenantSelectorFallbackUrl))
+                    if (string.IsNullOrEmpty(path) ||
+                        (!path.EndsWith(".css") && !string.Equals(path, _tenantSelectorFallbackUrl)))
+                    {
                         throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
+                    }
                 }
 
                 context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);
