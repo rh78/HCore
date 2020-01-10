@@ -22,6 +22,7 @@ using HCore.Translations.Providers;
 using HCore.Tenants;
 using IdentityServer4;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -182,6 +183,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
 
+                HandleTenantCookie();
+
                 if (IsLocalAuthorization)
                 {
                     if (!string.IsNullOrEmpty(ReturnUrl))
@@ -265,7 +268,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 PerformTracking(user);
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
-                
+
+                HandleTenantCookie();
+
                 if (IsLocalAuthorization)
                 {
                     if (!string.IsNullOrEmpty(ReturnUrl))
@@ -305,6 +310,24 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);
 
             return Page();            
+        }
+
+        private void HandleTenantCookie()
+        {
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+                var matchedSubDomain = _tenantInfoAccessor.MatchedSubDomain;
+
+                if (tenantInfo != null && !string.IsNullOrEmpty(matchedSubDomain))
+                {
+                    Response.Cookies.Append(TenantModel.CookieName, matchedSubDomain, new CookieOptions()
+                    {
+                        Domain = tenantInfo.DeveloperAuthCookieDomain,
+                        Expires = DateTime.MaxValue
+                    });
+                }
+            }
         }
 
         private async Task PrepareModelAsync(string returnUrl)

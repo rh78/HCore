@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using HCore.Identity.Attributes;
 using HCore.Tenants.Providers;
 using HCore.Translations.Providers;
 using HCore.Web.Exceptions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,7 +13,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class TenantModel : PageModel
     {
         private static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
-        private static readonly string CookieName = "HCore.Tenant.Selection";
+        public static readonly string CookieName = "HCore.Tenant.Selection";
 
         [BindProperty]
         public string Domain { get; set; }
@@ -73,16 +71,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (!Tenant.IsMatch(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainInvalid, "The domain is invalid");
 
-            var tenantInfo = _tenantDataProvider.LookupTenantByHost($"{domain}.smint.io");
+            var (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost($"{domain}.smint.io");
 
             if (tenantInfo == null)
                 throw new RequestFailedApiException(RequestFailedApiException.DomainNotFound, "The domain was not found");
-
-            Response.Cookies.Append(CookieName, domain, new CookieOptions()
-            {
-                Domain = ".smint.io",
-                Expires = DateTime.MaxValue
-            });
 
             return Redirect(tenantInfo.WebUrl);
         }

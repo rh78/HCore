@@ -532,13 +532,13 @@ namespace HCore.Tenants.Providers.Impl
             _logger = logger;
         }
 
-        public ITenantInfo LookupTenantByHost(string host)
+        public (string, ITenantInfo) LookupTenantByHost(string host)
         {
             if (string.IsNullOrEmpty(host))
             {
                 _logger.LogDebug($"Host is empty for tenant parsing");
 
-                return null;
+                return (null, null);
             }
             
             string[] parts = host.Split('.');
@@ -556,21 +556,21 @@ namespace HCore.Tenants.Providers.Impl
             {
                 _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
-                return null;
+                return (null, null);
             }
 
             if (parts.Length > 3)
             {
                 _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
 
-                return null;
+                return (null, null);
             }
 
             if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]) || string.IsNullOrEmpty(parts[2]))
             {
                 _logger.LogDebug($"Host {host} has empty parts which is not allowed for tenant parsing");
 
-                return null;
+                return (null, null);
             }
 
             string subDomainLookup = parts[0];
@@ -580,7 +580,7 @@ namespace HCore.Tenants.Providers.Impl
             {
                 _logger.LogError($"No developer found for host {host}");
 
-                return null;
+                return (null, null);
             }
 
             var developerWrapper = _developerMappings[hostLookup];
@@ -588,7 +588,7 @@ namespace HCore.Tenants.Providers.Impl
             {
                 _logger.LogError($"No developer found for host {host}");
 
-                return null;
+                return (null, null);
             }
 
             var tenantInfo = developerWrapper.LookupTenantBySubDomain(subDomainLookup);
@@ -596,10 +596,10 @@ namespace HCore.Tenants.Providers.Impl
             {
                 _logger.LogError($"No developer found for host {host}, developer {developerWrapper.Developer.Uuid} and sub domain lookup {subDomainLookup}");
 
-                return null;
+                return (null, null);
             }
 
-            return tenantInfo;            
+            return (subDomainLookup, tenantInfo);
         }
 
         public ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid)

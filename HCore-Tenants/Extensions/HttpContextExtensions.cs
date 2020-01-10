@@ -13,5 +13,14 @@ namespace Microsoft.AspNetCore.Http
 
             return (ITenantInfo)tenantInfo;
         }
+
+        public static string GetMatchedSubDomain(this HttpContext context)
+        {
+            object matchedSubDomain = null;
+
+            context.Items.TryGetValue(TenantConstants.MatchedSubDomainContextKey, out matchedSubDomain);
+
+            return (string)matchedSubDomain;
+        }
     }
 }

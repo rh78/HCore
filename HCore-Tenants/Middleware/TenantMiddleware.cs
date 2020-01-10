@@ -34,6 +34,7 @@ namespace HCore.Tenants.Middleware
         {
             if (!context.Items.ContainsKey(TenantConstants.TenantInfoContextKey))
             {
+                string matchedSubDomain = null;
                 ITenantInfo tenantInfo = null;
 
                 var hostString = context.Request.Host;
@@ -44,7 +45,7 @@ namespace HCore.Tenants.Middleware
                 {
                     host = hostString.Host;
                     
-                    tenantInfo = _tenantDataProvider.LookupTenantByHost(host);
+                    (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost(host);
                 }
 
                 if (tenantInfo == null)
@@ -62,7 +63,7 @@ namespace HCore.Tenants.Middleware
 
                         if (!string.IsNullOrEmpty(healthCheckTenantHost))
                         {
-                            tenantInfo = _tenantDataProvider.LookupTenantByHost(healthCheckTenantHost);
+                            (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost(healthCheckTenantHost);
                         }
                     }
 
@@ -90,6 +91,7 @@ namespace HCore.Tenants.Middleware
                 }
 
                 context.Items.Add(TenantConstants.TenantInfoContextKey, tenantInfo);
+                context.Items.Add(TenantConstants.MatchedSubDomainContextKey, matchedSubDomain);
             }
 
             await _next.Invoke(context).ConfigureAwait(false);

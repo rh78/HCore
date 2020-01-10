@@ -5,5 +5,7 @@ namespace HCore.Tenants.Providers
     public interface ITenantInfoAccessor
     {
         ITenantInfo TenantInfo { get; }
+
+        string MatchedSubDomain { get; }
     }
 }

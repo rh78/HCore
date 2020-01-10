@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.Services;
+using Microsoft.AspNetCore.Http;
+using System;
+using HCore.Tenants.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -39,13 +42,17 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         [BindProperty]
         public string LogoutId { get; set; }
 
+        private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
         public LogoutModel(
              IIdentityServices identityServices,
              IIdentityServerInteractionService interaction,
+             ITenantInfoAccessor tenantInfoAccessor,
              IEventService events)
         {
             _identityServices = identityServices;
             _interaction = interaction;
+            _tenantInfoAccessor = tenantInfoAccessor;
             _events = events;
         }
 
@@ -116,6 +123,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 // delete authentication cookies
 
+                HandleTenantCookie();
+
                 await _identityServices.SignOutUserAsync(HttpContext).ConfigureAwait(false);
 
                 // raise the logout event
@@ -126,6 +135,23 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             LoggedOut = true;
 
             return Page();
+        }
+
+        private void HandleTenantCookie()
+        {
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                {
+                    Response.Cookies.Append(TenantModel.CookieName, "", new CookieOptions()
+                    {
+                        Domain = tenantInfo.DeveloperAuthCookieDomain,
+                        Expires = DateTime.Now.AddDays(-1)
+                    });
+                }
+            }
         }
 
         private async Task PrepareLoggedOutModelAsync(string logoutId)

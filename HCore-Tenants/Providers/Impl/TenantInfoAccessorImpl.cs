@@ -13,5 +13,7 @@ namespace HCore.Tenants.Providers.Impl
         }
 
         public ITenantInfo TenantInfo => _httpContextAccessor.HttpContext?.GetTenantInfo();
+
+        public string MatchedSubDomain => _httpContextAccessor.HttpContext?.GetMatchedSubDomain();
     }
 }
