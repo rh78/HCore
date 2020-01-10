@@ -109,15 +109,6 @@ namespace HCore.Web.Middleware
 
         private async Task HandleResultExceptionAsync(HttpContext context, ApiException resultException)
         {
-            if (_webPort == null || context.Connection.LocalPort != _webPort)
-            {
-                // we have a call to some endpoint outside of our web interface, so just return the error JSON
-
-                await resultException.WriteResponseAsync(context).ConfigureAwait(false);
-
-                return;
-            }
-
             string path = context.Request.Path;
 
             if (string.Equals(resultException.GetErrorCode(), NotFoundApiException.TenantNotFound) &&
@@ -127,6 +118,15 @@ namespace HCore.Web.Middleware
                 // redirect to the tenant selector
 
                 context.Response.Redirect(_tenantSelectorFallbackUrl);
+
+                return;
+            }
+
+            if (_webPort == null || context.Connection.LocalPort != _webPort)
+            {
+                // we have a call to some endpoint outside of our web interface, so just return the error JSON
+
+                await resultException.WriteResponseAsync(context).ConfigureAwait(false);
 
                 return;
             }
