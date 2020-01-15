@@ -27,6 +27,12 @@ namespace HCore.Web.Exceptions
         public const string Key2Missing = "key_2_missing";
         public const string Key2Invalid = "key_2_invalid";
         public const string Key2TooLong = "key_2_too_long";
+        public const string Key3Missing = "key_3_missing";
+        public const string Key3Invalid = "key_3_invalid";
+        public const string Key3TooLong = "key_3_too_long";
+        public const string Key4Missing = "key_4_missing";
+        public const string Key4Invalid = "key_4_invalid";
+        public const string Key4TooLong = "key_4_too_long";
         public const string RedirectUrlNotRequired = "redirect_url_not_required";
         public const string RedirectUrlMissing = "redirect_url_missing";
         public const string RedirectUrlInvalid = "redirect_url_invalid";

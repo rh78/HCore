@@ -162,6 +162,24 @@
   <data name="key_2_too_long" xml:space="preserve">
     <value>Der 2. Schlüssel ist zu lang</value>
   </data>
+  <data name="key_3_invalid" xml:space="preserve">
+    <value>Der 3. Schlüssel enthält ungültige Zeichen</value>
+  </data>
+  <data name="key_3_missing" xml:space="preserve">
+    <value>Der 3. Schlüssel fehlt</value>
+  </data>
+  <data name="key_3_too_long" xml:space="preserve">
+    <value>Der 3. Schlüssel ist zu lang</value>
+  </data>
+  <data name="key_4_invalid" xml:space="preserve">
+    <value>Der 4. Schlüssel enthält ungültige Zeichen</value>
+  </data>
+  <data name="key_4_missing" xml:space="preserve">
+    <value>Der 4. Schlüssel fehlt</value>
+  </data>
+  <data name="key_4_too_long" xml:space="preserve">
+    <value>Der 4. Schlüssel ist zu lang</value>
+  </data>
   <data name="code_invalid" xml:space="preserve">
     <value>Der Code enthält ungültige Zeichen</value>
   </data>
