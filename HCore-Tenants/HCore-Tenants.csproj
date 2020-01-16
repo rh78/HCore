@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />
     <ProjectReference Include="..\HCore-Directory\HCore-Directory.csproj" />
     <ProjectReference Include="..\HCore-Storage\HCore-Storage.csproj" />
