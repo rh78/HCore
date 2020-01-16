@@ -18,7 +18,7 @@ namespace HCore.Web.Providers.Impl
         public string HeaderJsIncludes { get; }
         public string BodyJsIncludes { get; }
 
-        public SpaManifestJsonProviderImpl(IHostingEnvironment hostingEnvironment)
+        public SpaManifestJsonProviderImpl(IWebHostEnvironment hostingEnvironment)
         {
             HeaderIncludes = "";
             BodyIncludes = "";

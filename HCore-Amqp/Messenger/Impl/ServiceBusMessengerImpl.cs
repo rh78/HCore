@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.ServiceBus.Management;
 using HCore.Amqp.Processor.Hosts;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -25,7 +25,7 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly string[] _addresses;
         private readonly int[] _addressListenerCounts;
 
-        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
+        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {
             _connectionString = connectionString;
 

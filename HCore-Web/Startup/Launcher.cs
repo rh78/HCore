@@ -13,6 +13,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Extensions.Hosting;
 
 namespace HCore.Web.Startup
 {
@@ -22,7 +23,7 @@ namespace HCore.Web.Startup
     {
         private string _environment;        
         
-        private WebHostBuilder _builder;
+        private HostBuilder _hostBuilder;
         private IConfigurationRoot _configuration;
 
         private string _serverUrl;
@@ -42,12 +43,12 @@ namespace HCore.Web.Startup
             
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
-            _builder.Build().Run();
+            _hostBuilder.Build().Run();
         }
 
         private void CreateWebHostBuilder()
         {
-            _builder = new WebHostBuilder();
+            _hostBuilder = new HostBuilder();
 
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -58,15 +59,20 @@ namespace HCore.Web.Startup
 
             ConfigureDefaultServiceProvider();
             ConfigureLogging();
-            ConfigureContentRoot();
             ConfigureConfiguration();
-        
-            ConfigureWebServer();                        
+
+            _hostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+
+            _hostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
+            {
+                ConfigureContentRoot(webHostBuilder);
+                ConfigureWebServer(webHostBuilder);
+            });
         }
 
         private void ConfigureDefaultServiceProvider()
         {
-            _builder.UseDefaultServiceProvider((context, options) =>
+            _hostBuilder.UseDefaultServiceProvider((context, options) =>
             {
                 options.ValidateScopes = true;
             });
@@ -74,7 +80,7 @@ namespace HCore.Web.Startup
 
         private void ConfigureLogging()
         {
-            _builder.ConfigureLogging((hostingContext, logging) =>
+            _hostBuilder.ConfigureLogging((hostingContext, logging) =>
             {
                 logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
                 logging.AddConsole();
@@ -82,22 +88,17 @@ namespace HCore.Web.Startup
             });
         }
 
-        private void ConfigureContentRoot()
+        private void ConfigureContentRoot(IWebHostBuilder webHostBuilder)
         {
-            if (string.IsNullOrEmpty(_builder.GetSetting(WebHostDefaults.ContentRootKey)))
+            if (string.IsNullOrEmpty(webHostBuilder.GetSetting(WebHostDefaults.ContentRootKey)))
             {
-                _builder.UseContentRoot(Directory.GetCurrentDirectory());
+                webHostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
             }
         }
 
         private void ConfigureConfiguration()
         {
-            if (Args != null)
-            {
-                _builder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(Args).Build());
-            }
-
-            _builder.ConfigureAppConfiguration((hostingContext, config) =>
+            _hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
                 var env = hostingContext.HostingEnvironment;
 
@@ -123,7 +124,7 @@ namespace HCore.Web.Startup
             });
         }
 
-        private void ConfigureWebServer()
+        private void ConfigureWebServer(IWebHostBuilder webHostBuilder)
         {
             bool useHttps = _configuration.GetValue<bool>("WebServer:UseHttps");
             bool useWeb = _configuration.GetValue<bool>("WebServer:UseWeb");
@@ -166,17 +167,13 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Available threads: {availableWorkerThreads}/{availableWorkerThreads}");
 
-            _builder.UseKestrel((builderContext, options) =>
+            webHostBuilder.UseKestrel((builderContext, options) =>
             {
                 options.Configure(builderContext.Configuration.GetSection("Kestrel"));
 
                 // try to avoid thread starvation problems
 
                 // see https://www.strathweb.com/2019/02/be-careful-when-manually-handling-json-requests-in-asp-net-core/
-
-                // TODO enable in ASP.NET Core 3.0, where it should work - for 2.2 it has too many side effects
-
-                // options.AllowSynchronousIO = false;
 
                 // see https://www.monitis.com/blog/improving-asp-net-performance-part3-threading/
                 
@@ -264,9 +261,9 @@ namespace HCore.Web.Startup
                             listenOptions.UseHttps(certificate));
                     }                        
                 }
-            });            
+            });
 
-            _builder.ConfigureServices((hostingContext, services) =>
+            webHostBuilder.ConfigureServices((hostingContext, services) =>
             {
                 var configuration = hostingContext.Configuration;
 
@@ -288,7 +285,7 @@ namespace HCore.Web.Startup
                 services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();                
             });
 
-            _builder.UseIISIntegration();
+            webHostBuilder.UseIISIntegration();
 
             List<string> urls = new List<string>();
 
@@ -353,11 +350,9 @@ namespace HCore.Web.Startup
 
             string[] urlsArray = urls.ToArray<string>();
 
-            _builder.UseUrls(urlsArray);
-            
-            _builder.UseApplicationInsights();
-            
-            _builder.UseStartup(typeof(TStartup));
+            webHostBuilder.UseUrls(urlsArray);
+
+            webHostBuilder.UseStartup(typeof(TStartup));
 
             _serverUrl = string.Join(" / ", urlsArray);            
         }

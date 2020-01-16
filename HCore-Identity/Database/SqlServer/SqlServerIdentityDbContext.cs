@@ -16,6 +16,8 @@ namespace HCore.Identity.Database.SqlServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseSerialColumns();
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ReservedEmailAddressModel>()

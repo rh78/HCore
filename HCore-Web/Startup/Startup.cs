@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Web.Middleware;
@@ -16,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using HCore.Web.Json;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Hosting;
 
 namespace HCore.Web.Startup
 {
@@ -24,14 +24,14 @@ namespace HCore.Web.Startup
         private bool _useHttps;
         private int _port;
         
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment HostingEnvironment { get; set; }
+        public IWebHostEnvironment HostingEnvironment { get; set; }
 
         protected virtual void ConfigureCoreServices(IServiceCollection services)
         {
@@ -43,7 +43,12 @@ namespace HCore.Web.Startup
 
         }
 
-        protected virtual void ConfigureCoreRoutes(IRouteBuilder routes)
+        protected virtual void ConfigureCoreIdentity(IApplicationBuilder app)
+        {
+
+        }
+
+        protected virtual void ConfigureCoreRoutes(IEndpointRouteBuilder routes)
         {
 
         }
@@ -56,6 +61,7 @@ namespace HCore.Web.Startup
             ConfigureUrlHelper(services);
             ConfigureWebServer(services);
             ConfigureStaticFiles(services);
+            ConfigureCookiePolicy(services);
             ConfigureMvc(services);
 
             ConfigureGenericServices(services);
@@ -65,6 +71,8 @@ namespace HCore.Web.Startup
 
         private void ConfigureLogging(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
+
             bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
 
             if (useSegment)
@@ -198,18 +206,29 @@ namespace HCore.Web.Startup
             }            
         }
 
+        private void ConfigureCookiePolicy(IServiceCollection services)
+        {
+            services.ConfigureNonBreakingSameSiteCookies();
+        }
+
         protected virtual void ConfigureMvc(IServiceCollection services)
         {
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(options =>
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
+                    options.SerializerSettings.ContractResolver = IgnoreOutboundNullValuesContractResolver.Instance;
+                });
+
+            services.AddRazorPages()
+                .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
                     options.SerializerSettings.ContractResolver = IgnoreOutboundNullValuesContractResolver.Instance;
                 });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             ConfigureExceptionHandling(app, env);
 
@@ -226,7 +245,7 @@ namespace HCore.Web.Startup
             ConfigureMvc(app, env);
         }
 
-        protected virtual void ConfigureLogging(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureLogging(IApplicationBuilder app, IWebHostEnvironment env)
         {
             bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
 
@@ -236,12 +255,12 @@ namespace HCore.Web.Startup
             }
         }
 
-        protected virtual void ConfigureLocalization(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureLocalization(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseCoreTranslations();
         }
 
-        public void ConfigureHttps(IApplicationBuilder app, IHostingEnvironment env)
+        public void ConfigureHttps(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (_useHttps)
             {
@@ -259,12 +278,12 @@ namespace HCore.Web.Startup
             }
         }
 
-        protected virtual void ConfigureResponseCompression(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureResponseCompression(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
         }
 
-        protected virtual void ConfigureStaticFiles(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureStaticFiles(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var provider = new FileExtensionContentTypeProvider();
 
@@ -300,7 +319,7 @@ namespace HCore.Web.Startup
             }
         }
 
-        protected virtual void ConfigureCsp(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureCsp(IApplicationBuilder app, IWebHostEnvironment env)
         {
             bool useCsp = Configuration.GetValue<bool>("WebServer:UseCsp");
 
@@ -310,21 +329,32 @@ namespace HCore.Web.Startup
             }
         }
 
-        protected virtual void ConfigureRequestLocalization(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureRequestLocalization(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRequestLocalization();
         }
 
-        protected virtual void ConfigureExceptionHandling(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureExceptionHandling(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<UnhandledExceptionHandlingMiddleware>();
         }
 
-        protected virtual void ConfigureMvc(IApplicationBuilder app, IHostingEnvironment env)
+        protected virtual void ConfigureMvc(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseMvc(routes =>
+            app.UseRouting();
+            app.UseCookiePolicy();
+
+            ConfigureCoreIdentity(app);
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
             {
-                ConfigureCoreRoutes(routes);
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+
+                ConfigureCoreRoutes(endpoints);
             });            
         }
 

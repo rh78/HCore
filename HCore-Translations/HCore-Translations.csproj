@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>HCore.Translations</RootNamespace>
     <AssemblyName>HCore.Translations</AssemblyName>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

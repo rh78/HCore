@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amqp;
-using Microsoft.AspNetCore.Hosting;
 using HCore.Amqp.Processor.Hosts;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -30,7 +30,7 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly string[] _addresses;
         private readonly int[] _addressListenerCounts;
 
-        public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
+        public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
         {
             _connectionString = connectionString;
 

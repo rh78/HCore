@@ -1,15 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RuntimeFrameworkVersion>2.2.4</RuntimeFrameworkVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>HCore.Tenants</RootNamespace>
     <AssemblyName>HCore.Tenants</AssemblyName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>HCore.PagesUI.Views</RootNamespace>
     <AssemblyName>HCore.PagesUI.Views</AssemblyName>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>    
@@ -31,10 +31,6 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup>

@@ -39,11 +39,11 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (useIdentity)
                 {
-                    var configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+                    var configurationDbContext = scope.ServiceProvider.GetRequiredService<SqlServerConfigurationDbContext>();
 
                     configurationDbContext.Database.Migrate();
 
-                    var persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+                    var persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<SqlServerPersistedGrantDbContext>();
 
                     persistedGrantDbContext.Database.Migrate();
 
@@ -60,7 +60,7 @@ namespace Microsoft.AspNetCore.Builder
             return app;
         }
        
-        private static void InitializeIdentity(ConfigurationDbContext configurationDbContext, IConfiguration configuration)
+        private static void InitializeIdentity(SqlServerConfigurationDbContext configurationDbContext, IConfiguration configuration)
         {
             string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
             if (string.IsNullOrEmpty(defaultClientAuthority))

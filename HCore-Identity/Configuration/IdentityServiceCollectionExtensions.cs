@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -30,12 +29,13 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using HCore.Tenants;
 using IdentityServer4;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Logging;
 using Sustainsys.Saml2.AspNetCore2;
 using Sustainsys.Saml2;
 using Sustainsys.Saml2.Metadata;
 using Microsoft.AspNetCore.Http;
 using reCAPTCHA.AspNetCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using IdentityServer4.EntityFramework.DbContexts;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -472,14 +472,19 @@ namespace Microsoft.Extensions.DependencyInjection
             identityServerBuilder.AddAspNetIdentity<UserModel>();
 
             // this adds the config data from DB (clients, resources)
-            identityServerBuilder.AddConfigurationStore(options =>
+            identityServerBuilder.AddConfigurationStore<SqlServerConfigurationDbContext>(options =>
             {
                 options.ConfigureDbContext = dbContextBuilder =>
                     dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
             });
 
+            services.AddDbContext<ConfigurationDbContext>(options =>
+            {
+                options.AddSqlDatabase("Identity", configuration, migrationsAssembly);
+            });
+
             // this adds the operational data from DB (codes, tokens, consents)
-            identityServerBuilder.AddOperationalStore(options =>
+            identityServerBuilder.AddOperationalStore<SqlServerPersistedGrantDbContext>(options =>
             {
                 options.ConfigureDbContext = dbContextBuilder =>
                     dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
@@ -487,6 +492,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;
                 // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
+            });
+
+            services.AddDbContext<PersistedGrantDbContext>(options =>
+            {
+                options.AddSqlDatabase("Identity", configuration, migrationsAssembly);
             });
 
             identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();

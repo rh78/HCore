@@ -43,7 +43,7 @@ namespace HCore.Rest.Client.Impl
 
             do
             {
-                response = await Client.ExecuteTaskAsync<TResponse>(request).ConfigureAwait(false);
+                response = await Client.ExecuteAsync<TResponse>(request).ConfigureAwait(false);
 
                 failedWithBackoff = false;
 

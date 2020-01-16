@@ -15,6 +15,8 @@ namespace HCore.Tenants.Database.SqlServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.UseSerialColumns();
+
             base.OnModelCreating(modelBuilder);            
         }
     }

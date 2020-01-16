@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using HCore.Amqp.Processor;
 using System;
 using HCore.Amqp.Messenger;
 using HCore.Amqp.Messenger.Impl;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -55,13 +55,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (useServiceBus)
                 {
                     // Service Bus
-                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IHostApplicationLifetime>(), messageProcessor);
                 }
                 else
                 {
                     // AMQP 1.0
 
-                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IApplicationLifetime>(), messageProcessor);
+                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IHostApplicationLifetime>(), messageProcessor);
                 }
 
                 amqpMessenger.InitializeAsync().Wait();
