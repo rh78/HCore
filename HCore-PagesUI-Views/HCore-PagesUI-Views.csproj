@@ -5,6 +5,7 @@
     <RootNamespace>HCore.PagesUI.Views</RootNamespace>
     <AssemblyName>HCore.PagesUI.Views</AssemblyName>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>    
+	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>

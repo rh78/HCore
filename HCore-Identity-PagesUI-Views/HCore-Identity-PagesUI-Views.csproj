@@ -4,7 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>HCore.Identity.PagesUI.Views</RootNamespace>
     <AssemblyName>HCore.Identity.PagesUI.Views</AssemblyName>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>    
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>  
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>	
   </PropertyGroup>
 
   <ItemGroup>
