@@ -34,7 +34,7 @@ namespace HCore.PagesUI.Classes.Pages
             _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
         }
         
-        public async Task OnGet(string errorId, string errorCode, string errorDescription)
+        public async Task OnGetAsync(string errorId, string errorCode, string errorDescription)
         {
             // check if we have identity error
 
