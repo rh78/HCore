@@ -46,7 +46,7 @@ namespace HCore.Amqp.Processor.Hosts
 
             _queueClient = new QueueClient(_connectionString, _lowLevelAddress);
 
-            _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandler)
+            _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
             {
                 MaxConcurrentCalls = _amqpListenerCount,
                 AutoComplete = false,
@@ -86,7 +86,7 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        private Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private Task ExceptionReceivedHandlerAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
             Console.WriteLine($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
 

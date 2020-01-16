@@ -116,7 +116,7 @@ namespace HCore.Templating.Renderer.Impl
             
             var ms = new MemoryStream();
 
-            pdf.Content.CopyTo(ms);
+            await pdf.Content.CopyToAsync(ms);
             
             return ms;
         }

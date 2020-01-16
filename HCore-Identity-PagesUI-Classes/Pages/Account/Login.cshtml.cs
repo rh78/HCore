@@ -146,7 +146,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 throw new NotImplementedException();
         }
 
-        public async Task<IActionResult> OnGetExternalCallback()
+        public async Task<IActionResult> OnGetExternalCallbackAsync()
         {
             // Post processing of external authentication
 

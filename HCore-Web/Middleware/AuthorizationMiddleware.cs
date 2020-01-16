@@ -43,7 +43,7 @@ namespace HCore.Web.Middleware
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             var httpMethod = context.Request.Method;
             var path = context.Request.Path.Value;

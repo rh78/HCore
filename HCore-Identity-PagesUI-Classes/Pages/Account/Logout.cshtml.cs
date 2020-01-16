@@ -56,7 +56,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _events = events;
         }
 
-        public async Task<IActionResult> OnGet(string logoutId = null)
+        public async Task<IActionResult> OnGetAsync(string logoutId = null)
         {
             // Build a model so the logout page knows what to display
 
@@ -69,7 +69,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 LogoutId = logoutId;
 
-                return await OnPost().ConfigureAwait(false);
+                return await OnPostAsync().ConfigureAwait(false);
             }
 
             return Page();
@@ -113,7 +113,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             // is automatically signed out by another malicious web page.            
         }
 
-        public async Task<IActionResult> OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             // build a model so the logged out page knows what to display
 

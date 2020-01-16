@@ -80,12 +80,15 @@ namespace HCore.Amqp.Messenger.Impl
                 if (_messageProcessorTasks.Count > 0)
                     Task.WaitAll(_messageProcessorTasks.ToArray());
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 foreach (ReceiverLinkHost receiverLinkHost in _receiverLinks)
                     receiverLinkHost.CloseAsync().Wait();
 
                 foreach (SenderLinkHost senderLinkHost in _senderLinks.Values)
                     senderLinkHost.CloseAsync().Wait();
-            } catch (Exception)
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+            }
+            catch (Exception)
             {
                 // ignore all shutdown faults
             }

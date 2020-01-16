@@ -16,7 +16,7 @@ namespace HCore.Web.Middleware
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             // see https://anthonychu.ca/post/aspnet-core-csp/
 

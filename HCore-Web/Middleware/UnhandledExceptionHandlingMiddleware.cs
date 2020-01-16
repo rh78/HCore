@@ -65,7 +65,7 @@ namespace HCore.Web.Middleware
             _dataProtectionProvider = dataProtectionProvider;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             ApiException resultException = null;
 

@@ -64,7 +64,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IHostApplicationLifetime>(), messageProcessor);
                 }
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 amqpMessenger.InitializeAsync().Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
                 return amqpMessenger;
             });

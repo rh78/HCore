@@ -30,7 +30,7 @@ namespace HCore.Tenants.Middleware
             _logger = logger;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             if (!context.Items.ContainsKey(TenantConstants.TenantInfoContextKey))
             {

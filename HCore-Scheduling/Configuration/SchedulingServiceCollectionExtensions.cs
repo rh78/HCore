@@ -26,12 +26,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     { "quartz.serializer.type", "json" }
                 };
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 var schedulerFactory = new StdSchedulerFactory(props);
                 var scheduler = schedulerFactory.GetScheduler().Result;
                 scheduler.JobFactory = provider.GetService<IJobFactory>();
 
-                scheduler.Clear();
-                scheduler.Start();
+                scheduler.Clear().Wait();
+                scheduler.Start().Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
                 return scheduler;
             });

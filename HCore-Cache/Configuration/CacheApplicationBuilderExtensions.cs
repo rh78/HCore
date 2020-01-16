@@ -27,12 +27,14 @@ namespace Microsoft.AspNetCore.Builder
 
             // test the cache
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
             cache.StoreAsync("dummy:1", "value", TimeSpan.FromHours(5)).Wait();
             var task = cache.GetAsync<string>("dummy:1");
 
             task.Wait();
 
             string value = task.Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
             if (!string.Equals(value, "value"))
                 throw new Exception("Cache does not work");

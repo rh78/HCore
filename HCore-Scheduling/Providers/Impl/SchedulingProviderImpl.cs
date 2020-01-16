@@ -44,7 +44,9 @@ namespace HCore.Scheduling.Providers.Impl
                     .StartNow()
                     .Build();
 
-                scheduler.ScheduleJob(jobInstance, jobTrigger);
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                scheduler.ScheduleJob(jobInstance, jobTrigger).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
                 Console.WriteLine($"Job {job} scheduled successfully");
             }
@@ -62,7 +64,9 @@ namespace HCore.Scheduling.Providers.Impl
               .WithIdentity(jobName)
               .Build();
 
-            _scheduler.ScheduleJob(jobInstance, jobTrigger);
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            _scheduler.ScheduleJob(jobInstance, jobTrigger).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
         }
     }
 }

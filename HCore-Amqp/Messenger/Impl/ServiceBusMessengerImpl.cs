@@ -90,8 +90,10 @@ namespace HCore.Amqp.Messenger.Impl
             try { 
                 _cancellationTokenSource.Cancel();
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
                     queueClientHost.CloseAsync().Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
             catch (Exception)
             {
