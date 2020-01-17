@@ -148,7 +148,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     Response.Cookies.Append(TenantModel.CookieName, "", new CookieOptions()
                     {
                         Domain = tenantInfo.DeveloperAuthCookieDomain,
-                        Expires = DateTime.Now.AddDays(-1)
+                        Expires = DateTime.Now.AddDays(-1),
+                        SameSite = SameSiteMode.Lax
                     });
                 }
             }

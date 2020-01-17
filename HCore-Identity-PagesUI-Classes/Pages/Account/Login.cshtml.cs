@@ -324,7 +324,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     Response.Cookies.Append(TenantModel.CookieName, matchedSubDomain, new CookieOptions()
                     {
                         Domain = tenantInfo.DeveloperAuthCookieDomain,
-                        Expires = DateTime.MaxValue
+                        Expires = DateTime.MaxValue,
+                        SameSite = SameSiteMode.Lax
                     });
                 }
             }
