@@ -34,7 +34,7 @@ namespace HCore.Identity.Attributes
                           "style-src 'self' 'unsafe-inline' https://*.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
                           "font-src 'self' 'unsafe-inline' data: https://*.smint.io https://fonts.gstatic.com https://w.chatlio.com; " +
                           "frame-src 'self' https://*.smint.io https://www.google.com; " +
-                          "img-src *; " +
+                          "img-src * data:; " +
                           "media-src *; " +
                           "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
                           "base-uri 'self'; " +
