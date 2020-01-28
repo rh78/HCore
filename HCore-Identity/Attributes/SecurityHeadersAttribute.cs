@@ -29,8 +29,8 @@ namespace HCore.Identity.Attributes
                 var csp = "default-src 'self' https://*.smint.io https://*.smint.io; " +
                           "object-src 'none'; " +
                           "frame-ancestors 'none'; " +
-                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com; " +
-                          "connect-src 'self' https://*.smint.io https://*.smint.io:40444 https://*.smint.io:41444 https://api.chatlio.com https://api-cdn.chatlio.com wss://ws.pusherapp.com https://api.segment.com https://api.segment.io; " +
+                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com; " +
+                          "connect-src 'self' https://*.smint.io https://*.smint.io:40444 https://*.smint.io:41444 https://api.chatlio.com https://api-cdn.chatlio.com wss://ws.pusherapp.com wss://*.pusher.com https://api.segment.com https://api.segment.io; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
                           "font-src 'self' 'unsafe-inline' data: https://*.smint.io https://fonts.gstatic.com https://w.chatlio.com; " +
                           "frame-src 'self' https://*.smint.io https://www.google.com; " +
