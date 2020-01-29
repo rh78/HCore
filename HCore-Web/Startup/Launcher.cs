@@ -240,7 +240,8 @@ namespace HCore.Web.Startup
                             httpsOptions.OnAuthenticate = (conContext, sslAuthOptions) =>
                             {
                                 // not supported if OpenSSL 1.1.1 is not present!
-                                sslAuthOptions.CipherSuitesPolicy = CipherSuitesPolicy;
+                                // we could not make it work even with OpenSSL 1.1.1 installed
+                                // sslAuthOptions.CipherSuitesPolicy = CipherSuitesPolicy;
                             };
                         }
                     });
