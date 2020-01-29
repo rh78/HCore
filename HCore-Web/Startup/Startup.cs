@@ -151,7 +151,7 @@ namespace HCore.Web.Startup
                 {
                     options.Preload = true;
                     options.IncludeSubDomains = true;
-                    options.MaxAge = TimeSpan.FromDays(90);
+                    options.MaxAge = TimeSpan.FromDays(180);
                 });
 
                 int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");

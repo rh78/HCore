@@ -14,6 +14,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Hosting;
+using System.Net.Security;
 
 namespace HCore.Web.Startup
 {
@@ -21,6 +22,48 @@ namespace HCore.Web.Startup
 
     public class Launcher<TStartup>
     {
+        // see https://github.com/dotnet/corefx/issues/40830
+
+        private static readonly CipherSuitesPolicy CipherSuitesPolicy = new CipherSuitesPolicy
+        (
+            new TlsCipherSuite[]
+            {
+                // Cipher suits as recommended by: https://wiki.mozilla.org/Security/Server_Side_TLS
+                // Listed in preferred order.
+
+                // From: https://en.internet.nl
+                // High
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                // Medium
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256
+            }
+        );
+
         private string _environment;        
         
         private HostBuilder _hostBuilder;
@@ -190,7 +233,15 @@ namespace HCore.Web.Startup
 
                     options.ConfigureHttpsDefaults(httpsOptions =>
                     {
-                        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                        httpsOptions.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
+
+                        if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                        {
+                            httpsOptions.OnAuthenticate = (conContext, sslAuthOptions) =>
+                            {
+                                sslAuthOptions.CipherSuitesPolicy = CipherSuitesPolicy;
+                            };
+                        }
                     });
 
                     string httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
