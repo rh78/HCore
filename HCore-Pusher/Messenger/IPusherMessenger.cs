@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using PusherServer;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HCore.Pusher.Messenger
 {
@@ -6,6 +8,7 @@ namespace HCore.Pusher.Messenger
     {
         string AuthenticateListener(string channelId, string socketId);
 
-        Task SendMessageAsync(string channelName, string eventName, object data);        
+        Task SendMessageAsync(string channelName, string eventName, object data);
+        Task SendMessagesAsync(List<Event> events);
     }
 }
