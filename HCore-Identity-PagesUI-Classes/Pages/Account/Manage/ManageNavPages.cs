@@ -7,9 +7,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
     {
         public static string Index => "Index";
 
+        public static string ChangeNotificationSettings => "ChangeNotificationSettings";
+
         public static string ChangePassword => "ChangePassword";
 
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
+
+        public static string ChangeNotificationSettingsNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangeNotificationSettings);
 
         public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
 

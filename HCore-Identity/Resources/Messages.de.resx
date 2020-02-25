@@ -249,6 +249,9 @@
   <data name="manage_account_header" xml:space="preserve">
     <value>Benutzerkonto verwalten</value>
   </data>
+  <data name="manage_notification_settings_link" xml:space="preserve">
+    <value>Benachrichtigungen</value>
+  </data>
   <data name="manage_account_password_link" xml:space="preserve">
     <value>Passwort</value>
   </data>
@@ -281,6 +284,9 @@
   </data>
   <data name="profile_title" xml:space="preserve">
     <value>Profil</value>
+  </data>
+  <data name="notifications_title" xml:space="preserve">
+    <value>Benachrichtigungen</value>
   </data>
   <data name="profile_resend_verification_email_link" xml:space="preserve">
     <value>Bestätigungs-Nachricht erneut senden</value>
@@ -377,5 +383,14 @@
   </data>
   <data name="change_password_not_possible" xml:space="preserve">
     <value>Sie können Ihr Passwort hier nicht ändern, weil Ihr Benutzerkonto extern verwaltet wird. Für weitere Auskünfte kontaktieren Sie bitte Ihren Systemadministrator.</value>
+  </data>
+  <data name="group_notifications" xml:space="preserve">
+    <value>Gruppen-Benachrichtigungen</value>
+  </data>
+  <data name="group_notifications_off" xml:space="preserve">
+    <value>Nur Benachrichtigungen an mich selbst erhalten</value>
+  </data>
+  <data name="group_notifications_on" xml:space="preserve">
+    <value>Auch Gruppen-Benachrichtigungen erhalten</value>
   </data>
 </root>

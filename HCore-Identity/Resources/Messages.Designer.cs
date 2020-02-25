@@ -466,6 +466,33 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Group notifications.
+        /// </summary>
+        public static string group_notifications {
+            get {
+                return ResourceManager.GetString("group_notifications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only receive notifications for myself.
+        /// </summary>
+        public static string group_notifications_off {
+            get {
+                return ResourceManager.GetString("group_notifications_off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Also receive group notifications.
+        /// </summary>
+        public static string group_notifications_on {
+            get {
+                return ResourceManager.GetString("group_notifications_on", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Last name.
         /// </summary>
         public static string last_name {
@@ -583,6 +610,15 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Notifications.
+        /// </summary>
+        public static string manage_notification_settings_link {
+            get {
+                return ResourceManager.GetString("manage_notification_settings_link", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to New password.
         /// </summary>
         public static string new_password {
@@ -606,6 +642,15 @@ namespace HCore.Identity.Resources {
         public static string notification_culture {
             get {
                 return ResourceManager.GetString("notification_culture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Notifications.
+        /// </summary>
+        public static string notifications_title {
+            get {
+                return ResourceManager.GetString("notifications_title", resourceCulture);
             }
         }
         

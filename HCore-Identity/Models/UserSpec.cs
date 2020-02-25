@@ -124,6 +124,14 @@ namespace HCore.Identity.Models
 
         public bool NotificationCultureSet = false;
 
+        private bool? _GroupNotifications;
+
+        [Display(ResourceType = typeof(Messages), Name = "group_notifications")]
+        [DataMember(Name = "group_notifications")]
+        public bool? GroupNotifications { get => _GroupNotifications; set { _GroupNotifications = value; GroupNotificationsSet = true; } }
+
+        public bool GroupNotificationsSet = false;
+
         private string _Currency;
 
         [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "currency_missing")]
@@ -159,6 +167,7 @@ namespace HCore.Identity.Models
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
             sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
             sb.Append("  NotificationCulture: ").Append(NotificationCulture).Append("\n");
+            sb.Append("  GroupNotifications: ").Append(GroupNotifications).Append("\n");
             sb.Append("  Currency: ").Append(Currency).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -237,6 +246,9 @@ namespace HCore.Identity.Models
                     NotificationCulture.Equals(other.NotificationCulture)
                 ) &&
                 (
+                    GroupNotifications == other.GroupNotifications
+                ) &&
+                (
                     Currency == other.Currency ||
                     Currency != null &&
                     Currency.Equals(other.Currency)
@@ -269,8 +281,10 @@ namespace HCore.Identity.Models
                         hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
                     if (NotificationCulture != null)
                         hashCode = hashCode * 59 + NotificationCulture.GetHashCode();
+                    if (GroupNotifications != null)
+                        hashCode = hashCode * 59 + GroupNotifications.GetHashCode();
                     if (Currency != null)
-                        hashCode = hashCode * 59 + Currency.GetHashCode();
+                            hashCode = hashCode * 59 + Currency.GetHashCode();
                 return hashCode;
             }
         }

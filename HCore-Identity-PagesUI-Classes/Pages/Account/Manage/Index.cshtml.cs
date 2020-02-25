@@ -50,6 +50,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
                 NotificationCulture = user.NotificationCulture,
+                GroupNotifications = user.GroupNotifications,
                 Currency = user.Currency
             };
 

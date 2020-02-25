@@ -249,6 +249,9 @@
   <data name="manage_account_header" xml:space="preserve">
     <value>Manage your account</value>
   </data>
+  <data name="manage_notification_settings_link" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
   <data name="manage_account_password_link" xml:space="preserve">
     <value>Password</value>
   </data>
@@ -281,6 +284,9 @@
   </data>
   <data name="profile_title" xml:space="preserve">
     <value>Profile</value>
+  </data>
+  <data name="notifications_title" xml:space="preserve">
+    <value>Notifications</value>
   </data>
   <data name="profile_resend_verification_email_link" xml:space="preserve">
     <value>Resend confirmation email</value>
@@ -377,5 +383,14 @@
   </data>
   <data name="change_password_not_possible" xml:space="preserve">
     <value>You can not change your password here, because your user account is externally managed. Please talk to your system administrator for more information.</value>
+  </data>
+  <data name="group_notifications" xml:space="preserve">
+    <value>Group notifications</value>
+  </data>
+  <data name="group_notifications_off" xml:space="preserve">
+    <value>Only receive notifications for myself</value>
+  </data>
+  <data name="group_notifications_on" xml:space="preserve">
+    <value>Also receive group notifications</value>
   </data>
 </root>

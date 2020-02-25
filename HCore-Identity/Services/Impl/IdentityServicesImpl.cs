@@ -234,6 +234,7 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                    user.GroupNotifications = true;
                     user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
@@ -445,6 +446,7 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+                    user.GroupNotifications = true;
                     user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
@@ -1188,6 +1190,18 @@ namespace HCore.Identity.Services.Impl
                         }
                     }
 
+                    if (userSpec.GroupNotifications != null)
+                    {
+                        userSpec.GroupNotifications = ProcessGroupNotifications(userSpec.GroupNotifications);
+
+                        if (oldUser.GroupNotifications != userSpec.GroupNotifications)
+                        {
+                            oldUser.GroupNotifications = (bool)userSpec.GroupNotifications;
+
+                            changed = true;
+                        }
+                    }
+
                     if (!string.IsNullOrEmpty(userSpec.Currency))
                     {
                         userSpec.Currency = ProcessCurrency(userSpec.Currency)?.ToString();
@@ -1533,6 +1547,11 @@ namespace HCore.Identity.Services.Impl
             {
                 throw new RequestFailedApiException(RequestFailedApiException.NotificationCultureInvalid, "The notification culture is invalid");
             }
+        }
+
+        private bool ProcessGroupNotifications(bool? groupNotifications)
+        {
+            return groupNotifications ?? true;
         }
 
         private string ProcessCurrency(string currency)

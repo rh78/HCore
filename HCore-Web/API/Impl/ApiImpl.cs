@@ -122,6 +122,11 @@ namespace HCore.Web.API.Impl
             }        
         }
 
+        public static bool ProcessGroupNotifications(bool? groupNotifications)
+        {
+            return groupNotifications ?? true;
+        }
+
         public static void ProcessBulkUpdateCount(int count)
         {
             if (count <= 0)
