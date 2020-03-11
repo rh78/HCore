@@ -541,7 +541,7 @@ namespace HCore.Tenants.Providers.Impl
                 return (null, null);
             }
             
-            string[] parts = host.Split('.');
+            string[] parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
             if (parts.Length == 2)
             {
@@ -550,7 +550,7 @@ namespace HCore.Tenants.Providers.Impl
                 host = "www." + host;
             }
 
-            parts = host.Split('.');
+            parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
             if (parts.Length < 3)
             {
@@ -559,22 +559,20 @@ namespace HCore.Tenants.Providers.Impl
                 return (null, null);
             }
 
-            if (parts.Length > 3)
+            if (parts.Length > 4)
             {
                 _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
 
                 return (null, null);
             }
 
-            if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]) || string.IsNullOrEmpty(parts[2]))
-            {
-                _logger.LogDebug($"Host {host} has empty parts which is not allowed for tenant parsing");
-
-                return (null, null);
-            }
+            // first part
 
             string subDomainLookup = parts[0];
-            string hostLookup = parts[1] + "." + parts[2];
+
+            // two last parts, without (optional) .clapi, .auth, ... subdomains
+
+            string hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
 
             if (!_developerMappings.ContainsKey(hostLookup))
             {

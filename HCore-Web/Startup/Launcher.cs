@@ -246,44 +246,44 @@ namespace HCore.Web.Startup
                         }
                     });
 
-                    string httpsCertificateAssembly = _configuration["WebServer:Https:Certificate:Assembly"];
-                    if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                        throw new Exception("HTTPS certificate assembly not found");
-
-                    string httpsCertificateName = _configuration["WebServer:Https:Certificate:Name"];
-
-                    if (string.IsNullOrEmpty(httpsCertificateName))
-                        throw new Exception("HTTPS certificate name not found");
-
-                    string httpsCertificatePassword = _configuration["WebServer:Https:Certificate:Password"];
-
-                    if (string.IsNullOrEmpty(httpsCertificatePassword))
-                        throw new Exception("HTTPS certificate password not found");
-
-                    // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                    X509Certificate2 certificate = null;
-
-                    Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                        SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                    if (httpsAssembly == null)
-                        throw new Exception("HTTPS certificate assembly is not present in the list of assemblies");
-
-                    var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                    if (resourceStream == null)
-                        throw new Exception("HTTPS certificate resource not found");
-
-                    using (var memory = new MemoryStream((int)resourceStream.Length))
-                    {
-                        resourceStream.CopyTo(memory);
-
-                        certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                    }
-
                     if (useWeb)
                     {
+                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Web:Assembly"];
+                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                            throw new Exception("HTTPS web certificate assembly not found");
+
+                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Web:Name"];
+
+                        if (string.IsNullOrEmpty(httpsCertificateName))
+                            throw new Exception("HTTPS web certificate name not found");
+
+                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Web:Password"];
+
+                        if (string.IsNullOrEmpty(httpsCertificatePassword))
+                            throw new Exception("HTTPS web certificate password not found");
+
+                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                        X509Certificate2 certificate = null;
+
+                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                        if (httpsAssembly == null)
+                            throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
+
+                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                        if (resourceStream == null)
+                            throw new Exception("HTTPS web certificate resource not found");
+
+                        using (var memory = new MemoryStream((int)resourceStream.Length))
+                        {
+                            resourceStream.CopyTo(memory);
+
+                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                        }
+
                         int webPort = _configuration.GetValue<int>("WebServer:WebPort");
 
                         options.Listen(IPAddress.Any, webPort, listenOptions =>
@@ -307,7 +307,43 @@ namespace HCore.Web.Startup
                     }
 
                     if (useApi)
-                    { 
+                    {
+                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Api:Assembly"];
+                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                            throw new Exception("HTTPS API certificate assembly not found");
+
+                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Api:Name"];
+
+                        if (string.IsNullOrEmpty(httpsCertificateName))
+                            throw new Exception("HTTPS API certificate name not found");
+
+                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Api:Password"];
+
+                        if (string.IsNullOrEmpty(httpsCertificatePassword))
+                            throw new Exception("HTTPS API certificate password not found");
+
+                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                        X509Certificate2 certificate = null;
+
+                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                        if (httpsAssembly == null)
+                            throw new Exception("HTTPS API certificate assembly is not present in the list of assemblies");
+
+                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                        if (resourceStream == null)
+                            throw new Exception("HTTPS API certificate resource not found");
+
+                        using (var memory = new MemoryStream((int)resourceStream.Length))
+                        {
+                            resourceStream.CopyTo(memory);
+
+                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                        }
+
                         int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
                         options.Listen(IPAddress.Any, apiPort, listenOptions =>
