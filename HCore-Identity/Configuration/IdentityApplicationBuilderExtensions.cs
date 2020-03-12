@@ -18,7 +18,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class IdentityApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseCoreIdentity(this IApplicationBuilder app)
+        public static IApplicationBuilder UseCoreIdentity(this IApplicationBuilder app, bool migrateTenants = true)
         {
             app.Validate();
 
@@ -32,7 +32,7 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (useTenants)
                 {
-                    app.UseTenants();
+                    app.UseTenants(migrateTenants);
                 }
 
                 bool useIdentity = configuration.GetValue<bool>("Identity:UseIdentity");

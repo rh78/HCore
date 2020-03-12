@@ -11,9 +11,9 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class TenantsApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseTenants(this IApplicationBuilder app)
+        public static IApplicationBuilder UseTenants(this IApplicationBuilder app, bool migrate = true)
         {
-            app.UseSqlDatabase<SqlServerTenantDbContext>();
+            app.UseSqlDatabase<SqlServerTenantDbContext>(migrate);
 
             var tenantDataProvider = app.ApplicationServices.GetRequiredService<ITenantDataProvider>();
 

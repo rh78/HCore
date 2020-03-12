@@ -5,7 +5,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class DatabaseApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseSqlDatabase<TContext>(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSqlDatabase<TContext>(this IApplicationBuilder app, bool migrate = true)
             where TContext : DbContext
         {
             var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
@@ -14,7 +14,10 @@ namespace Microsoft.AspNetCore.Builder
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
-                dbContext.Database.Migrate();
+                if (migrate)
+                {
+                    dbContext.Database.Migrate();
+                }
             }
 
             return app;
