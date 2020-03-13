@@ -68,7 +68,21 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                await _identityServices.ResendUserEmailConfirmationEmailAsync(Input.UserUuid).ConfigureAwait(false);
+                string userUuid;
+
+                if (Input.UserUuid == null)
+                    return BadRequest("A user UUID must be specified.");
+
+                try
+                {
+                    userUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Unprotect(Input.UserUuid);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("The user UUID is invalid.");
+                }
+
+                await _identityServices.ResendUserEmailConfirmationEmailAsync(userUuid).ConfigureAwait(false);
 
                 return RedirectToPage("./EmailConfirmationSent");
             }
