@@ -28,7 +28,7 @@ namespace HCore.Identity.Attributes
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
                 var csp = "default-src 'self' https://*.smint.io https://*.smint.io; " +
                           "object-src 'none'; " +
-                          "frame-ancestors 'none'; " +
+                          "frame-ancestors 'self' https://*.sharepoint.com https://*.officeapps.live.com; " +
                           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com; " +
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
