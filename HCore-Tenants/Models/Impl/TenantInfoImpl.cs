@@ -59,7 +59,7 @@ namespace HCore.Tenants.Models.Impl
         public string WebUrl { get; set; }
 
         public bool UsersAreExternallyManaged { get; set; }
-        public bool ExternalEmailAddressesAreTrusted { get; set; }
+        public bool ExternalUsersAreManuallyManaged { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
 

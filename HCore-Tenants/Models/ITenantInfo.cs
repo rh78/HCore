@@ -58,7 +58,7 @@ namespace HCore.Tenants.Models
         string WebUrl { get; }
 
         bool UsersAreExternallyManaged { get; }
-        bool ExternalEmailAddressesAreTrusted { get; }
+        bool ExternalUsersAreManuallyManaged { get; }
 
         string ExternalAuthenticationMethod { get; }
 

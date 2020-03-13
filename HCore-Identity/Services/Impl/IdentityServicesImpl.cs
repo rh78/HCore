@@ -88,7 +88,7 @@ namespace HCore.Identity.Services.Impl
             _recaptchaService = serviceProvider.GetService<IRecaptchaService>();
         }
 
-        public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true)
+        public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
         {
             if (processEmailAddress)
                 emailAddress = ProcessEmail(emailAddress);
@@ -101,8 +101,7 @@ namespace HCore.Identity.Services.Impl
             string prefix = "";
 
             if (tenantInfo != null &&
-                tenantInfo.UsersAreExternallyManaged &&
-                tenantInfo.ExternalEmailAddressesAreTrusted)
+                tenantInfo.UsersAreExternallyManaged)
             {
                 prefix = $"{tenantInfo.DeveloperUuid}{IdentityCoreConstants.UuidSeparator}{tenantInfo.TenantUuid}{IdentityCoreConstants.UuidSeparator}";
             }
@@ -136,6 +135,9 @@ namespace HCore.Identity.Services.Impl
 
                     if (!string.IsNullOrEmpty(reservedUserUuid))
                         return reservedUserUuid;
+
+                    if (!createReservationIfNotPresent)
+                        return null;
 
                     string newUserUuid = Guid.NewGuid().ToString();
 
@@ -690,7 +692,12 @@ namespace HCore.Identity.Services.Impl
 
                 claims.Remove(userIdClaim);
 
-                var providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
+                string unscopedEmail = ProcessEmail(externalUser);
+
+                var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
+
+                if (string.IsNullOrEmpty(providerUserUuid))
+                    providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
 
                 bool dynamicRegistration = string.Equals(tenantInfo.ExternalDirectoryType, DirectoryConstants.DirectoryTypeDynamic);
 

@@ -155,7 +155,7 @@ namespace HCore.Tenants.Providers.Impl
                         defaultCurrency = "eur";
 
                     bool usersAreExternallyManaged = false;
-                    bool externalEmailAddressesAreTrusted = false;
+                    bool externalUsersAreManuallyManaged = false;
 
                     string externalAuthorizationMethod = tenant.ExternalAuthenticationMethod;
 
@@ -307,7 +307,7 @@ namespace HCore.Tenants.Providers.Impl
 
                         usersAreExternallyManaged = true;
 
-                        externalEmailAddressesAreTrusted = tenant.ExternalEmailAddressesAreTrusted;
+                        externalUsersAreManuallyManaged = tenant.ExternalUsersAreManuallyManaged;
                     }
 
                     var tenantInfo = new TenantInfoImpl()
@@ -349,7 +349,7 @@ namespace HCore.Tenants.Providers.Impl
                         DefaultCulture = defaultCulture,
                         DefaultCurrency = defaultCurrency,
                         UsersAreExternallyManaged = usersAreExternallyManaged,
-                        ExternalEmailAddressesAreTrusted = externalEmailAddressesAreTrusted,
+                        ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
                         OidcClientId = oidcClientId,
                         OidcClientSecret = oidcClientSecret,
