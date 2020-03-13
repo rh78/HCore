@@ -31,6 +31,7 @@ using HCore.Tenants;
 using HCore.Directory;
 using HCore.Identity.Internal;
 using reCAPTCHA.AspNetCore;
+using HCore.Tenants.Models;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -92,6 +93,22 @@ namespace HCore.Identity.Services.Impl
             if (processEmailAddress)
                 emailAddress = ProcessEmail(emailAddress);
 
+            ITenantInfo tenantInfo = null;
+
+            if (_tenantInfoAccessor != null)
+                tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+            string prefix = "";
+
+            if (tenantInfo != null &&
+                tenantInfo.UsersAreExternallyManaged &&
+                tenantInfo.ExternalEmailAddressesAreTrusted)
+            {
+                prefix = $"{tenantInfo.DeveloperUuid}{IdentityCoreConstants.UuidSeparator}{tenantInfo.TenantUuid}{IdentityCoreConstants.UuidSeparator}";
+            }
+
+            emailAddress = $"{prefix}{emailAddress}";
+
             string normalizedEmailAddress = emailAddress.Trim().ToUpper();
 
             try
@@ -121,6 +138,8 @@ namespace HCore.Identity.Services.Impl
                         return reservedUserUuid;
 
                     string newUserUuid = Guid.NewGuid().ToString();
+
+                    newUserUuid = $"{prefix}{newUserUuid}";
 
                     _identityDbContext.ReservedEmailAddresses.Add(new ReservedEmailAddressModel()
                     {
@@ -355,7 +374,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserId, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
             bool emailIsAlreadyConfirmed = ProcessEmailConfirmed(externalUser);
@@ -398,6 +417,11 @@ namespace HCore.Identity.Services.Impl
 
             string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{unscopedEmail}";
 
+            ITenantInfo tenantInfo = null;
+
+            if (_tenantInfoAccessor != null)
+                tenantInfo = _tenantInfoAccessor.TenantInfo;
+
             try
             {
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
@@ -416,7 +440,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
                     {
-                        preferredUserName = providerUserId;
+                        preferredUserName = providerUserUuid;
                     }
 
                     if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
@@ -427,7 +451,7 @@ namespace HCore.Identity.Services.Impl
                         preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
                     }
 
-                    var user = new UserModel { Id = providerUserId, UserName = preferredUserName, Email = scopedEmail, MemberOf = memberOf?.ToList() };
+                    var user = new UserModel { Id = providerUserUuid, UserName = preferredUserName, Email = scopedEmail, MemberOf = memberOf?.ToList() };
 
                     if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
                     {
@@ -467,41 +491,36 @@ namespace HCore.Identity.Services.Impl
                         user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
                     } */
 
-                    if (_tenantInfoAccessor != null)
+                    if (tenantInfo != null)
                     {
-                        var tenantInfo = _tenantInfoAccessor.TenantInfo;
-
-                        if (tenantInfo != null)
+                        string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
+                        if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
                         {
-                            string tenantPrivacyPolicyUrl = tenantInfo.DeveloperPrivacyPolicyUrl;
-                            if (!string.IsNullOrEmpty(tenantPrivacyPolicyUrl))
-                            {
-                                user.PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
+                            user.PrivacyPolicyUrl = tenantPrivacyPolicyUrl;
 
-                                /* if (userSpec.AcceptCommunication)
-                                    user.CommunicationUrl = tenantPrivacyPolicyUrl; */
-                            }
-
-                            int? tenantPrivacyPolicyVersion = tenantInfo.DeveloperPrivacyPolicyVersion;
-                            if (tenantPrivacyPolicyVersion != null && tenantPrivacyPolicyVersion > 0)
-                            {
-                                user.PrivacyPolicyVersionAccepted = tenantPrivacyPolicyVersion;
-
-                                /* if (userSpec.AcceptCommunication)
-                                    user.CommunicationVersionAccepted = tenantPrivacyPolicyVersion; */
-                            }
-
-                            /* if (requiresTermsAndConditions)
-                            {
-                                string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
-                                if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
-                                    user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
-
-                                int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
-                                if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
-                                    user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
-                            } */
+                            /* if (userSpec.AcceptCommunication)
+                                user.CommunicationUrl = tenantPrivacyPolicyUrl; */
                         }
+
+                        int? tenantPrivacyPolicyVersion = tenantInfo.DeveloperPrivacyPolicyVersion;
+                        if (tenantPrivacyPolicyVersion != null && tenantPrivacyPolicyVersion > 0)
+                        {
+                            user.PrivacyPolicyVersionAccepted = tenantPrivacyPolicyVersion;
+
+                            /* if (userSpec.AcceptCommunication)
+                                user.CommunicationVersionAccepted = tenantPrivacyPolicyVersion; */
+                        }
+
+                        /* if (requiresTermsAndConditions)
+                        {
+                            string tenantTermsAndConditionsUrl = tenantInfo.DeveloperTermsAndConditionsUrl;
+                            if (!string.IsNullOrEmpty(tenantTermsAndConditionsUrl))
+                                user.TermsAndConditionsUrl = tenantTermsAndConditionsUrl;
+
+                            int? tenantTermsAndConditionsVersion = tenantInfo.DeveloperTermsAndConditionsVersion;
+                            if (tenantTermsAndConditionsVersion != null && tenantTermsAndConditionsVersion > 0)
+                                user.TermsAndConditionsVersionAccepted = tenantTermsAndConditionsVersion;
+                        } */
                     }
 
                     var result = await _userManager.CreateAsync(user).ConfigureAwait(false);
@@ -671,19 +690,19 @@ namespace HCore.Identity.Services.Impl
 
                 claims.Remove(userIdClaim);
 
-                var providerUserId = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
+                var providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
 
                 bool dynamicRegistration = string.Equals(tenantInfo.ExternalDirectoryType, DirectoryConstants.DirectoryTypeDynamic);
 
                 if (dynamicRegistration)
                 {
-                    var user = await _userManager.FindByIdAsync(providerUserId).ConfigureAwait(false);
+                    var user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
 
                     // stay outside of transaction
 
                     if (user == null)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserId, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, externalUser, claims).ConfigureAwait(false);
 
                         return user;
                     }
@@ -691,7 +710,7 @@ namespace HCore.Identity.Services.Impl
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var user = await _userManager.FindByIdAsync(providerUserId).ConfigureAwait(false);
+                    var user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
 
                     if (user == null)
                     {
@@ -784,7 +803,7 @@ namespace HCore.Identity.Services.Impl
 
                             await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
 
-                            user = await _userManager.FindByIdAsync(providerUserId).ConfigureAwait(false);
+                            user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
                         }
                     }
 
