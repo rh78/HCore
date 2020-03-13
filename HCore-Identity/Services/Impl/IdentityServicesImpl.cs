@@ -466,7 +466,8 @@ namespace HCore.Identity.Services.Impl
                         user.PhoneNumber = phoneNumber;
                     }
 
-                    if (emailIsAlreadyConfirmed)
+                    if (emailIsAlreadyConfirmed || 
+                        (tenantInfo != null && tenantInfo.ExternalUsersAreManuallyManaged))
                     {
                         user.EmailConfirmed = true;
                     }
