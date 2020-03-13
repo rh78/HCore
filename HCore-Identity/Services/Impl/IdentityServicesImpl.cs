@@ -883,6 +883,8 @@ namespace HCore.Identity.Services.Impl
             }
             catch (ApiException e)
             {
+                _logger.LogError($"Error when confirming user email address: {e}");
+
                 throw e;
             }
             catch (Exception e)
@@ -1316,11 +1318,12 @@ namespace HCore.Identity.Services.Impl
             }
             catch (ApiException e)
             {
+                _logger.LogError($"Error when resending email confirmation email: {e}");
                 throw e;
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error when resetting user password: {e}");
+                _logger.LogError($"Error when resending email confirmation email: {e}");
 
                 throw new InternalServerErrorApiException();
             }
