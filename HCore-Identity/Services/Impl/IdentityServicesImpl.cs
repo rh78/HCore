@@ -1319,6 +1319,7 @@ namespace HCore.Identity.Services.Impl
             catch (ApiException e)
             {
                 _logger.LogError($"Error when resending email confirmation email: {e}");
+
                 throw e;
             }
             catch (Exception e)
