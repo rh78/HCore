@@ -310,6 +310,8 @@ namespace HCore.Tenants.Providers.Impl
                         externalUsersAreManuallyManaged = tenant.ExternalUsersAreManuallyManaged;
                     }
 
+                    string customTenantSettingsJson = tenant.CustomTenantSettingsJson;
+
                     var tenantInfo = new TenantInfoImpl()
                     {
                         DeveloperUuid = developer.Uuid,
@@ -371,7 +373,8 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalDirectoryUserFilter = externalDirectoryUserFilter,
                         ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
                         ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
-                        ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid
+                        ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
+                        CustomTenantSettingsJson = customTenantSettingsJson
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

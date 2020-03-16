@@ -103,6 +103,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool ExternalUsersAreManuallyManaged { get; set; }
 
+        public string CustomTenantSettingsJson { get; set; }
+
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }

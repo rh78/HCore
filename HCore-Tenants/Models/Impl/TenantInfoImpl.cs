@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using Newtonsoft.Json;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models.Impl
@@ -100,5 +99,15 @@ namespace HCore.Tenants.Models.Impl
         public int? ExternalDirectorySyncIntervalSeconds { get; set; }
 
         public string ExternalDirectoryAdministratorGroupUuid { get; set; }
+
+        public string CustomTenantSettingsJson { get; set; }
+
+        public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
+        {
+            if (CustomTenantSettingsJson == null)
+                return default;
+
+            return JsonConvert.DeserializeObject<TCustomTenantSettingsDataType>(CustomTenantSettingsJson);
+        }
     }
 }

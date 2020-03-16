@@ -99,5 +99,9 @@ namespace HCore.Tenants.Models
         int? ExternalDirectorySyncIntervalSeconds { get; }
 
         string ExternalDirectoryAdministratorGroupUuid { get; }
+
+        string CustomTenantSettingsJson { get; }
+
+        TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>();
     }
 }
