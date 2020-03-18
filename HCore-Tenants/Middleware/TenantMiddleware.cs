@@ -81,10 +81,10 @@ namespace HCore.Tenants.Middleware
 
                     // only allow the tenant selector fallback URL on the tenant selector tenant
 
-                    var path = context.Request.GetEncodedUrl();
+                    var url = context.Request.GetEncodedUrl();
 
-                    if (string.IsNullOrEmpty(path) ||
-                        (!path.EndsWith(".css") && !string.Equals(path, _tenantSelectorFallbackUrl)))
+                    if (string.IsNullOrEmpty(url) ||
+                        (!url.EndsWith(".css") && !string.Equals(url, _tenantSelectorFallbackUrl)))
                     {
                         throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
                     }
