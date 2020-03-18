@@ -1,4 +1,5 @@
-﻿using HCore.Tenants.Models;
+﻿using System.Collections.Generic;
+using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +16,9 @@ namespace HCore.Tenants.Middleware
 
         private readonly ITenantDataProvider _tenantDataProvider;
 
-        private string _tenantSelectorFallbackUrl;
+        private readonly string _tenantSelectorFallbackUrl;
+
+        private readonly List<Regex> _tenantSelectorWhitelistUrls;
 
         private readonly ILogger<TenantsMiddleware> _logger;
 
@@ -26,6 +29,12 @@ namespace HCore.Tenants.Middleware
             _tenantDataProvider = tenantDataProvider;
 
             _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
+
+            // GetValue not working with lists, see:
+            // https://stackoverflow.com/questions/47832661/configuration-getvalue-list-returns-null
+            // https://github.com/aspnet/Configuration/issues/451
+            _tenantSelectorWhitelistUrls = new List<string>();
+            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls").Bind(_tenantSelectorWhitelistUrls);
 
             _logger = logger;
         }
@@ -83,8 +92,20 @@ namespace HCore.Tenants.Middleware
 
                     var url = context.Request.GetEncodedUrl();
 
+                    var isWhiteListed = false;
+
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        isWhiteListed = url.EndsWith(".css");
+
+                        _tenantSelectorWhitelistUrls?.ForEach((whitelistedUrl) =>
+                        {
+                            isWhiteListed = isWhiteListed || url.Equals(whitelistedUrl);
+                        });
+                    }
+
                     if (string.IsNullOrEmpty(url) ||
-                        (!url.EndsWith(".css") && !string.Equals(url, _tenantSelectorFallbackUrl)))
+                        (!isWhiteListed && !string.Equals(url, _tenantSelectorFallbackUrl)))
                     {
                         throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
                     }
