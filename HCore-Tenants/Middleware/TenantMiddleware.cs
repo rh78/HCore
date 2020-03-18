@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
@@ -33,8 +34,19 @@ namespace HCore.Tenants.Middleware
             // GetValue not working with lists, see:
             // https://stackoverflow.com/questions/47832661/configuration-getvalue-list-returns-null
             // https://github.com/aspnet/Configuration/issues/451
-            _tenantSelectorWhitelistUrls = new List<string>();
-            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls").Bind(_tenantSelectorWhitelistUrls);
+
+            var whitelistUrls = new List<string>();
+            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls").Bind(whitelistUrls);
+
+            _tenantSelectorWhitelistUrls = new List<Regex>();
+
+            whitelistUrls.ForEach((whitelistedUrl) =>
+            {
+                if (!string.IsNullOrWhiteSpace(whitelistedUrl))
+                {
+                    _tenantSelectorWhitelistUrls.Add(new Regex(whitelistedUrl, RegexOptions.Compiled));
+                }
+            });
 
             _logger = logger;
         }
@@ -98,9 +110,9 @@ namespace HCore.Tenants.Middleware
                     {
                         isWhiteListed = url.EndsWith(".css");
 
-                        _tenantSelectorWhitelistUrls?.ForEach((whitelistedUrl) =>
+                        _tenantSelectorWhitelistUrls?.ForEach((whitelistedRegEx) =>
                         {
-                            isWhiteListed = isWhiteListed || url.Equals(whitelistedUrl);
+                            isWhiteListed = isWhiteListed || whitelistedRegEx != null && whitelistedRegEx.IsMatch(url);
                         });
                     }
 
