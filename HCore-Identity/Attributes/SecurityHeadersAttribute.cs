@@ -36,7 +36,6 @@ namespace HCore.Identity.Attributes
                           "frame-src 'self' https://*.smint.io https://www.google.com; " +
                           "img-src * data:; " +
                           "media-src *; " +
-                          "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
                           "base-uri 'self'; " +
                           "upgrade-insecure-requests;";
 
