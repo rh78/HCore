@@ -139,6 +139,57 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public async Task UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream)
+        {
+            var credential = GoogleCredential.FromJson(_credentialsJson);
+
+            using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+            {
+                try
+                {
+                    await storageClient.GetBucketAsync(containerName).ConfigureAwait(false);
+                }
+                catch (GoogleApiException e)
+                when (e.HttpStatusCode == HttpStatusCode.NotFound)
+                {
+                    // we need to create the bucket
+
+                    try
+                    {
+                        var bucket = new Bucket()
+                        {
+                            Name = containerName,
+                            Location = "eu"
+                        };
+
+                        await storageClient.CreateBucketAsync(_projectId, bucket).ConfigureAwait(false);
+                    }
+                    catch (GoogleApiException)
+                    when (e.HttpStatusCode == HttpStatusCode.Conflict)
+                    {
+                        // bucket already exists, that's fine
+                    }
+                }
+
+                var blockBlob = new Google.Apis.Storage.v1.Data.Object
+                {
+                    Bucket = containerName,
+                    Name = fileName,
+                    ContentType = mimeType
+                };
+
+                if (additionalHeaders != null)
+                {
+                    blockBlob.Metadata = additionalHeaders;
+                }
+
+                await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
+                {
+                    ChunkSize = ChunkSize
+                }).ConfigureAwait(false);
+            }
+        }
+
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson)
