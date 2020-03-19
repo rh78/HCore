@@ -19,7 +19,7 @@ namespace HCore.Tenants.Middleware
 
         private readonly string _tenantSelectorFallbackUrl;
 
-        private readonly List<Regex> _tenantSelectorWhitelistUrls;
+        private readonly List<Regex> _tenantSelectorWhitelistUrls = new List<Regex>();
 
         private readonly ILogger<TenantsMiddleware> _logger;
 
@@ -36,13 +36,12 @@ namespace HCore.Tenants.Middleware
             // https://github.com/aspnet/Configuration/issues/451
 
             var whitelistUrls = new List<string>();
-            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls").Bind(whitelistUrls);
 
-            _tenantSelectorWhitelistUrls = new List<Regex>();
+            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls")?.Bind(whitelistUrls);
 
             whitelistUrls.ForEach((whitelistedUrl) =>
             {
-                if (!string.IsNullOrWhiteSpace(whitelistedUrl))
+                if (!string.IsNullOrEmpty(whitelistedUrl))
                 {
                     _tenantSelectorWhitelistUrls.Add(new Regex(whitelistedUrl, RegexOptions.Compiled));
                 }
@@ -110,9 +109,9 @@ namespace HCore.Tenants.Middleware
                     {
                         isWhiteListed = url.EndsWith(".css");
 
-                        _tenantSelectorWhitelistUrls?.ForEach((whitelistedRegEx) =>
+                        _tenantSelectorWhitelistUrls.ForEach((whitelistedRegEx) =>
                         {
-                            isWhiteListed = isWhiteListed || whitelistedRegEx != null && whitelistedRegEx.IsMatch(url);
+                            isWhiteListed |= whitelistedRegEx.IsMatch(url);
                         });
                     }
 
