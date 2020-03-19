@@ -19,12 +19,6 @@ namespace HCore.Identity.Attributes
                     context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
                 }
 
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Frame-Options"))
-                {
-                    context.HttpContext.Response.Headers.Add("X-Frame-Options", "sameorigin");
-                }
-
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
                 var csp = "default-src 'self' https://*.smint.io https://*.smint.io; " +
                           "object-src 'none'; " +
