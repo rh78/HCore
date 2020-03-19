@@ -1,4 +1,6 @@
-﻿using HCore.Tenants.Models;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +17,9 @@ namespace HCore.Tenants.Middleware
 
         private readonly ITenantDataProvider _tenantDataProvider;
 
-        private string _tenantSelectorFallbackUrl;
+        private readonly string _tenantSelectorFallbackUrl;
+
+        private readonly List<Regex> _tenantSelectorWhitelistUrls;
 
         private readonly ILogger<TenantsMiddleware> _logger;
 
@@ -26,6 +30,23 @@ namespace HCore.Tenants.Middleware
             _tenantDataProvider = tenantDataProvider;
 
             _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
+
+            // GetValue not working with lists, see:
+            // https://stackoverflow.com/questions/47832661/configuration-getvalue-list-returns-null
+            // https://github.com/aspnet/Configuration/issues/451
+
+            var whitelistUrls = new List<string>();
+            configuration.GetSection("Identity:Tenants:TenantSelectorWhitelistUrls").Bind(whitelistUrls);
+
+            _tenantSelectorWhitelistUrls = new List<Regex>();
+
+            whitelistUrls.ForEach((whitelistedUrl) =>
+            {
+                if (!string.IsNullOrWhiteSpace(whitelistedUrl))
+                {
+                    _tenantSelectorWhitelistUrls.Add(new Regex(whitelistedUrl, RegexOptions.Compiled));
+                }
+            });
 
             _logger = logger;
         }
@@ -81,10 +102,22 @@ namespace HCore.Tenants.Middleware
 
                     // only allow the tenant selector fallback URL on the tenant selector tenant
 
-                    var path = context.Request.GetEncodedUrl();
+                    var url = context.Request.GetEncodedUrl();
 
-                    if (string.IsNullOrEmpty(path) ||
-                        (!path.EndsWith(".css") && !string.Equals(path, _tenantSelectorFallbackUrl)))
+                    var isWhiteListed = false;
+
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        isWhiteListed = url.EndsWith(".css");
+
+                        _tenantSelectorWhitelistUrls?.ForEach((whitelistedRegEx) =>
+                        {
+                            isWhiteListed = isWhiteListed || whitelistedRegEx != null && whitelistedRegEx.IsMatch(url);
+                        });
+                    }
+
+                    if (string.IsNullOrEmpty(url) ||
+                        (!isWhiteListed && !string.Equals(url, _tenantSelectorFallbackUrl)))
                     {
                         throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"The tenant for host {host} was not found", host);
                     }
