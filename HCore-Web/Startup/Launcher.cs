@@ -443,6 +443,9 @@ namespace HCore.Web.Startup
 
             webHostBuilder.UseStartup(typeof(TStartup));
 
+            if (_configuration.GetValue<bool>("Sentry:UseSentry"))
+                webHostBuilder.UseSentry();
+
             _serverUrl = string.Join(" / ", urlsArray);            
         }
     }
