@@ -145,6 +145,7 @@ namespace HCore.Web.Startup
                 {
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    options.SuppressXFrameOptionsHeader = true;
                 });
 
                 services.AddHsts(options =>
