@@ -583,7 +583,7 @@ namespace HCore.Tenants.Providers.Impl
 
             if (!_developerMappings.ContainsKey(hostLookup))
             {
-                _logger.LogError($"No developer found for host {host}");
+                _logger.LogInformation($"No developer found for host {host}");
 
                 return (null, null);
             }
@@ -591,7 +591,7 @@ namespace HCore.Tenants.Providers.Impl
             var developerWrapper = _developerMappings[hostLookup];
             if (developerWrapper == null)
             {
-                _logger.LogError($"No developer found for host {host}");
+                _logger.LogInformation($"No developer found for host {host}");
 
                 return (null, null);
             }
@@ -599,7 +599,7 @@ namespace HCore.Tenants.Providers.Impl
             var tenantInfo = developerWrapper.LookupTenantBySubDomain(subDomainLookup);
             if (tenantInfo == null)
             {
-                _logger.LogError($"No developer found for host {host}, developer {developerWrapper.Developer.Uuid} and sub domain lookup {subDomainLookup}");
+                _logger.LogInformation($"No developer found for host {host}, developer {developerWrapper.Developer.Uuid} and sub domain lookup {subDomainLookup}");
 
                 return (null, null);
             }
