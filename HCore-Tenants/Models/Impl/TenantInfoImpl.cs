@@ -67,11 +67,12 @@ namespace HCore.Tenants.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
-        public string SamlEntityId { get; set;  }
+        public string SamlEntityId { get; set; }
 
-        public string SamlMetadataLocation { get; set; }
+        public string SamlPeerEntityId { get; set; }
 
-        public string SamlProviderUrl { get; set; }
+        public string SamlPeerIdpMetadataLocation { get; set; }
+        public string SamlPeerIdpMetadata { get; set; }
 
         public X509Certificate2 SamlCertificate { get; set; }
 

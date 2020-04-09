@@ -4,6 +4,7 @@ using System;
 using HCore.Amqp.Messenger;
 using HCore.Amqp.Messenger.Impl;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -46,22 +47,22 @@ namespace Microsoft.Extensions.DependencyInjection
                 amqpListenerCounts[i] = (int)amqpListenerCount;
             }
 
-            services.AddSingleton(factory =>
+            services.AddSingleton(serviceProvider =>
             {
-                IAMQPMessageProcessor messageProcessor = factory.GetRequiredService<IAMQPMessageProcessor>();
+                IAMQPMessageProcessor messageProcessor = serviceProvider.GetRequiredService<IAMQPMessageProcessor>();
 
                 IAMQPMessenger amqpMessenger;
 
                 if (useServiceBus)
                 {
                     // Service Bus
-                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IHostApplicationLifetime>(), messageProcessor);
+                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
                 }
                 else
                 {
                     // AMQP 1.0
 
-                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, factory.GetRequiredService<IHostApplicationLifetime>(), messageProcessor);
+                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<AMQP10MessengerImpl>>());
                 }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits

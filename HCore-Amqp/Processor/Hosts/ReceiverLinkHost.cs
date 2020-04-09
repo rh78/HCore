@@ -1,6 +1,7 @@
 ﻿using Amqp;
 using HCore.Amqp.Exceptions;
 using HCore.Amqp.Messenger.Impl;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,10 +16,14 @@ namespace HCore.Amqp.Processor.Hosts
 
         public Task MessageProcessorTask { get; private set; }
 
-        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, AMQP10MessengerImpl messenger, CancellationToken cancellationToken)
+        private ILogger<AMQP10MessengerImpl> _logger;
+
+        public ReceiverLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, AMQP10MessengerImpl messenger, CancellationToken cancellationToken, ILogger<AMQP10MessengerImpl> logger)
             : base(connectionFactory, connectionString, address, cancellationToken)
         {
             _messenger = messenger;
+
+            _logger = logger;
         }
         
         protected override void InitializeLink(Session session)
@@ -61,7 +66,7 @@ namespace HCore.Amqp.Processor.Hosts
                             }
                             catch (Exception exception)
                             {
-                                Console.WriteLine($"Exception during processing AMQP message, rejecting: {exception}");
+                                _logger.LogError($"Exception during processing AMQP message, rejecting: {exception}");
 
                                 _receiverLink.Release(message);
                             }
@@ -70,8 +75,8 @@ namespace HCore.Amqp.Processor.Hosts
                 }
                 catch (AmqpException e)
                 {
-                    if (!CancellationToken.IsCancellationRequested)                    
-                        Console.WriteLine($"AMQP exception in receiver link for address {Address}: {e}");
+                    if (!CancellationToken.IsCancellationRequested)
+                        _logger.LogError($"AMQP exception in receiver link for address {Address}: {e}");
 
                     await CloseAsync().ConfigureAwait(false);                   
                 }                 

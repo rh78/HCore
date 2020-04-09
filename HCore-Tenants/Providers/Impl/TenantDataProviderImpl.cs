@@ -167,10 +167,10 @@ namespace HCore.Tenants.Providers.Impl
 
                     string samlEntityId = null;
 
-                    string samlMetadataLocation = null;
+                    string samlPeerEntityId = null;
+                    string samlPeerIdpMetadataLocation = null;
+                    string samlPeerIdpMetadata = null;
 
-                    string samlProviderUrl = null;
-                    
                     X509Certificate2 samlCertificate = null;
 
                     bool samlAllowWeakSigningAlgorithm = false;
@@ -223,13 +223,18 @@ namespace HCore.Tenants.Providers.Impl
                             if (string.IsNullOrEmpty(samlEntityId))
                                 throw new Exception("The tenant SAML entity ID is missing");
 
-                            samlMetadataLocation = tenant.SamlMetadataLocation;
-                            if (string.IsNullOrEmpty(samlMetadataLocation))
-                                throw new Exception("The tenant SAML metadata location is missing");
+                            samlPeerEntityId = tenant.SamlPeerEntityId;
+                            if (string.IsNullOrEmpty(samlPeerEntityId))
+                                throw new Exception("The tenant SAML peer entity ID is missing");
 
-                            samlProviderUrl = tenant.SamlProviderUrl;
-                            if (string.IsNullOrEmpty(samlProviderUrl))
-                                throw new Exception("The tenant SAML provider URL is missing");
+                            samlPeerIdpMetadataLocation = tenant.SamlPeerIdpMetadataLocation;
+                            samlPeerIdpMetadata = tenant.SamlPeerIdpMetadata;
+
+                            if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && !string.IsNullOrEmpty(samlPeerIdpMetadata))
+                                throw new Exception("Please give either the SAML peer IDP metadata location or the metadata itself, not both");
+
+                            if (string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && string.IsNullOrEmpty(samlPeerIdpMetadata))
+                                throw new Exception("The tenant SAML peer IDP metadata location or the metadata itself is missing");
 
                             if (!string.IsNullOrEmpty(tenant.SamlCertificate))
                                 samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.SamlCertificate));
@@ -355,10 +360,11 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalAuthenticationMethod = externalAuthorizationMethod,
                         OidcClientId = oidcClientId,
                         OidcClientSecret = oidcClientSecret,
-                        OidcEndpointUrl = oidcEndpointUrl,     
+                        OidcEndpointUrl = oidcEndpointUrl,
                         SamlEntityId = samlEntityId,
-                        SamlMetadataLocation = samlMetadataLocation,
-                        SamlProviderUrl = samlProviderUrl,
+                        SamlPeerEntityId = samlPeerEntityId,
+                        SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
+                        SamlPeerIdpMetadata = samlPeerIdpMetadata,
                         SamlCertificate = samlCertificate,
                         SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
                         ExternalDirectoryType = externalDirectoryType,

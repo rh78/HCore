@@ -1,5 +1,7 @@
 ﻿using Amqp;
 using HCore.Amqp.Message;
+using HCore.Amqp.Messenger.Impl;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading;
@@ -13,10 +15,12 @@ namespace HCore.Amqp.Processor.Hosts
 
         private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
-        public SenderLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken)
+        private ILogger<AMQP10MessengerImpl> _logger;
+
+        public SenderLinkHost(ConnectionFactory connectionFactory, string connectionString, string address, CancellationToken cancellationToken, ILogger<AMQP10MessengerImpl> logger)
             : base(connectionFactory, connectionString, address, cancellationToken)
         {
-            
+            _logger = logger;    
         }
 
         protected override void InitializeLink(Session session)
@@ -67,7 +71,7 @@ namespace HCore.Amqp.Processor.Hosts
                             // nobody else handled this before
 
                             if (!CancellationToken.IsCancellationRequested)
-                                Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                                _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
 
                             await CloseAsync().ConfigureAwait(false);
                         }

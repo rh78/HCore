@@ -69,9 +69,10 @@ namespace HCore.Tenants.Models
 
         string SamlEntityId { get; }
 
-        string SamlMetadataLocation { get; }
+        string SamlPeerEntityId { get; }
 
-        string SamlProviderUrl { get; }
+        string SamlPeerIdpMetadataLocation { get; }
+        string SamlPeerIdpMetadata { get; }
 
         X509Certificate2 SamlCertificate { get; }
 

@@ -9,6 +9,7 @@ using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -30,7 +31,9 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly string[] _addresses;
         private readonly int[] _addressListenerCounts;
 
-        public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
+        private readonly ILogger<AMQP10MessengerImpl> _logger;
+
+        public AMQP10MessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<AMQP10MessengerImpl> logger)
         {
             _connectionString = connectionString;
 
@@ -43,6 +46,8 @@ namespace HCore.Amqp.Messenger.Impl
             _cancellationToken = _cancellationTokenSource.Token;
 
             _messageProcessor = messageProcessor;
+
+            _logger = logger;
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
@@ -98,7 +103,7 @@ namespace HCore.Amqp.Messenger.Impl
 
         private async Task AddSenderLinkAsync(string address)
         {
-            var senderLinkHost = new SenderLinkHost(_connectionFactory, _connectionString, address, _cancellationToken);
+            var senderLinkHost = new SenderLinkHost(_connectionFactory, _connectionString, address, _cancellationToken, _logger);
             
             _senderLinks.Add(address, senderLinkHost);
 
@@ -107,7 +112,7 @@ namespace HCore.Amqp.Messenger.Impl
 
         private async Task AddReceiverLinkAsync(string address)
         {
-            var receiverLinkHost = new ReceiverLinkHost(_connectionFactory, _connectionString, address, this, _cancellationToken);
+            var receiverLinkHost = new ReceiverLinkHost(_connectionFactory, _connectionString, address, this, _cancellationToken, _logger);
 
             _receiverLinks.Add(receiverLinkHost);
 
@@ -134,7 +139,7 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 if (!_cancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"AMQP exception in sender link for address {address}: {e}");
+                    _logger.LogError($"AMQP exception in sender link for address {address}: {e}");
 
                     await SendMessageAsync(address, body, timeOffsetSeconds).ConfigureAwait(false);
                 }

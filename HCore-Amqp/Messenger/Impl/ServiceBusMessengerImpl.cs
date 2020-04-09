@@ -8,6 +8,7 @@ using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -25,7 +26,9 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly string[] _addresses;
         private readonly int[] _addressListenerCounts;
 
-        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor)
+        private readonly ILogger<ServiceBusMessengerImpl> _logger;
+
+        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
 
@@ -36,6 +39,8 @@ namespace HCore.Amqp.Messenger.Impl
             _cancellationToken = _cancellationTokenSource.Token;
 
             _messageProcessor = messageProcessor;
+
+            _logger = logger;
 
             applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
@@ -76,7 +81,7 @@ namespace HCore.Amqp.Messenger.Impl
 
         private async Task AddQueueClientAsync(int amqpListenerCount, string address)
         {
-            var queueClientHost = new QueueClientHost(_connectionString, amqpListenerCount, address, this, _cancellationToken);
+            var queueClientHost = new QueueClientHost(_connectionString, amqpListenerCount, address, this, _cancellationToken, _logger);
 
             _queueClientHosts.Add(address, queueClientHost);
 
@@ -121,7 +126,7 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 if (!_cancellationToken.IsCancellationRequested)
                 {
-                    Console.WriteLine($"AMQP exception in sender link for address {address}: {e}");
+                    _logger.LogError($"AMQP exception in sender link for address {address}: {e}");
 
                     await SendMessageAsync(address, body, timeOffsetSeconds).ConfigureAwait(false);
                 }

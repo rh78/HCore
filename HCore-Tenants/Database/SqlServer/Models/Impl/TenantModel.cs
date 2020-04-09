@@ -70,9 +70,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string SamlEntityId { get; set; }
 
-        public string SamlMetadataLocation { get; set; }
+        public string SamlPeerEntityId { get; set; }
 
-        public string SamlProviderUrl { get; set; }
+        public string SamlPeerIdpMetadataLocation { get; set; }
+        public string SamlPeerIdpMetadata { get; set; }
 
         public string SamlCertificate { get; set; }
 

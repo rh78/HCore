@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HCore.Amqp.Message;
 using HCore.Amqp.Messenger.Impl;
 using HCore.Amqp.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -27,7 +28,9 @@ namespace HCore.Amqp.Processor.Hosts
 
         private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
-        public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken)
+        private readonly ILogger<ServiceBusMessengerImpl> _logger;
+
+        public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken, ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
             _amqpListenerCount = amqpListenerCount;
@@ -36,6 +39,8 @@ namespace HCore.Amqp.Processor.Hosts
             _lowLevelAddress = Address.ToLower();
 
             _messenger = messenger;
+
+            _logger = logger;
 
             CancellationToken = cancellationToken;
         }
@@ -82,13 +87,13 @@ namespace HCore.Amqp.Processor.Hosts
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+                _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
             }
         }
 
         private Task ExceptionReceivedHandlerAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
-            Console.WriteLine($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
+            _logger.LogError($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
 
             var context = exceptionReceivedEventArgs.ExceptionReceivedContext;
 
@@ -152,7 +157,7 @@ namespace HCore.Amqp.Processor.Hosts
                             // nobody else handled this before
 
                             if (!CancellationToken.IsCancellationRequested)
-                                Console.WriteLine($"AMQP exception in sender link for address {Address}: {e}");
+                                _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
 
                             await CloseAsync().ConfigureAwait(false);
                         }

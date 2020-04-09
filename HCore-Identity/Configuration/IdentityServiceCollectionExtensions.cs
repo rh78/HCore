@@ -317,11 +317,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
                     {
                         var samlEntityId = tenantInfo.SamlEntityId;
-                        var samlMetadataLocation = tenantInfo.SamlMetadataLocation;
-
-                        var samlProviderUrl = tenantInfo.SamlProviderUrl;
-
-                        var samlCertificate = tenantInfo.SamlCertificate;
 
                         saml.SPOptions.EntityId = new EntityId(samlEntityId);
 
@@ -332,14 +327,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                             saml.SPOptions.MinIncomingSigningAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
                         }
-                        
-                        saml.IdentityProviders.Add(
-                            new IdentityProvider(new EntityId(samlProviderUrl), saml.SPOptions)
-                            {
-                                LoadMetadata = true,
-                                MetadataLocation = samlMetadataLocation
-                            }
-                        );
+
+                        var samlCertificate = tenantInfo.SamlCertificate;
 
                         if (samlCertificate != null)
                         {
@@ -348,6 +337,36 @@ namespace Microsoft.Extensions.DependencyInjection
                                 Certificate = samlCertificate,
                                 Use = CertificateUse.Signing
                             });
+                        }
+
+                        var samlPeerEntityId = tenantInfo.SamlPeerEntityId;
+
+                        var samlPeerIdpMetadataLocation = tenantInfo.SamlPeerIdpMetadataLocation;
+
+                        if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation))
+                        {
+                            // the provider has configuration data available online
+
+                            saml.IdentityProviders.Add(
+                                new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions)
+                                {
+                                    LoadMetadata = true,
+                                    MetadataLocation = samlPeerIdpMetadataLocation
+                                }
+                            );
+                        }
+                        else
+                        {
+                            // we need to get the configuration data from our DB
+                            var samlPeerIdpMetadata = tenantInfo.SamlPeerIdpMetadata;
+
+                            var metadata = Saml2MetadataLoader.LoadIdp(samlPeerIdpMetadata, saml.SPOptions.Compatibility.UnpackEntitiesDescriptorInIdentityProviderMetadata);
+
+                            var identityProvider = new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions);
+
+                            identityProvider.ReadMetadata(metadata);
+
+                            saml.IdentityProviders.Add(identityProvider);
                         }
 
                         saml.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
