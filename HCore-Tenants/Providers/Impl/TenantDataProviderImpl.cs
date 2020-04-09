@@ -380,7 +380,8 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
                         ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
                         ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
-                        CustomTenantSettingsJson = customTenantSettingsJson
+                        CustomTenantSettingsJson = customTenantSettingsJson,
+                        RequiresDevAdminSsoReplacement = tenant.RequiresDevAdminSsoReplacement
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

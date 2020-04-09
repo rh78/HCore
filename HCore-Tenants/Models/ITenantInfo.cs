@@ -69,10 +69,10 @@ namespace HCore.Tenants.Models
 
         string SamlEntityId { get; }
 
-        string SamlPeerEntityId { get; }
+        string SamlPeerEntityId { get; set; }
 
-        string SamlPeerIdpMetadataLocation { get; }
-        string SamlPeerIdpMetadata { get; }
+        string SamlPeerIdpMetadataLocation { get; set;  }
+        string SamlPeerIdpMetadata { get; set; }
 
         X509Certificate2 SamlCertificate { get; }
 
@@ -104,5 +104,11 @@ namespace HCore.Tenants.Models
         string CustomTenantSettingsJson { get; }
 
         TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>();
+
+        string AdditionalCacheKey { get; set;  }
+
+        bool RequiresDevAdminSsoReplacement { get; }
+
+        ITenantInfo Clone();
     }
 }

@@ -106,6 +106,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string CustomTenantSettingsJson { get; set; }
 
+        public bool RequiresDevAdminSsoReplacement { get; set; }
+
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }

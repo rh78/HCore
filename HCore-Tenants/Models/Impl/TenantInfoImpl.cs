@@ -103,12 +103,87 @@ namespace HCore.Tenants.Models.Impl
 
         public string CustomTenantSettingsJson { get; set; }
 
+        public string AdditionalCacheKey { get; set; }
+
+        public bool RequiresDevAdminSsoReplacement { get; set; }
+
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
             if (CustomTenantSettingsJson == null)
                 return default;
 
             return JsonConvert.DeserializeObject<TCustomTenantSettingsDataType>(CustomTenantSettingsJson);
+        }
+
+        public ITenantInfo Clone()
+        {
+            return new TenantInfoImpl()
+            {
+                DeveloperUuid = DeveloperUuid,
+                DeveloperAuthority = DeveloperAuthority,
+                DeveloperAudience = DeveloperAudience,
+                DeveloperCertificate = DeveloperCertificate,
+                DeveloperAuthCookieDomain = DeveloperAuthCookieDomain,
+                DeveloperName = DeveloperName,
+                DeveloperPrivacyPolicyUrl = DeveloperPrivacyPolicyUrl,
+                DeveloperPrivacyPolicyVersion = DeveloperPrivacyPolicyVersion,
+                RequiresTermsAndConditions = RequiresTermsAndConditions,
+                DeveloperTermsAndConditionsUrl = DeveloperTermsAndConditionsUrl,
+                DeveloperTermsAndConditionsVersion = DeveloperTermsAndConditionsVersion,
+                TenantUuid = TenantUuid,
+                Name = Name,
+                LogoSvgUrl = LogoSvgUrl,
+                LogoPngUrl = LogoPngUrl,
+                IconIcoUrl = IconIcoUrl,
+                StorageImplementation = StorageImplementation,
+                StorageConnectionString = StorageConnectionString,
+                PrimaryColor = PrimaryColor,
+                SecondaryColor = SecondaryColor,
+                TextOnPrimaryColor = TextOnPrimaryColor,
+                TextOnSecondaryColor = TextOnSecondaryColor,
+                PrimaryColorHex = PrimaryColorHex,
+                SecondaryColorHex = SecondaryColorHex,
+                TextOnPrimaryColorHex = TextOnPrimaryColorHex,
+                TextOnSecondaryColorHex = TextOnSecondaryColorHex,
+                SupportEmail = SupportEmail,
+                NoreplyEmail = NoreplyEmail,
+                CustomInvitationEmailTextPrefix = CustomInvitationEmailTextPrefix,
+                CustomInvitationEmailTextSuffix = CustomInvitationEmailTextSuffix,
+                ProductName = ProductName,
+                DefaultCulture = DefaultCulture,
+                DefaultCurrency = DefaultCurrency,
+                BackendApiUrl = BackendApiUrl,
+                FrontendApiUrl = FrontendApiUrl,
+                WebUrl = WebUrl,
+                UsersAreExternallyManaged = UsersAreExternallyManaged,
+                ExternalUsersAreManuallyManaged = ExternalUsersAreManuallyManaged,
+                ExternalAuthenticationMethod = ExternalAuthenticationMethod,
+                OidcClientId = OidcClientId,
+                OidcClientSecret = OidcClientSecret,
+                OidcEndpointUrl = OidcEndpointUrl,
+                SamlEntityId = SamlEntityId,
+                SamlPeerEntityId = SamlPeerEntityId,
+                SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,
+                SamlPeerIdpMetadata = SamlPeerIdpMetadata,
+                SamlCertificate = SamlCertificate,
+                SamlAllowWeakSigningAlgorithm = SamlAllowWeakSigningAlgorithm,
+                ExternalDirectoryType = ExternalDirectoryType,
+                ExternalDirectoryHost = ExternalDirectoryHost,
+                ExternalDirectoryPort = ExternalDirectoryPort,
+                ExternalDirectoryUsesSsl = ExternalDirectoryUsesSsl,
+                ExternalDirectorySslCertificate = ExternalDirectorySslCertificate,
+                ExternalDirectoryAccountDistinguishedName = ExternalDirectoryAccountDistinguishedName,
+                ExternalDirectoryPassword = ExternalDirectoryPassword,
+                ExternalDirectoryLoginAttribute = ExternalDirectoryLoginAttribute,
+                ExternalDirectoryBaseContexts = ExternalDirectoryBaseContexts,
+                ExternalDirectoryUserFilter = ExternalDirectoryUserFilter,
+                ExternalDirectoryGroupFilter = ExternalDirectoryGroupFilter,
+                ExternalDirectorySyncIntervalSeconds = ExternalDirectorySyncIntervalSeconds,
+                ExternalDirectoryAdministratorGroupUuid = ExternalDirectoryAdministratorGroupUuid,
+                CustomTenantSettingsJson = CustomTenantSettingsJson,
+                AdditionalCacheKey = AdditionalCacheKey,
+                RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement
+            };
         }
     }
 }

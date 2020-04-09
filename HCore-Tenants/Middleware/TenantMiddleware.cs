@@ -21,6 +21,10 @@ namespace HCore.Tenants.Middleware
 
         private readonly List<Regex> _tenantSelectorWhitelistUrls = new List<Regex>();
 
+        private readonly List<string> _devAdminSsoReplacementWhitelistIpAddresses = new List<string>();
+        private readonly string _devAdminSsoReplacementSamlPeerEntityId;
+        private readonly string _devAdminSsoReplacementSamlPeerIdpMetadataLocation;
+
         private readonly ILogger<TenantsMiddleware> _logger;
 
         public TenantsMiddleware(RequestDelegate next, ITenantDataProvider tenantDataProvider, ILogger<TenantsMiddleware> logger, IConfiguration configuration)
@@ -47,6 +51,21 @@ namespace HCore.Tenants.Middleware
                 }
             });
 
+            var devAdminSsoReplacementWhitelistIpAddresses = new List<string>();
+
+            configuration.GetSection("Identity:Tenants:DevAdminSsoReplacementWhitelistIpAddresses")?.Bind(devAdminSsoReplacementWhitelistIpAddresses);
+
+            devAdminSsoReplacementWhitelistIpAddresses.ForEach((devAdminSsoReplacementWhitelistIpAddress) =>
+            {
+                if (!string.IsNullOrEmpty(devAdminSsoReplacementWhitelistIpAddress))
+                {
+                    _devAdminSsoReplacementWhitelistIpAddresses.Add(devAdminSsoReplacementWhitelistIpAddress);
+                }
+            });
+
+            _devAdminSsoReplacementSamlPeerEntityId = configuration["Identity:Tenants:DevAdminSsoReplacementSamlPeerEntityId"];
+            _devAdminSsoReplacementSamlPeerIdpMetadataLocation = configuration["Identity:Tenants:DevAdminSsoReplacementSamlPeerIdpMetadataLocation"];
+
             _logger = logger;
         }
 
@@ -66,6 +85,31 @@ namespace HCore.Tenants.Middleware
                     host = hostString.Host;
                     
                     (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost(host);
+
+                    if (tenantInfo != null && tenantInfo.RequiresDevAdminSsoReplacement)
+                    {
+                        if (_devAdminSsoReplacementWhitelistIpAddresses != null &&
+                            _devAdminSsoReplacementWhitelistIpAddresses.Count > 0)
+                        {
+                            var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
+
+                            if (_devAdminSsoReplacementWhitelistIpAddresses.Contains(ipAddress))
+                            {
+                                tenantInfo = tenantInfo.Clone();
+
+                                if (!string.IsNullOrEmpty(_devAdminSsoReplacementSamlPeerEntityId))
+                                    tenantInfo.SamlPeerEntityId = _devAdminSsoReplacementSamlPeerEntityId;
+
+                                if (!string.IsNullOrEmpty(_devAdminSsoReplacementSamlPeerIdpMetadataLocation))
+                                {
+                                    tenantInfo.SamlPeerIdpMetadataLocation = _devAdminSsoReplacementSamlPeerIdpMetadataLocation;
+                                    tenantInfo.SamlPeerIdpMetadata = null;
+                                }
+
+                                tenantInfo.AdditionalCacheKey = "devAdminSsoReplacement";
+                            }
+                        }
+                    }
                 }
 
                 if (tenantInfo == null)

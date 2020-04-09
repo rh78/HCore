@@ -30,7 +30,7 @@ namespace HCore.Tenants.Options.Impl
 
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, name);
 
             return base.GetOrAdd(adjustedOptionsName, () => TenantsFactoryWrapper(name, adjustedOptionsName, createOptions));
         }
@@ -39,7 +39,7 @@ namespace HCore.Tenants.Options.Impl
         {
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, name);
 
             if (base.TryAdd(adjustedOptionsName, options))
             {
@@ -78,7 +78,7 @@ namespace HCore.Tenants.Options.Impl
             return result;
         }
 
-        private string AdjustOptionsName(long? developerUuid, long? tenantUuid, string name)
+        private string AdjustOptionsName(long? developerUuid, long? tenantUuid, string additionalCacheKey, string name)
         {
             if (developerUuid == null)
                 throw new Exception("Developer UUID is empty");
@@ -88,7 +88,12 @@ namespace HCore.Tenants.Options.Impl
 
             // Hash so that prefix + option name can't cause a collision. 
 
-            byte[] buffer = Encoding.UTF8.GetBytes($"{developerUuid}:{tenantUuid}");
+            string key = $"{developerUuid}:{tenantUuid}";
+
+            if (!string.IsNullOrEmpty(additionalCacheKey))
+                key = $"{developerUuid}:{tenantUuid}:{additionalCacheKey}";
+
+            byte[] buffer = Encoding.UTF8.GetBytes(key);
 
             var sha1 = System.Security.Cryptography.SHA1.Create();
             var hash = sha1.ComputeHash(buffer);
