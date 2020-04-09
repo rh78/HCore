@@ -36,6 +36,9 @@ using Microsoft.AspNetCore.Http;
 using reCAPTCHA.AspNetCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using IdentityServer4.EntityFramework.DbContexts;
+using System.Security.Cryptography;
+using System.Security.Cryptography.Xml;
+using HCore.Identity.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -312,6 +315,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     // will be configured dynamically
                 });
 
+                CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA1SignatureDescription), SignedXml.XmlDsigRSASHA1Url);
+
                 tenantsBuilder.WithPerTenantOptions<Saml2Options>((saml, tenantInfo) =>
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
@@ -325,7 +330,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             // OK this is less secure, but sometimes we're having trouble
                             // e.g. with SSO Circle that still uses SHA1
 
-                            saml.SPOptions.MinIncomingSigningAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+                            saml.SPOptions.MinIncomingSigningAlgorithm = SignedXml.XmlDsigRSASHA1Url;
                         }
 
                         var samlCertificate = tenantInfo.SamlCertificate;
