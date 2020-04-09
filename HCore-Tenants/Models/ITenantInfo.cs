@@ -108,6 +108,9 @@ namespace HCore.Tenants.Models
         string AdditionalCacheKey { get; set;  }
 
         bool RequiresDevAdminSsoReplacement { get; }
+        
+        string DevAdminSsoReplacementSamlPeerEntityId { get; }
+        string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; }
 
         ITenantInfo Clone();
     }

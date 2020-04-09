@@ -108,6 +108,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool RequiresDevAdminSsoReplacement { get; set; }
 
+        public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
+        public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
+
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }

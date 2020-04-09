@@ -381,7 +381,9 @@ namespace HCore.Tenants.Providers.Impl
                         ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
                         ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
                         CustomTenantSettingsJson = customTenantSettingsJson,
-                        RequiresDevAdminSsoReplacement = tenant.RequiresDevAdminSsoReplacement
+                        RequiresDevAdminSsoReplacement = tenant.RequiresDevAdminSsoReplacement,
+                        DevAdminSsoReplacementSamlPeerEntityId = tenant.DevAdminSsoReplacementSamlPeerEntityId,
+                        DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenant.DevAdminSsoReplacementSamlPeerIdpMetadataLocation
                     };
 
                     string[] subdomainPatternParts = subdomainPattern.Split(';');

@@ -22,8 +22,6 @@ namespace HCore.Tenants.Middleware
         private readonly List<Regex> _tenantSelectorWhitelistUrls = new List<Regex>();
 
         private readonly List<string> _devAdminSsoReplacementWhitelistIpAddresses = new List<string>();
-        private readonly string _devAdminSsoReplacementSamlPeerEntityId;
-        private readonly string _devAdminSsoReplacementSamlPeerIdpMetadataLocation;
 
         private readonly ILogger<TenantsMiddleware> _logger;
 
@@ -63,9 +61,6 @@ namespace HCore.Tenants.Middleware
                 }
             });
 
-            _devAdminSsoReplacementSamlPeerEntityId = configuration["Identity:Tenants:DevAdminSsoReplacementSamlPeerEntityId"];
-            _devAdminSsoReplacementSamlPeerIdpMetadataLocation = configuration["Identity:Tenants:DevAdminSsoReplacementSamlPeerIdpMetadataLocation"];
-
             _logger = logger;
         }
 
@@ -97,12 +92,12 @@ namespace HCore.Tenants.Middleware
                             {
                                 tenantInfo = tenantInfo.Clone();
 
-                                if (!string.IsNullOrEmpty(_devAdminSsoReplacementSamlPeerEntityId))
-                                    tenantInfo.SamlPeerEntityId = _devAdminSsoReplacementSamlPeerEntityId;
+                                if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerEntityId))
+                                    tenantInfo.SamlPeerEntityId = tenantInfo.DevAdminSsoReplacementSamlPeerEntityId;
 
-                                if (!string.IsNullOrEmpty(_devAdminSsoReplacementSamlPeerIdpMetadataLocation))
+                                if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation))
                                 {
-                                    tenantInfo.SamlPeerIdpMetadataLocation = _devAdminSsoReplacementSamlPeerIdpMetadataLocation;
+                                    tenantInfo.SamlPeerIdpMetadataLocation = tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation;
                                     tenantInfo.SamlPeerIdpMetadata = null;
                                 }
 

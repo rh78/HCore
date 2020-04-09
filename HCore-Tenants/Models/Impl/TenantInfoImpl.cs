@@ -107,6 +107,9 @@ namespace HCore.Tenants.Models.Impl
 
         public bool RequiresDevAdminSsoReplacement { get; set; }
 
+        public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
+        public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
+
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
             if (CustomTenantSettingsJson == null)
@@ -182,7 +185,9 @@ namespace HCore.Tenants.Models.Impl
                 ExternalDirectoryAdministratorGroupUuid = ExternalDirectoryAdministratorGroupUuid,
                 CustomTenantSettingsJson = CustomTenantSettingsJson,
                 AdditionalCacheKey = AdditionalCacheKey,
-                RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement
+                RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement,
+                DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
+                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation
             };
         }
     }
