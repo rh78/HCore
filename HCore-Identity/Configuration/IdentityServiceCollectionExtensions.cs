@@ -39,6 +39,7 @@ using IdentityServer4.EntityFramework.DbContexts;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using HCore.Identity.Internal;
+using Sustainsys.Saml2.Saml2P;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -376,6 +377,25 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         saml.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         saml.SignOutScheme = IdentityServerConstants.SignoutScheme;
+
+                        saml.Notifications.AcsCommandResultCreated = (commandResult, response) =>
+                        {
+                            if (response.Status == Saml2StatusCode.Success)
+                            {
+                                var identity = commandResult.Principal.Identity as ClaimsIdentity;
+
+                                if (identity != null)
+                                {
+                                    Claim issuerClaim;
+
+                                    while ((issuerClaim = identity.Claims.FirstOrDefault(claim => string.Equals(claim.Type, "issuer"))) != null) {
+                                        identity.RemoveClaim(issuerClaim);
+                                    }
+
+                                    identity.AddClaim(new Claim("issuer", response.Issuer.Id));
+                                }
+                            }
+                        };
                     }
                 });
             }

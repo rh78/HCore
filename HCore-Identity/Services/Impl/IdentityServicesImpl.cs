@@ -14,7 +14,6 @@ using System.Collections.Generic;
 using HCore.Identity.Models;
 using HCore.Web.API.Impl;
 using Microsoft.Extensions.DependencyInjection;
-using HCore.Identity.Providers;
 using HCore.Amqp.Messenger;
 using HCore.Identity.Amqp;
 using System.Linq;
@@ -32,6 +31,7 @@ using HCore.Directory;
 using HCore.Identity.Internal;
 using reCAPTCHA.AspNetCore;
 using HCore.Tenants.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -48,7 +48,7 @@ namespace HCore.Identity.Services.Impl
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
-        private readonly IConfigurationProvider _configurationProvider;       
+        private readonly Providers.IConfigurationProvider _configurationProvider;       
 
         private readonly INowProvider _nowProvider;
 
@@ -58,6 +58,10 @@ namespace HCore.Identity.Services.Impl
 
         private readonly IServiceProvider _serviceProvider;
 
+        private readonly List<string> _devAdminSsoProtectedUserAccountEmailAddresses = new List<string>();
+
+        private readonly List<string> _devAdminSsoAuthorizedIssuers = new List<string>();
+
         public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
             UserManager<UserModel> userManager,
@@ -66,9 +70,10 @@ namespace HCore.Identity.Services.Impl
             IEmailTemplateProvider emailTemplateProvider,
             IUrlHelper urlHelper,
             SqlServerIdentityDbContext identityDbContext,
-            IConfigurationProvider configurationProvider,
+            Providers.IConfigurationProvider configurationProvider,
             INowProvider nowProvider,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IConfiguration configuration)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -86,6 +91,30 @@ namespace HCore.Identity.Services.Impl
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
             _recaptchaService = serviceProvider.GetService<IRecaptchaService>();
+
+            var devAdminSsoProtectedUserAccountEmailAddresses = new List<string>();
+
+            configuration.GetSection("Identity:Tenants:DevAdminSsoProtectedUserAccountEmailAddresses")?.Bind(devAdminSsoProtectedUserAccountEmailAddresses);
+
+            devAdminSsoProtectedUserAccountEmailAddresses.ForEach((devAdminSsoProtectedUserAccountEmailAddress) =>
+            {
+                if (!string.IsNullOrEmpty(devAdminSsoProtectedUserAccountEmailAddress))
+                {
+                    _devAdminSsoProtectedUserAccountEmailAddresses.Add(devAdminSsoProtectedUserAccountEmailAddress.Trim().ToUpper());
+                }
+            });
+
+            var devAdminSsoAuthorizedIssuers = new List<string>();
+
+            configuration.GetSection("Identity:Tenants:DevAdminSsoAuthorizedIssuers")?.Bind(devAdminSsoAuthorizedIssuers);
+
+            devAdminSsoAuthorizedIssuers.ForEach((devAdminSsoAuthorizedIssuer) =>
+            {
+                if (!string.IsNullOrEmpty(devAdminSsoAuthorizedIssuer))
+                {
+                    _devAdminSsoAuthorizedIssuers.Add(devAdminSsoAuthorizedIssuer);
+                }
+            });
         }
 
         public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
@@ -417,6 +446,16 @@ namespace HCore.Identity.Services.Impl
             if (!userSpec.AcceptPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
 
+            string normalizedEmailAddress = unscopedEmail.Trim().ToUpper();
+
+            if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedEmailAddress))
+            {
+                string issuer = ProcessIssuer(externalUser);
+
+                if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
+                    throw new Exception("The external authentication failed");
+            }
+
             string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{unscopedEmail}";
 
             ITenantInfo tenantInfo = null;
@@ -694,6 +733,16 @@ namespace HCore.Identity.Services.Impl
                 claims.Remove(userIdClaim);
 
                 string unscopedEmail = ProcessEmail(externalUser);
+
+                string normalizedEmailAddress = unscopedEmail.Trim().ToUpper();
+
+                if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedEmailAddress))
+                {
+                    string issuer = ProcessIssuer(externalUser);
+
+                    if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
+                        throw new Exception("The external authentication failed");
+                }
 
                 var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
 
@@ -1376,6 +1425,21 @@ namespace HCore.Identity.Services.Impl
             string email = emailClaim.Value;
 
             return ProcessEmail(email);
+        }
+
+        private string ProcessIssuer(ClaimsPrincipal claimsPrincipal)
+        {
+            var issuerClaim = claimsPrincipal.FindFirst("issuer");
+
+            if (issuerClaim == null)
+                throw new Exception("The external authentication failed");
+
+            string issuer = issuerClaim.Value;
+
+            if (string.IsNullOrEmpty(issuer))
+                throw new Exception("The external authentication failed");
+
+            return issuer;
         }
 
         private bool ProcessEmailConfirmed(ClaimsPrincipal claimsPrincipal)
