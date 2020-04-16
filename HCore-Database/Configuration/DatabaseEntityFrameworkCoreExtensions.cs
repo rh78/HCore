@@ -8,8 +8,6 @@ namespace Microsoft.EntityFrameworkCore
     {
         public static DbContextOptionsBuilder AddSqlDatabase(this DbContextOptionsBuilder builder, string configurationKey, IConfiguration configuration, string migrationsAssembly = null)
         {
-            Console.WriteLine($"Initializing SQL database context with key {configurationKey}...");
-
             string implementation = configuration[$"Database:{configurationKey}:Implementation"];
 
             if (string.IsNullOrEmpty(implementation))
@@ -38,8 +36,6 @@ namespace Microsoft.EntityFrameworkCore
                         options.MigrationsAssembly(migrationsAssembly);
                 });
             }
-
-            Console.WriteLine($"Initialized SQL database context with key {configurationKey}");
 
             return builder;
         }

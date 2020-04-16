@@ -49,8 +49,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSqlDatabase<TStartup, TContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
             where TContext : DbContext
         {
-            Console.WriteLine($"Initializing SQL database context with key {configurationKey}...");
-
             string implementation = configuration[$"Database:{configurationKey}:Implementation"];
 
             if (string.IsNullOrEmpty(implementation))
@@ -81,8 +79,6 @@ namespace Microsoft.Extensions.DependencyInjection
                         postgresOptions => postgresOptions.MigrationsAssembly(migrationsAssembly));
                 });
             }
-
-            Console.WriteLine($"Initialized SQL database context with key {configurationKey}");
 
             return services;
         }
