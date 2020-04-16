@@ -408,7 +408,6 @@ namespace HCore.Identity.Services.Impl
         private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
-            bool emailIsAlreadyConfirmed = ProcessEmailConfirmed(externalUser);
 
             string firstName = null;
             string lastName = null;
@@ -505,11 +504,9 @@ namespace HCore.Identity.Services.Impl
                         user.PhoneNumber = phoneNumber;
                     }
 
-                    if (emailIsAlreadyConfirmed || 
-                        (tenantInfo != null && tenantInfo.ExternalUsersAreManuallyManaged))
-                    {
-                        user.EmailConfirmed = true;
-                    }
+                    // we'll have external emails always confirmed
+
+                    user.EmailConfirmed = true;
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
                     user.GroupNotifications = true;
@@ -570,24 +567,6 @@ namespace HCore.Identity.Services.Impl
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("External user created without password");
-
-                        if (!emailIsAlreadyConfirmed)
-                        {
-                            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
-
-                            var currentCultureInfo = CultureInfo.CurrentCulture;
-
-                            var callbackUrl = _urlHelper.Page(
-                                "/Account/ConfirmEmail",
-                                pageHandler: null,
-                                values: new { userUuid = user.Id, code, culture = currentCultureInfo.ToString() },
-                                protocol: "https");
-
-                            EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                                new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
-
-                            await _emailSender.SendEmailAsync(unscopedEmail, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
-                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
