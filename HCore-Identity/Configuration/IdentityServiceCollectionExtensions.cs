@@ -357,7 +357,8 @@ namespace Microsoft.Extensions.DependencyInjection
                                 new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions)
                                 {
                                     LoadMetadata = true,
-                                    MetadataLocation = samlPeerIdpMetadataLocation
+                                    MetadataLocation = samlPeerIdpMetadataLocation,
+                                    AllowUnsolicitedAuthnResponse = true
                                 }
                             );
                         }
@@ -368,7 +369,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
                             var metadata = Saml2MetadataLoader.LoadIdp(samlPeerIdpMetadata, saml.SPOptions.Compatibility.UnpackEntitiesDescriptorInIdentityProviderMetadata);
 
-                            var identityProvider = new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions);
+                            var identityProvider = new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions)
+                            {
+                                AllowUnsolicitedAuthnResponse = true
+                            };
 
                             identityProvider.ReadMetadata(metadata);
 
