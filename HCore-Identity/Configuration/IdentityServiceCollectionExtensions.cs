@@ -325,6 +325,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         var samlEntityId = tenantInfo.SamlEntityId;
 
                         saml.SPOptions.EntityId = new EntityId(samlEntityId);
+                        
+                        saml.SPOptions.ReturnUrl = new Uri($"{tenantInfo.WebUrl}Account/Login?ReturnUrl=%2F&handler=ExternalCallback");
 
                         if (tenantInfo.SamlAllowWeakSigningAlgorithm)
                         {
