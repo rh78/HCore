@@ -23,11 +23,11 @@ namespace HCore.Identity.Attributes
                 var csp = "default-src 'self' https://*.smint.io https://*.smint.io; " +
                           "object-src 'none'; " +
                           "frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.sharepoint.com https://*.officeapps.live.com; " +
-                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com; " +
+                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com; " +
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
                           "font-src 'self' 'unsafe-inline' data: https://*.smint.io https://fonts.gstatic.com https://w.chatlio.com; " +
-                          "frame-src 'self' https://*.smint.io https://www.google.com; " +
+                          "frame-src 'self' https://*.smint.io:40443 https://*.smint.io https://www.google.com; " +
                           "img-src * data:; " +
                           "media-src *; " +
                           "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
