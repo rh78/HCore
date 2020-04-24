@@ -373,13 +373,13 @@
     <value>Your profile has been updated</value>
   </data>
   <data name="accept_privacy_policy" xml:space="preserve">
-    <value>I have read the {0} &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy.</value>
+    <value>I have read the {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
-    <value>I accept the {0} &lt;a href="{1}" target="_blank"&gt;Terms and Conditions&lt;/a&gt;.</value>
+    <value>I accept the {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Terms and Conditions&lt;/a&gt;.</value>
   </data>
   <data name="accept_communication" xml:space="preserve">
-    <value>I consent to receive email communications about {0} products and business in accordance with the &lt;a href="{1}" target="_blank"&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time.</value>
+    <value>I consent to receive email communications about {0} products and business in accordance with the &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time.</value>
   </data>
   <data name="change_password_not_possible" xml:space="preserve">
     <value>You can not change your password here, because your user account is externally managed. Please talk to your system administrator for more information.</value>

@@ -61,7 +61,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I consent to receive email communications about {0} products and business in accordance with the &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time..
+        ///   Looks up a localized string similar to I consent to receive email communications about {0} products and business in accordance with the &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Privacy Policy&lt;/a&gt;. I understand that I can unsubscribe at any time..
         /// </summary>
         public static string accept_communication {
             get {
@@ -70,7 +70,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I have read the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy..
+        ///   Looks up a localized string similar to I have read the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy..
         /// </summary>
         public static string accept_privacy_policy {
             get {
@@ -79,7 +79,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I accept the {0} &lt;a href=&quot;{1}&quot; target=&quot;_blank&quot;&gt;Terms and Conditions&lt;/a&gt;..
+        ///   Looks up a localized string similar to I accept the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Terms and Conditions&lt;/a&gt;..
         /// </summary>
         public static string accept_terms_and_conditions {
             get {
