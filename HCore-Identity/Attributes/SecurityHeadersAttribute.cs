@@ -54,7 +54,7 @@ namespace HCore.Identity.Attributes
                     && !context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")
                 )
                 {
-                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
+                    context.HttpContext.Response.Headers.Add("Content-Security-Policy".ToLower(), csp);
                 }
 
                 // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
@@ -92,7 +92,7 @@ namespace HCore.Identity.Attributes
                     continue;
                 }
 
-                var name = configName.Substring(CspHeaderBaseConfigKey.Length);
+                var name = configName.Substring(CspHeaderBaseConfigKey.Length).ToLower();
                 if (name.StartsWith(":"))
                 {
                     name = name.Substring(1);
@@ -122,7 +122,7 @@ namespace HCore.Identity.Attributes
                     var configName = header.Key;
                     var value = header.Value;
 
-                    var name = configName.Substring(SecurityHeadersBaseConfigKey.Length);
+                    var name = configName.Substring(SecurityHeadersBaseConfigKey.Length).ToLower();
                     if (name.StartsWith(":"))
                     {
                         name = name.Substring(1);
