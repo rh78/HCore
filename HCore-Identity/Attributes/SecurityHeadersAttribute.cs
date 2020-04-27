@@ -45,37 +45,14 @@ namespace HCore.Identity.Attributes
             {
                 AddSecurityHeaders(context);
 
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options"))
-                {
-                    context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("P3P"))
-                {
-                    context.HttpContext.Response.Headers.Add("P3P", "CP=\"This is not a P3P policy!\"");
-                }
-
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-                var csp = GetConfiguredCspHeader() ?? "default-src 'self' https://*.smint.io https://*.smint.io; " +
-                          "object-src 'none'; " +
-                          "frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.sharepoint.com https://*.officeapps.live.com; " +
-                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com; " +
-                          "connect-src 'self' *; " +
-                          "style-src 'self' 'unsafe-inline' https://*.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
-                          "font-src 'self' 'unsafe-inline' data: https://*.smint.io https://fonts.gstatic.com https://w.chatlio.com; " +
-                          "frame-src 'self' https://*.smint.io:40443 https://*.smint.io https://www.google.com; " +
-                          "img-src * data:; " +
-                          "media-src *; " +
-                          "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
-                          "base-uri 'self'; " +
-                          "upgrade-insecure-requests;";
-
-                // also an example if you need client images to be displayed from twitter
-                // csp += "img-src 'self' https://pbs.twimg.com;";
+                var csp = GetConfiguredCspHeader();
 
                 // once for standards compliant browsers
-                if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
+                if (
+                    !string.IsNullOrWhiteSpace(csp)
+                    && !context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy")
+                )
                 {
                     context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
                 }
@@ -83,26 +60,13 @@ namespace HCore.Identity.Attributes
                 // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
 
                 // and once again for IE
-                /* if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy"))
+                /* if (
+                    !string.IsNullOrWhiteSpace(csp) 
+                    && !context.HttpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")
+                )
                 {
                     context.HttpContext.Response.Headers.Add("X-Content-Security-Policy", csp);
                 } */
-
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-                if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
-                {
-                    context.HttpContext.Response.Headers.Add("Referrer-Policy", "no-referrer");
-                }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("Feature-Policy"))
-                {
-                    context.HttpContext.Response.Headers.Add("Feature-Policy", "autoplay: *; max-downscaling-image: *; unsized-media: *; animations: *; vertical-scroll: 'self';");
-                }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-XSS-Protection"))
-                {
-                    context.HttpContext.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-                }
             }
         }
 
