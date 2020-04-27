@@ -80,31 +80,38 @@ namespace HCore.Web.Startup
             Args = args;
         }
 
-        public void Launch()
+        public void Launch(IConfigurationSource additionalConfiguration = null)
         {
             _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             
-            CreateWebHostBuilder();
+            CreateWebHostBuilder(additionalConfiguration);
             
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
             _hostBuilder.Build().Run();
         }
 
-        private void CreateWebHostBuilder()
+        private void CreateWebHostBuilder(IConfigurationSource additionalConfiguration = null)
         {
             _hostBuilder = new HostBuilder();
 
-            var configuration = new ConfigurationBuilder()
+            var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: true)
-                .Build();
+                ;
+
+            if (additionalConfiguration != null)
+            {
+                configurationBuilder.Add(additionalConfiguration);
+            }
+
+            var configuration = configurationBuilder.Build();
 
             ConfigureDefaultServiceProvider();
             ConfigureLogging();
-            ConfigureConfiguration();
+            ConfigureConfiguration(additionalConfiguration);
 
             _hostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
 
@@ -141,7 +148,7 @@ namespace HCore.Web.Startup
             }
         }
 
-        private void ConfigureConfiguration()
+        private void ConfigureConfiguration(IConfigurationSource additionalConfiguration = null)
         {
             _hostBuilder.ConfigureAppConfiguration((hostingContext, config) =>
             {
@@ -165,6 +172,11 @@ namespace HCore.Web.Startup
                 if (Args != null)
                 {
                     config.AddCommandLine(Args);
+                }
+
+                if (additionalConfiguration != null)
+                {
+                    config.Add(additionalConfiguration);
                 }
             });
         }
@@ -362,8 +374,6 @@ namespace HCore.Web.Startup
 
             webHostBuilder.ConfigureServices((hostingContext, services) =>
             {
-                var configuration = hostingContext.Configuration;
-
                 // Fallback
                 services.PostConfigure<HostFilteringOptions>(options =>
                 {
@@ -377,7 +387,7 @@ namespace HCore.Web.Startup
                 });
                 // Change notification
                 services.AddSingleton<IOptionsChangeTokenSource<HostFilteringOptions>>(
-                    new ConfigurationChangeTokenSource<HostFilteringOptions>(configuration));
+                    new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));
 
                 services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();                
             });
