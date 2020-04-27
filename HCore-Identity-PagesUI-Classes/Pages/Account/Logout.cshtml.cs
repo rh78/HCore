@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [ServiceFilter(typeof(SecurityHeadersAttribute))]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class LogoutModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

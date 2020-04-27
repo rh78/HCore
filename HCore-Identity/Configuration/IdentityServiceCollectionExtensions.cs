@@ -493,9 +493,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             IIdentityServerBuilder identityServerBuilder;
 
-            // Add some HTTP header filter instances in case these have not yet been added.
-            services.TryAddSingleton<SecurityHeadersAttribute>();
-
             if (tenantsBuilder == null)
             {
                 identityServerBuilder = services.AddIdentityServer(options =>

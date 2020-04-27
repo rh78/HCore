@@ -9,7 +9,7 @@ using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [ServiceFilter(typeof(SecurityHeadersAttribute))]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class ResetPasswordModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

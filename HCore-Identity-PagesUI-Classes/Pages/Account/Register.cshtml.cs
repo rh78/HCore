@@ -28,7 +28,7 @@ using HCore.Translations.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [ServiceFilter(typeof(SecurityHeadersAttribute))]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class RegisterModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

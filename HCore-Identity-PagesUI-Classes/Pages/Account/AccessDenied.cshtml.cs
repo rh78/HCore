@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [ServiceFilter(typeof(SecurityHeadersAttribute))]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class AccessDeniedModel : PageModel
     {
         public void OnGet()

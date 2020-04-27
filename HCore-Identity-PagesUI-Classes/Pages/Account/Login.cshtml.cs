@@ -29,7 +29,7 @@ using HCore.Translations.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [ServiceFilter(typeof(SecurityHeadersAttribute))]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class LoginModel : PageModel
     {
         private readonly IIdentityServices _identityServices;
