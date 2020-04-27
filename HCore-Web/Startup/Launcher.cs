@@ -70,7 +70,6 @@ namespace HCore.Web.Startup
         private string _environment;        
         
         private HostBuilder _hostBuilder;
-        private IConfigurationRoot _configuration;
 
         private string _serverUrl;
 
@@ -96,7 +95,7 @@ namespace HCore.Web.Startup
         {
             _hostBuilder = new HostBuilder();
 
-            _configuration = new ConfigurationBuilder()
+            var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: true)
@@ -112,7 +111,7 @@ namespace HCore.Web.Startup
             _hostBuilder.ConfigureWebHostDefaults(webHostBuilder =>
             {
                 ConfigureContentRoot(webHostBuilder);
-                ConfigureWebServer(webHostBuilder);
+                ConfigureWebServer(webHostBuilder, configuration);
             });
         }
 
@@ -170,21 +169,21 @@ namespace HCore.Web.Startup
             });
         }
 
-        private void ConfigureWebServer(IWebHostBuilder webHostBuilder)
+        private void ConfigureWebServer(IWebHostBuilder webHostBuilder, IConfiguration configuration)
         {
-            bool useHttps = _configuration.GetValue<bool>("WebServer:UseHttps");
-            bool useWeb = _configuration.GetValue<bool>("WebServer:UseWeb");
-            bool useApi = _configuration.GetValue<bool>("WebServer:UseApi");
+            bool useHttps = configuration.GetValue<bool>("WebServer:UseHttps");
+            bool useWeb = configuration.GetValue<bool>("WebServer:UseWeb");
+            bool useApi = configuration.GetValue<bool>("WebServer:UseApi");
 
             if (!useWeb && !useApi)
                 throw new Exception("Please specify which kind of service (web or API) you want to use");
 
-            int numberOfCores = _configuration.GetValue<int>("WebServer:NumberOfCores");
+            int numberOfCores = configuration.GetValue<int>("WebServer:NumberOfCores");
 
             if (numberOfCores <= 0)
                 throw new Exception("Please specify the number of cores that the server provides");
 
-            long maxRequestBodySizeKB = _configuration.GetValue<long>("WebServer:MaxRequestBodySizeKB");
+            long maxRequestBodySizeKB = configuration.GetValue<long>("WebServer:MaxRequestBodySizeKB");
 
             // see https://www.monitis.com/blog/improving-asp-net-performance-part3-threading/
 
@@ -257,16 +256,16 @@ namespace HCore.Web.Startup
 
                     if (useWeb)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Web:Assembly"];
+                        string httpsCertificateAssembly = configuration["WebServer:Https:Certificates:Web:Assembly"];
                         if (string.IsNullOrEmpty(httpsCertificateAssembly))
                             throw new Exception("HTTPS web certificate assembly not found");
 
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Web:Name"];
+                        string httpsCertificateName = configuration["WebServer:Https:Certificates:Web:Name"];
 
                         if (string.IsNullOrEmpty(httpsCertificateName))
                             throw new Exception("HTTPS web certificate name not found");
 
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Web:Password"];
+                        string httpsCertificatePassword = configuration["WebServer:Https:Certificates:Web:Password"];
 
                         if (string.IsNullOrEmpty(httpsCertificatePassword))
                             throw new Exception("HTTPS web certificate password not found");
@@ -293,12 +292,12 @@ namespace HCore.Web.Startup
                             certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
                         }
 
-                        int webPort = _configuration.GetValue<int>("WebServer:WebPort");
+                        int webPort = configuration.GetValue<int>("WebServer:WebPort");
 
                         options.Listen(IPAddress.Any, webPort, listenOptions =>
                             listenOptions.UseHttps(certificate));
 
-                        int httpHealthCheckPort = _configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                        int httpHealthCheckPort = configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
 
                         if (httpHealthCheckPort > 0)
                         {
@@ -308,7 +307,7 @@ namespace HCore.Web.Startup
                         {
                             // we can not do redirects to HTTPS if we have a health check running
 
-                            int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
+                            int redirectHttpToHttpsWebPort = configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
 
                             if (redirectHttpToHttpsWebPort > 0)
                                 options.Listen(IPAddress.Any, redirectHttpToHttpsWebPort);
@@ -317,16 +316,16 @@ namespace HCore.Web.Startup
 
                     if (useApi)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Api:Assembly"];
+                        string httpsCertificateAssembly = configuration["WebServer:Https:Certificates:Api:Assembly"];
                         if (string.IsNullOrEmpty(httpsCertificateAssembly))
                             throw new Exception("HTTPS API certificate assembly not found");
 
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Api:Name"];
+                        string httpsCertificateName = configuration["WebServer:Https:Certificates:Api:Name"];
 
                         if (string.IsNullOrEmpty(httpsCertificateName))
                             throw new Exception("HTTPS API certificate name not found");
 
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Api:Password"];
+                        string httpsCertificatePassword = configuration["WebServer:Https:Certificates:Api:Password"];
 
                         if (string.IsNullOrEmpty(httpsCertificatePassword))
                             throw new Exception("HTTPS API certificate password not found");
@@ -353,7 +352,7 @@ namespace HCore.Web.Startup
                             certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
                         }
 
-                        int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
+                        int apiPort = configuration.GetValue<int>("WebServer:ApiPort");
 
                         options.Listen(IPAddress.Any, apiPort, listenOptions =>
                             listenOptions.UseHttps(certificate));
@@ -387,7 +386,7 @@ namespace HCore.Web.Startup
 
             List<string> urls = new List<string>();
 
-            string urlPattern = _configuration["WebServer:UrlPattern"];
+            string urlPattern = configuration["WebServer:UrlPattern"];
             if (string.IsNullOrEmpty(urlPattern))
                 throw new Exception("URL pattern not found in application settings");
 
@@ -395,7 +394,7 @@ namespace HCore.Web.Startup
             {
                 string webServerUrl = useHttps ? "https://" : "http://";
 
-                int webPort = _configuration.GetValue<int>("WebServer:WebPort");
+                int webPort = configuration.GetValue<int>("WebServer:WebPort");
 
                 webServerUrl += urlPattern;
                 webServerUrl += ":" + webPort;
@@ -404,7 +403,7 @@ namespace HCore.Web.Startup
 
                 if (useHttps)
                 {
-                    int httpHealthCheckPort = _configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                    int httpHealthCheckPort = configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
 
                     if (httpHealthCheckPort > 0)
                     {
@@ -419,7 +418,7 @@ namespace HCore.Web.Startup
                     {
                         // we can not do redirects to HTTPS if we have a health check running
 
-                        int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
+                        int redirectHttpToHttpsWebPort = configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
 
                         if (redirectHttpToHttpsWebPort > 0)
                         {
@@ -438,7 +437,7 @@ namespace HCore.Web.Startup
             { 
                 string apiServerUrl = useHttps ? "https://" : "http://";                
 
-                int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
+                int apiPort = configuration.GetValue<int>("WebServer:ApiPort");
 
                 apiServerUrl += urlPattern;
                 apiServerUrl += ":" + apiPort;
@@ -452,7 +451,7 @@ namespace HCore.Web.Startup
 
             webHostBuilder.UseStartup(typeof(TStartup));
 
-            if (_configuration.GetValue<bool>("Sentry:UseSentry"))
+            if (configuration.GetValue<bool>("Sentry:UseSentry"))
                 webHostBuilder.UseSentry();
 
             _serverUrl = string.Join(" / ", urlsArray);            
