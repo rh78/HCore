@@ -9,7 +9,7 @@ using HCore.Translations.Providers;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class ConfirmEmailModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

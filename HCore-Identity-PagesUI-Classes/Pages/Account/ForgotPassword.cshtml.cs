@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class ForgotPasswordModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

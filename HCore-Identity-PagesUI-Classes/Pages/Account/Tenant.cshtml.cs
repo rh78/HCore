@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class TenantModel : PageModel
     {
         public static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");

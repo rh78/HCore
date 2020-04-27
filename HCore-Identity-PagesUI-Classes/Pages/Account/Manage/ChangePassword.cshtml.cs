@@ -13,7 +13,7 @@ using HCore.Translations.Providers;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class ChangePasswordModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

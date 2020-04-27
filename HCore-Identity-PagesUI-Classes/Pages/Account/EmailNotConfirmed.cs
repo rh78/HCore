@@ -11,7 +11,7 @@ using System;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class EmailNotConfirmedModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

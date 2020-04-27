@@ -38,7 +38,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using IdentityServer4.EntityFramework.DbContexts;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
+using HCore.Identity.Attributes;
 using HCore.Identity.Internal;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Sustainsys.Saml2.Saml2P;
 using HCore.Translations.Providers;
 
@@ -490,6 +492,9 @@ namespace Microsoft.Extensions.DependencyInjection
         private static void ConfigureIdentityServer(IServiceCollection services, TenantsBuilder tenantsBuilder, string migrationsAssembly, IConfiguration configuration)
         {
             IIdentityServerBuilder identityServerBuilder;
+
+            // Add some HTTP header filter instances in case these have not yet been added.
+            services.TryAddSingleton<SecurityHeadersAttribute>();
 
             if (tenantsBuilder == null)
             {

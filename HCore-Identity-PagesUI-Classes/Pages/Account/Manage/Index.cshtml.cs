@@ -14,7 +14,7 @@ using HCore.Translations.Providers;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public partial class IndexModel : PageModel
     {
         private readonly IIdentityServices _identityServices;

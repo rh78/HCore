@@ -5,7 +5,7 @@ using HCore.Identity.Attributes;
 
 namespace HCore.Identity.PagesUI.Classes.Pages
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class LogoutModel : PageModel
     {        
         public IActionResult OnPost()

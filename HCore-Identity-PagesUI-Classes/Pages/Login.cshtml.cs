@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HCore.Identity.PagesUI.Classes.Pages
 {
     [Authorize]
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class LoginModel : PageModel
     {
         public IActionResult OnGet()
