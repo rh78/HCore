@@ -144,7 +144,7 @@ namespace HCore.Web.Startup
                 services.AddAntiforgery(options =>
                 {
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
                     options.SuppressXFrameOptionsHeader = true;
                 });
 
