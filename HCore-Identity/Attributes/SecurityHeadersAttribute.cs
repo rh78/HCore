@@ -8,9 +8,17 @@ namespace HCore.Identity.Attributes
 
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {
+        private bool _useSandbox;
+
+        public SecurityHeadersAttribute(bool useSandbox = true)
+        {
+            _useSandbox = useSandbox;
+        }
+
         public override void OnResultExecuting(ResultExecutingContext context)
         {
             var result = context.Result;
+
             if (result is ViewResult || result is PageResult)
             {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
@@ -30,7 +38,7 @@ namespace HCore.Identity.Attributes
                           "frame-src 'self' https://*.smint.io:40443 https://*.smint.io https://www.google.com; " +
                           "img-src * data:; " +
                           "media-src *; " +
-                          "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " +
+                          (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
                           "base-uri 'self'; " +
                           "upgrade-insecure-requests;";
 
