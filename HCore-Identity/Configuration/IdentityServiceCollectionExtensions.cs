@@ -445,7 +445,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.Cookie.Domain = authCookieDomain;
                     options.Cookie.Name = "HCore.Identity.session";
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    // was LAX
+                    options.Cookie.SameSite = SameSiteMode.None;
                 });
             } else
             {
@@ -463,7 +464,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    // was LAX
+                    options.Cookie.SameSite = SameSiteMode.None;
                 });
             }
 

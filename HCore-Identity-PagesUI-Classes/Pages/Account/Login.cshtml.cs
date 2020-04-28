@@ -325,7 +325,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     {
                         Domain = tenantInfo.DeveloperAuthCookieDomain,
                         Expires = DateTime.MaxValue,
-                        SameSite = SameSiteMode.Lax
+                        // was LAX
+                        SameSite = SameSiteMode.None
                     });
                 }
             }
