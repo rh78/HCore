@@ -238,6 +238,13 @@ namespace HCore.Web.Startup
                         if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows) &&
                             !System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
                         {
+                            var allowedCipherSuites = CipherSuitesPolicy.AllowedCipherSuites;
+                            
+                            foreach (var allowedCipherSuite in allowedCipherSuites) 
+                            {
+                                Console.WriteLine($"Cipher suite supported: {allowedCipherSuite}");
+                            }
+
                             httpsOptions.OnAuthenticate = (conContext, sslAuthOptions) =>
                             {
                                 // not supported if OpenSSL 1.1.1 is not present!
