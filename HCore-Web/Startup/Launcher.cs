@@ -60,7 +60,10 @@ namespace HCore.Web.Startup
                 TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
                 TlsCipherSuite.TLS_AES_128_GCM_SHA256,
                 TlsCipherSuite.TLS_AES_256_GCM_SHA384,
-                TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256
+                TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256,
+
+                // for IE 11 on Win7
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
             }
         );
 
