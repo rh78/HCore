@@ -29,13 +29,25 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public IActionResult OnGet()
         {
-            if (Request.Cookies.ContainsKey(CookieName))
+            string tenantName = null;
+
+            var hostName = HttpContext.Request.Host.Host.Split('.')[0].ToLower();
+
+            if (hostName != "login" && hostName != "development-login")
+            {
+                tenantName = hostName;
+
+            }
+            else if (Request.Cookies.ContainsKey(CookieName))
+            {
+                tenantName = Request.Cookies[CookieName];
+            }
+
+            if (!String.IsNullOrWhiteSpace(tenantName))
             {
                 try
                 {
-                    string domain = Request.Cookies[CookieName];
-
-                    return HandleDomain(domain);
+                    return HandleDomain(tenantName);
                 } 
                 catch (Exception)
                 {
