@@ -29,18 +29,27 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public IActionResult OnGet()
         {
-            if (Request.Cookies.ContainsKey(CookieName))
-            {
-                try
-                {
-                    string domain = Request.Cookies[CookieName];
+            string tenantName = null;
 
-                    return HandleDomain(domain);
-                } 
-                catch (Exception)
-                {
-                    // ignore it
-                }
+            var hostName = HttpContext.Request.Host.Host?.Split('.')[0].ToLower();
+
+            if (!string.Equals(hostName, "login") &&
+                !string.Equals(hostName, "development-login"))
+            {
+                tenantName = hostName;
+            }
+            else if (Request.Cookies.ContainsKey(CookieName))
+            {
+                tenantName = Request.Cookies[CookieName];
+            }
+
+            try
+            {
+                return HandleDomain(tenantName);
+            } 
+            catch (Exception)
+            {
+                // ignore it
             }
 
             return Page();
@@ -64,14 +73,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private IActionResult HandleDomain(string domain)
         {
-
             if (string.IsNullOrEmpty(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainMissing, "The domain is missing");
 
             if (!Tenant.IsMatch(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainInvalid, "The domain is invalid");
 
-            var (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost($"{domain}.smint.io");
+            var (_, tenantInfo) = _tenantDataProvider.LookupTenantByHost($"{domain}.smint.io");
 
             if (tenantInfo == null)
                 throw new RequestFailedApiException(RequestFailedApiException.DomainNotFound, "The domain was not found");
