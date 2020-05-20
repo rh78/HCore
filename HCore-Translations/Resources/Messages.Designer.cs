@@ -97,6 +97,42 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The address line 1 is missing.
+        /// </summary>
+        public static string address_line_1_missing {
+            get {
+                return ResourceManager.GetString("address_line_1_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The address line 1 is too long.
+        /// </summary>
+        public static string address_line_1_too_long {
+            get {
+                return ResourceManager.GetString("address_line_1_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The address line 2 is missing.
+        /// </summary>
+        public static string address_line_2_missing {
+            get {
+                return ResourceManager.GetString("address_line_2_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The address line 2 is too long.
+        /// </summary>
+        public static string address_line_2_too_long {
+            get {
+                return ResourceManager.GetString("address_line_2_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The API credentials are missing.
         /// </summary>
         public static string api_credentials_missing {
@@ -156,6 +192,24 @@ namespace HCore.Translations.Resources {
         public static string cannot_delete_last_system_user_group_member {
             get {
                 return ResourceManager.GetString("cannot_delete_last_system_user_group_member", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The city is missing.
+        /// </summary>
+        public static string city_missing {
+            get {
+                return ResourceManager.GetString("city_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The city is too long.
+        /// </summary>
+        public static string city_too_long {
+            get {
+                return ResourceManager.GetString("city_too_long", resourceCulture);
             }
         }
         
@@ -390,6 +444,24 @@ namespace HCore.Translations.Resources {
         public static string error_title {
             get {
                 return ResourceManager.GetString("error_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The EU VAT ID is missing.
+        /// </summary>
+        public static string eu_vat_id_missing {
+            get {
+                return ResourceManager.GetString("eu_vat_id_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The EU VAT ID is too long.
+        /// </summary>
+        public static string eu_vat_id_too_long {
+            get {
+                return ResourceManager.GetString("eu_vat_id_too_long", resourceCulture);
             }
         }
         
@@ -894,6 +966,24 @@ namespace HCore.Translations.Resources {
         public static string please_accept_terms_and_conditions {
             get {
                 return ResourceManager.GetString("please_accept_terms_and_conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The postal code is missing.
+        /// </summary>
+        public static string postal_code_missing {
+            get {
+                return ResourceManager.GetString("postal_code_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The postal code is too long.
+        /// </summary>
+        public static string postal_code_too_long {
+            get {
+                return ResourceManager.GetString("postal_code_too_long", resourceCulture);
             }
         }
         

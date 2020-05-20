@@ -261,6 +261,36 @@
   <data name="currency_invalid" xml:space="preserve">
     <value>Die Währung ist ungültig</value>
   </data>
+  <data name="address_line_1_missing" xml:space="preserve">
+    <value>Die Zeile 1 der Adresse ist ungültig</value>
+  </data>
+  <data name="address_line_1_too_long" xml:space="preserve">
+    <value>Die Zeile 1 der Adresse ist zu lang</value>
+  </data>
+  <data name="address_line_2_missing" xml:space="preserve">
+    <value>Die Zeile 2 der Adresse ist ungültig</value>
+  </data>
+  <data name="address_line_2_too_long" xml:space="preserve">
+    <value>Die Zeile 2 der Adresse ist zu lang</value>
+  </data>
+  <data name="postal_code_missing" xml:space="preserve">
+    <value>Die Postleitzahl fehlt</value>
+  </data>
+  <data name="postal_code_too_long" xml:space="preserve">
+    <value>Die Postleitzahl ist zu lang</value>
+  </data>
+  <data name="city_missing" xml:space="preserve">
+    <value>Der Ort fehlt</value>
+  </data>
+  <data name="city_too_long" xml:space="preserve">
+    <value>Der Ort ist zu lang</value>
+  </data>
+  <data name="eu_vat_id_missing" xml:space="preserve">
+    <value>Die EU VAT ID fehlt</value>
+  </data>
+  <data name="eu_vat_id_too_long" xml:space="preserve">
+    <value>Die EU VAT ID ist zu lang</value>
+  </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Bitte akzeptieren Sie unsere Allgemeinen Geschäftsbedingungen</value>
   </data>

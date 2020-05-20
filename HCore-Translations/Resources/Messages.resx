@@ -261,6 +261,36 @@
   <data name="currency_invalid" xml:space="preserve">
     <value>The currency is invalid</value>
   </data>
+  <data name="address_line_1_missing" xml:space="preserve">
+    <value>The address line 1 is missing</value>
+  </data>
+  <data name="address_line_1_too_long" xml:space="preserve">
+    <value>The address line 1 is too long</value>
+  </data>
+  <data name="address_line_2_missing" xml:space="preserve">
+    <value>The address line 2 is missing</value>
+  </data>
+  <data name="address_line_2_too_long" xml:space="preserve">
+    <value>The address line 2 is too long</value>
+  </data>
+  <data name="postal_code_missing" xml:space="preserve">
+    <value>The postal code is missing</value>
+  </data>
+  <data name="postal_code_too_long" xml:space="preserve">
+    <value>The postal code is too long</value>
+  </data>
+  <data name="city_missing" xml:space="preserve">
+    <value>The city is missing</value>
+  </data>
+  <data name="city_too_long" xml:space="preserve">
+    <value>The city is too long</value>
+  </data>
+  <data name="eu_vat_id_missing" xml:space="preserve">
+    <value>The EU VAT ID is missing</value>
+  </data>
+  <data name="eu_vat_id_too_long" xml:space="preserve">
+    <value>The EU VAT ID is too long</value>
+  </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Please accept our Terms and Conditions</value>
   </data>
