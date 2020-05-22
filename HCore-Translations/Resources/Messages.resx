@@ -285,8 +285,14 @@
   <data name="city_too_long" xml:space="preserve">
     <value>The city is too long</value>
   </data>
+  <data name="state_too_long" xml:space="preserve">
+    <value>The state is too long</value>
+  </data>
   <data name="eu_vat_id_missing" xml:space="preserve">
     <value>The EU VAT ID is missing</value>
+  </data>
+  <data name="eu_vat_id_invalid" xml:space="preserve">
+    <value>The EU VAT ID is invalid</value>
   </data>
   <data name="eu_vat_id_too_long" xml:space="preserve">
     <value>The EU VAT ID is too long</value>

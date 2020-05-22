@@ -448,6 +448,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The EU VAT ID is invalid.
+        /// </summary>
+        public static string eu_vat_id_invalid {
+            get {
+                return ResourceManager.GetString("eu_vat_id_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The EU VAT ID is missing.
         /// </summary>
         public static string eu_vat_id_missing {
@@ -1155,6 +1164,15 @@ namespace HCore.Translations.Resources {
         public static string state_invalid {
             get {
                 return ResourceManager.GetString("state_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The state is too long.
+        /// </summary>
+        public static string state_too_long {
+            get {
+                return ResourceManager.GetString("state_too_long", resourceCulture);
             }
         }
         
