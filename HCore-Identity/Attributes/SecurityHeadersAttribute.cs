@@ -38,7 +38,9 @@ namespace HCore.Identity.Attributes
                           "frame-src 'self' https://*.smint.io:40443 https://*.smint.io https://www.google.com; " +
                           "img-src * data:; " +
                           "media-src *; " +
-                          (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
+                          // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
+                          // we turn it off until more is known
+                          // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
                           "base-uri 'self'; " +
                           "upgrade-insecure-requests;";
 
