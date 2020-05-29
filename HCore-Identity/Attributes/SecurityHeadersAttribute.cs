@@ -27,6 +27,11 @@ namespace HCore.Identity.Attributes
                     context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
                 }
 
+                if (!context.HttpContext.Response.Headers.ContainsKey("P3P"))
+                {
+                    context.HttpContext.Response.Headers.Add("P3P", "CP=\"This is not a P3P policy!\"");
+                }
+
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
                 var csp = "default-src 'self' https://*.smint.io https://*.smint.io; " +
                           "object-src 'none'; " +
