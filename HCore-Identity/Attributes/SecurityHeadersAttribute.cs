@@ -19,7 +19,7 @@ namespace HCore.Identity.Attributes
         {
             var result = context.Result;
 
-            if (result is ViewResult || result is PageResult)
+            if (result is ViewResult || result is PageResult || result is LocalRedirectResult)
             {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options"))
