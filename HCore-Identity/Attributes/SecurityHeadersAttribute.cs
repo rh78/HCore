@@ -19,12 +19,17 @@ namespace HCore.Identity.Attributes
         {
             var result = context.Result;
 
-            if (result is ViewResult || result is PageResult)
+            if (result is ViewResult || result is PageResult || result is LocalRedirectResult)
             {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options"))
                 {
                     context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                }
+
+                if (!context.HttpContext.Response.Headers.ContainsKey("P3P"))
+                {
+                    context.HttpContext.Response.Headers.Add("P3P", "CP=\"This is not a P3P policy!\"");
                 }
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
