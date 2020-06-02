@@ -5,7 +5,7 @@ using System.IO;
 
 namespace HCore.Web.Providers.Impl
 {
-    internal class SpaManifestJsonProviderImpl : ISpaManifestJsonProvider
+    internal class SpaManifestJsonProviderImpl : IHtmlIncludesProvider
     {
         public bool Applies { get; }
 

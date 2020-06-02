@@ -195,7 +195,7 @@ namespace HCore.Web.Startup
 
             if (useSpa)
             {
-                services.AddSingleton<ISpaManifestJsonProvider, SpaManifestJsonProviderImpl>();
+                services.AddSingleton<IHtmlIncludesProvider, SpaManifestJsonProviderImpl>();
 
                 bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HCore.Web.Providers
 {
-    public interface ISpaManifestJsonProvider
+    public interface IHtmlIncludesProvider
     {
         bool Applies { get; }
 
