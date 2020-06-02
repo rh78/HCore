@@ -203,7 +203,7 @@ namespace HCore.Web.Startup
                 {
                     services.AddSpaStaticFiles(configuration =>
                     {
-                        configuration.RootPath = "ClientApp/build";
+                        configuration.RootPath = Configuration.GetValue<String>("Spa:RootPath"); //"ClientApp/build";
                     });
                 }
             }            

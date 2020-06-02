@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace HCore.Web.Providers.Impl
 {
@@ -18,7 +20,7 @@ namespace HCore.Web.Providers.Impl
         public string HeaderJsIncludes { get; }
         public string BodyJsIncludes { get; }
 
-        public SpaManifestJsonProviderImpl(IWebHostEnvironment hostingEnvironment)
+        public SpaManifestJsonProviderImpl(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             HeaderIncludes = "";
             BodyIncludes = "";
@@ -26,16 +28,18 @@ namespace HCore.Web.Providers.Impl
             HeaderJsIncludes = "";
             BodyJsIncludes = "";
 
+            string appRootPath = configuration.GetValue<String>("Spa:RootPath");
+
             string contentRootPath = hostingEnvironment.ContentRootPath;
 
             // 0.js is a development build artifact
 
-            Applies = File.Exists($"{contentRootPath}/ClientApp/build/manifest.json") &&
-                      !File.Exists($"{contentRootPath}/ClientApp/build/0.js");
+            Applies = File.Exists($"{contentRootPath}/{appRootPath}/manifest.json") &&
+                      !File.Exists($"{contentRootPath}/{appRootPath}/0.js");
                 
             if (Applies)
             {             
-                string json = File.ReadAllText($"{contentRootPath}/ClientApp/build/manifest.json");
+                string json = File.ReadAllText($"{contentRootPath}/{appRootPath}/manifest.json");
 
                 var mappings = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
 
