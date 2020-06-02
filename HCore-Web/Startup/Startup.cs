@@ -191,12 +191,12 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureStaticFiles(IServiceCollection services)
         {
+            services.AddSingleton<IHtmlIncludesDetectorProvider, HtmlIncludesTemplateDetectorProviderImpl>();
+
             bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
 
             if (useSpa)
             {
-                services.AddSingleton<IHtmlIncludesProvider, SpaManifestJsonProviderImpl>();
-
                 bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 
                 if (staticFiles)
@@ -366,6 +366,13 @@ namespace HCore.Web.Startup
             services.AddScoped<IUrlProvider, UrlProviderImpl>();
             services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
+
+            services.AddScoped((serviceProvider) =>
+            {
+                var detector = serviceProvider.GetRequiredService<IHtmlIncludesDetectorProvider>();
+                var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext?.Request);
+            });
         }
     }
 }
