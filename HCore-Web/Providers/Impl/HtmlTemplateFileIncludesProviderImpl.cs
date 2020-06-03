@@ -44,7 +44,6 @@ namespace HCore.Web.Providers.Impl
                 HeaderCssIncludes += css;
                 HeaderJsIncludes += js;
 
-
                 // header part of the HTML <body></body>
                 Match body = Regex.Match(
                     html, 
@@ -90,8 +89,8 @@ namespace HCore.Web.Providers.Impl
                     )
                     {
                         css += $"{part}\n";
-
-                    } else if (
+                    }
+                    else if (
                         Regex.IsMatch(
                             part, 
                             "<script", 
