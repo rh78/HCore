@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace HCore.Web.Providers.Impl
@@ -12,14 +13,18 @@ namespace HCore.Web.Providers.Impl
 
         private readonly IWebHostEnvironment _hostEnvironment;
 
+        private readonly IMemoryCache _memoryCache;
+
         private readonly IHtmlIncludesProvider _defaultIncludeProvider;
 
         public HtmlIncludesTemplateDetectorProviderImpl(
             IConfiguration configuration,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IMemoryCache memoryCache)
         {
             _hostEnvironment = hostingEnvironment;
             _configuration = configuration;
+            _memoryCache = memoryCache;
             _defaultIncludeProvider = new SpaManifestJsonProviderImpl(configuration, hostingEnvironment);
         }
 
@@ -66,15 +71,53 @@ namespace HCore.Web.Providers.Impl
                 htmlFileLowerCase = $"{contentRootPath}/{pagePath.ToLower()}";
             }
 
-            // try with unchanged file name
-            if (File.Exists(htmlFile))
+            // try unchanged file name or lower case file name. Linux is case sensitive. With WebPack project,
+            // lower case file names are created. So, if the original case file can not be found, try with lower case
+            // version. But do not perform real any-case detection.
+            if (!File.Exists(htmlFile))
             {
-                return new HtmlTemplateFileIncludesProviderImpl(htmlFile);
+                _memoryCache?.Remove(htmlFile);
+                htmlFile = htmlFileLowerCase;
             }
 
-            // try with a lowercased file name
-            return File.Exists(htmlFileLowerCase) ?
-                new HtmlTemplateFileIncludesProviderImpl(htmlFileLowerCase) : _defaultIncludeProvider;
+            // parse file
+            if (File.Exists(htmlFile))
+            {
+                DateTime fileTime = File.GetLastWriteTime(htmlFile);
+
+                IHtmlIncludesProvider htmlTemplate = null;
+
+                // lookup in the cache
+                if (
+                    _memoryCache != null
+                    && _memoryCache.TryGetValue(htmlFile, out Tuple<IHtmlIncludesProvider, DateTime> cacheItem)
+                    && cacheItem != null && DateTime.Compare(cacheItem.Item2, fileTime) >= 0
+                )
+                {
+                    htmlTemplate = cacheItem.Item1;
+                }
+
+                // parse file
+                if (htmlTemplate == null)
+                {
+                    htmlTemplate = new HtmlTemplateFileIncludesProviderImpl(htmlFile);
+                }
+
+                // store the newly created value or update current value
+                if (_memoryCache != null)
+                {
+                    _memoryCache.Remove(htmlFile);
+
+                    var entry = _memoryCache.CreateEntry(htmlFile);
+                    entry.Value = new Tuple<IHtmlIncludesProvider, DateTime>(htmlTemplate, DateTime.Now);
+                }
+            }
+            else
+            {
+                _memoryCache?.Remove(htmlFile);
+            }
+
+            return _defaultIncludeProvider;
         }
     }
 }
