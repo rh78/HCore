@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 
 namespace HCore.Web.Providers.Impl
@@ -13,28 +13,26 @@ namespace HCore.Web.Providers.Impl
 
         private readonly IWebHostEnvironment _hostEnvironment;
 
-        private readonly IMemoryCache _memoryCache;
-
         private readonly IHtmlIncludesProvider _defaultIncludeProvider;
+
+        private readonly Dictionary<string, IHtmlIncludesProvider> _htmlIncludeProviders =
+            new Dictionary<string, IHtmlIncludesProvider>();
 
         public HtmlIncludesTemplateDetectorProviderImpl(
             IConfiguration configuration,
-            IWebHostEnvironment hostingEnvironment,
-            IMemoryCache memoryCache)
+            IWebHostEnvironment hostingEnvironment)
         {
             _hostEnvironment = hostingEnvironment;
             _configuration = configuration;
-            _memoryCache = memoryCache;
- 
+
             // default provider will set its "Applies" property to "False", as the file is "null"
             _defaultIncludeProvider = new HtmlTemplateFileIncludesProviderImpl(null);
+
+            ParseAllHtmlFiles();
         }
 
         public IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpRequest request)
         {
-            string htmlFile;
-            string htmlFileLowerCase;
-
             // check parameter
             if (request == null || !request.Path.HasValue)
             {
@@ -42,84 +40,64 @@ namespace HCore.Web.Providers.Impl
             }
 
             // use default "index.html" for directories
-            string pagePath = request.Path.Value;
+            string pagePath = request.Path.Value ?? "/";
             if (string.Equals("/", pagePath) || pagePath.EndsWith("/"))
             {
                 pagePath += "index.html";
             }
 
+            // enforce .html file to be used
             if (!pagePath.EndsWith(".html"))
             {
                 pagePath += ".html";
             }
 
+            // use case insensitive matching, thus use lower case file names only
+            return _htmlIncludeProviders.TryGetValue(pagePath.ToLower(), out IHtmlIncludesProvider provider)
+                ? provider
+                : _defaultIncludeProvider;
+        }
+
+        private void ParseAllHtmlFiles()
+        {
+            foreach (var fileData in GetHtmlFilesInRootDirectory())
+            {
+                var filePath = fileData.Item1;
+                var fullPath = fileData.Item2;
+
+                _htmlIncludeProviders.Add(filePath, new HtmlTemplateFileIncludesProviderImpl(fullPath));
+            }
+        }
+
+        private List<(string, string)> GetHtmlFilesInRootDirectory()
+        {
+            List<(string, string)> allHtmlFiles = new List<(string, string)>();
+
+            var baseDir = GetRootPath();
+            foreach (string file in Directory.EnumerateFiles(baseDir, "*.html", SearchOption.TopDirectoryOnly))
+            {
+                // do something
+                allHtmlFiles.Add((file.Substring(baseDir.Length), file));
+            }
+
+            return allHtmlFiles;
+        }
+
+        private String GetRootPath()
+        {
             string contentRootPath = _hostEnvironment.ContentRootPath;
 
             string clientAppPath = _configuration.GetValue<String>("Spa:RootPath");
 
             if (!string.IsNullOrEmpty(clientAppPath))
             {
-                htmlFile = clientAppPath.StartsWith("file://") ?
-                    $"{clientAppPath}/{pagePath}".Substring(7) : $"{contentRootPath}/{clientAppPath}/{pagePath}";
-
-                htmlFileLowerCase = clientAppPath.StartsWith("file://") ?
-                    $"{clientAppPath}/{pagePath.ToLower()}".Substring(7) :
-                    $"{contentRootPath}/{clientAppPath}/{pagePath.ToLower()}";
+                return clientAppPath.StartsWith("file://") ?
+                    clientAppPath.Substring(7) : $"{contentRootPath}/{clientAppPath}";
             }
             else
             {
-                htmlFile = $"{contentRootPath}/{pagePath}";
-
-                htmlFileLowerCase = $"{contentRootPath}/{pagePath.ToLower()}";
+                return contentRootPath;
             }
-
-            // try unchanged file name or lower case file name. Linux is case sensitive. With WebPack project,
-            // lower case file names are created. So, if the original case file can not be found, try with lower case
-            // version. But do not perform real any-case detection.
-            if (!File.Exists(htmlFile))
-            {
-                _memoryCache?.Remove(htmlFile);
-                htmlFile = htmlFileLowerCase;
-            }
-
-            // parse file
-            if (File.Exists(htmlFile))
-            {
-                DateTime fileTime = File.GetLastWriteTime(htmlFile);
-
-                IHtmlIncludesProvider htmlTemplate = null;
-
-                // lookup in the cache
-                if (
-                    _memoryCache != null
-                    && _memoryCache.TryGetValue(htmlFile, out Tuple<IHtmlIncludesProvider, DateTime> cacheItem)
-                    && cacheItem != null && DateTime.Compare(cacheItem.Item2, fileTime) >= 0
-                )
-                {
-                    htmlTemplate = cacheItem.Item1;
-                }
-
-                // parse file
-                if (htmlTemplate == null)
-                {
-                    htmlTemplate = new HtmlTemplateFileIncludesProviderImpl(htmlFile);
-                }
-
-                // store the newly created value or update current value
-                if (_memoryCache != null)
-                {
-                    _memoryCache.Remove(htmlFile);
-
-                    var entry = _memoryCache.CreateEntry(htmlFile);
-                    entry.Value = new Tuple<IHtmlIncludesProvider, DateTime>(htmlTemplate, DateTime.Now);
-                }
-            }
-            else
-            {
-                _memoryCache?.Remove(htmlFile);
-            }
-
-            return _defaultIncludeProvider;
         }
     }
 }

@@ -246,6 +246,10 @@ namespace HCore.Web.Startup
             ConfigureRequestLocalization(app, env);                
 
             ConfigureMvc(app, env);
+
+            // Enforce creating the detector, as it will load all files initially, so errors will be visible right
+            // at the startup.
+            app.ApplicationServices.GetService<IHtmlIncludesDetectorProvider>();
         }
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IWebHostEnvironment env)
