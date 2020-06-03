@@ -25,7 +25,9 @@ namespace HCore.Web.Providers.Impl
             _hostEnvironment = hostingEnvironment;
             _configuration = configuration;
             _memoryCache = memoryCache;
-            _defaultIncludeProvider = new SpaManifestJsonProviderImpl(configuration, hostingEnvironment);
+ 
+            // default provider will set its "Applies" property to "False", as the file is "null"
+            _defaultIncludeProvider = new HtmlTemplateFileIncludesProviderImpl(null);
         }
 
         public IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpRequest request)
