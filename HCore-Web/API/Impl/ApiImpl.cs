@@ -127,6 +127,21 @@ namespace HCore.Web.API.Impl
             return groupNotifications ?? true;
         }
 
+        public static long? ProcessTenantUuid(string tenantUuid)
+        {
+            if (string.IsNullOrEmpty(tenantUuid))
+                throw new RequestFailedApiException(RequestFailedApiException.TenantUuidMissing, "The tenant UUID is missing");
+
+            try
+            {
+                return Convert.ToInt64(tenantUuid);
+            }
+            catch (Exception)
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.TenantUuidInvalid, "The tenant UUID is invalid");
+            }
+        }
+
         public static void ProcessBulkUpdateCount(int count)
         {
             if (count <= 0)
