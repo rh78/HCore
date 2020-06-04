@@ -9,9 +9,9 @@ namespace HCore.Web.Providers
         /// <remarks>Based on the page URI path, query or host name, the HTML includes may be different.
         /// So, the detector implements mechanisms to decide what to include based on the requested page.</remarks>
         /// </summary>
-        /// <param name="request">The current request, that can be used to determine proper HTML includes for the
-        /// requested page.</param>
+        /// <param name="context">The current request context, that can be used to determine proper HTML includes for
+        /// the requested page.</param>
         /// <returns></returns>
-        IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpRequest request);
+        IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpContext context);
     }
 }

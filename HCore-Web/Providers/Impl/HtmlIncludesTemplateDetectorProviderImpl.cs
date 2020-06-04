@@ -31,16 +31,36 @@ namespace HCore.Web.Providers.Impl
             ParseAllHtmlFiles();
         }
 
-        public IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpRequest request)
+        public IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpContext context)
         {
             // check parameter
-            if (request == null || !request.Path.HasValue)
+            if (context == null)
             {
                 return _defaultIncludeProvider;
             }
 
+            // try URL path at first
+            var htmlTemplateProvider = GetHtmlIncludesProviderForPath(context.Request?.Path.Value);
+            if (htmlTemplateProvider != null)
+            {
+                return htmlTemplateProvider;
+            }
+
+            // try with endpoint path
+            htmlTemplateProvider = GetHtmlIncludesProviderForPath($"{context.GetEndpoint().DisplayName}");
+            return htmlTemplateProvider ?? _defaultIncludeProvider;
+        }
+
+        public IHtmlIncludesProvider GetHtmlIncludesProviderForPath(string path)
+        {
+            // check parameter
+            if (path == null)
+            {
+                return null;
+            }
+
             // use default "index.html" for directories
-            string pagePath = request.Path.Value ?? "/";
+            string pagePath = String.IsNullOrEmpty(path) ? "/" : path;
             if (string.Equals("/", pagePath) || pagePath.EndsWith("/"))
             {
                 pagePath += "index.html";
@@ -55,7 +75,7 @@ namespace HCore.Web.Providers.Impl
             // use case insensitive matching, thus use lower case file names only
             return _htmlIncludeProviders.TryGetValue(pagePath.ToLower(), out IHtmlIncludesProvider provider)
                 ? provider
-                : _defaultIncludeProvider;
+                : null;
         }
 
         private void ParseAllHtmlFiles()

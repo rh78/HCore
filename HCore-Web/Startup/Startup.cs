@@ -379,7 +379,7 @@ namespace HCore.Web.Startup
                 {
                     var detector = serviceProvider.GetRequiredService<IHtmlIncludesDetectorProvider>();
                     var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-                    return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext?.Request);
+                    return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext);
                 });
             }
         }
