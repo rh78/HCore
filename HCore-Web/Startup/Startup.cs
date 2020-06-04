@@ -23,11 +23,13 @@ namespace HCore.Web.Startup
     {
         private bool _useHttps;
         private int _port;
+        private readonly bool _useSpa;
         
         public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
+            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
         }
 
         public IConfiguration Configuration { get; }
@@ -191,12 +193,10 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureStaticFiles(IServiceCollection services)
         {
-            services.AddSingleton<IHtmlIncludesDetectorProvider, HtmlIncludesTemplateDetectorProviderImpl>();
-
-            bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
-
-            if (useSpa)
+            if (_useSpa)
             {
+                services.AddSingleton<IHtmlIncludesDetectorProvider, HtmlIncludesTemplateDetectorProviderImpl>();
+
                 bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 
                 if (staticFiles)
@@ -247,9 +247,12 @@ namespace HCore.Web.Startup
 
             ConfigureMvc(app, env);
 
-            // Enforce creating the detector, as it will load all files initially, so errors will be visible right
-            // at the startup.
-            app.ApplicationServices.GetService<IHtmlIncludesDetectorProvider>();
+            if (_useSpa)
+            {
+                // Enforce creating the detector, as it will load all files initially, so errors will be visible right
+                // at the startup.
+                app.ApplicationServices.GetService<IHtmlIncludesDetectorProvider>();
+            }
         }
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IWebHostEnvironment env)
@@ -313,9 +316,7 @@ namespace HCore.Web.Startup
             
             app.UseStaticFiles(staticFileOptions);
 
-            bool useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
-
-            if (useSpa)
+            if (_useSpa)
             {
                 bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 
@@ -371,12 +372,15 @@ namespace HCore.Web.Startup
             services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
 
-            services.AddScoped((serviceProvider) =>
+            if (_useSpa)
             {
-                var detector = serviceProvider.GetRequiredService<IHtmlIncludesDetectorProvider>();
-                var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
-                return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext?.Request);
-            });
+                services.AddScoped((serviceProvider) =>
+                {
+                    var detector = serviceProvider.GetRequiredService<IHtmlIncludesDetectorProvider>();
+                    var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+                    return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext?.Request);
+                });
+            }
         }
     }
 }
