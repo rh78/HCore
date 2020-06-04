@@ -23,17 +23,18 @@ namespace HCore.Web.Startup
     {
         private bool _useHttps;
         private int _port;
-        private readonly bool _useSpa;
         
         public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
-            _useSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
+            UseSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
         }
 
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment HostingEnvironment { get; set; }
+
+        public bool UseSpa { get; private set; }
 
         protected virtual void ConfigureCoreServices(IServiceCollection services)
         {
@@ -193,7 +194,7 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureStaticFiles(IServiceCollection services)
         {
-            if (_useSpa)
+            if (UseSpa)
             {
                 services.AddSingleton<IHtmlIncludesDetectorProvider, HtmlIncludesTemplateDetectorProviderImpl>();
 
@@ -247,7 +248,7 @@ namespace HCore.Web.Startup
 
             ConfigureMvc(app, env);
 
-            if (_useSpa)
+            if (UseSpa)
             {
                 // Enforce creating the detector, as it will load all files initially, so errors will be visible right
                 // at the startup.
@@ -316,7 +317,7 @@ namespace HCore.Web.Startup
             
             app.UseStaticFiles(staticFileOptions);
 
-            if (_useSpa)
+            if (UseSpa)
             {
                 bool staticFiles = Configuration.GetValue<bool>("Spa:StaticFiles");
 
@@ -372,7 +373,7 @@ namespace HCore.Web.Startup
             services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
 
-            if (_useSpa)
+            if (UseSpa)
             {
                 services.AddScoped((serviceProvider) =>
                 {
