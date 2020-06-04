@@ -79,7 +79,7 @@ namespace HCore.Tenants.Middleware
                 {
                     host = hostString.Host;
                     
-                    (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost(host);
+                    (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(host).ConfigureAwait(false);
 
                     if (tenantInfo != null && tenantInfo.RequiresDevAdminSsoReplacement)
                     {
@@ -122,7 +122,7 @@ namespace HCore.Tenants.Middleware
 
                         if (!string.IsNullOrEmpty(healthCheckTenantHost))
                         {
-                            (matchedSubDomain, tenantInfo) = _tenantDataProvider.LookupTenantByHost(healthCheckTenantHost);
+                            (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(healthCheckTenantHost).ConfigureAwait(false);
                         }
                     }
 

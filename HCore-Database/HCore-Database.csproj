@@ -14,4 +14,8 @@
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
+  </ItemGroup>
+
 </Project>

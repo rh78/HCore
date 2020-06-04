@@ -28,6 +28,7 @@ namespace HCore.Web.Startup
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
+
             UseSpa = Configuration.GetValue<bool>("WebServer:UseSpa");
         }
 
@@ -204,7 +205,7 @@ namespace HCore.Web.Startup
                 {
                     services.AddSpaStaticFiles(configuration =>
                     {
-                        configuration.RootPath = Configuration.GetValue<String>("Spa:RootPath");
+                        configuration.RootPath = Configuration.GetValue<string>("Spa:RootPath");
                     });
                 }
             }            

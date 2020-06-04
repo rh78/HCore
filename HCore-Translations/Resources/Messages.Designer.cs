@@ -349,6 +349,42 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The default language is missing.
+        /// </summary>
+        public static string default_culture_missing {
+            get {
+                return ResourceManager.GetString("default_culture_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The default currency is invalid.
+        /// </summary>
+        public static string default_currency_invalid {
+            get {
+                return ResourceManager.GetString("default_currency_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The default currency is missing.
+        /// </summary>
+        public static string default_currency_missing {
+            get {
+                return ResourceManager.GetString("default_currency_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The developer was not found.
+        /// </summary>
+        public static string developer_not_found {
+            get {
+                return ResourceManager.GetString("developer_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This user name already exists.
         /// </summary>
         public static string duplicate_user_name {
@@ -516,6 +552,24 @@ namespace HCore.Translations.Resources {
         public static string first_name_too_long {
             get {
                 return ResourceManager.GetString("first_name_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The icon ICO URL is missing.
+        /// </summary>
+        public static string icon_ico_url_missing {
+            get {
+                return ResourceManager.GetString("icon_ico_url_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The icon ICO URL is too long.
+        /// </summary>
+        public static string icon_ico_url_too_long {
+            get {
+                return ResourceManager.GetString("icon_ico_url_too_long", resourceCulture);
             }
         }
         
@@ -700,6 +754,42 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The logo PNG URL is missing.
+        /// </summary>
+        public static string logo_png_url_missing {
+            get {
+                return ResourceManager.GetString("logo_png_url_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The logo PNG URL is too long.
+        /// </summary>
+        public static string logo_png_url_too_long {
+            get {
+                return ResourceManager.GetString("logo_png_url_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The logo SVG URL is missing.
+        /// </summary>
+        public static string logo_svg_url_missing {
+            get {
+                return ResourceManager.GetString("logo_svg_url_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The logo SVG URL is too long.
+        /// </summary>
+        public static string logo_svg_url_too_long {
+            get {
+                return ResourceManager.GetString("logo_svg_url_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The paging limit must not exceed 50 records.
         /// </summary>
         public static string max_paging_limit_exceeded {
@@ -759,6 +849,24 @@ namespace HCore.Translations.Resources {
         public static string no_records_specified {
             get {
                 return ResourceManager.GetString("no_records_specified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The no reply email address is invalid.
+        /// </summary>
+        public static string noreply_email_invalid {
+            get {
+                return ResourceManager.GetString("noreply_email_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The no reply email address is too long.
+        /// </summary>
+        public static string noreply_email_too_long {
+            get {
+                return ResourceManager.GetString("noreply email_too_long", resourceCulture);
             }
         }
         
@@ -997,6 +1105,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The primary color is invalid.
+        /// </summary>
+        public static string primary_color_invalid {
+            get {
+                return ResourceManager.GetString("primary_color_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The private key is invalid, decoding failed.
         /// </summary>
         public static string private_key_invalid {
@@ -1114,6 +1231,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The secondary color is invalid.
+        /// </summary>
+        public static string secondary_color_invalid {
+            get {
+                return ResourceManager.GetString("secondary_color_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The security token is invalid or expired.
         /// </summary>
         public static string security_token_invalid {
@@ -1177,6 +1303,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The subdomain is missing.
+        /// </summary>
+        public static string subdomain_missing {
+            get {
+                return ResourceManager.GetString("subdomain_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The subdomain is too long.
+        /// </summary>
+        public static string subdomain_too_long {
+            get {
+                return ResourceManager.GetString("subdomain_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The subject is invalid.
         /// </summary>
         public static string subject_invalid {
@@ -1204,11 +1348,83 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The support email address is invalid.
+        /// </summary>
+        public static string support_email_invalid {
+            get {
+                return ResourceManager.GetString("support_email_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The support email address is too long.
+        /// </summary>
+        public static string support_email_too_long {
+            get {
+                return ResourceManager.GetString("support email_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The tenant was not found.
         /// </summary>
         public static string tenant_not_found {
             get {
                 return ResourceManager.GetString("tenant_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The tenant was modified by another user, please try again.
+        /// </summary>
+        public static string tenant_optimistic_lock_violated {
+            get {
+                return ResourceManager.GetString("tenant_optimistic_lock_violated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The tenant subdomain for this tenant is immutable.
+        /// </summary>
+        public static string tenant_subdomain_immutable {
+            get {
+                return ResourceManager.GetString("tenant_subdomain_immutable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The tenant UUID is invalid.
+        /// </summary>
+        public static string tenant_uuid_invalid {
+            get {
+                return ResourceManager.GetString("tenant_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The tenant UUID is missing.
+        /// </summary>
+        public static string tenant_uuid_missing {
+            get {
+                return ResourceManager.GetString("tenant_uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The text on primary color is invalid.
+        /// </summary>
+        public static string text_on_primary_color_invalid {
+            get {
+                return ResourceManager.GetString("text_on_primary_color_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The text on secondary color is invalid.
+        /// </summary>
+        public static string text_on_secondary_color_invalid {
+            get {
+                return ResourceManager.GetString("text_on_secondary_color_invalid", resourceCulture);
             }
         }
         

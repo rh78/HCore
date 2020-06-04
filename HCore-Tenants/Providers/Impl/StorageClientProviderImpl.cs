@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 using HCore.Storage;
 using HCore.Storage.Client;
 using HCore.Storage.Client.Impl;
+using HCore.Web.Exceptions;
 
 namespace HCore.Tenants.Providers.Impl
 {
@@ -42,12 +44,9 @@ namespace HCore.Tenants.Providers.Impl
             return _storageClient;
         }
 
-        public IStorageClient GetStorageClient(long developerUuid, long tenantUuid)
+        public async Task<IStorageClient> GetStorageClientAsync(long developerUuid, long tenantUuid)
         {
-            var tenantInfo = _tenantDataProvider.LookupTenantByUuid(developerUuid, tenantUuid);
-
-            if (tenantInfo == null)
-                throw new Exception($"No tenant found for developer UUID {developerUuid} and tenant UUID {tenantUuid}");
+            var tenantInfo = await _tenantDataProvider.GetTenantByUuidThrowAsync(developerUuid, tenantUuid).ConfigureAwait(false);
 
             string implementation = tenantInfo.StorageImplementation;
             string connectionString = tenantInfo.StorageConnectionString;

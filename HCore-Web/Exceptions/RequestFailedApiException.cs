@@ -67,10 +67,20 @@ namespace HCore.Web.Exceptions
         public const string NameMissing= "name_missing";
         public const string NameInvalid = "name_invalid";
         public const string NameTooLong = "name_too_long";
+        public const string SubdomainMissing = "subdomain_missing";
+        public const string SubdomainTooLong = "subdomain_too_long";
+        public const string LogoSvgUrlMissing = "logo_svg_url_missing";
+        public const string LogoSvgUrlTooLong = "logo_svg_url_too_long";
+        public const string LogoPngUrlMissing = "logo_png_url_missing";
+        public const string LogoPngUrlTooLong = "logo_png_url_too_long";
+        public const string IconIcoUrlMissing = "icon_ico_url_missing";
+        public const string IconIcoUrlTooLong = "icon_ico_url_too_long";
         public const string TooManyUpdateRecords = "too_many_update_records";
         public const string NoRecordsSpecified = "no_records_specified";
         public const string UserGroupUuidMissing = "user_group_uuid_missing";
         public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
+        public const string TenantUuidMissing = "tenant_uuid_missing";
+        public const string TenantUuidInvalid = "tenant_uuid_invalid";
         public const string UserUuidMissing = "user_uuid_missing";
         public const string UserUuidInvalid = "user_uuid_invalid";
         public const string UserUuidTooLong = "user_uuid_too_long";
@@ -78,6 +88,10 @@ namespace HCore.Web.Exceptions
         public const string EmailInvalid = "email_invalid";
         public const string EmailTooLong = "email_too_long";
         public const string EmailAlreadyExists = "email_already_exists";
+        public const string SupportEmailInvalid = "support_email_invalid";
+        public const string SupportEmailTooLong = "support_email_too_long";
+        public const string NoreplyEmailInvalid = "noreply_email_invalid";
+        public const string NoreplyEmailTooLong = "noreply_email_too_long";
         public const string PhoneNumberMissing = "phone_number_missing";
         public const string PhoneNumberInvalid = "phone_number_invalid";
         public const string PhoneNumberTooLong = "phone_number_too_long";
@@ -102,8 +116,11 @@ namespace HCore.Web.Exceptions
         public const string PleaseAcceptPrivacyPolicy = "please_accept_privacy_policy";
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
         public const string NotificationCultureInvalid = "notification_culture_invalid";
+        public const string DefaultCultureInvalid = "default_culture_invalid";
         public const string CurrencyMissing = "currency_missing";
         public const string CurrencyInvalid = "currency_invalid";
+        public const string DefaultCurrencyMissing = "default_currency_missing";
+        public const string DefaultCurrencyInvalid = "default_currency_invalid";
         public const string CountryMissing = "country_missing";
         public const string CountryInvalid = "country_invalid";
         public const string AddressLine1Missing = "address_line_1_missing";
@@ -123,6 +140,11 @@ namespace HCore.Web.Exceptions
         public const string DomainMissing = "domain_missing";
         public const string DomainInvalid = "domain_invalid";
         public const string DomainNotFound = "domain_not_found";
+        public const string PrimaryColorInvalid = "primary_color_invalid";
+        public const string SecondaryColorInvalid = "secondary_color_invalid";
+        public const string TextOnPrimaryColorInvalid = "text_on_primary_color_invalid";
+        public const string TextOnSecondaryColorInvalid = "text_on_secondary_color_invalid";
+        public const string TenantSubdomainImmutable = "tenant_subdomain_immutable";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.RegularExpressions;
 
 namespace HCore.Web.Providers.Impl
@@ -18,7 +17,7 @@ namespace HCore.Web.Providers.Impl
 
         public string BodyJsIncludes { get; }
 
-        public HtmlTemplateFileIncludesProviderImpl(String htmlFilePath)
+        public HtmlTemplateFileIncludesProviderImpl(string htmlFilePath)
         {
             HeaderIncludes = "";
             BodyIncludes = "";
@@ -51,7 +50,7 @@ namespace HCore.Web.Providers.Impl
                     RegexOptions.Singleline | RegexOptions.IgnoreCase
                 );
 
-                (includes, css, js) = ExtractCssAndScripts(body);
+                (includes, _, js) = ExtractCssAndScripts(body);
                 BodyIncludes += includes;
                 BodyJsIncludes += js;
                 
@@ -59,7 +58,7 @@ namespace HCore.Web.Providers.Impl
             }
         }
         
-        private (String, String, String) ExtractCssAndScripts(Match htmlPart)
+        private (string, string, string) ExtractCssAndScripts(Match htmlPart)
         {
             string includes = "";
             string js = "";

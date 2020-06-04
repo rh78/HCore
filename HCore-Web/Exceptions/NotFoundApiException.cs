@@ -10,6 +10,7 @@ namespace HCore.Web.Exceptions
         public const string UserNotFound = "user_not_found";
         public const string UserGroupNotFound = "user_group_not_found";
         public const string UserNoMemberOfUserGroup = "user_no_member_of_user_group";
+        public const string DeveloperNotFound = "developer_not_found";
         public const string TenantNotFound = "tenant_not_found";
 
         public NotFoundApiException(string errorCode, string message) :

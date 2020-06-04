@@ -201,6 +201,18 @@
   <data name="email_too_long" xml:space="preserve">
     <value>The email address is too long</value>
   </data>
+  <data name="support_email_invalid" xml:space="preserve">
+    <value>The support email address is invalid</value>
+  </data>
+  <data name="support_email_too_long" xml:space="preserve">
+    <value>The support email address is too long</value>
+  </data>
+  <data name="noreply_email_invalid" xml:space="preserve">
+    <value>The no reply email address is invalid</value>
+  </data>
+  <data name="noreply_email_too_long" xml:space="preserve">
+    <value>The no reply email address is too long</value>
+  </data>
   <data name="internal_server_error" xml:space="preserve">
     <value>An unexpected server error occured</value>
   </data>
@@ -231,6 +243,30 @@
   <data name="name_too_long" xml:space="preserve">
     <value>The name is too long</value>
   </data>
+  <data name="subdomain_missing" xml:space="preserve">
+    <value>The subdomain is missing</value>
+  </data>
+  <data name="subdomain_too_long" xml:space="preserve">
+    <value>The subdomain is too long</value>
+  </data>
+  <data name="logo_svg_url_missing" xml:space="preserve">
+    <value>The logo SVG URL is missing</value>
+  </data>
+  <data name="logo_svg_url_too_long" xml:space="preserve">
+    <value>The logo SVG URL is too long</value>
+  </data>
+  <data name="logo_png_url_missing" xml:space="preserve">
+    <value>The logo PNG URL is missing</value>
+  </data>
+  <data name="logo_png_url_too_long" xml:space="preserve">
+    <value>The logo PNG URL is too long</value>
+  </data>
+  <data name="icon_ico_url_missing" xml:space="preserve">
+    <value>The icon ICO URL is missing</value>
+  </data>
+  <data name="icon_ico_url_too_long" xml:space="preserve">
+    <value>The icon ICO URL is too long</value>
+  </data>
   <data name="not_found" xml:space="preserve">
     <value>The record was not found</value>
   </data>
@@ -255,11 +291,20 @@
   <data name="notification_culture_missing" xml:space="preserve">
     <value>The notification language is missing</value>
   </data>
+  <data name="default_culture_missing" xml:space="preserve">
+    <value>The default language is missing</value>
+  </data>
   <data name="currency_missing" xml:space="preserve">
     <value>The currency is missing</value>
   </data>
   <data name="currency_invalid" xml:space="preserve">
     <value>The currency is invalid</value>
+  </data>
+  <data name="default_currency_missing" xml:space="preserve">
+    <value>The default currency is missing</value>
+  </data>
+  <data name="default_currency_invalid" xml:space="preserve">
+    <value>The default currency is invalid</value>
   </data>
   <data name="address_line_1_missing" xml:space="preserve">
     <value>The address line 1 is missing</value>
@@ -393,6 +438,12 @@
   <data name="user_group_uuid_missing" xml:space="preserve">
     <value>The user group UUID is missing</value>
   </data>
+  <data name="tenant_uuid_invalid" xml:space="preserve">
+    <value>The tenant UUID is invalid</value>
+  </data>
+  <data name="tenant_uuid_missing" xml:space="preserve">
+    <value>The tenant UUID is missing</value>
+  </data>
   <data name="user_name_invalid" xml:space="preserve">
     <value>The user name contains invalid characters</value>
   </data>
@@ -440,6 +491,9 @@
   </data>
   <data name="argument_missing" xml:space="preserve">
     <value>The argument is missing</value>
+  </data>
+  <data name="developer_not_found" xml:space="preserve">
+    <value>The developer was not found</value>
   </data>
   <data name="tenant_not_found" xml:space="preserve">
     <value>The tenant was not found</value>
@@ -551,5 +605,23 @@
   </data>
   <data name="error_message_is_invalid" xml:space="preserve">
     <value>The error message is invalid</value>
+  </data>
+  <data name="tenant_optimistic_lock_violated" xml:space="preserve">
+    <value>The tenant was modified by another user, please try again</value>
+  </data>
+  <data name="tenant_subdomain_immutable" xml:space="preserve">
+    <value>The tenant subdomain for this tenant is immutable</value>
+  </data>
+  <data name="primary_color_invalid" xml:space="preserve">
+    <value>The primary color is invalid</value>
+  </data>
+  <data name="secondary_color_invalid" xml:space="preserve">
+    <value>The secondary color is invalid</value>
+  </data>
+  <data name="text_on_primary_color_invalid" xml:space="preserve">
+    <value>The text on primary color is invalid</value>
+  </data>
+  <data name="text_on_secondary_color_invalid" xml:space="preserve">
+    <value>The text on secondary color is invalid</value>
   </data>
 </root>

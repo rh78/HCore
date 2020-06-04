@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -31,17 +32,13 @@ namespace Microsoft.AspNetCore.Builder
                 {
                     HashSet<string> originUrls = new HashSet<string>();
 
-                    tenantDataProvider.Tenants.ForEach(tenant =>
-                    {
-                        string url = tenant.WebUrl;
-                        if (url.EndsWith("/"))
-                            url = url.Substring(0, url.Length - 1);
+                    List<string> developerWildcardSubdomains = tenantDataProvider.DeveloperWildcardSubdomains;
 
-                        originUrls.Add(url);
-                    });
+                    developerWildcardSubdomains.Add("http://localhost");
+                    developerWildcardSubdomains.Add("https://localhost");
 
-                    originUrls.Add("http://localhost");
-                    originUrls.Add("https://localhost");
+                    List<Regex> developerWildcardSubdomainRegexes = developerWildcardSubdomains.Select(developerWildcardSubdomain =>
+                        new Regex("^" + Regex.Escape(developerWildcardSubdomain).Replace("\\*", ".*") + "$")).ToList();
 
                     app.UseCors(builder =>
                     {
@@ -49,7 +46,11 @@ namespace Microsoft.AspNetCore.Builder
                         builder.AllowAnyMethod();
                         builder.AllowCredentials();
 
-                        builder.WithOrigins(originUrls.ToArray());
+                        builder.SetIsOriginAllowed((origin) =>
+                        {
+                            return developerWildcardSubdomainRegexes.Any(developerWildcardSubdomainRegex =>
+                                developerWildcardSubdomainRegex.IsMatch(origin));
+                        });
                     });
                 }
             }

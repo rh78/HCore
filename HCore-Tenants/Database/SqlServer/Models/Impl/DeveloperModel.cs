@@ -14,7 +14,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public const int MaxAuthCookieDomainLength = 255;
         public const int MaxCertificatePasswordLength = 255;
         public const int MaxNameLength = 50;
-        public const int MaxLogoUrlLength = 255;
+        public const int MaxUrlLength = 255;
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -32,6 +32,13 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxAuthCookieDomainLength)]
         public string AuthCookieDomain { get; set; }
 
+        [StringLength(MaxUrlLength)]
+        public string DefaultBackendApiUrlSuffix { get; set; }
+        [StringLength(MaxUrlLength)]
+        public string DefaultFrontendApiUrlSuffix { get; set; }
+        [StringLength(MaxUrlLength)]
+        public string DefaultWebUrlSuffix { get; set; }
+
         public string PrivacyPolicyUrl { get; set; }
         public int? PrivacyPolicyVersion { get; set; }
 
@@ -48,13 +55,13 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxNameLength)]
         public string Name { get; set; }
 
-        [StringLength(MaxLogoUrlLength)]
+        [StringLength(MaxUrlLength)]
         public string LogoSvgUrl { get; set; }
 
-        [StringLength(MaxLogoUrlLength)]
+        [StringLength(MaxUrlLength)]
         public string LogoPngUrl { get; set; }
 
-        [StringLength(MaxLogoUrlLength)]
+        [StringLength(MaxUrlLength)]
         public string IconIcoUrl { get; set; }
 
         public string StorageImplementation { get; set; }

@@ -10,6 +10,10 @@ namespace HCore.Tenants.Models
         X509Certificate2 Certificate { get; }
         string AuthCookieDomain { get; }
 
+        string DefaultBackendApiUrlSuffix { get; }
+        string DefaultFrontendApiUrlSuffix { get; }
+        string DefaultWebUrlSuffix { get; }
+
         string Name { get; }
 
         string LogoSvgUrl { get; }

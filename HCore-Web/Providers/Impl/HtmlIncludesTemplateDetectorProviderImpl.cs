@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +59,7 @@ namespace HCore.Web.Providers.Impl
             }
 
             // use default "index.html" for directories
-            string pagePath = String.IsNullOrEmpty(path) ? "/" : path;
+            string pagePath = string.IsNullOrEmpty(path) ? "/" : path;
             if (string.Equals("/", pagePath) || pagePath.EndsWith("/"))
             {
                 pagePath += "index.html";
@@ -103,11 +102,11 @@ namespace HCore.Web.Providers.Impl
             return allHtmlFiles;
         }
 
-        private String GetRootPath()
+        private string GetRootPath()
         {
             string contentRootPath = _hostEnvironment.ContentRootPath;
 
-            string clientAppPath = _configuration.GetValue<String>("Spa:RootPath");
+            string clientAppPath = _configuration.GetValue<string>("Spa:RootPath");
 
             if (!string.IsNullOrEmpty(clientAppPath))
             {

@@ -6,6 +6,8 @@ namespace HCore.Web.Exceptions
     {
         private readonly string _errorCode;
 
+        public const string TenantOptimisticLockViolated = "tenant_optimistic_lock_violated";
+
         public OptimisticLockingApiException(string errorCode, string message) :
             base(message)
         {

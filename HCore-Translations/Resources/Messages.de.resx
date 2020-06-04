@@ -201,6 +201,18 @@
   <data name="email_too_long" xml:space="preserve">
     <value>Die E-Mail-Adresse ist zu lang</value>
   </data>
+  <data name="support_email_invalid" xml:space="preserve">
+    <value>Die Support E-Mail-Adresse ist ungültig</value>
+  </data>
+  <data name="support_email_too_long" xml:space="preserve">
+    <value>Die Support E-Mail-Adresse ist zu lang</value>
+  </data>
+  <data name="noreply_email_invalid" xml:space="preserve">
+    <value>Die No Reply E-Mail-Adresse ist ungültig</value>
+  </data>
+  <data name="noreply_email_too_long" xml:space="preserve">
+    <value>Die No Reply E-Mail-Adresse ist zu lang</value>
+  </data>
   <data name="internal_server_error" xml:space="preserve">
     <value>Ein unerwarteter Serverfehler ist aufgetreten</value>
   </data>
@@ -231,6 +243,30 @@
   <data name="name_too_long" xml:space="preserve">
     <value>Der Name ist zu lang</value>
   </data>
+  <data name="subdomain_missing" xml:space="preserve">
+    <value>Die Subdomain fehlt</value>
+  </data>
+  <data name="subdomain_too_long" xml:space="preserve">
+    <value>Die Subdomain ist zu lang</value>
+  </data>
+  <data name="logo_svg_url_missing" xml:space="preserve">
+    <value>Die Logo SVG URL fehlt</value>
+  </data>
+  <data name="logo_svg_url_too_long" xml:space="preserve">
+    <value>Die Logo SVG URL ist zu lang</value>
+  </data>
+  <data name="logo_png_url_missing" xml:space="preserve">
+    <value>Die Logo PNG URL fehlt</value>
+  </data>
+  <data name="logo_png_url_too_long" xml:space="preserve">
+    <value>Die Logo PNG URL ist zu lang</value>
+  </data>
+  <data name="icon_ico_url_missing" xml:space="preserve">
+    <value>Die Icon ICO URL fehlt</value>
+  </data>
+  <data name="icon_ico_url_too_long" xml:space="preserve">
+    <value>Die Icon ICO URL ist zu lang</value>
+  </data>
   <data name="not_found" xml:space="preserve">
     <value>Der Datensatz wurde nicht gefunden</value>
   </data>
@@ -255,11 +291,20 @@
   <data name="notification_culture_missing" xml:space="preserve">
     <value>Die Benachrichtigungs-Sprache fehlt</value>
   </data>
+  <data name="default_culture_missing" xml:space="preserve">
+    <value>Die Standard-Sprache fehlt</value>
+  </data>
   <data name="currency_missing" xml:space="preserve">
     <value>Die Währung fehlt</value>
   </data>
   <data name="currency_invalid" xml:space="preserve">
     <value>Die Währung ist ungültig</value>
+  </data>
+  <data name="default_currency_missing" xml:space="preserve">
+    <value>Die Standard-Währung fehlt</value>
+  </data>
+  <data name="default_currency_invalid" xml:space="preserve">
+    <value>Die Standard-Währung ist ungültig</value>
   </data>
   <data name="address_line_1_missing" xml:space="preserve">
     <value>Die Zeile 1 der Adresse ist ungültig</value>
@@ -393,6 +438,12 @@
   <data name="user_group_uuid_missing" xml:space="preserve">
     <value>Die Benutzergruppen-UUID fehlt</value>
   </data>
+  <data name="tenant_uuid_invalid" xml:space="preserve">
+    <value>Die Mandanten-UUID ist ungültig</value>
+  </data>
+  <data name="tenant_uuid_missing" xml:space="preserve">
+    <value>Die Mandanten-UUID fehlt</value>
+  </data>
   <data name="user_name_invalid" xml:space="preserve">
     <value>Der Benutzername enthält ungültige Zeichen</value>
   </data>
@@ -440,6 +491,9 @@
   </data>
   <data name="argument_missing" xml:space="preserve">
     <value>Das Argument fehlt</value>
+  </data>
+  <data name="developer_not_found" xml:space="preserve">
+    <value>Der Entwickler wurde nicht gefunden</value>
   </data>
   <data name="tenant_not_found" xml:space="preserve">
     <value>Der Mandant wurde nicht gefunden</value>
@@ -551,5 +605,23 @@
   </data>
   <data name="error_message_is_invalid" xml:space="preserve">
     <value>Die Fehlermeldung ist ungültig</value>
+  </data>
+  <data name="tenant_optimistic_lock_violated" xml:space="preserve">
+    <value>Der Mandant wurde von einem anderen Benutzer geändert. Bitte versuchen Sie es erneut</value>
+  </data>
+  <data name="tenant_subdomain_immutable" xml:space="preserve">
+    <value>Die Subdomain für diesen Mandanten kann nicht geändert werden</value>
+  </data>
+  <data name="primary_color_invalid" xml:space="preserve">
+    <value>Die Hauptfarbe ist ungültig</value>
+  </data>
+  <data name="secondary_color_invalid" xml:space="preserve">
+    <value>Die Nebenfarbe ist ungültig</value>
+  </data>
+  <data name="text_on_primary_color_invalid" xml:space="preserve">
+    <value>Die Textfarbe auf der Hauptfarbe ist ungültig</value>
+  </data>
+  <data name="text_on_secondary_color_invalid" xml:space="preserve">
+    <value>Die Textfarbe auf der Nebenfarbe ist ungültig</value>
   </data>
 </root>

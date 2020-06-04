@@ -7,6 +7,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
     public class TenantModel
     {
+        public const int MaxNameLength = 50;
         public const int MaxSubdomainPatternLength = 255;
         public const int MaxUrlLength = 255;
 
@@ -14,10 +15,15 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long Uuid { get; set; }
 
+        public long DeveloperUuid { get; set; }
         public DeveloperModel Developer { get; set; }
 
+		// Deprecated, for migration only
+		// TODO: remove, once migrated
         [StringLength(MaxSubdomainPatternLength)]
         public string SubdomainPattern { get; set; }
+
+        public string[] SubdomainPatterns { get; set; }
 
         [StringLength(MaxUrlLength)]
         public string BackendApiUrl { get; set; }
@@ -33,13 +39,13 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool? RequiresTermsAndConditions { get; set; }
 
-        [StringLength(DeveloperModel.MaxLogoUrlLength)]
+        [StringLength(DeveloperModel.MaxUrlLength)]
         public string LogoSvgUrl { get; set; }
 
-        [StringLength(DeveloperModel.MaxLogoUrlLength)]
+        [StringLength(DeveloperModel.MaxUrlLength)]
         public string LogoPngUrl { get; set; }
 
-        [StringLength(DeveloperModel.MaxLogoUrlLength)]
+        [StringLength(DeveloperModel.MaxUrlLength)]
         public string IconIcoUrl { get; set; }
 
         public string StorageImplementation { get; set; }
@@ -111,7 +117,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 
+        [ConcurrencyCheck]
         public int Version { get; set; }
+
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
     }

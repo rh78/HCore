@@ -24,6 +24,8 @@ namespace HCore.Tenants.Models
 
         string Name { get; }
 
+        string SubdomainPattern { get; }
+
         string LogoSvgUrl { get; }
         string LogoPngUrl { get; }
         string IconIcoUrl { get; }

@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models.Impl
 {
+    [Serializable]
     internal class TenantInfoImpl : ITenantInfo
     {
         public long DeveloperUuid { get; internal set; }
@@ -23,6 +25,8 @@ namespace HCore.Tenants.Models.Impl
         public long TenantUuid { get; internal set; }
 
         public string Name { get; internal set; }
+
+        public string SubdomainPattern { get; internal set; }
 
         public string LogoSvgUrl { get; internal set; }
         public string LogoPngUrl { get; internal set; }
@@ -135,6 +139,7 @@ namespace HCore.Tenants.Models.Impl
                 DeveloperTermsAndConditionsVersion = DeveloperTermsAndConditionsVersion,
                 TenantUuid = TenantUuid,
                 Name = Name,
+                SubdomainPattern = SubdomainPattern,
                 LogoSvgUrl = LogoSvgUrl,
                 LogoPngUrl = LogoPngUrl,
                 IconIcoUrl = IconIcoUrl,

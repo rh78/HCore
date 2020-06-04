@@ -1,431 +1,50 @@
 ﻿using HCore.Directory;
 using HCore.Storage;
+using HCore.Tenants.Cache;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
+using HCore.Web.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace HCore.Tenants.Providers.Impl
 {
     internal class TenantDataProviderImpl : ITenantDataProvider
     {
-        private readonly Dictionary<string, DeveloperWrapper> _developerMappings;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        private readonly Dictionary<long, DeveloperWrapper> _developerMappingsByUuid;
+        private readonly ITenantCache _tenantCache;
+
+        private readonly Dictionary<string, IDeveloperInfo> _developerInfosByHostPattern;
+
+        private readonly Dictionary<long, IDeveloperInfo> _developerInfosByUuid;
 
         public List<IDeveloperInfo> Developers { get; internal set; }
-        public List<ITenantInfo> Tenants { get; internal set; }
+        public List<string> DeveloperWildcardSubdomains { get; internal set; }
 
         public int? HealthCheckPort { get; internal set; }
         public string HealthCheckTenantHost { get; internal set; }
 
+        private readonly X509Certificate2 _standardSamlCertificate;
+
         private readonly ILogger<TenantDataProviderImpl> _logger;
 
-        private class DeveloperWrapper
+        public TenantDataProviderImpl(IServiceProvider serviceProvider, ITenantCache tenantCache, ILogger<TenantDataProviderImpl> logger)
         {
-            private Dictionary<string, ITenantInfo> _tenantInfoMappings;
-            private Dictionary<long, ITenantInfo> _tenantInfoMappingsByUuid;
+            _scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-            public List<ITenantInfo> TenantInfos { get; set; }
-            
-            public DeveloperModel Developer { get; private set; }
-
-            public DeveloperWrapper(DeveloperModel developer, X509Certificate2 standardSamlCertificate)
-            {
-                Developer = developer;
-
-                _tenantInfoMappings = new Dictionary<string, ITenantInfo>();
-                _tenantInfoMappingsByUuid = new Dictionary<long, ITenantInfo>();
-
-                TenantInfos = new List<ITenantInfo>();
-
-                developer.Tenants.ForEach(tenant =>
-                {
-                    string subdomainPattern = tenant.SubdomainPattern;
-
-                    X509Certificate2 developerCertificate = null;
-
-                    if (!string.IsNullOrEmpty(developer.Certificate))
-                    {
-                        if (string.IsNullOrEmpty(developer.CertificatePassword))
-                            throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
-
-                        developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developer.Certificate), developer.CertificatePassword);
-                    }
-
-                    if (string.IsNullOrEmpty(tenant.Name))
-                        throw new Exception("The tenant name is empty");
-
-                    if (string.IsNullOrEmpty(tenant.FrontendApiUrl))
-                        throw new Exception("The tenant frontend API URL is empty");
-
-                    if (string.IsNullOrEmpty(tenant.BackendApiUrl))
-                        throw new Exception("The tenant backend API url is empty");
-
-                    if (string.IsNullOrEmpty(tenant.WebUrl))
-                        throw new Exception("The tenant web url is empty");
-
-                    bool? requiresTermsAndConditions = tenant.RequiresTermsAndConditions;
-                    if (requiresTermsAndConditions == null)
-                        requiresTermsAndConditions = developer.RequiresTermsAndConditions;
-
-                    string logoSvgUrl = tenant.LogoSvgUrl;
-                    if (string.IsNullOrEmpty(logoSvgUrl))
-                        logoSvgUrl = developer.LogoSvgUrl;
-
-                    string logoPngUrl = tenant.LogoPngUrl;
-                    if (string.IsNullOrEmpty(logoPngUrl))
-                        logoPngUrl = developer.LogoPngUrl;
-
-                    string iconIcoUrl = tenant.IconIcoUrl;
-                    if (string.IsNullOrEmpty(iconIcoUrl))
-                        iconIcoUrl = developer.IconIcoUrl;
-
-                    string storageImplementation = tenant.StorageImplementation;
-                    if (string.IsNullOrEmpty(storageImplementation))
-                        storageImplementation = developer.StorageImplementation;
-
-                    // storage is optional
-
-                    string storageConnectionString = null;
-
-                    if (!string.IsNullOrEmpty(storageImplementation))
-                    {
-                        if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
-                            throw new Exception("The tenant storage implementation specification is invalid");
-
-                        storageConnectionString = tenant.StorageConnectionString;
-                        if (string.IsNullOrEmpty(storageConnectionString))
-                            storageConnectionString = developer.StorageConnectionString;
-                    }
-
-                    int? primaryColor = tenant.PrimaryColor;
-                    if (primaryColor == null)
-                        primaryColor = developer.PrimaryColor;
-
-                    int? secondaryColor = tenant.SecondaryColor;
-                    if (secondaryColor == null)
-                        secondaryColor = developer.SecondaryColor;
-
-                    int? textOnPrimaryColor = tenant.TextOnPrimaryColor;
-                    if (textOnPrimaryColor == null)
-                        textOnPrimaryColor = developer.TextOnPrimaryColor;
-
-                    int? textOnSecondaryColor = tenant.TextOnSecondaryColor;
-                    if (textOnSecondaryColor == null)
-                        textOnSecondaryColor = developer.TextOnSecondaryColor;
-
-                    string supportEmail = tenant.SupportEmail;
-                    if (string.IsNullOrEmpty(supportEmail))
-                        supportEmail = developer.SupportEmail;
-
-                    string noreplyEmail = tenant.NoreplyEmail;
-                    if (string.IsNullOrEmpty(noreplyEmail))
-                        noreplyEmail = developer.NoreplyEmail;
-
-                    string customInvitationEmailTextPrefix = tenant.CustomInvitationEmailTextPrefix;
-                    if (string.IsNullOrEmpty(customInvitationEmailTextPrefix))
-                        customInvitationEmailTextPrefix = null;
-
-                    string customInvitationEmailTextSuffix = tenant.CustomInvitationEmailTextSuffix;
-                    if (string.IsNullOrEmpty(customInvitationEmailTextSuffix))
-                        customInvitationEmailTextSuffix = null;
-
-                    string productName = tenant.ProductName;
-                    if (string.IsNullOrEmpty(productName))
-                        productName = developer.ProductName;
-
-                    string defaultCulture = tenant.DefaultCulture;
-                    if (string.IsNullOrEmpty(defaultCulture))
-                        defaultCulture = "en";
-
-                    string defaultCurrency = tenant.DefaultCurrency;
-                    if (string.IsNullOrEmpty(defaultCurrency))
-                        defaultCurrency = "eur";
-
-                    bool usersAreExternallyManaged = false;
-                    bool externalUsersAreManuallyManaged = false;
-
-                    string externalAuthorizationMethod = tenant.ExternalAuthenticationMethod;
-
-                    // external authorization is optional
-
-                    string oidcClientId = null;
-                    string oidcClientSecret = null;
-                    string oidcEndpointUrl = null;
-
-                    string samlEntityId = null;
-
-                    string samlPeerEntityId = null;
-                    string samlPeerIdpMetadataLocation = null;
-                    string samlPeerIdpMetadata = null;
-
-                    X509Certificate2 samlCertificate = null;
-
-                    bool samlAllowWeakSigningAlgorithm = false;
-
-                    string externalDirectoryType = null;
-                    string externalDirectoryHost = null;
-                    int? externalDirectoryPort = null;
-
-                    bool? externalDirectoryUsesSsl = null;
-
-                    X509Certificate2 externalDirectorySslCertificate = null;
-
-                    string externalDirectoryAccountDistinguishedName = null;
-
-                    string externalDirectoryPassword = null;
-
-                    string externalDirectoryLoginAttribute = null;
-
-                    string externalDirectoryBaseContexts = null;
-
-                    string externalDirectoryUserFilter = null;
-                    string externalDirectoryGroupFilter = null;
-
-                    int? externalDirectorySyncIntervalSeconds = null;
-
-                    string externalDirectoryAdministratorGroupUuid = null;
-
-                    if (!string.IsNullOrEmpty(externalAuthorizationMethod))
-                    {
-                        if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc) && !externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
-                            throw new Exception("The tenant external authentication method specification is invalid");
-
-                        if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
-                        {
-                            oidcClientId = tenant.OidcClientId;
-                            if (string.IsNullOrEmpty(oidcClientId))
-                                throw new Exception("The tenant OIDC client ID is missing");
-
-                            oidcClientSecret = tenant.OidcClientSecret;
-                            if (string.IsNullOrEmpty(oidcClientSecret))
-                                throw new Exception("The tenant OIDC client secret is missing");
-
-                            oidcEndpointUrl = tenant.OidcEndpointUrl;
-                            if (string.IsNullOrEmpty(oidcEndpointUrl))
-                                throw new Exception("The tenant OIDC endpoint URL is missing");
-                        }
-                        else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
-                        {
-                            samlEntityId = tenant.SamlEntityId;
-                            if (string.IsNullOrEmpty(samlEntityId))
-                                throw new Exception("The tenant SAML entity ID is missing");
-
-                            samlPeerEntityId = tenant.SamlPeerEntityId;
-                            if (string.IsNullOrEmpty(samlPeerEntityId))
-                                throw new Exception("The tenant SAML peer entity ID is missing");
-
-                            samlPeerIdpMetadataLocation = tenant.SamlPeerIdpMetadataLocation;
-                            samlPeerIdpMetadata = tenant.SamlPeerIdpMetadata;
-
-                            if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && !string.IsNullOrEmpty(samlPeerIdpMetadata))
-                                throw new Exception("Please give either the SAML peer IDP metadata location or the metadata itself, not both");
-
-                            if (string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && string.IsNullOrEmpty(samlPeerIdpMetadata))
-                                throw new Exception("The tenant SAML peer IDP metadata location or the metadata itself is missing");
-
-                            if (!string.IsNullOrEmpty(tenant.SamlCertificate))
-                                samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.SamlCertificate));
-                            else
-                            {
-                                samlCertificate = standardSamlCertificate;
-                            }
-
-                            samlAllowWeakSigningAlgorithm = tenant.SamlAllowWeakSigningAlgorithm ?? false;
-                        }
-
-                        externalDirectoryType = tenant.ExternalDirectoryType;
-
-                        if (string.IsNullOrEmpty(externalDirectoryType))
-                            throw new Exception("The tenant external directory type is missing");
-
-                        if (/* !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS) &&
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP) && */
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
-                        {
-                            throw new Exception("The tenant external directory type specification is invalid");
-                        }
-
-                        // TODO: LDAP etc. is not yet implemented
-
-                        if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
-                        {
-                            // dynamic directory types will create users on-demand when logging in
-
-                            externalDirectoryHost = tenant.ExternalDirectoryHost;
-
-                            if (string.IsNullOrEmpty(externalDirectoryHost))
-                                throw new Exception("The tenant external directory host is missing");
-
-                            externalDirectoryUsesSsl = tenant.ExternalDirectoryUsesSsl ?? false;
-
-                            externalDirectoryPort = tenant.ExternalDirectoryPort;
-
-                            if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
-                                throw new Exception("The tenant external directory port is invalid");
-
-                            if (!string.IsNullOrEmpty(tenant.ExternalDirectorySslCertificate))
-                                externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenant.ExternalDirectorySslCertificate));
-
-                            if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
-                                throw new Exception("The tenant external directory SSL certificate is missing");
-
-                            externalDirectoryAccountDistinguishedName = tenant.ExternalDirectoryAccountDistinguishedName;
-                            if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
-                                throw new Exception("The tenant external directory account distinguished name is missing");
-
-                            externalDirectoryPassword = tenant.ExternalDirectoryPassword;
-                            if (string.IsNullOrEmpty(externalDirectoryPassword))
-                                throw new Exception("The tenant external directory password is missing");
-
-                            externalDirectoryLoginAttribute = tenant.ExternalDirectoryLoginAttribute;
-
-                            externalDirectoryBaseContexts = tenant.ExternalDirectoryBaseContexts;
-                            if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
-                                throw new Exception("The tenant external directory base contexts are missing");
-
-                            externalDirectoryUserFilter = tenant.ExternalDirectoryUserFilter;
-                            externalDirectoryGroupFilter = tenant.ExternalDirectoryGroupFilter;
-
-                            externalDirectorySyncIntervalSeconds = tenant.ExternalDirectorySyncIntervalSeconds;
-
-                            if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
-                                throw new Exception("The tenant external directory sync interval is invalid");
-
-                            externalDirectoryAdministratorGroupUuid = tenant.ExternalDirectoryAdministratorGroupUuid;
-                            if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
-                                throw new Exception("The tenant external directory administrator group UUID is missing");
-                        }
-
-                        usersAreExternallyManaged = true;
-
-                        externalUsersAreManuallyManaged = tenant.ExternalUsersAreManuallyManaged;
-                    }
-
-                    string customTenantSettingsJson = tenant.CustomTenantSettingsJson;
-
-                    var tenantInfo = new TenantInfoImpl()
-                    {
-                        DeveloperUuid = developer.Uuid,
-                        DeveloperAuthority = developer.Authority,
-                        DeveloperAudience = developer.Audience,
-                        DeveloperCertificate = developerCertificate,
-                        DeveloperAuthCookieDomain = developer.AuthCookieDomain,
-                        DeveloperName = developer.Name,
-                        DeveloperPrivacyPolicyUrl = developer.PrivacyPolicyUrl,
-                        DeveloperPrivacyPolicyVersion = developer.PrivacyPolicyVersion,
-                        DeveloperTermsAndConditionsUrl = developer.TermsAndConditionsUrl,
-                        DeveloperTermsAndConditionsVersion = developer.TermsAndConditionsVersion,
-                        TenantUuid = tenant.Uuid,
-                        Name = tenant.Name,
-                        RequiresTermsAndConditions = requiresTermsAndConditions ?? true,
-                        LogoSvgUrl = logoSvgUrl,
-                        LogoPngUrl = logoPngUrl,
-                        IconIcoUrl = iconIcoUrl,
-                        StorageImplementation = storageImplementation,
-                        StorageConnectionString = storageConnectionString,
-                        PrimaryColor = (int)primaryColor,
-                        SecondaryColor = (int)secondaryColor,
-                        TextOnPrimaryColor = (int)textOnPrimaryColor,
-                        TextOnSecondaryColor = (int)textOnSecondaryColor,
-                        PrimaryColorHex = ConvertToHexColor(primaryColor),
-                        SecondaryColorHex = ConvertToHexColor(secondaryColor),
-                        TextOnPrimaryColorHex = ConvertToHexColor(textOnPrimaryColor),
-                        TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
-                        SupportEmail = supportEmail,
-                        NoreplyEmail = noreplyEmail,
-                        CustomInvitationEmailTextPrefix = customInvitationEmailTextPrefix,
-                        CustomInvitationEmailTextSuffix = customInvitationEmailTextSuffix,
-                        ProductName = productName,
-                        BackendApiUrl = tenant.BackendApiUrl,
-                        FrontendApiUrl = tenant.FrontendApiUrl,
-                        WebUrl = tenant.WebUrl,
-                        DefaultCulture = defaultCulture,
-                        DefaultCurrency = defaultCurrency,
-                        UsersAreExternallyManaged = usersAreExternallyManaged,
-                        ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
-                        ExternalAuthenticationMethod = externalAuthorizationMethod,
-                        OidcClientId = oidcClientId,
-                        OidcClientSecret = oidcClientSecret,
-                        OidcEndpointUrl = oidcEndpointUrl,
-                        SamlEntityId = samlEntityId,
-                        SamlPeerEntityId = samlPeerEntityId,
-                        SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
-                        SamlPeerIdpMetadata = samlPeerIdpMetadata,
-                        SamlCertificate = samlCertificate,
-                        SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
-                        ExternalDirectoryType = externalDirectoryType,
-                        ExternalDirectoryHost = externalDirectoryHost,
-                        ExternalDirectoryPort = externalDirectoryPort,
-                        ExternalDirectoryUsesSsl = externalDirectoryUsesSsl,
-                        ExternalDirectorySslCertificate = externalDirectorySslCertificate,
-                        ExternalDirectoryAccountDistinguishedName = externalDirectoryAccountDistinguishedName,
-                        ExternalDirectoryPassword = externalDirectoryPassword,
-                        ExternalDirectoryLoginAttribute = externalDirectoryLoginAttribute,
-                        ExternalDirectoryBaseContexts = externalDirectoryBaseContexts,
-                        ExternalDirectoryUserFilter = externalDirectoryUserFilter,
-                        ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
-                        ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
-                        ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
-                        CustomTenantSettingsJson = customTenantSettingsJson,
-                        RequiresDevAdminSsoReplacement = tenant.RequiresDevAdminSsoReplacement,
-                        DevAdminSsoReplacementSamlPeerEntityId = tenant.DevAdminSsoReplacementSamlPeerEntityId,
-                        DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenant.DevAdminSsoReplacementSamlPeerIdpMetadataLocation
-                    };
-
-                    string[] subdomainPatternParts = subdomainPattern.Split(';');
-
-                    subdomainPatternParts.ToList().ForEach(subdomainPatternPart =>
-                    {
-                        _tenantInfoMappings.Add(subdomainPatternPart, tenantInfo);                        
-                    });
-
-                    _tenantInfoMappingsByUuid.Add(tenantInfo.TenantUuid, tenantInfo);
-
-                    TenantInfos.Add(tenantInfo);
-                });
-            }
-
-            private string ConvertToHexColor(int? color)
-            {
-                return "#" + (color != null ? ((int)color).ToString("X6") : "000000");
-            }
-
-            internal ITenantInfo LookupTenantBySubDomain(string subDomainLookup)
-            {
-                if (!_tenantInfoMappings.ContainsKey(subDomainLookup))
-                    return null;
-
-                var tenantInfo = _tenantInfoMappings[subDomainLookup];
-
-                return tenantInfo;
-            }
-
-            internal ITenantInfo LookupTenantByUuid(long tenantUuid)
-            {
-                if (!_tenantInfoMappingsByUuid.ContainsKey(tenantUuid))
-                    return null;
-
-                return _tenantInfoMappingsByUuid[tenantUuid];
-            }
-        }
-
-        public TenantDataProviderImpl(IServiceProvider serviceProvider, ILogger<TenantDataProviderImpl> logger)
-        {
-            var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
+            _tenantCache = tenantCache;
 
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
@@ -439,108 +58,117 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
 
-            var standardSamlCertificate = ReadStandardSamlCertificate(configuration);
+            _standardSamlCertificate = ReadStandardSamlCertificate(configuration);
 
-            using (var scope = scopeFactory.CreateScope())
+            using (var scope = _scopeFactory.CreateScope())
             {
                 using (var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerTenantDbContext>())
                 {
                     IQueryable<DeveloperModel> query = dbContext.Developers;
 
-                    query = query.Include(developerModel => developerModel.Tenants);
+                    List<DeveloperModel> developerModels = query.ToList();
 
-                    List<DeveloperModel> developers = query.ToList();
-
-                    _developerMappings = new Dictionary<string, DeveloperWrapper>();
-                    _developerMappingsByUuid = new Dictionary<long, DeveloperWrapper>();
+                    _developerInfosByHostPattern = new Dictionary<string, IDeveloperInfo>();
+                    _developerInfosByUuid = new Dictionary<long, IDeveloperInfo>();
 
                     Developers = new List<IDeveloperInfo>();
-                    Tenants = new List<ITenantInfo>();
+                    DeveloperWildcardSubdomains = new List<string>();
 
-                    developers.ForEach(developer =>
+                    developerModels.ForEach(developerModel =>
                     {
-                        var developerWrapper = new DeveloperWrapper(developer, standardSamlCertificate);
-
-                        _developerMappings.Add(developer.HostPattern, developerWrapper);
-                        _developerMappingsByUuid.Add(developer.Uuid, developerWrapper);
-
-                        Tenants.AddRange(developerWrapper.TenantInfos);
-
                         X509Certificate2 developerCertificate = null;
 
-                        if (!string.IsNullOrEmpty(developer.Certificate))
+                        if (!string.IsNullOrEmpty(developerModel.Certificate))
                         {
-                            if (string.IsNullOrEmpty(developer.CertificatePassword))
+                            if (string.IsNullOrEmpty(developerModel.CertificatePassword))
                                 throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
 
-                            developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developer.Certificate), developer.CertificatePassword);
+                            developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developerModel.Certificate), developerModel.CertificatePassword);
                         }
 
-                        if (string.IsNullOrEmpty(developer.Authority))
+                        if (string.IsNullOrEmpty(developerModel.Authority))
                             throw new Exception("The developer authority is empty");
 
-                        if (string.IsNullOrEmpty(developer.Audience))
+                        if (string.IsNullOrEmpty(developerModel.Audience))
                             throw new Exception("The developer audience is empty");
 
-                        if (string.IsNullOrEmpty(developer.AuthCookieDomain))
+                        if (string.IsNullOrEmpty(developerModel.AuthCookieDomain))
                             throw new Exception("The developer auth cookie domain is empty");
 
-                        if (string.IsNullOrEmpty(developer.Name))
+                        if (string.IsNullOrEmpty(developerModel.DefaultBackendApiUrlSuffix))
+                            throw new Exception("The developer default backend API URL suffix is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.DefaultFrontendApiUrlSuffix))
+                            throw new Exception("The developer default frontend API URL suffix is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.DefaultWebUrlSuffix))
+                            throw new Exception("The developer default web URL suffix is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.Name))
                             throw new Exception("The developer name is empty");
 
-                        if (string.IsNullOrEmpty(developer.LogoSvgUrl))
+                        if (string.IsNullOrEmpty(developerModel.LogoSvgUrl))
                             throw new Exception("The developer logo SVG URL is empty");
 
-                        if (string.IsNullOrEmpty(developer.LogoPngUrl))
+                        if (string.IsNullOrEmpty(developerModel.LogoPngUrl))
                             throw new Exception("The developer logo PNG URL is empty");
 
-                        if (string.IsNullOrEmpty(developer.IconIcoUrl))
+                        if (string.IsNullOrEmpty(developerModel.IconIcoUrl))
                             throw new Exception("The developer icon ICO URL is empty");
 
                         // storage is optional
                         
-                        string storageImplementation = developer.StorageImplementation;
+                        string storageImplementation = developerModel.StorageImplementation;
                         if (!string.IsNullOrEmpty(storageImplementation))
                         {
                             if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
                                 throw new Exception("The developer storage implementation specification is invalid");
 
-                            if (string.IsNullOrEmpty(developer.StorageConnectionString))
+                            if (string.IsNullOrEmpty(developerModel.StorageConnectionString))
                                 throw new Exception("The developer storage connection string is empty");
                         }
 
-                        if (string.IsNullOrEmpty(developer.SupportEmail))
+                        if (string.IsNullOrEmpty(developerModel.SupportEmail))
                             throw new Exception("The developer support email is empty");
 
-                        if (string.IsNullOrEmpty(developer.NoreplyEmail))
+                        if (string.IsNullOrEmpty(developerModel.NoreplyEmail))
                             throw new Exception("The developer noreply email is empty");
 
-                        if (string.IsNullOrEmpty(developer.ProductName))
+                        if (string.IsNullOrEmpty(developerModel.ProductName))
                             throw new Exception("The developer product name is empty");
 
                         var developerInfo = new DeveloperInfoImpl()
                         {
-                            DeveloperUuid = developer.Uuid,
-                            Authority = developer.Authority,
-                            Audience = developer.Audience,
+                            DeveloperUuid = developerModel.Uuid,
+                            Authority = developerModel.Authority,
+                            Audience = developerModel.Audience,
                             Certificate = developerCertificate,
-                            AuthCookieDomain = developer.AuthCookieDomain,
-                            Name = developer.Name,
-                            LogoSvgUrl = developer.LogoSvgUrl,
-                            LogoPngUrl = developer.LogoPngUrl,
-                            IconIcoUrl = developer.IconIcoUrl,
-                            StorageImplementation = developer.StorageImplementation,
-                            StorageConnectionString = developer.StorageConnectionString,
-                            PrimaryColor = developer.PrimaryColor,
-                            SecondaryColor = developer.SecondaryColor,
-                            TextOnPrimaryColor = developer.TextOnPrimaryColor,
-                            TextOnSecondaryColor = developer.TextOnSecondaryColor,
-                            SupportEmail = developer.SupportEmail,
-                            NoreplyEmail = developer.NoreplyEmail,
-                            ProductName = developer.ProductName
+                            AuthCookieDomain = developerModel.AuthCookieDomain,
+                            DefaultBackendApiUrlSuffix = developerModel.DefaultBackendApiUrlSuffix,
+                            DefaultFrontendApiUrlSuffix = developerModel.DefaultFrontendApiUrlSuffix,
+                            DefaultWebUrlSuffix = developerModel.DefaultWebUrlSuffix,
+                            Name = developerModel.Name,
+                            LogoSvgUrl = developerModel.LogoSvgUrl,
+                            LogoPngUrl = developerModel.LogoPngUrl,
+                            IconIcoUrl = developerModel.IconIcoUrl,
+                            StorageImplementation = developerModel.StorageImplementation,
+                            StorageConnectionString = developerModel.StorageConnectionString,
+                            PrimaryColor = developerModel.PrimaryColor,
+                            SecondaryColor = developerModel.SecondaryColor,
+                            TextOnPrimaryColor = developerModel.TextOnPrimaryColor,
+                            TextOnSecondaryColor = developerModel.TextOnSecondaryColor,
+                            SupportEmail = developerModel.SupportEmail,
+                            NoreplyEmail = developerModel.NoreplyEmail,
+                            ProductName = developerModel.ProductName
                         };
 
+                        _developerInfosByHostPattern.Add(developerModel.HostPattern, developerInfo);
+                        _developerInfosByUuid.Add(developerModel.Uuid, developerInfo);
+
                         Developers.Add(developerInfo);
+
+                        DeveloperWildcardSubdomains.Add($"https://*.{developerModel.HostPattern}");
+                        DeveloperWildcardSubdomains.Add($"https://*.{developerModel.HostPattern}:*");
                     });
                 }
             }
@@ -548,7 +176,15 @@ namespace HCore.Tenants.Providers.Impl
             _logger = logger;
         }
 
-        public (string, ITenantInfo) LookupTenantByHost(string host)
+        public IDeveloperInfo GetDeveloper(long developerUuid)
+        {
+            if (!_developerInfosByUuid.ContainsKey(developerUuid))
+                return null;
+
+            return _developerInfosByUuid[developerUuid];
+        }
+
+        public async Task<(string, ITenantInfo)> GetTenantByHostAsync(string host)
         {
             if (string.IsNullOrEmpty(host))
             {
@@ -590,41 +226,459 @@ namespace HCore.Tenants.Providers.Impl
 
             string hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
 
-            if (!_developerMappings.ContainsKey(hostLookup))
+            if (!_developerInfosByHostPattern.ContainsKey(hostLookup))
             {
-                _logger.LogInformation($"No developer found for host {host}");
+                _logger.LogInformation($"No developer info found for host {host}");
 
                 return (null, null);
             }
 
-            var developerWrapper = _developerMappings[hostLookup];
-            if (developerWrapper == null)
+            var developerInfo = _developerInfosByHostPattern[hostLookup];
+            if (developerInfo == null)
             {
-                _logger.LogInformation($"No developer found for host {host}");
+                _logger.LogInformation($"No developer info found for host {host}");
 
                 return (null, null);
             }
 
-            var tenantInfo = developerWrapper.LookupTenantBySubDomain(subDomainLookup);
+            var tenantInfo = await _tenantCache.GetTenantInfoBySubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup).ConfigureAwait(false);
+
             if (tenantInfo == null)
             {
-                _logger.LogInformation($"No developer found for host {host}, developer {developerWrapper.Developer.Uuid} and sub domain lookup {subDomainLookup}");
+                tenantInfo = await GetTenantInfoBySubdomainLookupAsync(developerInfo, subDomainLookup).ConfigureAwait(false);
 
-                return (null, null);
+                if (tenantInfo == null)
+                {
+                    _logger.LogInformation($"No developer found for host {host}, developer {developerInfo.DeveloperUuid} and sub domain lookup {subDomainLookup}");
+
+                    return (null, null);
+                }
+
+                await _tenantCache.CreateOrUpdateTenantInfoForSubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, tenantInfo).ConfigureAwait(false);
             }
 
             return (subDomainLookup, tenantInfo);
         }
 
-        public ITenantInfo LookupTenantByUuid(long developerUuid, long tenantUuid)
+        private async Task<ITenantInfo> GetTenantInfoBySubdomainLookupAsync(IDeveloperInfo developerInfo, string subDomainLookup)
         {
-            if (!_developerMappingsByUuid.ContainsKey(developerUuid))
-                return null;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                using (var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerTenantDbContext>())
+                {
+                    IQueryable<TenantModel> query = dbContext.Tenants;
 
-            return _developerMappingsByUuid[developerUuid].LookupTenantByUuid(tenantUuid);
+                    query = query.Where(tenant => tenant.DeveloperUuid == developerInfo.DeveloperUuid);
+                    query = query.Where(tenant => tenant.SubdomainPatterns.Contains(subDomainLookup));
+
+                    query = query.Include(tenant => tenant.Developer);
+
+                    var tenantModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+
+                    if (tenantModel == null)
+                        return null;
+
+                    return ConvertToTenantInfo(tenantModel);
+                }
+            }
         }
 
-        internal static byte[] GetCertificateBytesFromPEM(string pemString)
+        public async Task<ITenantInfo> GetTenantByUuidThrowAsync(long developerUuid, long tenantUuid)
+        {
+            if (!_developerInfosByUuid.ContainsKey(developerUuid))
+                throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"No tenant found for developer UUID {developerUuid} and tenant UUID {tenantUuid}");
+
+            var developerInfo = _developerInfosByUuid[developerUuid];
+
+            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid).ConfigureAwait(false);
+
+            if (tenantInfo == null)
+            {
+                tenantInfo = await GetTenantInfoByUuidAsync(developerInfo, tenantUuid).ConfigureAwait(false);
+
+                if (tenantInfo == null)
+                {
+                    throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"No tenant found for developer UUID {developerUuid} and tenant UUID {tenantUuid}");
+                }
+
+                await _tenantCache.CreateOrUpdateTenantInfoForUuidAsync(developerUuid, tenantUuid, tenantInfo).ConfigureAwait(false);
+            }
+
+            return tenantInfo;
+        }
+
+        private async Task<ITenantInfo> GetTenantInfoByUuidAsync(IDeveloperInfo developerInfo, long tenantUuid)
+        {
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                using (var dbContext = scope.ServiceProvider.GetRequiredService<SqlServerTenantDbContext>())
+                {
+                    IQueryable<TenantModel> query = dbContext.Tenants;
+
+                    query = query.Where(tenant => tenant.DeveloperUuid == developerInfo.DeveloperUuid);
+                    query = query.Where(tenant => tenant.Uuid == tenantUuid);
+
+                    query = query.Include(tenant => tenant.Developer);
+
+                    var tenantModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+
+                    if (tenantModel == null)
+                        return null;
+
+                    return ConvertToTenantInfo(tenantModel);
+                }
+            }
+        }
+
+        private ITenantInfo ConvertToTenantInfo(TenantModel tenantModel)
+        {
+            var developerModel = tenantModel.Developer;
+
+            X509Certificate2 developerCertificate = null;
+
+            if (!string.IsNullOrEmpty(developerModel.Certificate))
+            {
+                if (string.IsNullOrEmpty(developerModel.CertificatePassword))
+                    throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
+
+                developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developerModel.Certificate), developerModel.CertificatePassword);
+            }
+
+            if (tenantModel.SubdomainPatterns == null || tenantModel.SubdomainPatterns.Length == 0)
+                throw new Exception("The tenant subdomain patterns are empty");
+
+            if (string.IsNullOrEmpty(tenantModel.Name))
+                throw new Exception("The tenant name is empty");
+
+            if (string.IsNullOrEmpty(tenantModel.FrontendApiUrl))
+                throw new Exception("The tenant frontend API URL is empty");
+
+            if (string.IsNullOrEmpty(tenantModel.BackendApiUrl))
+                throw new Exception("The tenant backend API url is empty");
+
+            if (string.IsNullOrEmpty(tenantModel.WebUrl))
+                throw new Exception("The tenant web url is empty");
+
+            bool? requiresTermsAndConditions = tenantModel.RequiresTermsAndConditions;
+            if (requiresTermsAndConditions == null)
+                requiresTermsAndConditions = developerModel.RequiresTermsAndConditions;
+
+            string logoSvgUrl = tenantModel.LogoSvgUrl;
+            if (string.IsNullOrEmpty(logoSvgUrl))
+                logoSvgUrl = developerModel.LogoSvgUrl;
+
+            string logoPngUrl = tenantModel.LogoPngUrl;
+            if (string.IsNullOrEmpty(logoPngUrl))
+                logoPngUrl = developerModel.LogoPngUrl;
+
+            string iconIcoUrl = tenantModel.IconIcoUrl;
+            if (string.IsNullOrEmpty(iconIcoUrl))
+                iconIcoUrl = developerModel.IconIcoUrl;
+
+            string storageImplementation = tenantModel.StorageImplementation;
+            if (string.IsNullOrEmpty(storageImplementation))
+                storageImplementation = developerModel.StorageImplementation;
+
+            // storage is optional
+
+            string storageConnectionString = null;
+
+            if (!string.IsNullOrEmpty(storageImplementation))
+            {
+                if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                    throw new Exception("The tenant storage implementation specification is invalid");
+
+                storageConnectionString = tenantModel.StorageConnectionString;
+                if (string.IsNullOrEmpty(storageConnectionString))
+                    storageConnectionString = developerModel.StorageConnectionString;
+            }
+
+            int? primaryColor = tenantModel.PrimaryColor;
+            if (primaryColor == null)
+                primaryColor = developerModel.PrimaryColor;
+
+            int? secondaryColor = tenantModel.SecondaryColor;
+            if (secondaryColor == null)
+                secondaryColor = developerModel.SecondaryColor;
+
+            int? textOnPrimaryColor = tenantModel.TextOnPrimaryColor;
+            if (textOnPrimaryColor == null)
+                textOnPrimaryColor = developerModel.TextOnPrimaryColor;
+
+            int? textOnSecondaryColor = tenantModel.TextOnSecondaryColor;
+            if (textOnSecondaryColor == null)
+                textOnSecondaryColor = developerModel.TextOnSecondaryColor;
+
+            string supportEmail = tenantModel.SupportEmail;
+            if (string.IsNullOrEmpty(supportEmail))
+                supportEmail = developerModel.SupportEmail;
+
+            string noreplyEmail = tenantModel.NoreplyEmail;
+            if (string.IsNullOrEmpty(noreplyEmail))
+                noreplyEmail = developerModel.NoreplyEmail;
+
+            string customInvitationEmailTextPrefix = tenantModel.CustomInvitationEmailTextPrefix;
+            if (string.IsNullOrEmpty(customInvitationEmailTextPrefix))
+                customInvitationEmailTextPrefix = null;
+
+            string customInvitationEmailTextSuffix = tenantModel.CustomInvitationEmailTextSuffix;
+            if (string.IsNullOrEmpty(customInvitationEmailTextSuffix))
+                customInvitationEmailTextSuffix = null;
+
+            string productName = tenantModel.ProductName;
+            if (string.IsNullOrEmpty(productName))
+                productName = developerModel.ProductName;
+
+            string defaultCulture = tenantModel.DefaultCulture;
+            if (string.IsNullOrEmpty(defaultCulture))
+                defaultCulture = "en";
+
+            string defaultCurrency = tenantModel.DefaultCurrency;
+            if (string.IsNullOrEmpty(defaultCurrency))
+                defaultCurrency = "eur";
+
+            bool usersAreExternallyManaged = false;
+            bool externalUsersAreManuallyManaged = false;
+
+            string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
+
+            // external authorization is optional
+
+            string oidcClientId = null;
+            string oidcClientSecret = null;
+            string oidcEndpointUrl = null;
+
+            string samlEntityId = null;
+
+            string samlPeerEntityId = null;
+            string samlPeerIdpMetadataLocation = null;
+            string samlPeerIdpMetadata = null;
+
+            X509Certificate2 samlCertificate = null;
+
+            bool samlAllowWeakSigningAlgorithm = false;
+
+            string externalDirectoryType = null;
+            string externalDirectoryHost = null;
+            int? externalDirectoryPort = null;
+
+            bool? externalDirectoryUsesSsl = null;
+
+            X509Certificate2 externalDirectorySslCertificate = null;
+
+            string externalDirectoryAccountDistinguishedName = null;
+
+            string externalDirectoryPassword = null;
+
+            string externalDirectoryLoginAttribute = null;
+
+            string externalDirectoryBaseContexts = null;
+
+            string externalDirectoryUserFilter = null;
+            string externalDirectoryGroupFilter = null;
+
+            int? externalDirectorySyncIntervalSeconds = null;
+
+            string externalDirectoryAdministratorGroupUuid = null;
+
+            if (!string.IsNullOrEmpty(externalAuthorizationMethod))
+            {
+                if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc) && !externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
+                    throw new Exception("The tenant external authentication method specification is invalid");
+
+                if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
+                {
+                    oidcClientId = tenantModel.OidcClientId;
+                    if (string.IsNullOrEmpty(oidcClientId))
+                        throw new Exception("The tenant OIDC client ID is missing");
+
+                    oidcClientSecret = tenantModel.OidcClientSecret;
+                    if (string.IsNullOrEmpty(oidcClientSecret))
+                        throw new Exception("The tenant OIDC client secret is missing");
+
+                    oidcEndpointUrl = tenantModel.OidcEndpointUrl;
+                    if (string.IsNullOrEmpty(oidcEndpointUrl))
+                        throw new Exception("The tenant OIDC endpoint URL is missing");
+                }
+                else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
+                {
+                    samlEntityId = tenantModel.SamlEntityId;
+                    if (string.IsNullOrEmpty(samlEntityId))
+                        throw new Exception("The tenant SAML entity ID is missing");
+
+                    samlPeerEntityId = tenantModel.SamlPeerEntityId;
+                    if (string.IsNullOrEmpty(samlPeerEntityId))
+                        throw new Exception("The tenant SAML peer entity ID is missing");
+
+                    samlPeerIdpMetadataLocation = tenantModel.SamlPeerIdpMetadataLocation;
+                    samlPeerIdpMetadata = tenantModel.SamlPeerIdpMetadata;
+
+                    if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && !string.IsNullOrEmpty(samlPeerIdpMetadata))
+                        throw new Exception("Please give either the SAML peer IDP metadata location or the metadata itself, not both");
+
+                    if (string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && string.IsNullOrEmpty(samlPeerIdpMetadata))
+                        throw new Exception("The tenant SAML peer IDP metadata location or the metadata itself is missing");
+
+                    if (!string.IsNullOrEmpty(tenantModel.SamlCertificate))
+                        samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenantModel.SamlCertificate));
+                    else
+                    {
+                        samlCertificate = _standardSamlCertificate;
+                    }
+
+                    samlAllowWeakSigningAlgorithm = tenantModel.SamlAllowWeakSigningAlgorithm ?? false;
+                }
+
+                externalDirectoryType = tenantModel.ExternalDirectoryType;
+
+                if (string.IsNullOrEmpty(externalDirectoryType))
+                    throw new Exception("The tenant external directory type is missing");
+
+                if (/* !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS) &&
+                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP) && */
+                    !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
+                {
+                    throw new Exception("The tenant external directory type specification is invalid");
+                }
+
+                // TODO: LDAP etc. is not yet implemented
+
+                if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
+                {
+                    // dynamic directory types will create users on-demand when logging in
+
+                    externalDirectoryHost = tenantModel.ExternalDirectoryHost;
+
+                    if (string.IsNullOrEmpty(externalDirectoryHost))
+                        throw new Exception("The tenant external directory host is missing");
+
+                    externalDirectoryUsesSsl = tenantModel.ExternalDirectoryUsesSsl ?? false;
+
+                    externalDirectoryPort = tenantModel.ExternalDirectoryPort;
+
+                    if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
+                        throw new Exception("The tenant external directory port is invalid");
+
+                    if (!string.IsNullOrEmpty(tenantModel.ExternalDirectorySslCertificate))
+                        externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenantModel.ExternalDirectorySslCertificate));
+
+                    if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
+                        throw new Exception("The tenant external directory SSL certificate is missing");
+
+                    externalDirectoryAccountDistinguishedName = tenantModel.ExternalDirectoryAccountDistinguishedName;
+                    if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
+                        throw new Exception("The tenant external directory account distinguished name is missing");
+
+                    externalDirectoryPassword = tenantModel.ExternalDirectoryPassword;
+                    if (string.IsNullOrEmpty(externalDirectoryPassword))
+                        throw new Exception("The tenant external directory password is missing");
+
+                    externalDirectoryLoginAttribute = tenantModel.ExternalDirectoryLoginAttribute;
+
+                    externalDirectoryBaseContexts = tenantModel.ExternalDirectoryBaseContexts;
+                    if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
+                        throw new Exception("The tenant external directory base contexts are missing");
+
+                    externalDirectoryUserFilter = tenantModel.ExternalDirectoryUserFilter;
+                    externalDirectoryGroupFilter = tenantModel.ExternalDirectoryGroupFilter;
+
+                    externalDirectorySyncIntervalSeconds = tenantModel.ExternalDirectorySyncIntervalSeconds;
+
+                    if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
+                        throw new Exception("The tenant external directory sync interval is invalid");
+
+                    externalDirectoryAdministratorGroupUuid = tenantModel.ExternalDirectoryAdministratorGroupUuid;
+                    if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
+                        throw new Exception("The tenant external directory administrator group UUID is missing");
+                }
+
+                usersAreExternallyManaged = true;
+
+                externalUsersAreManuallyManaged = tenantModel.ExternalUsersAreManuallyManaged;
+            }
+
+            string customTenantSettingsJson = tenantModel.CustomTenantSettingsJson;
+
+            var tenantInfo = new TenantInfoImpl()
+            {
+                DeveloperUuid = developerModel.Uuid,
+                DeveloperAuthority = developerModel.Authority,
+                DeveloperAudience = developerModel.Audience,
+                DeveloperCertificate = developerCertificate,
+                DeveloperAuthCookieDomain = developerModel.AuthCookieDomain,
+                DeveloperName = developerModel.Name,
+                DeveloperPrivacyPolicyUrl = developerModel.PrivacyPolicyUrl,
+                DeveloperPrivacyPolicyVersion = developerModel.PrivacyPolicyVersion,
+                DeveloperTermsAndConditionsUrl = developerModel.TermsAndConditionsUrl,
+                DeveloperTermsAndConditionsVersion = developerModel.TermsAndConditionsVersion,
+                TenantUuid = tenantModel.Uuid,
+                Name = tenantModel.Name,
+                SubdomainPattern = tenantModel.SubdomainPatterns[0],
+                RequiresTermsAndConditions = requiresTermsAndConditions ?? true,
+                LogoSvgUrl = logoSvgUrl,
+                LogoPngUrl = logoPngUrl,
+                IconIcoUrl = iconIcoUrl,
+                StorageImplementation = storageImplementation,
+                StorageConnectionString = storageConnectionString,
+                PrimaryColor = (int)primaryColor,
+                SecondaryColor = (int)secondaryColor,
+                TextOnPrimaryColor = (int)textOnPrimaryColor,
+                TextOnSecondaryColor = (int)textOnSecondaryColor,
+                PrimaryColorHex = ConvertToHexColor(primaryColor),
+                SecondaryColorHex = ConvertToHexColor(secondaryColor),
+                TextOnPrimaryColorHex = ConvertToHexColor(textOnPrimaryColor),
+                TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
+                SupportEmail = supportEmail,
+                NoreplyEmail = noreplyEmail,
+                CustomInvitationEmailTextPrefix = customInvitationEmailTextPrefix,
+                CustomInvitationEmailTextSuffix = customInvitationEmailTextSuffix,
+                ProductName = productName,
+                BackendApiUrl = tenantModel.BackendApiUrl,
+                FrontendApiUrl = tenantModel.FrontendApiUrl,
+                WebUrl = tenantModel.WebUrl,
+                DefaultCulture = defaultCulture,
+                DefaultCurrency = defaultCurrency,
+                UsersAreExternallyManaged = usersAreExternallyManaged,
+                ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
+                ExternalAuthenticationMethod = externalAuthorizationMethod,
+                OidcClientId = oidcClientId,
+                OidcClientSecret = oidcClientSecret,
+                OidcEndpointUrl = oidcEndpointUrl,
+                SamlEntityId = samlEntityId,
+                SamlPeerEntityId = samlPeerEntityId,
+                SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
+                SamlPeerIdpMetadata = samlPeerIdpMetadata,
+                SamlCertificate = samlCertificate,
+                SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
+                ExternalDirectoryType = externalDirectoryType,
+                ExternalDirectoryHost = externalDirectoryHost,
+                ExternalDirectoryPort = externalDirectoryPort,
+                ExternalDirectoryUsesSsl = externalDirectoryUsesSsl,
+                ExternalDirectorySslCertificate = externalDirectorySslCertificate,
+                ExternalDirectoryAccountDistinguishedName = externalDirectoryAccountDistinguishedName,
+                ExternalDirectoryPassword = externalDirectoryPassword,
+                ExternalDirectoryLoginAttribute = externalDirectoryLoginAttribute,
+                ExternalDirectoryBaseContexts = externalDirectoryBaseContexts,
+                ExternalDirectoryUserFilter = externalDirectoryUserFilter,
+                ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
+                ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
+                ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
+                CustomTenantSettingsJson = customTenantSettingsJson,
+                RequiresDevAdminSsoReplacement = tenantModel.RequiresDevAdminSsoReplacement,
+                DevAdminSsoReplacementSamlPeerEntityId = tenantModel.DevAdminSsoReplacementSamlPeerEntityId,
+                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation
+            };
+
+            return tenantInfo;
+        }
+
+        private string ConvertToHexColor(int? color)
+        {
+            return "#" + (color != null ? ((int)color).ToString("X6") : "000000");
+        }
+
+        private byte[] GetCertificateBytesFromPEM(string pemString)
         {
             const string section = "CERTIFICATE";
 

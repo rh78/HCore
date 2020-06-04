@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using HCore.Identity.Attributes;
 using HCore.Tenants.Providers;
 using HCore.Translations.Providers;
@@ -27,7 +28,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _tenantDataProvider = tenantDataProvider;
         }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             string tenantName = null;
 
@@ -45,7 +46,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                return HandleDomain(tenantName);
+                return await HandleDomainAsync(tenantName).ConfigureAwait(false);
             } 
             catch (Exception)
             {
@@ -55,13 +56,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Clear();
 
             try
             {
-                return HandleDomain(Domain);
+                return await HandleDomainAsync(Domain).ConfigureAwait(false);
             }
             catch (ApiException e)
             {
@@ -71,7 +72,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-        private IActionResult HandleDomain(string domain)
+        private async Task<IActionResult> HandleDomainAsync(string domain)
         {
             if (string.IsNullOrEmpty(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainMissing, "The domain is missing");
@@ -79,7 +80,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (!Tenant.IsMatch(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainInvalid, "The domain is invalid");
 
-            var (_, tenantInfo) = _tenantDataProvider.LookupTenantByHost($"{domain}.smint.io");
+            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{domain}.smint.io").ConfigureAwait(false);
 
             if (tenantInfo == null)
                 throw new RequestFailedApiException(RequestFailedApiException.DomainNotFound, "The domain was not found");
