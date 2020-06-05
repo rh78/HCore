@@ -141,6 +141,7 @@ namespace HCore.Web.Exceptions
         public const string DomainMissing = "domain_missing";
         public const string DomainInvalid = "domain_invalid";
         public const string DomainNotFound = "domain_not_found";
+        public const string DomainAlreadyUsed = "domain_already_used";
         public const string PrimaryColorInvalid = "primary_color_invalid";
         public const string SecondaryColorInvalid = "secondary_color_invalid";
         public const string TextOnPrimaryColorInvalid = "text_on_primary_color_invalid";

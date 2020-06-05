@@ -74,6 +74,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private async Task<IActionResult> HandleDomainAsync(string domain)
         {
+            domain = domain?.Trim();
+
             if (string.IsNullOrEmpty(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainMissing, "The domain is missing");
 

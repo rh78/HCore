@@ -651,6 +651,8 @@ namespace HCore.Tenants.Services.Impl
             if (string.IsNullOrEmpty(subdomain))
                 throw new RequestFailedApiException(RequestFailedApiException.SubdomainMissing, "The subdomain is missing");
 
+            subdomain = subdomain.ToLower();
+
             if (!Tenant.IsMatch(subdomain))
                 throw new RequestFailedApiException(RequestFailedApiException.SubdomainInvalid, "The subdomain is invalid");
 
