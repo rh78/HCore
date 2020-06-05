@@ -114,6 +114,11 @@ namespace HCore.Tenants.Models.Impl
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 
+        public int Version { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset? LastUpdatedAt { get; set; }
+
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
             if (CustomTenantSettingsJson == null)
@@ -192,7 +197,10 @@ namespace HCore.Tenants.Models.Impl
                 AdditionalCacheKey = AdditionalCacheKey,
                 RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
-                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation
+                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
+                Version = Version,
+                CreatedAt = CreatedAt,
+                LastUpdatedAt = LastUpdatedAt
             };
         }
     }

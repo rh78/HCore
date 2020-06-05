@@ -17,6 +17,17 @@ namespace HCore.Tenants.Database.SqlServer
         {
             modelBuilder.UseSerialColumns();
 
+            modelBuilder.Entity<DeveloperModel>()
+                .HasMany(entity => entity.Tenants)
+                .WithOne(entity => entity.Developer);
+
+            modelBuilder.Entity<TenantModel>()
+                .HasIndex(entity => new { entity.DeveloperUuid, entity.Uuid });
+
+            modelBuilder.Entity<TenantModel>()
+                .HasIndex(entity => new { entity.DeveloperUuid, entity.SubdomainPatterns })
+                .IsUnique();
+
             base.OnModelCreating(modelBuilder);            
         }
     }

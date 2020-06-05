@@ -8,7 +8,7 @@ namespace HCore.Tenants.Services
     {
         Task<ITenantInfo> CreateTenantAsync(long developerUuid, TenantSpec tenantSpec);
 
-        Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, TenantSpec tenantSpec);
+        Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, TenantSpec tenantSpec, int? version = null);
 
         Task<PagingResult<Tenant>> GetTenantsAsync(long developerUuid, string searchTerm, int? offset, int? limit, string sortByTenant, string sortOrder);
     }

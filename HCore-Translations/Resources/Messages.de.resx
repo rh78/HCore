@@ -246,6 +246,9 @@
   <data name="subdomain_missing" xml:space="preserve">
     <value>Die Subdomain fehlt</value>
   </data>
+  <data name="subdomain_invalid" xml:space="preserve">
+    <value>Die Subdomain ist ungültig</value>
+  </data>
   <data name="subdomain_too_long" xml:space="preserve">
     <value>Die Subdomain ist zu lang</value>
   </data>
@@ -611,6 +614,9 @@
   </data>
   <data name="tenant_subdomain_immutable" xml:space="preserve">
     <value>Die Subdomain für diesen Mandanten kann nicht geändert werden</value>
+  </data>
+  <data name="tenant_subdomain_already_used" xml:space="preserve">
+    <value>Diese Subdomain ist leider bereits in Verwendung</value>
   </data>
   <data name="primary_color_invalid" xml:space="preserve">
     <value>Die Hauptfarbe ist ungültig</value>

@@ -12,7 +12,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public const int MaxUrlLength = 255;
 
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Uuid { get; set; }
 
         public long DeveloperUuid { get; set; }

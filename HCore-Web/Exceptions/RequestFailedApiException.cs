@@ -68,6 +68,7 @@ namespace HCore.Web.Exceptions
         public const string NameInvalid = "name_invalid";
         public const string NameTooLong = "name_too_long";
         public const string SubdomainMissing = "subdomain_missing";
+        public const string SubdomainInvalid = "subdomain_invalid";
         public const string SubdomainTooLong = "subdomain_too_long";
         public const string LogoSvgUrlMissing = "logo_svg_url_missing";
         public const string LogoSvgUrlTooLong = "logo_svg_url_too_long";
@@ -145,6 +146,7 @@ namespace HCore.Web.Exceptions
         public const string TextOnPrimaryColorInvalid = "text_on_primary_color_invalid";
         public const string TextOnSecondaryColorInvalid = "text_on_secondary_color_invalid";
         public const string TenantSubdomainImmutable = "tenant_subdomain_immutable";
+        public const string TenantSubdomainAlreadyUsed = "tenant_subdomain_already_used";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

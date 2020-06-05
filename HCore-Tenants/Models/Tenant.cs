@@ -247,6 +247,39 @@ namespace HCore.Tenants.Models
 		
 		public bool ExternalUsersAreManuallyManagedSet = false;		
 
+		private int? _Version;
+		
+		/// <summary>
+        /// The record version
+        /// </summary>
+        /// <value>The record version</value>
+        [DataMember(Name="version")]
+		public int? Version { get => _Version; set { _Version = value; VersionSet = true; } }
+		
+		public bool VersionSet = false;		
+
+		private DateTimeOffset? _CreatedAt;
+		
+		/// <summary>
+        /// The time (formatted according to RFC 3339, section 5.6) when the record was created
+        /// </summary>
+        /// <value>The time (formatted according to RFC 3339, section 5.6) when the record was created</value>
+        [DataMember(Name="created_at")]
+		public DateTimeOffset? CreatedAt { get => _CreatedAt; set { _CreatedAt = value; CreatedAtSet = true; } }
+		
+		public bool CreatedAtSet = false;		
+
+		private DateTimeOffset? _LastUpdatedAt;
+		
+		/// <summary>
+        /// The time (formatted according to RFC 3339, section 5.6) when the record was last updated
+        /// </summary>
+        /// <value>The time (formatted according to RFC 3339, section 5.6) when the record was last updated</value>
+        [DataMember(Name="last_updated_at")]
+		public DateTimeOffset? LastUpdatedAt { get => _LastUpdatedAt; set { _LastUpdatedAt = value; LastUpdatedAtSet = true; } }
+		
+		public bool LastUpdatedAtSet = false;		
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -275,6 +308,9 @@ namespace HCore.Tenants.Models
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
             sb.Append("  UsersAreExternallyManaged: ").Append(UsersAreExternallyManaged).Append("\n");
             sb.Append("  ExternalUsersAreManuallyManaged: ").Append(ExternalUsersAreManuallyManaged).Append("\n");
+            sb.Append("  Version: ").Append(Version).Append("\n");
+            sb.Append("  CreatedAt: ").Append(CreatedAt).Append("\n");
+            sb.Append("  LastUpdatedAt: ").Append(LastUpdatedAt).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -410,6 +446,21 @@ namespace HCore.Tenants.Models
                     ExternalUsersAreManuallyManaged == other.ExternalUsersAreManuallyManaged ||
                     ExternalUsersAreManuallyManaged != null &&
                     ExternalUsersAreManuallyManaged.Equals(other.ExternalUsersAreManuallyManaged)
+                ) && 
+                (
+                    Version == other.Version ||
+                    Version != null &&
+                    Version.Equals(other.Version)
+                ) && 
+                (
+                    CreatedAt == other.CreatedAt ||
+                    CreatedAt != null &&
+                    CreatedAt.Equals(other.CreatedAt)
+                ) && 
+                (
+                    LastUpdatedAt == other.LastUpdatedAt ||
+                    LastUpdatedAt != null &&
+                    LastUpdatedAt.Equals(other.LastUpdatedAt)
                 );
         }
 
@@ -463,6 +514,12 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + UsersAreExternallyManaged.GetHashCode();
                     if (ExternalUsersAreManuallyManaged != null)
                     hashCode = hashCode * 59 + ExternalUsersAreManuallyManaged.GetHashCode();
+                    if (Version != null)
+                    hashCode = hashCode * 59 + Version.GetHashCode();
+                    if (CreatedAt != null)
+                    hashCode = hashCode * 59 + CreatedAt.GetHashCode();
+                    if (LastUpdatedAt != null)
+                    hashCode = hashCode * 59 + LastUpdatedAt.GetHashCode();
                 return hashCode;
             }
         }

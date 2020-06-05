@@ -1,7 +1,8 @@
 ﻿using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Providers;
 using HCore.Tenants.Providers.Impl;
-using Microsoft.AspNetCore.Builder;
+using HCore.Tenants.Services;
+using HCore.Tenants.Services.Impl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -40,6 +41,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 services.AddCors();
             }
+
+            services.AddScoped<ITenantServices, TenantServicesImpl>();
 
             return new TenantsBuilder(services);
         }

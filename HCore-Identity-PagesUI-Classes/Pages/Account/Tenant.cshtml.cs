@@ -77,6 +77,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainMissing, "The domain is missing");
 
+            domain = domain.ToLower();
+
             if (!Tenant.IsMatch(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainInvalid, "The domain is invalid");
 

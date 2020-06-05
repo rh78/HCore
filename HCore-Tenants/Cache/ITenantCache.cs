@@ -11,6 +11,6 @@ namespace HCore.Tenants.Cache
         Task<ITenantInfo> GetTenantInfoBySubdomainLookupAsync(long developerUuid, string subDomainLookup);
         Task CreateOrUpdateTenantInfoForSubdomainLookupAsync(long developerUuid, string subDomainLookup, ITenantInfo tenantInfo);
 
-        Task InvalidateTenantInfosAsync(long developerUuid);
+        Task InvalidateTenantInfosAsync(long developerUuid, long tenantUuid);
     }
 }

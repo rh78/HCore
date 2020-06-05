@@ -866,7 +866,7 @@ namespace HCore.Translations.Resources {
         /// </summary>
         public static string noreply_email_too_long {
             get {
-                return ResourceManager.GetString("noreply email_too_long", resourceCulture);
+                return ResourceManager.GetString("noreply_email_too_long", resourceCulture);
             }
         }
         
@@ -1303,6 +1303,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The subdomain is invalid.
+        /// </summary>
+        public static string subdomain_invalid {
+            get {
+                return ResourceManager.GetString("subdomain_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The subdomain is missing.
         /// </summary>
         public static string subdomain_missing {
@@ -1361,7 +1370,7 @@ namespace HCore.Translations.Resources {
         /// </summary>
         public static string support_email_too_long {
             get {
-                return ResourceManager.GetString("support email_too_long", resourceCulture);
+                return ResourceManager.GetString("support_email_too_long", resourceCulture);
             }
         }
         
@@ -1380,6 +1389,15 @@ namespace HCore.Translations.Resources {
         public static string tenant_optimistic_lock_violated {
             get {
                 return ResourceManager.GetString("tenant_optimistic_lock_violated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This subdomain unfortunately is already being used.
+        /// </summary>
+        public static string tenant_subdomain_already_used {
+            get {
+                return ResourceManager.GetString("tenant_subdomain_already_used", resourceCulture);
             }
         }
         

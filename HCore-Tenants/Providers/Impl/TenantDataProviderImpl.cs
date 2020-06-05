@@ -667,7 +667,10 @@ namespace HCore.Tenants.Providers.Impl
                 CustomTenantSettingsJson = customTenantSettingsJson,
                 RequiresDevAdminSsoReplacement = tenantModel.RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = tenantModel.DevAdminSsoReplacementSamlPeerEntityId,
-                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation
+                DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
+                Version = tenantModel.Version,
+                CreatedAt = tenantModel.CreatedAt,
+                LastUpdatedAt = tenantModel.LastUpdatedAt
             };
 
             return tenantInfo;

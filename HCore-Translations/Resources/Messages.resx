@@ -246,6 +246,9 @@
   <data name="subdomain_missing" xml:space="preserve">
     <value>The subdomain is missing</value>
   </data>
+  <data name="subdomain_invalid" xml:space="preserve">
+    <value>The subdomain is invalid</value>
+  </data>
   <data name="subdomain_too_long" xml:space="preserve">
     <value>The subdomain is too long</value>
   </data>
@@ -611,6 +614,9 @@
   </data>
   <data name="tenant_subdomain_immutable" xml:space="preserve">
     <value>The tenant subdomain for this tenant is immutable</value>
+  </data>
+  <data name="tenant_subdomain_already_used" xml:space="preserve">
+    <value>This subdomain unfortunately is already being used</value>
   </data>
   <data name="primary_color_invalid" xml:space="preserve">
     <value>The primary color is invalid</value>

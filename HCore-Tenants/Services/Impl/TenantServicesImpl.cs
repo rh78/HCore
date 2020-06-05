@@ -7,8 +7,10 @@ using HCore.Tenants.Providers;
 using HCore.Web.Exceptions;
 using HCore.Web.Providers;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,6 +21,7 @@ namespace HCore.Tenants.Services.Impl
     public class TenantServicesImpl : ITenantServices
     {
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=:/]+$");
+        private static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
 
         public const int MaxEmailAddressLength = 50;
 
@@ -53,6 +56,11 @@ namespace HCore.Tenants.Services.Impl
             tenantModel.DeveloperUuid = developerInfo.DeveloperUuid;
 
             string subdomain = ProcessSubdomain(tenantSpec.Subdomain);
+
+            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+
+            if (tenantInfo != null)
+                throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
 
             tenantModel.SubdomainPatterns = new string[] { subdomain };
 
@@ -142,16 +150,33 @@ namespace HCore.Tenants.Services.Impl
             tenantModel.CreatedAt = _nowProvider.Now;
             tenantModel.Version = 1;
 
-            _dbContext.Tenants.Add(tenantModel);
+            try
+            { 
+                _dbContext.Tenants.Add(tenantModel);
 
-            await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+                await _dbContext.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (DbUpdateException e)
+            when (e.InnerException is SqlException sqlEx &&
+                 (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+            {
+                // only one allowed
+                throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+            }
+            catch (DbUpdateException e)
+            when (e.InnerException is PostgresException postgresEx &&
+                  postgresEx.SqlState == "23505")
+            {
+                // only one allowed
+                throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+            }
 
-            var tenantInfo = await _tenantDataProvider.GetTenantByUuidThrowAsync(developerUuid, tenantModel.Uuid).ConfigureAwait(false);
+            tenantInfo = await _tenantDataProvider.GetTenantByUuidThrowAsync(developerUuid, tenantModel.Uuid).ConfigureAwait(false);
 
             return tenantInfo;
         }
 
-        private async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync)
+        private async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync, int? version = null)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
             {
@@ -166,6 +191,9 @@ namespace HCore.Tenants.Services.Impl
 
                 if (tenantModel == null)
                     throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"Tenant with UUID {tenantUuid} was not found", Convert.ToString(tenantUuid));
+
+                if (version != null && tenantModel.Version != version)
+                    throw new OptimisticLockingApiException(OptimisticLockingApiException.TenantOptimisticLockViolated, "The tenant was modified by another user, please try again");
 
                 bool changed = await updateFuncAsync(tenantModel).ConfigureAwait(false);
 
@@ -182,7 +210,21 @@ namespace HCore.Tenants.Services.Impl
 
                         transaction.Commit();
 
-                        await _tenantCache.InvalidateTenantInfosAsync(tenantModel.DeveloperUuid).ConfigureAwait(false);
+                        await _tenantCache.InvalidateTenantInfosAsync(tenantModel.DeveloperUuid, tenantModel.Uuid).ConfigureAwait(false);
+                    }
+                    catch (DbUpdateException e)
+                    when (e.InnerException is SqlException sqlEx &&
+                         (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+                    {
+                        // only one allowed
+                        throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+                    }
+                    catch (DbUpdateException e)
+                    when (e.InnerException is PostgresException postgresEx &&
+                          postgresEx.SqlState == "23505")
+                    {
+                        // only one allowed
+                        throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
                     }
                     catch (DbUpdateConcurrencyException)
                     {
@@ -191,12 +233,12 @@ namespace HCore.Tenants.Services.Impl
                 }
             }
 
-            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid).ConfigureAwait(false);
+            var tenantInfo = await _tenantDataProvider.GetTenantByUuidThrowAsync(developerUuid, tenantUuid).ConfigureAwait(false);
 
             return tenantInfo;
         }
 
-        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, TenantSpec tenantSpec)
+        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, TenantSpec tenantSpec, int? version = null)
         {
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
             return await UpdateTenantAsync(developerUuid, tenantUuid, async (tenantModelForUpdate) =>
@@ -217,6 +259,11 @@ namespace HCore.Tenants.Services.Impl
 
                     if (tenantModelForUpdate.SubdomainPatterns == null || tenantModelForUpdate.SubdomainPatterns.Length == 0)
                     {
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+
+                        if (tenantInfo != null)
+                            throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+
                         tenantModelForUpdate.SubdomainPatterns = new string[] { subdomain };
 
                         subdomainChanged = true;
@@ -229,6 +276,11 @@ namespace HCore.Tenants.Services.Impl
                     }
                     else if (!string.Equals(tenantModelForUpdate.SubdomainPatterns[0], subdomain))
                     {
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+
+                        if (tenantInfo != null)
+                            throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+
                         tenantModelForUpdate.SubdomainPatterns = new string[] { subdomain };
 
                         subdomainChanged = true;
@@ -389,7 +441,7 @@ namespace HCore.Tenants.Services.Impl
                 }
 
                 return changed;
-            }).ConfigureAwait(false);
+            }, version).ConfigureAwait(false);
         }
 
         public async Task<PagingResult<Tenant>> GetTenantsAsync(long developerUuid, string searchTerm, int? offset, int? limit, string sortByTenant, string sortOrder)
@@ -419,7 +471,7 @@ namespace HCore.Tenants.Services.Impl
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                query = query.Where(tenant => tenant.Name.StartsWith(searchTerm, StringComparison.InvariantCultureIgnoreCase));
+                query = query.Where(tenant => EF.Functions.ILike(tenant.Name, $"{searchTerm}%"));
             }
 
             if (sortOrderEnum == SortOrder.Asc)
@@ -567,6 +619,11 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.ExternalUsersAreManuallyManaged = tenantModel.ExternalUsersAreManuallyManaged;
 
+                    tenant.Version = tenantModel.Version;
+                    
+                    tenant.CreatedAt = tenantModel.CreatedAt;
+                    tenant.LastUpdatedAt = tenantModel.LastUpdatedAt;
+
                     return tenant;
                 })
                 .ToList();
@@ -594,10 +651,13 @@ namespace HCore.Tenants.Services.Impl
             if (string.IsNullOrEmpty(subdomain))
                 throw new RequestFailedApiException(RequestFailedApiException.SubdomainMissing, "The subdomain is missing");
 
+            if (!Tenant.IsMatch(subdomain))
+                throw new RequestFailedApiException(RequestFailedApiException.SubdomainInvalid, "The subdomain is invalid");
+
             if (subdomain.Length > TenantModel.MaxSubdomainPatternLength)
                 throw new RequestFailedApiException(RequestFailedApiException.SubdomainTooLong, "The subdomain is too long");
 
-            return subdomain;
+            return subdomain.ToLower();
         }
 
         private string ProcessLogoSvgUrl(string logoSvgUrl)
@@ -751,7 +811,7 @@ namespace HCore.Tenants.Services.Impl
         private string ProcessDefaultCurrency(string defaultCurrency)
         {
             if (string.IsNullOrEmpty(defaultCurrency))
-                throw new RequestFailedApiException(RequestFailedApiException.DefaultCurrencyMissing, "The default currency is missing");
+                return null;
 
             if (string.Equals(defaultCurrency, "eur"))
                 return defaultCurrency;
