@@ -183,8 +183,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
 
-                HandleTenantCookie();
-
                 if (IsLocalAuthorization)
                 {
                     if (!string.IsNullOrEmpty(ReturnUrl))
@@ -269,8 +267,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
 
-                HandleTenantCookie();
-
                 if (IsLocalAuthorization)
                 {
                     if (!string.IsNullOrEmpty(ReturnUrl))
@@ -310,27 +306,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);
 
             return Page();            
-        }
-
-        private void HandleTenantCookie()
-        {
-            if (_tenantInfoAccessor != null)
-            {
-                var tenantInfo = _tenantInfoAccessor.TenantInfo;
-                var matchedSubDomain = _tenantInfoAccessor.MatchedSubDomain;
-
-                if (tenantInfo != null && !string.IsNullOrEmpty(matchedSubDomain))
-                {
-                    Response.Cookies.Append(TenantModel.CookieName, matchedSubDomain, new CookieOptions()
-                    {
-                        Domain = tenantInfo.DeveloperAuthCookieDomain,
-                        Expires = DateTime.MaxValue,
-                        Secure = true,
-                        // was LAX
-                        SameSite = SameSiteMode.None
-                    });
-                }
-            }
         }
 
         private async Task PrepareModelAsync(string returnUrl)

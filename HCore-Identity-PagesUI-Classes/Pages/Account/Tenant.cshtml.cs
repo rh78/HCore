@@ -13,18 +13,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     [SecurityHeaders]
     public class TenantModel : PageModel
     {
-        private static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
+        public static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
         public static readonly string CookieName = "HCore.Tenant.Selection";
 
         [BindProperty]
         public string Domain { get; set; }
 
-        private readonly ITranslationsProvider _translationsProvider;
         private readonly ITenantDataProvider _tenantDataProvider;
 
-        public TenantModel(ITranslationsProvider translationsProvider, ITenantDataProvider tenantDataProvider)
+        public TenantModel(ITenantDataProvider tenantDataProvider)
         {
-            _translationsProvider = translationsProvider;
             _tenantDataProvider = tenantDataProvider;
         }
 
@@ -53,23 +51,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 // ignore it
             }
 
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync()
-        {
-            ModelState.Clear();
-
-            try
-            {
-                return await HandleDomainAsync(Domain).ConfigureAwait(false);
-            }
-            catch (ApiException e)
-            {
-                ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
-            }
-
-            return Page();
+            return LocalRedirect("~/");
         }
 
         private async Task<IActionResult> HandleDomainAsync(string domain)
