@@ -93,7 +93,7 @@ namespace HCore.Web.Providers.Impl
             List<(string, string)> allHtmlFiles = new List<(string, string)>();
 
             var baseDir = GetRootPath();
-            foreach (string file in Directory.EnumerateFiles(baseDir, "*.html", SearchOption.TopDirectoryOnly))
+            foreach (string file in Directory.EnumerateFiles(baseDir, "*.html", SearchOption.AllDirectories))
             {
                 // do something
                 allHtmlFiles.Add((file.Substring(baseDir.Length), file));
