@@ -8,6 +8,7 @@ using HCore.Translations.Resources;
 using System.Diagnostics;
 using HCore.Identity.Attributes;
 using Microsoft.AspNetCore.DataProtection;
+using Newtonsoft.Json;
 
 namespace HCore.PagesUI.Classes.Pages
 {
@@ -24,6 +25,18 @@ namespace HCore.PagesUI.Classes.Pages
         public string Description { get; set; }
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        public string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    Error,
+                    Description
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                });
+            }
 
         public ErrorModel(
             IDataProtectionProvider dataProtectionProvider,

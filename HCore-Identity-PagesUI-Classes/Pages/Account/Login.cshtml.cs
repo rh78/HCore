@@ -23,6 +23,9 @@ using HCore.Tenants;
 using IdentityServer4;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using System.Linq;
+using HCore.Translations.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -44,6 +47,15 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly ITranslationsProvider _translationsProvider;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        public string ValidationErrors { get =>
+            JsonConvert.SerializeObject(
+                GetValidationErrors(), 
+                new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                });
+            }
 
         public LoginModel(
             IIdentityServices identityServices,
@@ -383,6 +395,27 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     segmentClient.Track(user.Id, "Logged in");
                 }
             }
+        }
+
+        private List<string> GetValidationErrors()
+        {
+            var result = new List<string>();
+
+            foreach (var value in ModelState.Values)
+            {
+                if (value.Errors != null)
+                {
+                    foreach (var error in value.Errors)
+                    {
+                        if (!string.IsNullOrEmpty(error.ErrorMessage))
+                            result.Add(error.ErrorMessage);
+                        else if (error.Exception != null)
+                            result.Add(Messages.internal_server_error);
+                    }
+                }
+            }
+            
+            return result;
         }
     }
 }

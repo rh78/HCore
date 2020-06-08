@@ -9,6 +9,7 @@ using HCore.Identity.Services;
 using Microsoft.AspNetCore.Http;
 using System;
 using HCore.Tenants.Providers;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -43,6 +44,18 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public string LogoutId { get; set; }
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
+
+        public string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    LoggedOut,
+                    PostLogoutRedirectUri
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                });
+            }
 
         public LogoutModel(
              IIdentityServices identityServices,

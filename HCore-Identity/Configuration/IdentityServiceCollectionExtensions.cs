@@ -40,6 +40,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using HCore.Identity.Internal;
 using Sustainsys.Saml2.Saml2P;
+using HCore.Translations.Providers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -47,6 +48,8 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<IStringLocalizerProvider, MessagesStringLocalizerProviderImpl>();
+
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
             bool useIdentity = configuration.GetValue<bool>("Identity:UseIdentity");

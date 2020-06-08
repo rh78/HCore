@@ -321,6 +321,9 @@
   <data name="sign_in_button_forgot_password" xml:space="preserve">
     <value>Forgot password?</value>
   </data>
+  <data name="sign_in_button_already_have_account" xml:space="preserve">
+    <value>Do you already have an user account?</value>
+  </data>
   <data name="sign_in_button_register" xml:space="preserve">
     <value>Register new user account</value>
   </data>

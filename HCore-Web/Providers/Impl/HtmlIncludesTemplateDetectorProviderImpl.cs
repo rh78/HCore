@@ -84,7 +84,7 @@ namespace HCore.Web.Providers.Impl
                 var filePath = fileData.Item1;
                 var fullPath = fileData.Item2;
 
-                _htmlIncludeProviders.Add(filePath.ToLower(), new HtmlTemplateFileIncludesProviderImpl(fullPath));
+                _htmlIncludeProviders.Add(filePath.Replace("\\", "/").ToLower(), new HtmlTemplateFileIncludesProviderImpl(fullPath));
             }
         }
 
