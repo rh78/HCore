@@ -3,16 +3,16 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HCore.Identity.Attributes;
 using HCore.Tenants.Providers;
-using HCore.Translations.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class TenantModel : PageModel
+    public class TenantModel : BasePageModelProvidingJsonModelData
     {
+        public override string ModelAsJson { get; } = "{}";
+
         public static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
         public static readonly string CookieName = "HCore.Tenant.Selection";
 

@@ -2,7 +2,6 @@
 using IdentityServer4.Events;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
@@ -24,7 +23,6 @@ using reCAPTCHA.AspNetCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
-using HCore.Translations.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
