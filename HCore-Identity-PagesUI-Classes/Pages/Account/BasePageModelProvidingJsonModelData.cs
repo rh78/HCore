@@ -9,7 +9,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         public abstract string ModelAsJson { get; }
 
-        public virtual string ValidationErrors =>
+        public virtual string ValidationErrorsAsJson =>
             JsonConvert.SerializeObject(
                 GetValidationErrors(), 
                 new JsonSerializerSettings()
