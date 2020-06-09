@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Web.Exceptions;
 using HCore.Identity.Models;
@@ -12,7 +11,7 @@ using System;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public class EmailNotConfirmedModel : PageModel
+    public class EmailNotConfirmedModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -29,6 +28,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             _dataProtectionProvider = dataProtectionProvider;
         }
+
+        public override string ModelAsJson { get; } = "{}";
 
         [TempData]
         public string StatusMessage { get; set; }

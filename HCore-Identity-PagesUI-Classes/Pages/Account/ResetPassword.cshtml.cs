@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
@@ -10,7 +9,7 @@ using HCore.Translations.Providers;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public class ResetPasswordModel : PageModel
+    public class ResetPasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -22,6 +21,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
         }
+
+        public override string ModelAsJson { get; } = "{}";
 
         [BindProperty]
         public ResetUserPasswordSpec Input { get; set; }

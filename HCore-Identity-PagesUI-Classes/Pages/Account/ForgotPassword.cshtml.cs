@@ -1,7 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using HCore.Identity.Attributes;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Services;
@@ -10,11 +8,13 @@ using reCAPTCHA.AspNetCore;
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using HCore.Identity.Attributes;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public class ForgotPasswordModel : PageModel
+    public class ForgotPasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -40,6 +40,18 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public RecaptchaSettings Recaptcha { get; set; }
         
+        public override string ModelAsJson { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    RecaptchaSiteKey = Recaptcha.SiteKey
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
+        }
+
         public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Clear();

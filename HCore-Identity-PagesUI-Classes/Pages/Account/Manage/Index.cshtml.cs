@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +10,13 @@ using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Resources;
 using HCore.Translations.Providers;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public partial class IndexModel : PageModel
+    public partial class IndexModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -27,6 +28,19 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
         }
+
+        public override string ModelAsJson { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    StatusMessage,
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
+        }
+
 
         [TempData]
         public string StatusMessage { get; set; }

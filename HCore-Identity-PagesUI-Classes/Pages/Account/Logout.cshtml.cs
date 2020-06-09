@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Identity.Services;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +13,7 @@ using Newtonsoft.Json;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public class LogoutModel : PageModel
+    public class LogoutModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
 
@@ -45,17 +44,18 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
-        public string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {
                     LoggedOut,
-                    PostLogoutRedirectUri
+                    PostLogoutRedirectUri,
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+                }
+            );
+        }
 
         public LogoutModel(
              IIdentityServices identityServices,

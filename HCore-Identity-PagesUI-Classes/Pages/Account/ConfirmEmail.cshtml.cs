@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Attributes;
 using HCore.Web.Exceptions;
 using HCore.Identity.Models;
@@ -10,7 +9,7 @@ using HCore.Translations.Providers;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [TypeFilter(typeof(SecurityHeadersAttribute))]
-    public class ConfirmEmailModel : PageModel
+    public class ConfirmEmailModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -22,6 +21,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
         }
+
+        public override string ModelAsJson { get; } = "{}";
 
         public async Task<IActionResult> OnGetAsync(string userUuid, string code)
         {
