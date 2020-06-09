@@ -8,11 +8,12 @@ using HCore.Identity.Services;
 using HCore.Translations.Providers;
 using Microsoft.AspNetCore.DataProtection;
 using System;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class EmailNotConfirmedModel : PageModel
+    public class EmailNotConfirmedModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -28,6 +29,19 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _translationsProvider = translationsProvider;
 
             _dataProtectionProvider = dataProtectionProvider;
+        }
+
+        public override string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    StatusMessage,
+                    UserUuid = Input.UserUuid,
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
         }
 
         [TempData]

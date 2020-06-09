@@ -9,12 +9,13 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Services;
 using HCore.Identity.Resources;
 using HCore.Translations.Providers;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
     [SecurityHeaders]
-    public class ChangePasswordModel : PageModel
+    public class ChangePasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -25,6 +26,22 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
+        }
+
+        public override string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    PasswordChangePossible,
+                    StatusMessage,
+                    Input.NewPassword,
+                    Input.OldPassword,
+                    Input.NewPasswordConfirmation,
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
         }
 
         [BindProperty]

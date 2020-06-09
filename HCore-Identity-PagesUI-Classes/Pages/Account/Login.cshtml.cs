@@ -30,7 +30,7 @@ using HCore.Translations.Resources;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class LoginModel : PageModel
+    public class LoginModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;
@@ -48,14 +48,20 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public string ValidationErrors { get =>
+        public override string Values { get =>
             JsonConvert.SerializeObject(
-                GetValidationErrors(), 
-                new JsonSerializerSettings()
+                new
+                {
+                    Email = Input.Email,
+                    Password = Input.Password,
+                    Remember = Input.Remember,
+                    ReturnUrl,
+                }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+                }
+            );
+        }
 
         public LoginModel(
             IIdentityServices identityServices,
@@ -395,27 +401,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     segmentClient.Track(user.Id, "Logged in");
                 }
             }
-        }
-
-        private List<string> GetValidationErrors()
-        {
-            var result = new List<string>();
-
-            foreach (var value in ModelState.Values)
-            {
-                if (value.Errors != null)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        if (!string.IsNullOrEmpty(error.ErrorMessage))
-                            result.Add(error.ErrorMessage);
-                        else if (error.Exception != null)
-                            result.Add(Messages.internal_server_error);
-                    }
-                }
-            }
-            
-            return result;
         }
     }
 }

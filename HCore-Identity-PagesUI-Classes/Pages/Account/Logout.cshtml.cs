@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class LogoutModel : PageModel
+    public class LogoutModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
 
@@ -45,7 +45,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
-        public string Values { get =>
+        public override string Values { get =>
             JsonConvert.SerializeObject(
                 new
                 {
@@ -54,8 +54,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+                }
+            );
+        }
 
         public LogoutModel(
              IIdentityServices identityServices,

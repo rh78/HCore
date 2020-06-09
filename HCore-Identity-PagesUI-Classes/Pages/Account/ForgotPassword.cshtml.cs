@@ -10,11 +10,12 @@ using reCAPTCHA.AspNetCore;
 using System;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class ForgotPasswordModel : PageModel
+    public class ForgotPasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -40,6 +41,19 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public RecaptchaSettings Recaptcha { get; set; }
         
+        public override string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    Email = Input.Email,
+                    RecaptchaSiteKey = Recaptcha.SiteKey
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
+        }
+
         public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Clear();

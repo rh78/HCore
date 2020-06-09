@@ -10,12 +10,13 @@ using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Resources;
 using HCore.Translations.Providers;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
     [SecurityHeaders]
-    public partial class IndexModel : PageModel
+    public partial class IndexModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -27,6 +28,34 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
         }
+
+        public override string Values { get =>
+            JsonConvert.SerializeObject(
+                new
+                {
+                    Input.FirstName,
+                    Input.LastName,
+                    Input.Password,
+                    Input.PasswordConfirmation,
+                    Email,
+                    EmailConfirmed,
+                    Input.Currency,
+                    Input.AcceptCommunication,
+                    Input.GroupNotifications,
+                    Input.NotificationCulture,
+                    Input.PhoneNumber,
+                    Input.PhoneNumberConfirmed,
+                    Input.AcceptPrivacyPolicy,
+                    Input.AcceptTermsAndConditions,
+                    Input.SegmentAnonymousUserUuid,
+                    StatusMessage,
+                }, new JsonSerializerSettings()
+                {
+                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
+                }
+            );
+        }
+
 
         [TempData]
         public string StatusMessage { get; set; }
