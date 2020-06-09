@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using IdentityServer4.Services;
@@ -23,9 +22,6 @@ using HCore.Tenants;
 using IdentityServer4;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System.Linq;
-using HCore.Translations.Resources;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
