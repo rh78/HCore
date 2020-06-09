@@ -6,11 +6,12 @@ using HCore.Identity.Models;
 using HCore.Web.Exceptions;
 using HCore.Identity.Services;
 using HCore.Translations.Providers;
+using Newtonsoft.Json;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class ResetPasswordModel : PageModel
+    public class ResetPasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
@@ -22,6 +23,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
         }
+
+        public override string ModelAsJson { get; } = "{}";
 
         [BindProperty]
         public ResetUserPasswordSpec Input { get; set; }

@@ -30,7 +30,7 @@ using HCore.Translations.Resources;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class LoginModel : PageModel
+    public class LoginModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;
@@ -48,14 +48,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public string ValidationErrors { get =>
-            JsonConvert.SerializeObject(
-                GetValidationErrors(), 
-                new JsonSerializerSettings()
-                {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+        public override string ModelAsJson { get; } = "{}";
 
         public LoginModel(
             IIdentityServices identityServices,
@@ -114,9 +107,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning disable CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
         private async Task<IActionResult> ChallengeExternalAsync(string externalAuthenticationMethod)
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning restore CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
         {
             // initiate roundtrip to external authentication provider
 
@@ -395,27 +388,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     segmentClient.Track(user.Id, "Logged in");
                 }
             }
-        }
-
-        private List<string> GetValidationErrors()
-        {
-            var result = new List<string>();
-
-            foreach (var value in ModelState.Values)
-            {
-                if (value.Errors != null)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        if (!string.IsNullOrEmpty(error.ErrorMessage))
-                            result.Add(error.ErrorMessage);
-                        else if (error.Exception != null)
-                            result.Add(Messages.internal_server_error);
-                    }
-                }
-            }
-            
-            return result;
         }
     }
 }

@@ -29,7 +29,7 @@ using HCore.Translations.Resources;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
-    public class RegisterModel : PageModel
+    public class RegisterModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;        
@@ -43,7 +43,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {
@@ -55,17 +55,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
-
-        public string ValidationErrors { get =>
-            JsonConvert.SerializeObject(
-                GetValidationErrors(), 
-                new JsonSerializerSettings()
-                {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+                }
+            );
+        }
 
         public RegisterModel(
             IIdentityServices identityServices,
@@ -335,27 +327,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 return null;
             }
-        }
-
-        private List<string> GetValidationErrors()
-        {
-            var result = new List<string>();
-
-            foreach (var value in ModelState.Values)
-            {
-                if (value.Errors != null)
-                {
-                    foreach (var error in value.Errors)
-                    {
-                        if (!string.IsNullOrEmpty(error.ErrorMessage))
-                            result.Add(error.ErrorMessage);
-                        else if (error.Exception != null)
-                            result.Add(Messages.internal_server_error);
-                    }
-                }
-            }
-
-            return result;
         }
     }
 }
