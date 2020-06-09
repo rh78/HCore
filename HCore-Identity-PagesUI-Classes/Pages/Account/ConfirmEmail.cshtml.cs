@@ -24,7 +24,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _translationsProvider = translationsProvider;
         }
 
-        public override string Values { get; } = "{}";
+        public override string ModelAsJson { get; } = "{}";
 
         public async Task<IActionResult> OnGetAsync(string userUuid, string code)
         {

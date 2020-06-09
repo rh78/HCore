@@ -41,7 +41,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public RecaptchaSettings Recaptcha { get; set; }
         
-        public override string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {

@@ -28,7 +28,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             _translationsProvider = translationsProvider;
         }
 
-        public override string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {

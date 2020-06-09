@@ -7,7 +7,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     public abstract class BasePageModelProvidingJsonModelData : PageModel
     {
-        public abstract string Values { get; }
+        public abstract string ModelAsJson { get; }
 
         public virtual string ValidationErrors =>
             JsonConvert.SerializeObject(

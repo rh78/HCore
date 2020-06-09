@@ -48,7 +48,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public override string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {
