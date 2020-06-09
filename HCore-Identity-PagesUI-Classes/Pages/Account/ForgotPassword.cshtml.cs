@@ -45,7 +45,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             JsonConvert.SerializeObject(
                 new
                 {
-                    Email = Input.Email,
                     RecaptchaSiteKey = Recaptcha.SiteKey
                 }, new JsonSerializerSettings()
                 {

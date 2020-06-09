@@ -50,7 +50,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 new
                 {
                     LoggedOut,
-                    PostLogoutRedirectUri
+                    PostLogoutRedirectUri,
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml

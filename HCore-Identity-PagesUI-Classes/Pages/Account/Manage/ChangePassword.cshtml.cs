@@ -34,9 +34,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 {
                     PasswordChangePossible,
                     StatusMessage,
-                    Input.NewPassword,
-                    Input.OldPassword,
-                    Input.NewPasswordConfirmation,
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml

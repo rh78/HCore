@@ -24,20 +24,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _translationsProvider = translationsProvider;
         }
 
-        public override string ModelAsJson { get =>
-            JsonConvert.SerializeObject(
-                new
-                {
-                    Code = Input.Code,
-                    Email = Input.Email,
-                    Password = Input.Password,
-                    PasswordConfirmation = Input.PasswordConfirmation,
-                }, new JsonSerializerSettings()
-                {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                }
-            );
-        }
+        public override string ModelAsJson { get; } = "{}";
 
         [BindProperty]
         public ResetUserPasswordSpec Input { get; set; }

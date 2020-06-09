@@ -48,20 +48,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public override string ModelAsJson { get =>
-            JsonConvert.SerializeObject(
-                new
-                {
-                    Email = Input.Email,
-                    Password = Input.Password,
-                    Remember = Input.Remember,
-                    ReturnUrl,
-                }, new JsonSerializerSettings()
-                {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                }
-            );
-        }
+        public override string ModelAsJson { get; } = "{}";
 
         public LoginModel(
             IIdentityServices identityServices,

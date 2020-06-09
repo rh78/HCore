@@ -33,21 +33,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             JsonConvert.SerializeObject(
                 new
                 {
-                    Input.FirstName,
-                    Input.LastName,
-                    Input.Password,
-                    Input.PasswordConfirmation,
-                    Email,
-                    EmailConfirmed,
-                    Input.Currency,
-                    Input.AcceptCommunication,
-                    Input.GroupNotifications,
-                    Input.NotificationCulture,
-                    Input.PhoneNumber,
-                    Input.PhoneNumberConfirmed,
-                    Input.AcceptPrivacyPolicy,
-                    Input.AcceptTermsAndConditions,
-                    Input.SegmentAnonymousUserUuid,
                     StatusMessage,
                 }, new JsonSerializerSettings()
                 {

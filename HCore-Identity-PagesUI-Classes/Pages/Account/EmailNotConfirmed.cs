@@ -31,18 +31,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _dataProtectionProvider = dataProtectionProvider;
         }
 
-        public override string ModelAsJson { get =>
-            JsonConvert.SerializeObject(
-                new
-                {
-                    StatusMessage,
-                    UserUuid = Input.UserUuid,
-                }, new JsonSerializerSettings()
-                {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                }
-            );
-        }
+        public override string ModelAsJson { get; } = "{}";
 
         [TempData]
         public string StatusMessage { get; set; }
