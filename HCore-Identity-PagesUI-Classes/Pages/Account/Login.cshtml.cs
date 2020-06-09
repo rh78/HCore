@@ -120,9 +120,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             return Page();
         }
 
-#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning disable CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
         private async Task<IActionResult> ChallengeExternalAsync(string externalAuthenticationMethod)
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning restore CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
         {
             // initiate roundtrip to external authentication provider
 
