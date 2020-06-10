@@ -574,7 +574,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Manage your account.
+        ///   Looks up a localized string similar to Manage your user account.
         /// </summary>
         public static string manage_account_header {
             get {
@@ -601,7 +601,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can change your account settings here.
+        ///   Looks up a localized string similar to You can change your user account settings here..
         /// </summary>
         public static string manage_account_subheader {
             get {
@@ -808,7 +808,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you already have an account?.
+        ///   Looks up a localized string similar to Do you already have an user account?.
         /// </summary>
         public static string sign_in_button_already_have_account {
             get {
