@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models.Impl
@@ -7,10 +8,11 @@ namespace HCore.Tenants.Models.Impl
     [Serializable]
     internal class TenantInfoImpl : ITenantInfo
     {
+        public static Dictionary<string, X509Certificate2> StaticCertificates = new Dictionary<string, X509Certificate2>();
+
         public long DeveloperUuid { get; internal set; }
         public string DeveloperAuthority { get; internal set; }
         public string DeveloperAudience { get; internal set; }
-        public X509Certificate2 DeveloperCertificate { get; internal set; }
         public string DeveloperAuthCookieDomain { get; internal set; }
         public string DeveloperName { get; internal set; }
 
@@ -78,8 +80,6 @@ namespace HCore.Tenants.Models.Impl
         public string SamlPeerIdpMetadataLocation { get; set; }
         public string SamlPeerIdpMetadata { get; set; }
 
-        public X509Certificate2 SamlCertificate { get; set; }
-
         public bool SamlAllowWeakSigningAlgorithm { get; set; }
 
         public string ExternalDirectoryType { get; set; }
@@ -87,8 +87,6 @@ namespace HCore.Tenants.Models.Impl
         public int? ExternalDirectoryPort { get; set; }
 
         public bool? ExternalDirectoryUsesSsl { get; set; }
-
-        public X509Certificate2 ExternalDirectorySslCertificate { get; set; }
 
         public string ExternalDirectoryAccountDistinguishedName { get; set; }
 
@@ -136,7 +134,9 @@ namespace HCore.Tenants.Models.Impl
                 DeveloperUuid = DeveloperUuid,
                 DeveloperAuthority = DeveloperAuthority,
                 DeveloperAudience = DeveloperAudience,
-                DeveloperCertificate = DeveloperCertificate,
+                DeveloperCertificateBytes = DeveloperCertificateBytes,
+                DeveloperCertificatePassword = DeveloperCertificatePassword,
+                DeveloperCertificateThumbprint = DeveloperCertificateThumbprint,
                 DeveloperAuthCookieDomain = DeveloperAuthCookieDomain,
                 DeveloperName = DeveloperName,
                 DeveloperPrivacyPolicyUrl = DeveloperPrivacyPolicyUrl,
@@ -180,13 +180,17 @@ namespace HCore.Tenants.Models.Impl
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,
                 SamlPeerIdpMetadata = SamlPeerIdpMetadata,
-                SamlCertificate = SamlCertificate,
+                SamlCertificateBytes = SamlCertificateBytes,
+                SamlCertificatePassword = SamlCertificatePassword,
+                SamlCertificateThumbprint = SamlCertificateThumbprint,
                 SamlAllowWeakSigningAlgorithm = SamlAllowWeakSigningAlgorithm,
                 ExternalDirectoryType = ExternalDirectoryType,
                 ExternalDirectoryHost = ExternalDirectoryHost,
                 ExternalDirectoryPort = ExternalDirectoryPort,
                 ExternalDirectoryUsesSsl = ExternalDirectoryUsesSsl,
-                ExternalDirectorySslCertificate = ExternalDirectorySslCertificate,
+                ExternalDirectorySslCertificateBytes = ExternalDirectorySslCertificateBytes,
+                ExternalDirectorySslCertificatePassword = ExternalDirectorySslCertificatePassword,
+                ExternalDirectorySslCertificateThumbprint = ExternalDirectorySslCertificateThumbprint,
                 ExternalDirectoryAccountDistinguishedName = ExternalDirectoryAccountDistinguishedName,
                 ExternalDirectoryPassword = ExternalDirectoryPassword,
                 ExternalDirectoryLoginAttribute = ExternalDirectoryLoginAttribute,
@@ -205,6 +209,117 @@ namespace HCore.Tenants.Models.Impl
                 CreatedAt = CreatedAt,
                 LastUpdatedAt = LastUpdatedAt
             };
+        }
+
+        public byte[] DeveloperCertificateBytes { get; internal set; }
+        public string DeveloperCertificatePassword { get; internal set; }
+        public string DeveloperCertificateThumbprint { get; internal set; }
+
+        public void SetDeveloperCertificate(byte[] certificateBytes, string certificatePassword)
+        {
+            if (certificateBytes == null || certificateBytes.Length == 0)
+                return;
+
+            DeveloperCertificateBytes = certificateBytes;
+            DeveloperCertificatePassword = certificatePassword;
+
+            X509Certificate2 certificate;
+
+            if (string.IsNullOrEmpty(certificatePassword))
+                certificate = new X509Certificate2(certificateBytes);
+            else
+                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+
+            DeveloperCertificateThumbprint = certificate.Thumbprint;
+
+            StaticCertificates[certificate.Thumbprint] = certificate;
+        }
+
+        public X509Certificate2 GetDeveloperCertificate()
+        {
+            if (string.IsNullOrEmpty(DeveloperCertificateThumbprint))
+                return null;
+            
+            if (!StaticCertificates.ContainsKey(DeveloperCertificateThumbprint))
+            {
+                SetDeveloperCertificate(DeveloperCertificateBytes, DeveloperCertificatePassword);
+            }
+
+            return StaticCertificates[DeveloperCertificateThumbprint];
+        }
+
+        public byte[] SamlCertificateBytes { get; internal set; }
+        public string SamlCertificatePassword { get; internal set; }
+        public string SamlCertificateThumbprint { get; internal set; }
+
+        public void SetSamlCertificate(byte[] certificateBytes, string certificatePassword)
+        {
+            if (certificateBytes == null || certificateBytes.Length == 0)
+                return;
+
+            SamlCertificateBytes = certificateBytes;
+            SamlCertificatePassword = certificatePassword;
+
+            X509Certificate2 certificate;
+
+            if (string.IsNullOrEmpty(certificatePassword))
+                certificate = new X509Certificate2(certificateBytes);
+            else
+                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+
+            SamlCertificateThumbprint = certificate.Thumbprint;
+
+            StaticCertificates[certificate.Thumbprint] = certificate;
+        }
+
+        public X509Certificate2 GetSamlCertificate()
+        {
+            if (string.IsNullOrEmpty(SamlCertificateThumbprint))
+                return null;
+
+            if (!StaticCertificates.ContainsKey(SamlCertificateThumbprint))
+            {
+                SetSamlCertificate(SamlCertificateBytes, SamlCertificatePassword);
+            }
+
+            return StaticCertificates[SamlCertificateThumbprint];
+        }
+
+        public byte[] ExternalDirectorySslCertificateBytes { get; internal set; }
+        public string ExternalDirectorySslCertificatePassword { get; internal set; }
+        public string ExternalDirectorySslCertificateThumbprint { get; internal set; }
+
+        public void SetExternalDirectorySslCertificate(byte[] certificateBytes, string certificatePassword)
+        {
+            if (certificateBytes == null || certificateBytes.Length == 0)
+                return;
+
+            ExternalDirectorySslCertificateBytes = certificateBytes;
+            ExternalDirectorySslCertificatePassword = certificatePassword;
+
+            X509Certificate2 certificate;
+
+            if (string.IsNullOrEmpty(certificatePassword))
+                certificate = new X509Certificate2(certificateBytes);
+            else
+                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+
+            ExternalDirectorySslCertificateThumbprint = certificate.Thumbprint;
+
+            StaticCertificates[certificate.Thumbprint] = certificate;
+        }
+
+        public X509Certificate2 GetExternalDirectorySslCertificate()
+        {
+            if (string.IsNullOrEmpty(ExternalDirectorySslCertificateThumbprint))
+                return null;
+
+            if (!StaticCertificates.ContainsKey(ExternalDirectorySslCertificateThumbprint))
+            {
+                SetExternalDirectorySslCertificate(ExternalDirectorySslCertificateBytes, ExternalDirectorySslCertificatePassword);
+            }
+
+            return StaticCertificates[ExternalDirectorySslCertificateThumbprint];
         }
     }
 }

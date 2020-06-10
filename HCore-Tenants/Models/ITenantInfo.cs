@@ -8,7 +8,6 @@ namespace HCore.Tenants.Models
         long DeveloperUuid { get; }
         string DeveloperAuthority { get; }
         string DeveloperAudience { get; }
-        X509Certificate2 DeveloperCertificate { get; }
         string DeveloperAuthCookieDomain { get; }
         string DeveloperName { get; }
 
@@ -76,8 +75,6 @@ namespace HCore.Tenants.Models
         string SamlPeerIdpMetadataLocation { get; set;  }
         string SamlPeerIdpMetadata { get; set; }
 
-        X509Certificate2 SamlCertificate { get; }
-
         bool SamlAllowWeakSigningAlgorithm { get; }
 
         string ExternalDirectoryType { get; }
@@ -85,8 +82,6 @@ namespace HCore.Tenants.Models
         int? ExternalDirectoryPort { get; }
 
         bool? ExternalDirectoryUsesSsl { get; }
-
-        X509Certificate2 ExternalDirectorySslCertificate { get; }
 
         string ExternalDirectoryAccountDistinguishedName { get; }
 
@@ -122,5 +117,9 @@ namespace HCore.Tenants.Models
         public DateTimeOffset? LastUpdatedAt { get; }
 
         ITenantInfo Clone();
+
+        public X509Certificate2 GetDeveloperCertificate();
+        public X509Certificate2 GetSamlCertificate();
+        public X509Certificate2 GetExternalDirectorySslCertificate();
     }
 }

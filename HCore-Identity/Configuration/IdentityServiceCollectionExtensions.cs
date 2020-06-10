@@ -227,13 +227,15 @@ namespace Microsoft.Extensions.DependencyInjection
                         ValidateAudience = false,
                         ValidateIssuer = true,
                         ValidIssuer = tenantInfo.DeveloperAuthority
-                    };                        
+                    };
 
-                    if (tenantInfo.DeveloperCertificate != null)
+                    var developerCertificate = tenantInfo.GetDeveloperCertificate();
+
+                    if (developerCertificate != null)
                     {
                         // if we cannot resolve it from some discovery endpoint
 
-                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(tenantInfo.DeveloperCertificate);
+                        tokenValidationParameters.IssuerSigningKey = new X509SecurityKey(developerCertificate);
                     }
 
                     jwt.TokenValidationParameters = tokenValidationParameters;
@@ -339,7 +341,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             saml.SPOptions.MinIncomingSigningAlgorithm = SignedXml.XmlDsigRSASHA1Url;
                         }
 
-                        var samlCertificate = tenantInfo.SamlCertificate;
+                        var samlCertificate = tenantInfo.GetSamlCertificate();
 
                         if (samlCertificate != null)
                         {
