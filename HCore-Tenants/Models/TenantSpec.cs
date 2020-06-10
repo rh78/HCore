@@ -27,17 +27,6 @@ namespace HCore.Tenants.Models
     [Serializable]
 	public partial class TenantSpec : IEquatable<TenantSpec>
     { 
-		private string _Uuid;
-		
-		/// <summary>
-        /// The record UUID
-        /// </summary>
-        /// <value>The record UUID</value>
-        [DataMember(Name="uuid")]
-		public string Uuid { get => _Uuid; set { _Uuid = value; UuidSet = true; } }
-		
-		public bool UuidSet = false;		
-
 		private string _Name;
 		
 		/// <summary>
@@ -192,6 +181,17 @@ namespace HCore.Tenants.Models
 		
 		public bool DefaultCurrencySet = false;		
 
+		private string _CreatedByUserUuid;
+		
+		/// <summary>
+        /// The record UUID
+        /// </summary>
+        /// <value>The record UUID</value>
+        [DataMember(Name="created_by_user_uuid")]
+		public string CreatedByUserUuid { get => _CreatedByUserUuid; set { _CreatedByUserUuid = value; CreatedByUserUuidSet = true; } }
+		
+		public bool CreatedByUserUuidSet = false;		
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -200,7 +200,6 @@ namespace HCore.Tenants.Models
         {
             var sb = new StringBuilder();
             sb.Append("class TenantSpec {\n");
-            sb.Append("  Uuid: ").Append(Uuid).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Subdomain: ").Append(Subdomain).Append("\n");
             sb.Append("  LogoSvgUrl: ").Append(LogoSvgUrl).Append("\n");
@@ -215,6 +214,7 @@ namespace HCore.Tenants.Models
             sb.Append("  ProductName: ").Append(ProductName).Append("\n");
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
+            sb.Append("  CreatedByUserUuid: ").Append(CreatedByUserUuid).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -251,11 +251,6 @@ namespace HCore.Tenants.Models
             if (ReferenceEquals(this, other)) return true;
 
             return 
-                (
-                    Uuid == other.Uuid ||
-                    Uuid != null &&
-                    Uuid.Equals(other.Uuid)
-                ) && 
                 (
                     Name == other.Name ||
                     Name != null &&
@@ -325,6 +320,11 @@ namespace HCore.Tenants.Models
                     DefaultCurrency == other.DefaultCurrency ||
                     DefaultCurrency != null &&
                     DefaultCurrency.Equals(other.DefaultCurrency)
+                ) && 
+                (
+                    CreatedByUserUuid == other.CreatedByUserUuid ||
+                    CreatedByUserUuid != null &&
+                    CreatedByUserUuid.Equals(other.CreatedByUserUuid)
                 );
         }
 
@@ -338,8 +338,6 @@ namespace HCore.Tenants.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Uuid != null)
-                    hashCode = hashCode * 59 + Uuid.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Subdomain != null)
@@ -368,6 +366,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + DefaultCulture.GetHashCode();
                     if (DefaultCurrency != null)
                     hashCode = hashCode * 59 + DefaultCurrency.GetHashCode();
+                    if (CreatedByUserUuid != null)
+                    hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
                 return hashCode;
             }
         }

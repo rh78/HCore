@@ -117,6 +117,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 
+        public string CreatedByUserUuid { get; set; }
+
         [ConcurrencyCheck]
         public int Version { get; set; }
 

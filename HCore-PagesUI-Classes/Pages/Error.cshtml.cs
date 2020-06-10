@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using IdentityServer4.Services;
 using System.Threading.Tasks;
 using System;
@@ -14,7 +13,7 @@ namespace HCore.PagesUI.Classes.Pages
 {
     [SecurityHeaders]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public class ErrorModel : PageModel
+    public class ErrorModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServerInteractionService _interaction;
 
@@ -26,7 +25,7 @@ namespace HCore.PagesUI.Classes.Pages
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public string Values { get =>
+        public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {
@@ -35,8 +34,9 @@ namespace HCore.PagesUI.Classes.Pages
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                });
-            }
+                }
+            );
+        }
 
         public ErrorModel(
             IDataProtectionProvider dataProtectionProvider,
