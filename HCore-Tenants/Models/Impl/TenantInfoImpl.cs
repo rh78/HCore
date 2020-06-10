@@ -114,6 +114,8 @@ namespace HCore.Tenants.Models.Impl
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 
+        public string CreatedByUserUuid { get; set; }
+
         public int Version { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
@@ -198,6 +200,7 @@ namespace HCore.Tenants.Models.Impl
                 RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
+                CreatedByUserUuid = CreatedByUserUuid,
                 Version = Version,
                 CreatedAt = CreatedAt,
                 LastUpdatedAt = LastUpdatedAt

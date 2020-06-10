@@ -4,6 +4,7 @@ using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Providers;
+using HCore.Web.API.Impl;
 using HCore.Web.Exceptions;
 using HCore.Web.Providers;
 using Microsoft.EntityFrameworkCore;
@@ -60,7 +61,21 @@ namespace HCore.Tenants.Services.Impl
             var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
 
             if (tenantInfo != null)
+            {
+                // lets check if the creator is the same for the existing subdomain
+                // this makes the call re-entrant, if something happens later on
+
+                if (!string.IsNullOrEmpty(tenantInfo.CreatedByUserUuid) &&
+                    !string.IsNullOrEmpty(tenantSpec.CreatedByUserUuid) &&
+                    string.Equals(tenantInfo.CreatedByUserUuid, tenantSpec.CreatedByUserUuid))
+                {
+                    // make it reentrant
+
+                    return tenantInfo;
+                }
+
                 throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
+            }
 
             tenantModel.SubdomainPatterns = new string[] { subdomain };
 
@@ -146,6 +161,8 @@ namespace HCore.Tenants.Services.Impl
 
                 tenantModel.DefaultCurrency = defaultCurrency;
             }
+
+            tenantModel.CreatedByUserUuid = ApiImpl.ProcessUserUuid(tenantSpec.CreatedByUserUuid);
 
             tenantModel.CreatedAt = _nowProvider.Now;
             tenantModel.Version = 1;

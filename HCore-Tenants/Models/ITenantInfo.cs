@@ -114,6 +114,8 @@ namespace HCore.Tenants.Models
         string DevAdminSsoReplacementSamlPeerEntityId { get; }
         string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; }
 
+        public string CreatedByUserUuid { get; }
+
         public int Version { get; }
 
         public DateTimeOffset CreatedAt { get; }
