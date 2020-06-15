@@ -96,13 +96,13 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private void CreateIndexVersionsIndex()
         {
-            var indexVersionsIndexExists = ElasticClient.IndexExists(IndexVersionsIndexName).Exists;
+            var indexVersionsIndexExists = ElasticClient.Indices.Exists(IndexVersionsIndexName).Exists;
             
             if (!indexVersionsIndexExists)
             {
                 Console.WriteLine("Creating index versions index...");
 
-                var createIndexResponse = ElasticClient.CreateIndex(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
+                var createIndexResponse = ElasticClient.Indices.Create(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
                     .Mappings(indexVersionMapping => indexVersionMapping
                         .Map<IndexVersion>(indexVersion => indexVersion
                             .Properties(indexVersionProperty => indexVersionProperty
@@ -133,7 +133,7 @@ namespace HCore.Database.ElasticSearch.Impl
 
             createIndexDescriptor = createIndexDescriptor.Index(newIndexNameWithVersion);
 
-            var createIndexResponse = ElasticClient.CreateIndex(newIndexNameWithVersion, index => createIndexDescriptor);
+            var createIndexResponse = ElasticClient.Indices.Create(newIndexNameWithVersion, index => createIndexDescriptor);
 
             Console.WriteLine($"Index {newIndexNameWithVersion} created");
             
@@ -156,7 +156,7 @@ namespace HCore.Database.ElasticSearch.Impl
                     $"({reindexOnServerResult.Created} created, {reindexOnServerResult.Updated} updated)");
             }
 
-            var aliasExists = ElasticClient.AliasExists(indexName).Exists;
+            var aliasExists = ElasticClient.Indices.AliasExists(indexName).Exists;
 
             if (aliasExists)
             {
@@ -164,7 +164,7 @@ namespace HCore.Database.ElasticSearch.Impl
 
                 Console.WriteLine($"Deleting alias {indexName} -> {oldIndexNameWithVersion}...");
 
-                ElasticClient.DeleteAlias(oldIndexNameWithVersion, indexName);
+                ElasticClient.Indices.DeleteAlias(oldIndexNameWithVersion, indexName);
 
                 Console.WriteLine($"Deleted alias {indexName} -> {oldIndexNameWithVersion}");
             }
@@ -173,7 +173,7 @@ namespace HCore.Database.ElasticSearch.Impl
 
             Console.WriteLine($"Creating alias {indexName} -> {newIndexNameWithVersion}...");
 
-            var createAliasResponse = ElasticClient.Alias(alias => alias
+            var createAliasResponse = ElasticClient.Indices.BulkAlias(alias => alias
                 .Add(action => action
                     .Index(newIndexNameWithVersion)
                     .Alias(indexName)
@@ -203,7 +203,7 @@ namespace HCore.Database.ElasticSearch.Impl
 
                     Console.WriteLine($"Deleting old index {oldIndexNameWithVersion}");
 
-                    var deleteIndexResponse = ElasticClient.DeleteIndex(oldIndexNameWithVersion);
+                    var deleteIndexResponse = ElasticClient.Indices.Delete(oldIndexNameWithVersion);
 
                     if (!deleteIndexResponse.Acknowledged)
                         throw new Exception($"Cannot delete old index {oldIndexNameWithVersion}");
