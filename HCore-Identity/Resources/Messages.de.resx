@@ -259,7 +259,7 @@
     <value>Profil</value>
   </data>
   <data name="manage_account_subheader" xml:space="preserve">
-    <value>Sie können Ihre Konto-Einstellungen hier ändern</value>
+    <value>Sie können hier die Einstellungen Ihres Benutzerkontos ändern.</value>
   </data>
   <data name="new_password" xml:space="preserve">
     <value>Neues Passwort</value>

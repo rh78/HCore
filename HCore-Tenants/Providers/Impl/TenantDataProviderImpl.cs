@@ -36,7 +36,8 @@ namespace HCore.Tenants.Providers.Impl
         public int? HealthCheckPort { get; internal set; }
         public string HealthCheckTenantHost { get; internal set; }
 
-        private readonly X509Certificate2 _standardSamlCertificate;
+        private byte[] _standardSamlCertificateBytes;
+        private string _standardSamlCertificatePassword;
 
         private readonly ILogger<TenantDataProviderImpl> _logger;
 
@@ -58,7 +59,7 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
 
-            _standardSamlCertificate = ReadStandardSamlCertificate(configuration);
+            ReadStandardSamlCertificate(configuration);
 
             using (var scope = _scopeFactory.CreateScope())
             {
@@ -334,14 +335,16 @@ namespace HCore.Tenants.Providers.Impl
         {
             var developerModel = tenantModel.Developer;
 
-            X509Certificate2 developerCertificate = null;
+            byte[] developerCertificateBytes = null;
+            string developerCertificatePassword = null;
 
             if (!string.IsNullOrEmpty(developerModel.Certificate))
             {
                 if (string.IsNullOrEmpty(developerModel.CertificatePassword))
                     throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
 
-                developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developerModel.Certificate), developerModel.CertificatePassword);
+                developerCertificateBytes = GetCertificateBytesFromPEM(developerModel.Certificate);
+                developerCertificatePassword = developerModel.CertificatePassword;
             }
 
             if (tenantModel.SubdomainPatterns == null || tenantModel.SubdomainPatterns.Length == 0)
@@ -454,7 +457,8 @@ namespace HCore.Tenants.Providers.Impl
             string samlPeerIdpMetadataLocation = null;
             string samlPeerIdpMetadata = null;
 
-            X509Certificate2 samlCertificate = null;
+            byte[] samlCertificateBytes = null;
+            string samlCertificatePassword = null;
 
             bool samlAllowWeakSigningAlgorithm = false;
 
@@ -464,7 +468,8 @@ namespace HCore.Tenants.Providers.Impl
 
             bool? externalDirectoryUsesSsl = null;
 
-            X509Certificate2 externalDirectorySslCertificate = null;
+            byte[] externalDirectorySslCertificateBytes = null;
+            string externalDirectorySslCertificatePassword = null;
 
             string externalDirectoryAccountDistinguishedName = null;
 
@@ -520,10 +525,14 @@ namespace HCore.Tenants.Providers.Impl
                         throw new Exception("The tenant SAML peer IDP metadata location or the metadata itself is missing");
 
                     if (!string.IsNullOrEmpty(tenantModel.SamlCertificate))
-                        samlCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenantModel.SamlCertificate));
+                    {
+                        samlCertificateBytes = GetCertificateBytesFromPEM(tenantModel.SamlCertificate);
+                        samlCertificatePassword = null;
+                    }
                     else
                     {
-                        samlCertificate = _standardSamlCertificate;
+                        samlCertificateBytes = _standardSamlCertificateBytes;
+                        samlCertificatePassword = _standardSamlCertificatePassword;
                     }
 
                     samlAllowWeakSigningAlgorithm = tenantModel.SamlAllowWeakSigningAlgorithm ?? false;
@@ -561,9 +570,12 @@ namespace HCore.Tenants.Providers.Impl
                         throw new Exception("The tenant external directory port is invalid");
 
                     if (!string.IsNullOrEmpty(tenantModel.ExternalDirectorySslCertificate))
-                        externalDirectorySslCertificate = new X509Certificate2(GetCertificateBytesFromPEM(tenantModel.ExternalDirectorySslCertificate));
+                    {
+                        externalDirectorySslCertificateBytes = GetCertificateBytesFromPEM(tenantModel.ExternalDirectorySslCertificate);
+                        externalDirectorySslCertificatePassword = null;
+                    }
 
-                    if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificate == null)
+                    if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificateBytes == null)
                         throw new Exception("The tenant external directory SSL certificate is missing");
 
                     externalDirectoryAccountDistinguishedName = tenantModel.ExternalDirectoryAccountDistinguishedName;
@@ -605,7 +617,6 @@ namespace HCore.Tenants.Providers.Impl
                 DeveloperUuid = developerModel.Uuid,
                 DeveloperAuthority = developerModel.Authority,
                 DeveloperAudience = developerModel.Audience,
-                DeveloperCertificate = developerCertificate,
                 DeveloperAuthCookieDomain = developerModel.AuthCookieDomain,
                 DeveloperName = developerModel.Name,
                 DeveloperPrivacyPolicyUrl = developerModel.PrivacyPolicyUrl,
@@ -649,13 +660,11 @@ namespace HCore.Tenants.Providers.Impl
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
                 SamlPeerIdpMetadata = samlPeerIdpMetadata,
-                SamlCertificate = samlCertificate,
                 SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
                 ExternalDirectoryType = externalDirectoryType,
                 ExternalDirectoryHost = externalDirectoryHost,
                 ExternalDirectoryPort = externalDirectoryPort,
                 ExternalDirectoryUsesSsl = externalDirectoryUsesSsl,
-                ExternalDirectorySslCertificate = externalDirectorySslCertificate,
                 ExternalDirectoryAccountDistinguishedName = externalDirectoryAccountDistinguishedName,
                 ExternalDirectoryPassword = externalDirectoryPassword,
                 ExternalDirectoryLoginAttribute = externalDirectoryLoginAttribute,
@@ -673,6 +682,10 @@ namespace HCore.Tenants.Providers.Impl
                 CreatedAt = tenantModel.CreatedAt,
                 LastUpdatedAt = tenantModel.LastUpdatedAt
             };
+
+            tenantInfo.SetDeveloperCertificate(developerCertificateBytes, developerCertificatePassword);
+            tenantInfo.SetSamlCertificate(samlCertificateBytes, samlCertificatePassword);
+            tenantInfo.SetExternalDirectorySslCertificate(externalDirectorySslCertificateBytes, externalDirectorySslCertificatePassword);
 
             return tenantInfo;
         }
@@ -735,7 +748,8 @@ namespace HCore.Tenants.Providers.Impl
             {
                 resourceStream.CopyTo(memory);
 
-                certificate = new X509Certificate2(memory.ToArray(), samlCertificatePassword);
+                _standardSamlCertificateBytes = memory.ToArray();
+                _standardSamlCertificatePassword = samlCertificatePassword;
             }
 
             return certificate;
