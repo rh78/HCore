@@ -29,8 +29,10 @@ namespace HCore.Database.ElasticSearch.Impl
         string IConcatenateTokenFilter.TokenSeparator { get; set; }
         int? IConcatenateTokenFilter.IncrementGap { get; set; }
 
-        public ConcatenateTokenFilterDescriptor TokenSeparator(string tokenSeparator) => Assign(a => a.TokenSeparator = tokenSeparator);
+        public ConcatenateTokenFilterDescriptor TokenSeparator(string tokenSeparator) =>
+            Assign(tokenSeparator, (a, v) => a.TokenSeparator = v);
 
-        public ConcatenateTokenFilterDescriptor IncrementGap(int? incrementGap) => Assign(a => a.IncrementGap = incrementGap);
+        public ConcatenateTokenFilterDescriptor IncrementGap(int? incrementGap) =>
+            Assign(incrementGap, (a, v) => a.IncrementGap = v);
     }
 }
