@@ -181,39 +181,6 @@ namespace HCore.Tenants.Models
 		
 		public bool DefaultCurrencySet = false;		
 
-		private bool? _RequiresOrderId;
-		
-		/// <summary>
-        /// If set to *true*, an order ID is required when purchasing assets for this tenant
-        /// </summary>
-        /// <value>If set to *true*, an order ID is required when purchasing assets for this tenant</value>
-        [DataMember(Name="requires_order_id")]
-		public bool? RequiresOrderId { get => _RequiresOrderId; set { _RequiresOrderId = value; RequiresOrderIdSet = true; } }
-		
-		public bool RequiresOrderIdSet = false;		
-
-		private bool? _OrderIdIsOnlyEnforcedForPurchase;
-		
-		/// <summary>
-        /// If set to *true*, the order ID is only enforced when actually performing the purchase
-        /// </summary>
-        /// <value>If set to *true*, the order ID is only enforced when actually performing the purchase</value>
-        [DataMember(Name="order_id_is_only_enforced_for_purchase")]
-		public bool? OrderIdIsOnlyEnforcedForPurchase { get => _OrderIdIsOnlyEnforcedForPurchase; set { _OrderIdIsOnlyEnforcedForPurchase = value; OrderIdIsOnlyEnforcedForPurchaseSet = true; } }
-		
-		public bool OrderIdIsOnlyEnforcedForPurchaseSet = false;		
-
-		private bool? _DefaultExcludeEditorialUseSearchSetting;
-		
-		/// <summary>
-        /// Defines the default *exclude editorial use* setting when searching
-        /// </summary>
-        /// <value>Defines the default *exclude editorial use* setting when searching</value>
-        [DataMember(Name="default_exclude_editorial_use_search_setting")]
-		public bool? DefaultExcludeEditorialUseSearchSetting { get => _DefaultExcludeEditorialUseSearchSetting; set { _DefaultExcludeEditorialUseSearchSetting = value; DefaultExcludeEditorialUseSearchSettingSet = true; } }
-		
-		public bool DefaultExcludeEditorialUseSearchSettingSet = false;		
-
 		private string _CreatedByUserUuid;
 		
 		/// <summary>
@@ -247,9 +214,6 @@ namespace HCore.Tenants.Models
             sb.Append("  ProductName: ").Append(ProductName).Append("\n");
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
-            sb.Append("  RequiresOrderId: ").Append(RequiresOrderId).Append("\n");
-            sb.Append("  OrderIdIsOnlyEnforcedForPurchase: ").Append(OrderIdIsOnlyEnforcedForPurchase).Append("\n");
-            sb.Append("  DefaultExcludeEditorialUseSearchSetting: ").Append(DefaultExcludeEditorialUseSearchSetting).Append("\n");
             sb.Append("  CreatedByUserUuid: ").Append(CreatedByUserUuid).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -358,21 +322,6 @@ namespace HCore.Tenants.Models
                     DefaultCurrency.Equals(other.DefaultCurrency)
                 ) && 
                 (
-                    RequiresOrderId == other.RequiresOrderId ||
-                    RequiresOrderId != null &&
-                    RequiresOrderId.Equals(other.RequiresOrderId)
-                ) && 
-                (
-                    OrderIdIsOnlyEnforcedForPurchase == other.OrderIdIsOnlyEnforcedForPurchase ||
-                    OrderIdIsOnlyEnforcedForPurchase != null &&
-                    OrderIdIsOnlyEnforcedForPurchase.Equals(other.OrderIdIsOnlyEnforcedForPurchase)
-                ) && 
-                (
-                    DefaultExcludeEditorialUseSearchSetting == other.DefaultExcludeEditorialUseSearchSetting ||
-                    DefaultExcludeEditorialUseSearchSetting != null &&
-                    DefaultExcludeEditorialUseSearchSetting.Equals(other.DefaultExcludeEditorialUseSearchSetting)
-                ) && 
-                (
                     CreatedByUserUuid == other.CreatedByUserUuid ||
                     CreatedByUserUuid != null &&
                     CreatedByUserUuid.Equals(other.CreatedByUserUuid)
@@ -417,12 +366,6 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + DefaultCulture.GetHashCode();
                     if (DefaultCurrency != null)
                     hashCode = hashCode * 59 + DefaultCurrency.GetHashCode();
-                    if (RequiresOrderId != null)
-                    hashCode = hashCode * 59 + RequiresOrderId.GetHashCode();
-                    if (OrderIdIsOnlyEnforcedForPurchase != null)
-                    hashCode = hashCode * 59 + OrderIdIsOnlyEnforcedForPurchase.GetHashCode();
-                    if (DefaultExcludeEditorialUseSearchSetting != null)
-                    hashCode = hashCode * 59 + DefaultExcludeEditorialUseSearchSetting.GetHashCode();
                     if (CreatedByUserUuid != null)
                     hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
                 return hashCode;
