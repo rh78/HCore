@@ -225,6 +225,17 @@ namespace HCore.Tenants.Models
 		
 		public bool DefaultCurrencySet = false;		
 
+		private string _CustomTenantSettingsJson;
+		
+		/// <summary>
+        /// The custom tenant settings as JSON string
+        /// </summary>
+        /// <value>The custom tenant settings as JSON string</value>
+        [DataMember(Name="custom_tenant_settings_json")]
+		public string CustomTenantSettingsJson { get => _CustomTenantSettingsJson; set { _CustomTenantSettingsJson = value; CustomTenantSettingsJsonSet = true; } }
+		
+		public bool CustomTenantSettingsJsonSet = false;		
+
 		private bool? _UsersAreExternallyManaged;
 		
 		/// <summary>
@@ -306,6 +317,7 @@ namespace HCore.Tenants.Models
             sb.Append("  ProductName: ").Append(ProductName).Append("\n");
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
+            sb.Append("  CustomTenantSettingsJson: ").Append(CustomTenantSettingsJson).Append("\n");
             sb.Append("  UsersAreExternallyManaged: ").Append(UsersAreExternallyManaged).Append("\n");
             sb.Append("  ExternalUsersAreManuallyManaged: ").Append(ExternalUsersAreManuallyManaged).Append("\n");
             sb.Append("  Version: ").Append(Version).Append("\n");
@@ -438,6 +450,11 @@ namespace HCore.Tenants.Models
                     DefaultCurrency.Equals(other.DefaultCurrency)
                 ) && 
                 (
+                    CustomTenantSettingsJson == other.CustomTenantSettingsJson ||
+                    CustomTenantSettingsJson != null &&
+                    CustomTenantSettingsJson.Equals(other.CustomTenantSettingsJson)
+                ) && 
+                (
                     UsersAreExternallyManaged == other.UsersAreExternallyManaged ||
                     UsersAreExternallyManaged != null &&
                     UsersAreExternallyManaged.Equals(other.UsersAreExternallyManaged)
@@ -510,6 +527,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + DefaultCulture.GetHashCode();
                     if (DefaultCurrency != null)
                     hashCode = hashCode * 59 + DefaultCurrency.GetHashCode();
+                    if (CustomTenantSettingsJson != null)
+                    hashCode = hashCode * 59 + CustomTenantSettingsJson.GetHashCode();
                     if (UsersAreExternallyManaged != null)
                     hashCode = hashCode * 59 + UsersAreExternallyManaged.GetHashCode();
                     if (ExternalUsersAreManuallyManaged != null)

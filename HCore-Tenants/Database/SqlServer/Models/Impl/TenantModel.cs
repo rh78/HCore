@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -124,5 +125,18 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
+
+        public void SetCustomTenantSettings<TCustomTenantSettingsDataType>(TCustomTenantSettingsDataType customTenantSettings)
+        {
+            CustomTenantSettingsJson = JsonConvert.SerializeObject(customTenantSettings);
+        }
+
+        public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
+        {
+            if (CustomTenantSettingsJson == null)
+                return default;
+
+            return JsonConvert.DeserializeObject<TCustomTenantSettingsDataType>(CustomTenantSettingsJson);
+        }
     }
 }

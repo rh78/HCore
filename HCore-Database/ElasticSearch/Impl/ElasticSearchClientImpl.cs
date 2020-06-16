@@ -103,14 +103,12 @@ namespace HCore.Database.ElasticSearch.Impl
                 Console.WriteLine("Creating index versions index...");
 
                 var createIndexResponse = ElasticClient.Indices.Create(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
-                    .Mappings(indexVersionMapping => indexVersionMapping
-                        .Map<IndexVersion>(indexVersion => indexVersion
-                            .Properties(indexVersionProperty => indexVersionProperty
-                                .Keyword(element => element.Name(n => n.Name))
-                                .Number(element => element.Name(n => n.Version).Type(NumberType.Long))
-                            )
-                            .Dynamic(false)
+                    .Map<IndexVersion>(indexVersion => indexVersion
+                        .Properties(indexVersionProperty => indexVersionProperty
+                            .Keyword(element => element.Name(n => n.Name))
+                            .Number(element => element.Name(n => n.Version).Type(NumberType.Long))
                         )
+                        .Dynamic(false)
                     )
                     .Settings(indexVersionSetting => ConfigureNonConcatenateAndAutocompleteSettings(indexVersionSetting))
                 );

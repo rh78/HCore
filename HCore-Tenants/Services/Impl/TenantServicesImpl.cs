@@ -45,7 +45,8 @@ namespace HCore.Tenants.Services.Impl
             _nowProvider = nowProvider;
         }
 
-        public async Task<ITenantInfo> CreateTenantAsync(long developerUuid, TenantSpec tenantSpec)
+        public async Task<ITenantInfo> CreateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction)
+            where TCustomTenantSettingsDataType: new()
         {
             var tenantModel = new TenantModel();
 
@@ -164,6 +165,15 @@ namespace HCore.Tenants.Services.Impl
 
             tenantModel.CreatedByUserUuid = ApiImpl.ProcessUserUuid(tenantSpec.CreatedByUserUuid);
 
+            var customTenantSettings = new TCustomTenantSettingsDataType();
+
+            var apply = applyCustomTenantSettingsAction.Invoke(customTenantSettings);
+
+            if (apply)
+            {
+                tenantModel.SetCustomTenantSettings(customTenantSettings);
+            }
+
             tenantModel.CreatedAt = _nowProvider.Now;
             tenantModel.Version = 1;
 
@@ -255,7 +265,8 @@ namespace HCore.Tenants.Services.Impl
             return tenantInfo;
         }
 
-        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, TenantSpec tenantSpec, int? version = null)
+        public async Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction, int? version = null)
+            where TCustomTenantSettingsDataType : new()
         {
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
             return await UpdateTenantAsync(developerUuid, tenantUuid, async (tenantModelForUpdate) =>
@@ -457,6 +468,20 @@ namespace HCore.Tenants.Services.Impl
                     }
                 }
 
+                var customTenantSettings = tenantModelForUpdate.GetCustomTenantSettings<TCustomTenantSettingsDataType>();
+
+                if (customTenantSettings == null)
+                    customTenantSettings = new TCustomTenantSettingsDataType();
+
+                bool locallyChanged = applyCustomTenantSettingsAction.Invoke(customTenantSettings);
+
+                if (locallyChanged)
+                {
+                    tenantModelForUpdate.SetCustomTenantSettings(customTenantSettings);
+
+                    changed = true;
+                }
+
                 return changed;
             }, version).ConfigureAwait(false);
         }
@@ -631,6 +656,8 @@ namespace HCore.Tenants.Services.Impl
                         defaultCurrency = "eur";
 
                     tenant.DefaultCurrency = defaultCurrency;
+
+                    tenant.CustomTenantSettingsJson = tenantModel.CustomTenantSettingsJson;
 
                     tenant.UsersAreExternallyManaged = !string.IsNullOrEmpty(tenantModel.ExternalAuthenticationMethod);
 
