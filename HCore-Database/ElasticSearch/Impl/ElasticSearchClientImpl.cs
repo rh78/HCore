@@ -219,6 +219,7 @@ namespace HCore.Database.ElasticSearch.Impl
             return setting
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas)
+                .Setting("index.max_ngram_diff", int.MaxValue)
                 .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
@@ -228,6 +229,7 @@ namespace HCore.Database.ElasticSearch.Impl
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas)
                 .Analysis(analysis => ConfigureConcatenateAndAutocompleteAnalysis(analysis))
+                .Setting("index.max_ngram_diff", int.MaxValue)
                 .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
