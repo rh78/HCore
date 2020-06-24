@@ -84,7 +84,7 @@ namespace HCore.Web.Providers.Impl
 
             byte[] protectedHash;
 
-            using (var rsa = (RSACng)signingCertificate.GetRSAPublicKey())
+            using (var rsa = signingCertificate.GetRSAPublicKey())
             {
                 protectedHash = rsa.Encrypt(originalHash, RSAEncryptionPadding.OaepSHA1);
             }
@@ -117,7 +117,7 @@ namespace HCore.Web.Providers.Impl
 
             byte[] originalHash;
 
-            using (var rsa = (RSACng)signingCertificate.GetRSAPrivateKey())
+            using (var rsa = signingCertificate.GetRSAPrivateKey())
             {
                 originalHash = rsa.Decrypt(protectedHash, RSAEncryptionPadding.OaepSHA1);
             }
