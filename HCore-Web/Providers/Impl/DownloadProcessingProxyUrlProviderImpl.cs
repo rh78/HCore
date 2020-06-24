@@ -183,7 +183,7 @@ namespace HCore.Web.Providers.Impl
         private bool IsHashValid(string hashToVerify, Uri downloadSourceUri, string fileName, string downloadMimeType = null)
         {
             string calculatedHash = CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType);
-            return calculatedHash != null && calculatedHash.Equals(hashToVerify);
+            return string.Equals(calculatedHash, hashToVerify);
         }
     }
 
