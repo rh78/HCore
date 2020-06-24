@@ -373,6 +373,7 @@ namespace HCore.Web.Startup
             services.AddScoped<IUrlProvider, UrlProviderImpl>();
             services.AddScoped<INonHttpContextUrlProvider, NonHttpContextUrlProviderImpl>();
             services.AddScoped<INowProvider, NowProviderImpl>();
+            services.AddSingleton<IDownloadProcessingProxyUrlProvider, DownloadProcessingProxyUrlProviderImpl>();
 
             if (UseSpa)
             {
