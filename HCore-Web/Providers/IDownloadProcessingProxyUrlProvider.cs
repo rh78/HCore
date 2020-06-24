@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -30,7 +31,7 @@ namespace HCore.Web.Providers
         /// <param name="proxyBaseUrl">The base URL of the proxy controller receiving the reverse proxy request.</param>
         /// <param name="downloadMimeType">(optional) the mime type to set for the download file.</param>
         /// <returns>An URI to be passed to clients that will download the file from the processing proxy.</returns>
-        public Uri CreateProxyUrl(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null);
+        public Uri CreateProxyUrl(X509Certificate2 signingCertificate, Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null);
 
         /// <summary>
         /// Downloads the original file data based on the request data, processes the file data and configures the
@@ -44,7 +45,7 @@ namespace HCore.Web.Providers
         /// <param name="inputData">(optional) Contains the file data as processed by the previous stage. If
         /// <code>null</code>, then it will be returned unchanged.</param>
         /// <returns>The file data as a stream to be piped to the next processing stage.</returns>
-        public Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData);
+        public Task<IDownloadFileData> GetFileDataAsync(X509Certificate2 signingCertificate, HttpRequest request, Stream inputData = null);
     }
 
     public interface IDownloadFileData
@@ -53,5 +54,6 @@ namespace HCore.Web.Providers
         public string FileName { get; }
         public string MimeType { get; }
         public string CharacterSet { get; }
+        public long? ContentLength { get; }
     }
 }

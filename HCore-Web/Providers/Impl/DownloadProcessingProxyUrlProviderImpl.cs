@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
@@ -34,27 +34,21 @@ namespace HCore.Web.Providers.Impl
         public static readonly string UrlQueryKeySourceUrl = "u";
 
         private readonly ILogger<DownloadProcessingProxyUrlProviderImpl> _logger;
-        private readonly IDataProtector _protector;
-        private readonly IServiceProvider _serviceProvider;
+
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public DownloadProcessingProxyUrlProviderImpl(
-            IDataProtectionProvider protectionProvider,
-            IServiceProvider serviceProvider,
+            IHttpClientFactory httpClientFactory,
             ILogger<DownloadProcessingProxyUrlProviderImpl> logger
         )
         {
-            if (protectionProvider == null)
-            {
-                throw new ArgumentNullException(nameof(protectionProvider));
-            }
+            _httpClientFactory = httpClientFactory;
 
-            _protector = protectionProvider.CreateProtector(nameof(DownloadProcessingProxyUrlProviderImpl));
-            _serviceProvider = serviceProvider;
             _logger = logger;
         }
 
 
-        public Uri CreateProxyUrl(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null)
+        public Uri CreateProxyUrl(X509Certificate2 signingCertificate, Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null)
         {
             if (downloadSourceUri == null)
             {
@@ -86,7 +80,18 @@ namespace HCore.Web.Providers.Impl
 
             var queryBuilder = new QueryBuilder(queryItems);
 
-            queryBuilder.Add(UrlQueryKeyName, _protector.Protect(CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType)));
+            byte[] originalHash = CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType);
+
+            byte[] protectedHash;
+
+            using (var rsa = (RSACng)signingCertificate.GetRSAPublicKey())
+            {
+                protectedHash = rsa.Encrypt(originalHash, RSAEncryptionPadding.OaepSHA1);
+            }
+
+            string protectedHashBase64 = ToBase64String(protectedHash);
+
+            queryBuilder.Add(UrlQueryKeyName, protectedHashBase64);
             queryBuilder.Add(UrlQueryKeyMimeType, downloadMimeType);
             queryBuilder.Add(UrlQueryKeySourceUrl, downloadSourceUri.ToString());
             queryBuilder.Add(UrlQueryKeyFileName, fileName);
@@ -94,7 +99,7 @@ namespace HCore.Web.Providers.Impl
             return new Uri(baseUri + queryBuilder.ToQueryString());
         }
 
-        public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData = null)
+        public virtual async Task<IDownloadFileData> GetFileDataAsync(X509Certificate2 signingCertificate, HttpRequest request, Stream inputData = null)
         {
             if (request == null)
             {
@@ -106,8 +111,16 @@ namespace HCore.Web.Providers.Impl
             string mimeType = request.Query[UrlQueryKeyMimeType];
             string characterSet = "utf-8";
 
-            string protectedHash = request.Query[UrlQueryKeyName];
-            string originalHash = _protector.Unprotect(protectedHash);
+            string protectedHashBase64 = request.Query[UrlQueryKeyName];
+
+            byte[] protectedHash = FromBase64String(protectedHashBase64);
+
+            byte[] originalHash;
+
+            using (var rsa = (RSACng)signingCertificate.GetRSAPrivateKey())
+            {
+                originalHash = rsa.Decrypt(protectedHash, RSAEncryptionPadding.OaepSHA1);
+            }
 
             if (!IsHashValid(originalHash, downloadUri, fileName, mimeType))
             {
@@ -115,32 +128,43 @@ namespace HCore.Web.Providers.Impl
             }
 
             Stream fileData = inputData;
+            long? contentLength = null;
+
             if (fileData == null)
             {
-                var remoteRequest = new HttpRequestMessage(HttpMethod.Get, downloadUri);
-                var client = _serviceProvider.GetService<HttpClient>();
-                var response = await client.SendAsync(remoteRequest).ConfigureAwait(false);
+                var httpClient = _httpClientFactory.CreateClient();
 
-                if (response.IsSuccessStatusCode)
+                httpClient.Timeout = TimeSpan.FromMinutes(1);
+
+                using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, downloadUri))
                 {
-                    fileData = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    HttpResponseMessage responseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
-                    if (string.IsNullOrEmpty(mimeType))
+                    if (!responseMessage.IsSuccessStatusCode)
                     {
-                        mimeType = response.Content.Headers.ContentType.MediaType;
+                        _logger.LogError(
+                            $"Failed to download file from source location {downloadUri}. " +
+                            $"file name: {JsonConvert.SerializeObject(fileName)}. " +
+                            $"HTTP result was: {responseMessage.StatusCode} {responseMessage.ReasonPhrase}, response body: {responseMessage.Content}"
+                        );
+
+                        throw new HttpRequestException("Failed to download file from source location");
                     }
 
-                    characterSet = response.Content.Headers.ContentType.CharSet;
-                }
-                else
-                {
-                    _logger.LogError(
-                        $"Failed to download file from source location {downloadUri}. " +
-                        $"file name: {JsonConvert.SerializeObject(fileName)}. " +
-                        $"HTTP result was: {response.StatusCode} {response.ReasonPhrase}, response body: {response.Content}"
-                    );
+                    var contentDispositionHeader = responseMessage.Content.Headers.ContentDisposition;
 
-                    throw new HttpRequestException("Failed to download file from source location!");
+                    string originalMediaType = responseMessage.Content?.Headers?.ContentType?.MediaType;
+                    string originalCharacterSet = responseMessage.Content?.Headers?.ContentType?.CharSet;
+
+                    contentLength = responseMessage.Content?.Headers?.ContentLength;
+
+                    if (string.IsNullOrEmpty(mimeType))
+                        mimeType = originalMediaType;
+
+                    if (!string.IsNullOrEmpty(originalCharacterSet))
+                        characterSet = originalCharacterSet;
+
+                    fileData = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 }
             }
 
@@ -149,11 +173,12 @@ namespace HCore.Web.Providers.Impl
                 Data = fileData,
                 FileName = fileName,
                 CharacterSet = characterSet,
-                MimeType = mimeType,
+                ContentLength = contentLength,
+                MimeType = mimeType,                
             };
         }
 
-        private string CalculateHashFromParameters(Uri downloadSourceUri, string fileName, string downloadMimeType = null)
+        private byte[] CalculateHashFromParameters(Uri downloadSourceUri, string fileName, string downloadMimeType = null)
         {
             string valueToHash = $"{fileName}:{downloadMimeType}:{downloadSourceUri}";
 
@@ -163,13 +188,14 @@ namespace HCore.Web.Providers.Impl
             // Create the at_hash using the access token returned by CreateAccessTokenAsync.
             var hash = algorithm.ComputeHash(Encoding.UTF8.GetBytes(valueToHash));
 
-            return ToBase64String(hash);
+            return hash;
         }
 
-        private bool IsHashValid(string hashToVerify, Uri downloadSourceUri, string fileName, string downloadMimeType = null)
+        private bool IsHashValid(byte[] hashToVerify, Uri downloadSourceUri, string fileName, string downloadMimeType = null)
         {
-            string calculatedHash = CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType);
-            return !string.IsNullOrEmpty(hashToVerify) && string.Equals(calculatedHash, hashToVerify);
+            byte[] calculatedHash = CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType);
+
+            return hashToVerify.SequenceEqual(calculatedHash);
         }
     }
 
@@ -179,5 +205,6 @@ namespace HCore.Web.Providers.Impl
         public string FileName { get; set; }
         public string MimeType { get; set; }
         public string CharacterSet { get; set; }
+        public long? ContentLength { get; set; }
     }
 }
