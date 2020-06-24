@@ -86,7 +86,7 @@ namespace HCore.Web.Providers.Impl
 
             var queryBuilder = new QueryBuilder(queryItems);
 
-            queryBuilder.Add(UrlQueryKeyName, CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType));
+            queryBuilder.Add(UrlQueryKeyName, _protector.Protect(CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType)));
             queryBuilder.Add(UrlQueryKeyMimeType, downloadMimeType);
             queryBuilder.Add(UrlQueryKeySourceUrl, downloadSourceUri.ToString());
             queryBuilder.Add(UrlQueryKeyFileName, fileName);
@@ -96,11 +96,18 @@ namespace HCore.Web.Providers.Impl
 
         public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             Uri downloadUri = new Uri(request.Query[UrlQueryKeySourceUrl]);
             string fileName = request.Query[UrlQueryKeyFileName];
             string mimeType = request.Query[UrlQueryKeyMimeType];
             string characterSet = "utf-8";
-            string originalHash = ConvertParametersFromQueryData(request);
+
+            string protectedHash = request.Query[UrlQueryKeyName];
+            string originalHash = _protector.Unprotect(protectedHash);
 
             if (!IsHashValid(originalHash, downloadUri, fileName, mimeType))
             {
@@ -146,28 +153,6 @@ namespace HCore.Web.Providers.Impl
             };
         }
 
-        private string ConvertParametersFromQueryData(HttpRequest request)
-        {
-            if (request == null)
-            {
-                throw new ArgumentNullException(nameof(request));
-            }
-
-            if (!request.Query.TryGetValue(UrlQueryKeyName, out var queryData) || queryData.Count != 1)
-            {
-                return null;
-            }
-
-            string protectedHash = queryData[0];
-            return _protector.Unprotect(protectedHash);
-        }
-
-        private string ConvertParametersToQueryData(string hash)
-        {
-            string protectedHash = _protector.Protect(hash);
-            return $"{UrlQueryKeyName}={Uri.EscapeDataString(protectedHash)}" ;
-        }
-
         private string CalculateHashFromParameters(Uri downloadSourceUri, string fileName, string downloadMimeType = null)
         {
             string valueToHash = $"{fileName}:{downloadMimeType}:{downloadSourceUri}";
@@ -184,7 +169,7 @@ namespace HCore.Web.Providers.Impl
         private bool IsHashValid(string hashToVerify, Uri downloadSourceUri, string fileName, string downloadMimeType = null)
         {
             string calculatedHash = CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType);
-            return string.Equals(calculatedHash, hashToVerify);
+            return !string.IsNullOrEmpty(hashToVerify) && string.Equals(calculatedHash, hashToVerify);
         }
     }
 
