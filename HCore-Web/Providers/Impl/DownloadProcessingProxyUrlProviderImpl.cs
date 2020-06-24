@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -26,6 +30,9 @@ namespace HCore.Web.Providers.Impl
     {
         public static readonly string ProcessingProxyBaseUrlConfig = "DownloadProxy:BaseUrl";
         public static readonly string UrlQueryKeyName = "data";
+        public static readonly string UrlQueryKeyMimeType = "mime";
+        public static readonly string UrlQueryKeyFileName = "fileName";
+        public static readonly string UrlQueryKeySourceUrl = "u";
 
         private readonly ILogger<DownloadProcessingProxyUrlProviderImpl> _logger;
         private readonly IDataProtector _protector;
@@ -65,31 +72,34 @@ namespace HCore.Web.Providers.Impl
                 throw new ArgumentException("No proxy base URL has been provided!");
             }
 
-            // convert the data to JSON string
-            string uriQueryPayload = ConvertParametersToQueryData(CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType));
+            var proxyUri = new Uri(proxyBaseUrl);
+            var baseUri = proxyUri.GetComponents(
+                UriComponents.Scheme | UriComponents.Host | UriComponents.Port | UriComponents.Path,
+                UriFormat.UriEscaped
+            );
 
-            UriBuilder proxyUri = new UriBuilder(proxyBaseUrl);
-            if (proxyUri.Query != null && proxyUri.Query.Length > 1)
-            {
-                proxyUri.Query = proxyUri.Query.Substring(1) + "&" + uriQueryPayload;
-            }
-            else
-            {
-                proxyUri.Query = uriQueryPayload;
-            }
+            var query = QueryHelpers.ParseQuery(proxyUri.Query);
 
-            proxyUri.Query = proxyUri.Query.Substring(1) + "&fileName=" + Uri.EscapeDataString(fileName)
-                + (downloadMimeType != null ? "&mime=" + Uri.EscapeDataString(downloadMimeType) : "")
-                + "&u=" + Uri.EscapeDataString(downloadSourceUri.ToString())
-            ;
-            return Task.FromResult(proxyUri.Uri);
+            var queryItems = query.SelectMany(
+                x => x.Value,
+                (col, value) => new KeyValuePair<string, string>(col.Key, value)
+            ).ToList();
+
+            var queryBuilder = new QueryBuilder(queryItems);
+
+            queryBuilder.Add(UrlQueryKeyName, CalculateHashFromParameters(downloadSourceUri, fileName, downloadMimeType));
+            queryBuilder.Add(UrlQueryKeyMimeType, downloadMimeType);
+            queryBuilder.Add(UrlQueryKeySourceUrl, downloadSourceUri.ToString());
+            queryBuilder.Add(UrlQueryKeyFileName, fileName);
+
+            return Task.FromResult(new Uri(baseUri + queryBuilder.ToQueryString()));
         }
 
         public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData)
         {
-            Uri downloadUri = new Uri(request.Query["u"]);
-            string fileName = request.Query["fileName"];
-            string mimeType = request.Query["mime"];
+            Uri downloadUri = new Uri(request.Query[UrlQueryKeySourceUrl]);
+            string fileName = request.Query[UrlQueryKeyFileName];
+            string mimeType = request.Query[UrlQueryKeyMimeType];
             string characterSet = "utf-8";
             string originalHash = ConvertParametersFromQueryData(request);
 
