@@ -754,6 +754,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The link is expired or invalid.
+        /// </summary>
+        public static string link_invalid {
+            get {
+                return ResourceManager.GetString("link_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The logo PNG URL is missing.
         /// </summary>
         public static string logo_png_url_missing {

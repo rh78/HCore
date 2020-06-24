@@ -495,6 +495,9 @@
   <data name="argument_missing" xml:space="preserve">
     <value>The argument is missing</value>
   </data>
+  <data name="link_invalid" xml:space="preserve">
+    <value>The link is expired or invalid</value>
+  </data>
   <data name="developer_not_found" xml:space="preserve">
     <value>The developer was not found</value>
   </data>

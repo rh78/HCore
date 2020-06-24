@@ -10,6 +10,7 @@ namespace HCore.Web.Exceptions
 
         public const string ArgumentInvalid = "argument_invalid";
         public const string ArgumentMissing = "argument_missing";
+        public const string LinkInvalid = "link_invalid";
         public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";
         public const string MaxPagingLimitExceeded = "max_paging_limit_exceeded";
         public const string PagingOffsetInvalid = "paging_offset_invalid";
