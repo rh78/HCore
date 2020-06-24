@@ -94,7 +94,7 @@ namespace HCore.Web.Providers.Impl
             return new Uri(baseUri + queryBuilder.ToQueryString());
         }
 
-        public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData)
+        public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData = null)
         {
             if (request == null)
             {
