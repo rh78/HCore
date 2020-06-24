@@ -28,7 +28,6 @@ namespace HCore.Web.Providers.Impl
     /// </summary>
     public class DownloadProcessingProxyUrlProviderImpl : IDownloadProcessingProxyUrlProvider
     {
-        public static readonly string ProcessingProxyBaseUrlConfig = "DownloadProxy:BaseUrl";
         public static readonly string UrlQueryKeyName = "data";
         public static readonly string UrlQueryKeyMimeType = "mime";
         public static readonly string UrlQueryKeyFileName = "fileName";
