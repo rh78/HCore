@@ -54,7 +54,7 @@ namespace HCore.Web.Providers.Impl
         }
 
 
-        public virtual Task<Uri> CreateProxyUrlAsync(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null)
+        public Uri CreateProxyUrl(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null)
         {
             if (downloadSourceUri == null)
             {
@@ -91,7 +91,7 @@ namespace HCore.Web.Providers.Impl
             queryBuilder.Add(UrlQueryKeySourceUrl, downloadSourceUri.ToString());
             queryBuilder.Add(UrlQueryKeyFileName, fileName);
 
-            return Task.FromResult(new Uri(baseUri + queryBuilder.ToQueryString()));
+            return new Uri(baseUri + queryBuilder.ToQueryString());
         }
 
         public virtual async Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData)
@@ -144,11 +144,6 @@ namespace HCore.Web.Providers.Impl
                 CharacterSet = characterSet,
                 MimeType = mimeType,
             };
-        }
-
-        public virtual Uri GetSourceUri(HttpRequest request)
-        {
-            return new Uri(request.Query["u"]);
         }
 
         private string ConvertParametersFromQueryData(HttpRequest request)

@@ -376,7 +376,7 @@
     <value>Ihr Profil wurde aktualisiert</value>
   </data>
   <data name="accept_privacy_policy" xml:space="preserve">
-    <value>Ich habe die {0} &lt;a href="javascript:javascript:openUrlInNewWindow('{1}');"&gt;Datenschutzerklärung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzerklärung elektronisch erfasst und gespeichert werden.</value>
+    <value>Ich habe die {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Datenschutzerklärung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzerklärung elektronisch erfasst und gespeichert werden.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
     <value>Ich akzeptiere die &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Nutzungsbedingungen&lt;/a&gt; von {0}.</value>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +30,7 @@ namespace HCore.Web.Providers
         /// <param name="proxyBaseUrl">The base URL of the proxy controller receiving the reverse proxy request.</param>
         /// <param name="downloadMimeType">(optional) the mime type to set for the download file.</param>
         /// <returns>An URI to be passed to clients that will download the file from the processing proxy.</returns>
-        public Task<Uri> CreateProxyUrlAsync(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null);
+        public Uri CreateProxyUrl(Uri downloadSourceUri, string fileName, string proxyBaseUrl, string downloadMimeType = null);
 
         /// <summary>
         /// Downloads the original file data based on the request data, processes the file data and configures the
@@ -46,14 +45,6 @@ namespace HCore.Web.Providers
         /// <code>null</code>, then it will be returned unchanged.</param>
         /// <returns>The file data as a stream to be piped to the next processing stage.</returns>
         public Task<IDownloadFileData> GetFileDataAsync(HttpRequest request, Stream inputData);
-
-        /// <summary>
-        /// Returns the original source URI of the file to download, as read from the HTTP request data and decoded
-        /// with data protection facility of .NET core.
-        /// </summary>
-        /// <param name="request">The HTTP request to read request data from.</param>
-        /// <returns>The original source URI of the download file.</returns>
-        public Uri GetSourceUri(HttpRequest request);
     }
 
     public interface IDownloadFileData
