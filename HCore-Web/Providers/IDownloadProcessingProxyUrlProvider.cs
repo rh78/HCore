@@ -42,7 +42,6 @@ namespace HCore.Web.Providers
         /// sort of processing pipe.</remarks>
         /// </summary>
         /// <param name="request">The HTTP request to read request data from.</param>
-        /// like setting proper MIME type or that alike.</param>
         /// <param name="inputData">(optional) Contains the file data as processed by the previous stage. If
         /// <code>null</code>, then it will be returned unchanged.</param>
         /// <returns>The file data as a stream to be piped to the next processing stage.</returns>
