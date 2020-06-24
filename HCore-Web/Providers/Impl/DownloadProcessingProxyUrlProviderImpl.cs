@@ -131,7 +131,7 @@ namespace HCore.Web.Providers.Impl
 
             return new DownloadFileDataImpl()
             {
-                data = fileData,
+                Data = fileData,
                 FileName = fileName,
                 CharacterSet = characterSet,
                 MimeType = mimeType,
@@ -189,7 +189,7 @@ namespace HCore.Web.Providers.Impl
 
     internal class DownloadFileDataImpl : IDownloadFileData
     {
-        public Stream data { get; set; }
+        public Stream Data { get; set; }
         public string FileName { get; set; }
         public string MimeType { get; set; }
         public string CharacterSet { get; set; }

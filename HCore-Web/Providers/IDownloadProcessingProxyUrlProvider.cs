@@ -59,7 +59,7 @@ namespace HCore.Web.Providers
 
     public interface IDownloadFileData
     {
-        public Stream data { get; }
+        public Stream Data { get; }
         public string FileName { get; }
         public string MimeType { get; }
         public string CharacterSet { get; }
