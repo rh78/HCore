@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static System.Convert;
-using static Newtonsoft.Json.JsonConvert;
 
 namespace HCore.Web.Providers.Impl
 {
@@ -143,7 +142,7 @@ namespace HCore.Web.Providers.Impl
             return new Uri(request.Query["u"]);
         }
 
-        private dynamic ConvertParametersFromQueryData(HttpRequest request)
+        private string ConvertParametersFromQueryData(HttpRequest request)
         {
             if (request == null)
             {
@@ -155,16 +154,14 @@ namespace HCore.Web.Providers.Impl
                 return null;
             }
 
-            string protectedJson = queryData[0];
-            string json = _protector.Unprotect(protectedJson);
-            return DeserializeObject<dynamic>(json);
+            string protectedHash = queryData[0];
+            return _protector.Unprotect(protectedHash);
         }
 
-        private string ConvertParametersToQueryData(dynamic downloadParameters)
+        private string ConvertParametersToQueryData(string hash)
         {
-            string json = SerializeObject(downloadParameters);
-            string protectedJson = _protector.Protect(json);
-            return $"{UrlQueryKeyName}={Uri.EscapeDataString(protectedJson)}" ;
+            string protectedHash = _protector.Protect(hash);
+            return $"{UrlQueryKeyName}={Uri.EscapeDataString(protectedHash)}" ;
         }
 
         private string CalculateHashFromParameters(Uri downloadSourceUri, string fileName, string downloadMimeType = null)
