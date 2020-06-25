@@ -55,7 +55,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
 
@@ -84,14 +84,24 @@ namespace HCore.Storage.Client.Impl
                 }
             }
 
-            await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);            
+            await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);
+
+            return blockBlob.Uri.AbsoluteUri;
         }
 
-        public async Task UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
-
+            
             await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            if (containerIsPublic && container.Properties.PublicAccess != BlobContainerPublicAccessType.Blob)
+            {
+                await container.SetPermissionsAsync(new BlobContainerPermissions()
+                {
+                    PublicAccess = BlobContainerPublicAccessType.Blob
+                }).ConfigureAwait(false);
+            }
 
             var blockBlob = container.GetBlockBlobReference(fileName);
 
@@ -106,6 +116,8 @@ namespace HCore.Storage.Client.Impl
             }
 
             await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);
+
+            return blockBlob.Uri.AbsoluteUri;
         }
 
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.

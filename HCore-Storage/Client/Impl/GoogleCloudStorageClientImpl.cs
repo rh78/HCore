@@ -70,7 +70,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -132,14 +132,16 @@ namespace HCore.Storage.Client.Impl
                     blockBlob.Metadata = additionalHeaders;
                 }
                 
-                await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
+                var result = await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
                 {
                     ChunkSize = ChunkSize
-                }).ConfigureAwait(false);                
+                }).ConfigureAwait(false);
+
+                return result.MediaLink;
             }
         }
 
-        public async Task UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -152,6 +154,13 @@ namespace HCore.Storage.Client.Impl
                 catch (GoogleApiException e)
                 when (e.HttpStatusCode == HttpStatusCode.NotFound)
                 {
+                    if (containerIsPublic)
+                    {
+                        // not yet supported for Google Cloud storage
+
+                        throw new NotImplementedException("Container public level is not yet implemented");
+                    }
+
                     // we need to create the bucket
 
                     try
@@ -183,10 +192,12 @@ namespace HCore.Storage.Client.Impl
                     blockBlob.Metadata = additionalHeaders;
                 }
 
-                await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
+                var result = await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
                 {
                     ChunkSize = ChunkSize
                 }).ConfigureAwait(false);
+
+                return result.MediaLink;
             }
         }
 
