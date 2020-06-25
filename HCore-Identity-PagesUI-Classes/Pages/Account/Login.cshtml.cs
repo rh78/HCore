@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class LoginModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

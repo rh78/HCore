@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace HCore.PagesUI.Classes.Pages
 {
-    [SecurityHeaders]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : BasePageModelProvidingJsonModelData
     {

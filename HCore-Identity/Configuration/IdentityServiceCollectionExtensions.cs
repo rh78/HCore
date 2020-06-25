@@ -38,7 +38,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using IdentityServer4.EntityFramework.DbContexts;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
+using HCore.Identity.Attributes;
 using HCore.Identity.Internal;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Sustainsys.Saml2.Saml2P;
 using HCore.Translations.Providers;
 

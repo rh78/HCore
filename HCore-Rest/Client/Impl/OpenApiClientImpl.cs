@@ -15,9 +15,9 @@ namespace HCore.Rest.Client.Impl
             
         }
 
-#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning disable CS1998 // This implementation lacks "await" operations. Although executed synchronously maintain async interface.
         protected virtual async Task<HttpRequestMessage> CreateHttpRequestMessageAsync(CancellationToken cancellationToken)
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning restore CS1998
         {
             if (string.IsNullOrEmpty(BaseUrl))
                 throw new Exception("Please set the base URL before using the API client");

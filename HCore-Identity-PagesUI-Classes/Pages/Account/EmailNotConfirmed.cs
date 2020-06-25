@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Attributes;
 using HCore.Web.Exceptions;
@@ -10,7 +10,7 @@ using System;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class EmailNotConfirmedModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

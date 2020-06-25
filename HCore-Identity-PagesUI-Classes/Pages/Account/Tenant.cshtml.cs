@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HCore.Identity.Attributes;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [TypeFilter(typeof(SecurityHeadersAttribute))]
     public class TenantModel : BasePageModelProvidingJsonModelData
     {
         public static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");

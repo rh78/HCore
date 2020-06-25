@@ -108,9 +108,9 @@ namespace HCore.Storage.Client.Impl
             await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);
         }
 
-#pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning disable CS1998 // This implementation lacks "await" operations. Although executed synchronously maintain async interface.
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan)
-#pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
+#pragma warning restore CS1998
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
 
