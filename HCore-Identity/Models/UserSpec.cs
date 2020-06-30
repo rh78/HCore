@@ -141,10 +141,10 @@ namespace HCore.Identity.Models
 
         public bool CurrencySet = false;
 
-        [Required]
         public bool AcceptTermsAndConditions { get; set; }
 
-        [Required]
+        public bool AcceptTermsAndConditionsAndPrivacyPolicy { get; set; }
+
         public bool AcceptPrivacyPolicy { get; set; }
 
         public bool AcceptCommunication { get; set; }

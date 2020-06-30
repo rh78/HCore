@@ -376,10 +376,13 @@
     <value>Ihr Profil wurde aktualisiert</value>
   </data>
   <data name="accept_privacy_policy" xml:space="preserve">
-    <value>Ich habe die {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Datenschutzerklärung&lt;/a&gt; gelesen. Ich bin damit einverstanden, dass meine persönlichen Daten gemäß dieser Datenschutzerklärung elektronisch erfasst und gespeichert werden.</value>
+    <value>Ich akzeptiere die {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Datenschutzerklärung&lt;/a&gt;.</value>
   </data>
   <data name="accept_terms_and_conditions" xml:space="preserve">
-    <value>Ich akzeptiere die &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Nutzungsbedingungen&lt;/a&gt; von {0}.</value>
+    <value>Ich akzeptiere die {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Nutzungsbedingungen&lt;/a&gt;.</value>
+  </data>
+  <data name="accept_terms_and_conditions_and_privacy_policy" xml:space="preserve">
+    <value>Ich akzeptiere die {0} &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Nutzungsbedingungen&lt;/a&gt; und die {0} &lt;a href="javascript:openUrlInNewWindow('{2}');"&gt;Datenschutzerklärung&lt;/a&gt;.</value>
   </data>
   <data name="accept_communication" xml:space="preserve">
     <value>Ich bin damit einverstanden, in Übereinstimmung mit der &lt;a href="javascript:openUrlInNewWindow('{1}');"&gt;Datenschutzerklärung&lt;/a&gt; E-Mail-Nachrichten über {0} Produkte und Neuigkeiten zu erhalten. Ich habe verstanden, dass ich diese Zustimmung jederzeit widerrufen kann.</value>

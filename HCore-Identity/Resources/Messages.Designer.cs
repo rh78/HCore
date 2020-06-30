@@ -70,7 +70,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to I have read the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Privacy Policy&lt;/a&gt;. I agree that my personal data will be collected and stored electronically in accordance with the Privacy Policy..
+        ///   Looks up a localized string similar to I accept the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Privacy Policy&lt;/a&gt;..
         /// </summary>
         public static string accept_privacy_policy {
             get {
@@ -84,6 +84,15 @@ namespace HCore.Identity.Resources {
         public static string accept_terms_and_conditions {
             get {
                 return ResourceManager.GetString("accept_terms_and_conditions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I accept the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{1}&apos;);&quot;&gt;Terms and Conditions&lt;/a&gt; and the {0} &lt;a href=&quot;javascript:openUrlInNewWindow(&apos;{2}&apos;);&quot;&gt;Privacy Policy&lt;/a&gt;..
+        /// </summary>
+        public static string accept_terms_and_conditions_and_privacy_policy {
+            get {
+                return ResourceManager.GetString("accept_terms_and_conditions_and_privacy_policy", resourceCulture);
             }
         }
         

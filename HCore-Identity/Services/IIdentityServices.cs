@@ -8,7 +8,7 @@ namespace HCore.Identity.Services
 {
     public interface IIdentityServices
     {
-        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null);
+        Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true);
         Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
 
