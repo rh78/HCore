@@ -265,7 +265,7 @@ namespace HCore.Identity.Services.Impl
                     if (existingUser != null)
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
-                    var user = new UserModel { Id = newUserUuid, UserName = userSpec.Email, Email = userSpec.Email };
+                    var user = new UserModel { Id = newUserUuid, UserName = userSpec.Email, Email = userSpec.Email, NormalizedEmailWithoutScope = userSpec.Email.Trim().ToUpper() };
 
                     if (_configurationProvider.SelfManagement)
                     {
@@ -494,7 +494,7 @@ namespace HCore.Identity.Services.Impl
                         preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
                     }
 
-                    var user = new UserModel { Id = providerUserUuid, UserName = preferredUserName, Email = scopedEmail, MemberOf = memberOf?.ToList() };
+                    var user = new UserModel { Id = providerUserUuid, UserName = preferredUserName, Email = scopedEmail, MemberOf = memberOf?.ToList(), NormalizedEmailWithoutScope = normalizedEmailAddress };
 
                     if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
                     {

@@ -46,6 +46,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public string CommunicationUrl { get; set; }
         public int? CommunicationVersionAccepted { get; set; }
 
+        public string NormalizedEmailWithoutScope { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))

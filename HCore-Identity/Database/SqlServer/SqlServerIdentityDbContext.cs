@@ -22,6 +22,9 @@ namespace HCore.Identity.Database.SqlServer
 
             modelBuilder.Entity<ReservedEmailAddressModel>()
                 .HasKey(entity => new { entity.Uuid, entity.NormalizedEmailAddress });
+
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(entity => entity.NormalizedEmailWithoutScope);
         }
     }
 }
