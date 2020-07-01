@@ -625,7 +625,7 @@ namespace HCore.Identity.Services.Impl
 
                     bool remember = userSignInSpec.RememberSet && userSignInSpec.Remember;
 
-                    var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, remember, lockoutOnFailure: true).ConfigureAwait(false);
+                    var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, isPersistent: remember, lockoutOnFailure: true).ConfigureAwait(false);
 
                     if (result.Succeeded)
                     {
@@ -879,7 +879,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec)
+        public async Task<UserModel> ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -896,19 +896,35 @@ namespace HCore.Identity.Services.Impl
                         throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
+                    if (user.EmailConfirmed)
+                    {
+                        // Email already confirmed
+
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
+                    }
+
                     var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
 
                     if (result.Succeeded)
                     {
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
+                        await _signInManager.SignInAsync(user, isPersistent: true).ConfigureAwait(false);
+
+                        _logger.LogInformation("User signed in");
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
                         transaction.Commit();
 
-                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
+                        return user;
                     }
                     else
                     {
                         HandleIdentityError(result.Errors);
+
+                        // to satisfy the compiler
+                        throw new InternalServerErrorApiException();
                     }
                 }
             }

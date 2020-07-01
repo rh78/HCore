@@ -561,6 +561,9 @@
   <data name="email_already_exists" xml:space="preserve">
     <value>Ein Benutzerkonto mit dieser E-Mail-Adresse ist bereits vorhanden</value>
   </data>
+  <data name="email_already_confirmed" xml:space="preserve">
+    <value>Die E-Mail-Adresse für dieses Benutzerkonto wurde bereits bestätigt</value>
+  </data>
   <data name="sort_by_invalid" xml:space="preserve">
     <value>Der Sortierungs-Wert ist ungültig</value>
   </data>

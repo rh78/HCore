@@ -394,6 +394,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The email address for this user account has already been confirmed.
+        /// </summary>
+        public static string email_already_confirmed {
+            get {
+                return ResourceManager.GetString("email_already_confirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A user account with that email address already exists.
         /// </summary>
         public static string email_already_exists {
