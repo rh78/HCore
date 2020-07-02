@@ -8,8 +8,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace HCore.Storage.Client.Impl
 {
@@ -209,20 +209,11 @@ namespace HCore.Storage.Client.Impl
 
             var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
 
-            string signedUrl;
+            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get, contentHeaders: new Dictionary<string, IEnumerable<string>>()
-                {
-                    { 
-                        "Content-Disposition", new [] { $"attachment; filename=\"{downloadFileName}\"" } 
-                    }
-                }).ConfigureAwait(false);
-            }
-            else
-            {
-                signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
+                signedUrl = $"{signedUrl}&response-content-disposition={HttpUtility.UrlEncode($"attachment; filename=\"{downloadFileName}\"")}";
             }
 
             return signedUrl;
