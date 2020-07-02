@@ -201,7 +201,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string? downloadFileName = null)
+        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson)
                 .CreateScoped(new string[] { "https://www.googleapis.com/auth/devstorage.read_only" })
