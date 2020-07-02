@@ -138,7 +138,7 @@ namespace HCore.Metadata.Impl
             {
                 var location = _geoIP2DatabaseReader.Country(ipAddress);
 
-                return location.Country.IsoCode;
+                return location.Country.IsoCode.ToLower();
             }
             catch (Exception)
             {
