@@ -121,7 +121,7 @@ namespace HCore.Storage.Client.Impl
         }
 
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
-        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan)
+        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
 #pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
@@ -134,7 +134,21 @@ namespace HCore.Storage.Client.Impl
 
             sasBlobPolicy.Permissions = SharedAccessBlobPermissions.Read;
 
-            string token = blockBlob.GetSharedAccessSignature(sasBlobPolicy);
+            string token;
+
+            if (!string.IsNullOrEmpty(downloadFileName))
+            {
+                var sasBlobHeaders = new SharedAccessBlobHeaders()
+                {
+                    ContentDisposition = $"attachment; filename=\"{downloadFileName}\""
+                };
+
+                token = blockBlob.GetSharedAccessSignature(sasBlobPolicy, sasBlobHeaders);
+            }
+            else
+            {
+                token = blockBlob.GetSharedAccessSignature(sasBlobPolicy);
+            }
 
             return $"{blockBlob.Uri}{token}";
         }

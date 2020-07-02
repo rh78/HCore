@@ -201,7 +201,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan)
+        public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string? downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson)
                 .CreateScoped(new string[] { "https://www.googleapis.com/auth/devstorage.read_only" })
@@ -209,7 +209,21 @@ namespace HCore.Storage.Client.Impl
 
             var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
 
-            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
+            string signedUrl;
+
+            if (!string.IsNullOrEmpty(downloadFileName))
+            {
+                signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get, contentHeaders: new Dictionary<string, IEnumerable<string>>()
+                {
+                    { 
+                        "Content-Disposition", new [] { $"attachment; filename=\"{downloadFileName}\"" } 
+                    }
+                }).ConfigureAwait(false);
+            }
+            else
+            {
+                signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
+            }
 
             return signedUrl;
         }
