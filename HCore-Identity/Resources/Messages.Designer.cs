@@ -817,7 +817,7 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you already have an user account?.
+        ///   Looks up a localized string similar to Do you already have a user account?.
         /// </summary>
         public static string sign_in_button_already_have_account {
             get {
