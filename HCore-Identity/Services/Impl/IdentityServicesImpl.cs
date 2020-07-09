@@ -917,6 +917,8 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
+                        await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
+
                         return user;
                     }
                     else
