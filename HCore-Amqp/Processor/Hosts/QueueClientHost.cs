@@ -162,9 +162,9 @@ namespace HCore.Amqp.Processor.Hosts
                             await CloseAsync().ConfigureAwait(false);
                         }
                     }
-                    catch (Exception e2)
+                    catch (Exception)
                     {
-                        throw e2;
+                        throw;
                     }
                     finally
                     {
