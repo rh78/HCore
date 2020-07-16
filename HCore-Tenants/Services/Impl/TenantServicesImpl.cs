@@ -80,7 +80,9 @@ namespace HCore.Tenants.Services.Impl
 
             tenantModel.SubdomainPatterns = new string[] { subdomain };
 
-            tenantModel.BackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultBackendApiUrlSuffix}";
+            tenantModel.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+            tenantModel.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
+
             tenantModel.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";
             tenantModel.WebUrl = $"https://{subdomain}.{developerInfo.DefaultWebUrlSuffix}";
 
@@ -318,7 +320,9 @@ namespace HCore.Tenants.Services.Impl
 
                     if (subdomainChanged)
                     {
-                        tenantModelForUpdate.BackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultBackendApiUrlSuffix}";
+                        tenantModelForUpdate.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+                        tenantModelForUpdate.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
+
                         tenantModelForUpdate.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";
                         tenantModelForUpdate.WebUrl = $"https://{subdomain}.{developerInfo.DefaultWebUrlSuffix}";
                     }
@@ -581,7 +585,8 @@ namespace HCore.Tenants.Services.Impl
                         Name = tenantModel.Name,
                         Subdomain = tenantModel.SubdomainPatterns[0],
                         WebUrl = tenantModel.WebUrl,
-                        BackendApiUrl = tenantModel.BackendApiUrl,
+                        EcbBackendApiUrl = tenantModel.EcbBackendApiUrl,
+                        PortalsBackendApiUrl = tenantModel.PortalsBackendApiUrl,
                         FrontendApiUrl = tenantModel.FrontendApiUrl
                     };
 

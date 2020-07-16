@@ -10,7 +10,9 @@ namespace HCore.Tenants.Models.Impl
         public X509Certificate2 Certificate { get; internal set; }
         public string AuthCookieDomain { get; internal set; }
 
-        public string DefaultBackendApiUrlSuffix { get; internal set; }
+        public string DefaultEcbBackendApiUrlSuffix { get; internal set; }
+        public string DefaultPortalsBackendApiUrlSuffix { get; internal set; }
+
         public string DefaultFrontendApiUrlSuffix { get; internal set; }
         public string DefaultWebUrlSuffix { get; internal set; }
 

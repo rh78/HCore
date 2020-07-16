@@ -356,8 +356,11 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(tenantModel.FrontendApiUrl))
                 throw new Exception("The tenant frontend API URL is empty");
 
-            if (string.IsNullOrEmpty(tenantModel.BackendApiUrl))
-                throw new Exception("The tenant backend API url is empty");
+            if (string.IsNullOrEmpty(tenantModel.EcbBackendApiUrl))
+                throw new Exception("The tenant ECB backend API url is empty");
+
+            if (string.IsNullOrEmpty(tenantModel.PortalsBackendApiUrl))
+                throw new Exception("The tenant Portals backend API url is empty");
 
             if (string.IsNullOrEmpty(tenantModel.WebUrl))
                 throw new Exception("The tenant web url is empty");
@@ -645,7 +648,8 @@ namespace HCore.Tenants.Providers.Impl
                 CustomInvitationEmailTextPrefix = customInvitationEmailTextPrefix,
                 CustomInvitationEmailTextSuffix = customInvitationEmailTextSuffix,
                 ProductName = productName,
-                BackendApiUrl = tenantModel.BackendApiUrl,
+                EcbBackendApiUrl = tenantModel.EcbBackendApiUrl,
+                PortalsBackendApiUrl = tenantModel.PortalsBackendApiUrl,
                 FrontendApiUrl = tenantModel.FrontendApiUrl,
                 WebUrl = tenantModel.WebUrl,
                 DefaultCulture = defaultCulture,

@@ -6,7 +6,9 @@
 
         string BuildWebUrl(string path);
 
-        string BuildBackendApiUrl(string path);
+        string BuildEcbBackendApiUrl(string path);
+        string BuildPortalsBackendApiUrl(string path);
+
         string BuildFrontendApiUrl(string path);        
     }
 }

@@ -58,7 +58,9 @@ namespace HCore.Tenants.Models.Impl
         public string DefaultCulture { get; internal set; }
         public string DefaultCurrency { get; internal set; }
 
-        public string BackendApiUrl { get; set; }
+        public string EcbBackendApiUrl { get; set; }
+        public string PortalsBackendApiUrl { get; set; }
+
         public string FrontendApiUrl { get; set; }
 
         public string WebUrl { get; set; }
@@ -167,7 +169,8 @@ namespace HCore.Tenants.Models.Impl
                 ProductName = ProductName,
                 DefaultCulture = DefaultCulture,
                 DefaultCurrency = DefaultCurrency,
-                BackendApiUrl = BackendApiUrl,
+                EcbBackendApiUrl = EcbBackendApiUrl,
+                PortalsBackendApiUrl = PortalsBackendApiUrl,
                 FrontendApiUrl = FrontendApiUrl,
                 WebUrl = WebUrl,
                 UsersAreExternallyManaged = UsersAreExternallyManaged,

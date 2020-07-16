@@ -27,7 +27,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string[] SubdomainPatterns { get; set; }
 
         [StringLength(MaxUrlLength)]
-        public string BackendApiUrl { get; set; }
+        public string EcbBackendApiUrl { get; set; }
+
+        [StringLength(MaxUrlLength)]
+        public string PortalsBackendApiUrl { get; set; }
 
         [StringLength(MaxUrlLength)]
         public string FrontendApiUrl { get; set; }

@@ -9,7 +9,9 @@ namespace HCore.Tenants.Providers.Impl
 
         public string WebUrl { get; private set; }
 
-        public string BackendApiUrl { get; private set; }
+        public string EcbBackendApiUrl { get; private set; }
+        public string PortalsBackendApiUrl { get; private set; }
+
         public string FrontendApiUrl { get; private set; }
 
         public UrlProviderImpl(IHttpContextAccessor httpContextAccessor, ITenantInfoAccessor tenantInfoAccessor)
@@ -23,7 +25,9 @@ namespace HCore.Tenants.Providers.Impl
 
             WebUrl = tenantInfoAccessor.TenantInfo.WebUrl;
 
-            BackendApiUrl = tenantInfoAccessor.TenantInfo.BackendApiUrl;
+            EcbBackendApiUrl = tenantInfoAccessor.TenantInfo.EcbBackendApiUrl;
+            PortalsBackendApiUrl = tenantInfoAccessor.TenantInfo.PortalsBackendApiUrl;
+
             FrontendApiUrl = tenantInfoAccessor.TenantInfo.FrontendApiUrl;
         }
 
@@ -43,12 +47,20 @@ namespace HCore.Tenants.Providers.Impl
             return WebUrl + path;
         }
 
-        public string BuildBackendApiUrl(string path)
+        public string BuildEcbBackendApiUrl(string path)
         {
-            if (string.IsNullOrEmpty(BackendApiUrl))
-                throw new Exception("No backend API URL is set up for this service");
+            if (string.IsNullOrEmpty(EcbBackendApiUrl))
+                throw new Exception("No ECB backend API URL is set up for this service");
 
-            return BackendApiUrl + path;
+            return EcbBackendApiUrl + path;
+        }
+
+        public string BuildPortalsBackendApiUrl(string path)
+        {
+            if (string.IsNullOrEmpty(PortalsBackendApiUrl))
+                throw new Exception("No Portals backend API URL is set up for this service");
+
+            return PortalsBackendApiUrl + path;
         }
 
         public string BuildFrontendApiUrl(string path)

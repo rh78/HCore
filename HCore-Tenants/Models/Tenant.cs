@@ -71,18 +71,29 @@ namespace HCore.Tenants.Models
 		
 		public bool WebUrlSet = false;		
 
-		private string _BackendApiUrl;
+		private string _EcbBackendApiUrl;
 		
 		/// <summary>
-        /// The backend API base URL of the tenant
+        /// The ECB backend API base URL of the tenant
         /// </summary>
         /// <value>The backend API base URL of the tenant</value>
         [DataMember(Name="backend_api_url")]
-		public string BackendApiUrl { get => _BackendApiUrl; set { _BackendApiUrl = value; BackendApiUrlSet = true; } }
+		public string EcbBackendApiUrl { get => _EcbBackendApiUrl; set { _EcbBackendApiUrl = value; EcbBackendApiUrlSet = true; } }
 		
-		public bool BackendApiUrlSet = false;		
+		public bool EcbBackendApiUrlSet = false;
 
-		private string _FrontendApiUrl;
+        private string _PortalsBackendApiUrl;
+
+        /// <summary>
+        /// The Portals backend API base URL of the tenant
+        /// </summary>
+        /// <value>The backend API base URL of the tenant</value>
+        [DataMember(Name = "portals_backend_api_url")]
+        public string PortalsBackendApiUrl { get => _PortalsBackendApiUrl; set { _PortalsBackendApiUrl = value; PortalsBackendApiUrlSet = true; } }
+
+        public bool PortalsBackendApiUrlSet = false;
+
+        private string _FrontendApiUrl;
 		
 		/// <summary>
         /// The frontend API base URL of the tenant
@@ -303,7 +314,8 @@ namespace HCore.Tenants.Models
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Subdomain: ").Append(Subdomain).Append("\n");
             sb.Append("  WebUrl: ").Append(WebUrl).Append("\n");
-            sb.Append("  BackendApiUrl: ").Append(BackendApiUrl).Append("\n");
+            sb.Append("  EcbBackendApiUrl: ").Append(EcbBackendApiUrl).Append("\n");
+            sb.Append("  PortalsBackendApiUrl: ").Append(PortalsBackendApiUrl).Append("\n");
             sb.Append("  FrontendApiUrl: ").Append(FrontendApiUrl).Append("\n");
             sb.Append("  LogoSvgUrl: ").Append(LogoSvgUrl).Append("\n");
             sb.Append("  LogoPngUrl: ").Append(LogoPngUrl).Append("\n");
@@ -380,9 +392,14 @@ namespace HCore.Tenants.Models
                     WebUrl.Equals(other.WebUrl)
                 ) && 
                 (
-                    BackendApiUrl == other.BackendApiUrl ||
-                    BackendApiUrl != null &&
-                    BackendApiUrl.Equals(other.BackendApiUrl)
+                    EcbBackendApiUrl == other.EcbBackendApiUrl ||
+                    EcbBackendApiUrl != null &&
+                    EcbBackendApiUrl.Equals(other.EcbBackendApiUrl)
+                ) &&
+                (
+                    PortalsBackendApiUrl == other.PortalsBackendApiUrl ||
+                    PortalsBackendApiUrl != null &&
+                    PortalsBackendApiUrl.Equals(other.PortalsBackendApiUrl)
                 ) && 
                 (
                     FrontendApiUrl == other.FrontendApiUrl ||
@@ -499,8 +516,10 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + Subdomain.GetHashCode();
                     if (WebUrl != null)
                     hashCode = hashCode * 59 + WebUrl.GetHashCode();
-                    if (BackendApiUrl != null)
-                    hashCode = hashCode * 59 + BackendApiUrl.GetHashCode();
+                    if (EcbBackendApiUrl != null)
+                    hashCode = hashCode * 59 + EcbBackendApiUrl.GetHashCode();
+                    if (PortalsBackendApiUrl != null)
+                    hashCode = hashCode * 59 + PortalsBackendApiUrl.GetHashCode();
                     if (FrontendApiUrl != null)
                     hashCode = hashCode * 59 + FrontendApiUrl.GetHashCode();
                     if (LogoSvgUrl != null)
