@@ -84,7 +84,17 @@ namespace HCore.Web.Providers.Impl
                 var filePath = fileData.Item1;
                 var fullPath = fileData.Item2;
 
-                _htmlIncludeProviders.Add(filePath.Replace("\\", "/").ToLower(), new HtmlTemplateFileIncludesProviderImpl(fullPath));
+                filePath = filePath.Replace("\\", "/").ToLower();
+
+                _htmlIncludeProviders.Add(filePath, new HtmlTemplateFileIncludesProviderImpl(fullPath));
+
+                if (filePath.StartsWith("/ecb") &&
+                    !string.Equals(filePath, "/ecb/index.html"))
+                {
+                    // map ECB to root for account UI
+
+                    _htmlIncludeProviders.Add(filePath.Replace("/ecb", ""), new HtmlTemplateFileIncludesProviderImpl(fullPath));
+                }
             }
         }
 
