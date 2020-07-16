@@ -33,7 +33,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string AuthCookieDomain { get; set; }
 
         [StringLength(MaxUrlLength)]
-        public string DefaultBackendApiUrlSuffix { get; set; }
+        public string DefaultEcbBackendApiUrlSuffix { get; set; }
+
+        [StringLength(MaxUrlLength)]
+        public string DefaultPortalsBackendApiUrlSuffix { get; set; }
+
         [StringLength(MaxUrlLength)]
         public string DefaultFrontendApiUrlSuffix { get; set; }
         [StringLength(MaxUrlLength)]

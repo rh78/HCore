@@ -96,8 +96,11 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.AuthCookieDomain))
                             throw new Exception("The developer auth cookie domain is empty");
 
-                        if (string.IsNullOrEmpty(developerModel.DefaultBackendApiUrlSuffix))
-                            throw new Exception("The developer default backend API URL suffix is empty");
+                        if (string.IsNullOrEmpty(developerModel.DefaultEcbBackendApiUrlSuffix))
+                            throw new Exception("The developer default ECB backend API URL suffix is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.DefaultPortalsBackendApiUrlSuffix))
+                            throw new Exception("The developer default Portals backend API URL suffix is empty");
 
                         if (string.IsNullOrEmpty(developerModel.DefaultFrontendApiUrlSuffix))
                             throw new Exception("The developer default frontend API URL suffix is empty");
@@ -145,7 +148,8 @@ namespace HCore.Tenants.Providers.Impl
                             Audience = developerModel.Audience,
                             Certificate = developerCertificate,
                             AuthCookieDomain = developerModel.AuthCookieDomain,
-                            DefaultBackendApiUrlSuffix = developerModel.DefaultBackendApiUrlSuffix,
+                            DefaultEcbBackendApiUrlSuffix = developerModel.DefaultEcbBackendApiUrlSuffix,
+                            DefaultPortalsBackendApiUrlSuffix = developerModel.DefaultPortalsBackendApiUrlSuffix,
                             DefaultFrontendApiUrlSuffix = developerModel.DefaultFrontendApiUrlSuffix,
                             DefaultWebUrlSuffix = developerModel.DefaultWebUrlSuffix,
                             Name = developerModel.Name,
