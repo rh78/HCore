@@ -202,6 +202,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 {
                     var protectedUserUuid = _dataProtectionProvider.CreateProtector(nameof(EmailNotConfirmedModel)).Protect(user.Id);
 
+                    // make sure we continue on THIS tenant when completing the login
+                    // this avoids breaking wizards etc. by redirecting to another tenant 
+                    // that was selected before
+
+                    Response.Cookies.Delete(TenantModel.CookieName);
+
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
                 else
