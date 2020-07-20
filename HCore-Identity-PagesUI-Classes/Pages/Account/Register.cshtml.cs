@@ -209,6 +209,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
                 }
 
+                // make sure we continue on THIS tenant when completing the login
+                // this avoids breaking wizards etc. by redirecting to another tenant 
+                // that was selected before
+
+                Response.Cookies.Delete(TenantModel.CookieName);
+
                 return LocalRedirect("~/");
             }
             catch (ApiException e)

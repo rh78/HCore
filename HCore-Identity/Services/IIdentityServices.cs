@@ -17,7 +17,7 @@ namespace HCore.Identity.Services
         Task SetUserPasswordAsync(string userUuid, SetUserPasswordSpec setUserPasswordSpec);
 
         Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec);
-        Task<UserModel> SignInUserAsync(AuthenticateResult authenticateResult);
+        Task<(UserModel, bool)> SignInUserAsync(AuthenticateResult authenticateResult);
 
         Task SignOutUserAsync(HttpContext httpContext);
 

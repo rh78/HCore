@@ -678,7 +678,7 @@ namespace HCore.Identity.Services.Impl
 
         // sign in through external authentication provider
 
-        public async Task<UserModel> SignInUserAsync(AuthenticateResult authenticateResult)
+        public async Task<(UserModel, bool)> SignInUserAsync(AuthenticateResult authenticateResult)
         {
             try
             {
@@ -743,7 +743,7 @@ namespace HCore.Identity.Services.Impl
                     {
                         user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, externalUser, claims).ConfigureAwait(false);
 
-                        return user;
+                        return (user, true);
                     }
                 }
 
@@ -864,7 +864,7 @@ namespace HCore.Identity.Services.Impl
                         await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
                     }
 
-                    return user;
+                    return (user, false);
                 }
             }
             catch (ApiException e)
