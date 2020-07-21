@@ -195,6 +195,12 @@
   <data name="email_invalid" xml:space="preserve">
     <value>The email address is invalid</value>
   </data>
+  <data name="email_not_existing" xml:space="preserve">
+    <value>This e-mail address does not exist</value>
+  </data>
+  <data name="no_disposable_emails_allowed" xml:space="preserve">
+    <value>Please do not use an disposable e-mail address</value>
+  </data>
   <data name="email_missing" xml:space="preserve">
     <value>The email address is missing</value>
   </data>

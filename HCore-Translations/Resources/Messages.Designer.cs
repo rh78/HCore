@@ -439,6 +439,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This e-mail address does not exist.
+        /// </summary>
+        public static string email_not_existing {
+            get {
+                return ResourceManager.GetString("email_not_existing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The email address is too long.
         /// </summary>
         public static string email_too_long {
@@ -858,6 +867,15 @@ namespace HCore.Translations.Resources {
         public static string new_password_missing {
             get {
                 return ResourceManager.GetString("new_password_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please do not use an disposable e-mail address.
+        /// </summary>
+        public static string no_disposable_emails_allowed {
+            get {
+                return ResourceManager.GetString("no_disposable_emails_allowed", resourceCulture);
             }
         }
         

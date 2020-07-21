@@ -195,6 +195,12 @@
   <data name="email_invalid" xml:space="preserve">
     <value>Die E-Mail-Adresse ist ungültig</value>
   </data>
+  <data name="email_not_existing" xml:space="preserve">
+    <value>Diese E-Mail-Adresse existiert nicht</value>
+  </data>
+  <data name="no_disposable_emails_allowed" xml:space="preserve">
+    <value>Bitte verwenden Sie keine Wegwerf-E-Mail-Adresse</value>
+  </data>
   <data name="email_missing" xml:space="preserve">
     <value>Die E-Mail-Adresse fehlt</value>
   </data>

@@ -24,7 +24,6 @@ using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Authentication;
 using IdentityModel;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using HCore.Tenants;
 using HCore.Directory;
@@ -32,6 +31,7 @@ using HCore.Identity.Internal;
 using reCAPTCHA.AspNetCore;
 using HCore.Tenants.Models;
 using Microsoft.Extensions.Configuration;
+using Kickbox;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -55,6 +55,8 @@ namespace HCore.Identity.Services.Impl
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
         private readonly IRecaptchaService _recaptchaService;
+
+        private readonly string _emailValidationApiKey;
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -115,6 +117,13 @@ namespace HCore.Identity.Services.Impl
                     _devAdminSsoAuthorizedIssuers.Add(devAdminSsoAuthorizedIssuer);
                 }
             });
+
+            _emailValidationApiKey = configuration["Identity:EmailValidation:Kickbox:ApiKey"];
+
+            if (string.IsNullOrEmpty(_emailValidationApiKey))
+            {
+                _emailValidationApiKey = null;
+            }
         }
 
         public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
@@ -207,6 +216,40 @@ namespace HCore.Identity.Services.Impl
 
             userSpec.Email = ProcessEmail(userSpec.Email);
 
+            if (!string.IsNullOrEmpty(_emailValidationApiKey))
+            {
+                var kickBoxApi = new KickBoxApi(_emailValidationApiKey);
+
+                var response = await kickBoxApi.VerifyWithResponse(userSpec.Email).ConfigureAwait(false);
+
+                if (response.Success)
+                {
+                    switch (response.Reason) {
+                        case "invalid_email":
+                        case "invalid_domain":
+                            throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
+                        case "rejected_email":
+                            throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
+                        default:
+                            // low_quality - ignore for now
+                            // low_deliverability - ignore for now
+                            // no_connect - ignore for now
+                            // timeout - ignore for now
+                            // invalid_smtp - ignore for now
+                            // unavailable_smtp - ignore for now
+                            // unexpected_error - ignore for now
+
+                            break;
+                    }
+
+                    // role - ignore for now
+                    // free - ignore for now
+                    // accept_all - ignore for now
+
+                    if (response.Disposable)
+                        throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                }
+            }
             if (_configurationProvider.SelfManagement)
             {
                 if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
