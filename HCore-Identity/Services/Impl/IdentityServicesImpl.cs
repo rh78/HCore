@@ -32,6 +32,7 @@ using reCAPTCHA.AspNetCore;
 using HCore.Tenants.Models;
 using Microsoft.Extensions.Configuration;
 using Kickbox;
+using System.Web;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -220,7 +221,7 @@ namespace HCore.Identity.Services.Impl
             {
                 var kickBoxApi = new KickBoxApi(_emailValidationApiKey);
 
-                var response = await kickBoxApi.VerifyWithResponse(userSpec.Email).ConfigureAwait(false);
+                var response = await kickBoxApi.VerifyWithResponse(HttpUtility.UrlEncode(userSpec.Email)).ConfigureAwait(false);
 
                 if (response.Success)
                 {
