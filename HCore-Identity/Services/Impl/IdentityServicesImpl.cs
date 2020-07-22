@@ -227,9 +227,17 @@ namespace HCore.Identity.Services.Impl
                     switch (response.Reason) {
                         case "invalid_email":
                         case "invalid_domain":
-                            throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
+                            {
+                                _logger.LogWarning($"Discovered invalid email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
+                            }
                         case "rejected_email":
-                            throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
+                            {
+                                _logger.LogWarning($"Discovered rejected email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                                throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
+                            }
                         default:
                             // low_quality - ignore for now
                             // low_deliverability - ignore for now
@@ -247,7 +255,11 @@ namespace HCore.Identity.Services.Impl
                     // accept_all - ignore for now
 
                     if (response.Disposable)
+                    {
+                        _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
                         throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                    }
                 }
             }
             if (_configurationProvider.SelfManagement)
