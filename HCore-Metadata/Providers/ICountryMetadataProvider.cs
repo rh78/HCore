@@ -18,5 +18,7 @@ namespace HCore.Metadata
         string GetDefaultCurrencyForCountry(string countryCode);
 
         string GetCountryCodeForIpAddress(string ipAddress);
+
+        bool IsEuropeanUnionCountry(string countryCode);
     }
 }

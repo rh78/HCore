@@ -145,5 +145,36 @@ namespace HCore.Metadata.Impl
                 return null;
             }
         }
+
+        public bool IsEuropeanUnionCountry(string countryCode)
+        {
+            return string.Equals(countryCode, "be") ||
+                    string.Equals(countryCode, "bg") ||
+                    string.Equals(countryCode, "cz") ||
+                    string.Equals(countryCode, "dk") ||
+                    string.Equals(countryCode, "de") ||
+                    string.Equals(countryCode, "ee") ||
+                    string.Equals(countryCode, "ie") ||
+                    string.Equals(countryCode, "el") ||
+                    string.Equals(countryCode, "es") ||
+                    string.Equals(countryCode, "fr") ||
+                    string.Equals(countryCode, "hr") ||
+                    string.Equals(countryCode, "it") ||
+                    string.Equals(countryCode, "cy") ||
+                    string.Equals(countryCode, "lv") ||
+                    string.Equals(countryCode, "lt") ||
+                    string.Equals(countryCode, "lu") ||
+                    string.Equals(countryCode, "hu") ||
+                    string.Equals(countryCode, "mt") ||
+                    string.Equals(countryCode, "nl") ||
+                    string.Equals(countryCode, "pl") ||
+                    string.Equals(countryCode, "pt") ||
+                    string.Equals(countryCode, "ro") ||
+                    string.Equals(countryCode, "si") ||
+                    string.Equals(countryCode, "sk") ||
+                    string.Equals(countryCode, "fi") ||
+                    string.Equals(countryCode, "se") ||
+                    string.Equals(countryCode, "uk"); // TODO (?)
+        }
     }
 }

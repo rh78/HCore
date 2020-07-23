@@ -342,14 +342,14 @@
   <data name="state_too_long" xml:space="preserve">
     <value>Das Bundesland ist zu lang</value>
   </data>
-  <data name="eu_vat_id_missing" xml:space="preserve">
-    <value>Die EU VAT ID fehlt</value>
+  <data name="vat_id_missing" xml:space="preserve">
+    <value>Die UID-Nummer fehlt</value>
   </data>
-  <data name="eu_vat_id_invalid" xml:space="preserve">
-    <value>Die EU VAT ID ist ungültig</value>
+  <data name="vat_id_invalid" xml:space="preserve">
+    <value>Die UID-Nummer ist ungültig</value>
   </data>
-  <data name="eu_vat_id_too_long" xml:space="preserve">
-    <value>Die EU VAT ID ist zu lang</value>
+  <data name="vat_id_too_long" xml:space="preserve">
+    <value>Die UID-Nummer ist zu lang</value>
   </data>
   <data name="please_accept_terms_and_conditions" xml:space="preserve">
     <value>Bitte akzeptieren Sie unsere Nutzungsbedingungen</value>

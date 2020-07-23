@@ -136,9 +136,9 @@ namespace HCore.Web.Exceptions
         public const string CityMissing = "city_missing";
         public const string CityTooLong = "city_too_long";
         public const string StateTooLong = "state_too_long";
-        public const string EuVatIdMissing = "eu_vat_id_missing";
-        public const string EuVatIdTooLong = "eu_vat_id_too_long";
-        public const string EuVatIdInvalid = "eu_vat_id_invalid";
+        public const string VatIdMissing = "vat_id_missing";
+        public const string VatIdTooLong = "vat_id_too_long";
+        public const string VatIdInvalid = "vat_id_invalid";
         public const string AccountIsExternallyManaged = "account_is_externally_managed";
         public const string AccountsAreExternallyManaged = "accounts_are_externally_managed";
         public const string RecaptchaValidationFailed = "recaptcha_validation_failed";

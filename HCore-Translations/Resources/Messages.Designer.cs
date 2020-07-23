@@ -502,33 +502,6 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The EU VAT ID is invalid.
-        /// </summary>
-        public static string eu_vat_id_invalid {
-            get {
-                return ResourceManager.GetString("eu_vat_id_invalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The EU VAT ID is missing.
-        /// </summary>
-        public static string eu_vat_id_missing {
-            get {
-                return ResourceManager.GetString("eu_vat_id_missing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The EU VAT ID is too long.
-        /// </summary>
-        public static string eu_vat_id_too_long {
-            get {
-                return ResourceManager.GetString("eu_vat_id_too_long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The external user ID is missing.
         /// </summary>
         public static string external_user_id_is_missing {
@@ -1632,6 +1605,33 @@ namespace HCore.Translations.Resources {
         public static string uuid_missing {
             get {
                 return ResourceManager.GetString("uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The VAT ID is invalid.
+        /// </summary>
+        public static string vat_id_invalid {
+            get {
+                return ResourceManager.GetString("vat_id_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The VAT ID is missing.
+        /// </summary>
+        public static string vat_id_missing {
+            get {
+                return ResourceManager.GetString("vat_id_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The VAT ID is too long.
+        /// </summary>
+        public static string vat_id_too_long {
+            get {
+                return ResourceManager.GetString("vat_id_too_long", resourceCulture);
             }
         }
     }
