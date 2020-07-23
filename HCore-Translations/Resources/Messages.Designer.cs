@@ -862,6 +862,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The no reply email display name is invalid.
+        /// </summary>
+        public static string noreply_email_display_name_invalid {
+            get {
+                return ResourceManager.GetString("noreply_email_display_name_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The no reply email display name is too long.
+        /// </summary>
+        public static string noreply_email_display_name_too_long {
+            get {
+                return ResourceManager.GetString("noreply_email_display_name_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The no reply email address is invalid.
         /// </summary>
         public static string noreply_email_invalid {
@@ -1362,6 +1380,24 @@ namespace HCore.Translations.Resources {
         public static string subject_too_long {
             get {
                 return ResourceManager.GetString("subject_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The support email display name is invalid.
+        /// </summary>
+        public static string support_email_display_name_invalid {
+            get {
+                return ResourceManager.GetString("support_email_display_name_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The support email display name is too long.
+        /// </summary>
+        public static string support_email_display_name_too_long {
+            get {
+                return ResourceManager.GetString("support_email_display_name_too_long", resourceCulture);
             }
         }
         

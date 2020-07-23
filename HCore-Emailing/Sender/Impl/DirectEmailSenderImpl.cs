@@ -38,16 +38,16 @@ namespace HCore.Emailing.Sender.Impl
             _logger = logger;
         }
 
-        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        public async Task SendEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {
             _logger.LogInformation($"Sending email: {subject}");
 
             try
             {
                 if (_useSendGrid)
-                    await SendSendGridEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
+                    await SendSendGridEmailAsync(configurationKey, fromOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
                 else
-                    await SendSmtpEmailAsync(configurationKey, fromOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
+                    await SendSmtpEmailAsync(configurationKey, fromOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -57,7 +57,7 @@ namespace HCore.Emailing.Sender.Impl
             }
         }
         
-        private async Task SendSmtpEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        private async Task SendSmtpEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -74,7 +74,8 @@ namespace HCore.Emailing.Sender.Impl
                 client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl;
 
                 MailMessage mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.SmtpEmailAddress);                    
+                mailMessage.From = new MailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.SmtpEmailAddress,
+                                                   !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.SmtpFromDisplayName);                    
 
                 if (to != null)
                     to.ForEach(toString => mailMessage.To.Add(toString));
@@ -107,7 +108,7 @@ namespace HCore.Emailing.Sender.Impl
             }            
         }
 
-        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -121,7 +122,8 @@ namespace HCore.Emailing.Sender.Impl
 
             var mailMessage = new SendGridMessage()
             {
-                From = new EmailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.FromEmailAddress),
+                From = new EmailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.FromEmailAddress,
+                                        !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.FromDisplayName),
                 Subject = subject,                    
                 HtmlContent = htmlMessage
             };
@@ -166,6 +168,7 @@ namespace HCore.Emailing.Sender.Impl
         {
             public string ApiKey { get; set; }
             public string FromEmailAddress { get; set; }
+            public string FromDisplayName { get; set; }
         }
 
         private SendGridEmailSenderConfiguration LoadSendGridEmailSenderConfiguration(string configurationKey, IConfiguration configuration)
@@ -178,16 +181,22 @@ namespace HCore.Emailing.Sender.Impl
             if (string.IsNullOrEmpty(fromEmailAddress))
                 throw new Exception($"SendGrid from email address is missing for key {configurationKey}");
 
+            string fromDisplayName = configuration[$"Emailing:SendGrid:{configurationKey}:DisplayName"];
+            if (string.IsNullOrEmpty(fromDisplayName))
+                throw new Exception($"SendGrid from display name is missing for key {configurationKey}");
+
             return new SendGridEmailSenderConfiguration()
             {
                 ApiKey = apiKey,
-                FromEmailAddress = fromEmailAddress
+                FromEmailAddress = fromEmailAddress,
+                FromDisplayName = fromDisplayName
             };
         }
 
         internal class SmtpEmailSenderConfiguration
         {
             public string SmtpEmailAddress { get; set; }
+            public string SmtpFromDisplayName { get; set; }
             public string SmtpHost { get; set; }
             public string SmtpUserName { get; set; }
             public string SmtpPassword { get; set; }
@@ -200,6 +209,10 @@ namespace HCore.Emailing.Sender.Impl
             string smtpEmailAddress = configuration[$"Smtp:{configurationKey}:EmailAddress"];
             if (string.IsNullOrEmpty(smtpEmailAddress))
                 throw new Exception($"SMTP email address is missing for key {configurationKey}");
+
+            string smtpFromDisplayName = configuration[$"Smtp:{configurationKey}:DisplayName"];
+            if (string.IsNullOrEmpty(smtpFromDisplayName))
+                throw new Exception($"SMTP from display name is missing for key {configurationKey}");
 
             string smtpHost = configuration[$"Smtp:{configurationKey}:Host"];
             if (string.IsNullOrEmpty(smtpHost))
@@ -222,6 +235,7 @@ namespace HCore.Emailing.Sender.Impl
             return new SmtpEmailSenderConfiguration()
             {
                 SmtpEmailAddress = smtpEmailAddress,
+                SmtpFromDisplayName = smtpFromDisplayName,
                 SmtpHost = smtpHost,
                 SmtpUserName = smtpUserName,
                 SmtpPassword = smtpPassword,

@@ -190,9 +190,20 @@ namespace HCore.Tenants.Models
         [DataMember(Name="support_email")]
 		public string SupportEmail { get => _SupportEmail; set { _SupportEmail = value; SupportEmailSet = true; } }
 		
-		public bool SupportEmailSet = false;		
+		public bool SupportEmailSet = false;
 
-		private string _NoreplyEmail;
+        private string _SupportEmailDisplayName;
+
+        /// <summary>
+        /// The support email of the tenant
+        /// </summary>
+        /// <value>The support email of the tenant</value>
+        [DataMember(Name = "support_email_display_name")]
+        public string SupportEmailDisplayName { get => _SupportEmailDisplayName; set { _SupportEmailDisplayName = value; SupportEmailDisplayNameSet = true; } }
+
+        public bool SupportEmailDisplayNameSet = false;
+
+        private string _NoreplyEmail;
 		
 		/// <summary>
         /// The noreply email of the tenant
@@ -201,9 +212,20 @@ namespace HCore.Tenants.Models
         [DataMember(Name="noreply_email")]
 		public string NoreplyEmail { get => _NoreplyEmail; set { _NoreplyEmail = value; NoreplyEmailSet = true; } }
 		
-		public bool NoreplyEmailSet = false;		
+		public bool NoreplyEmailSet = false;
 
-		private string _ProductName;
+        private string _NoreplyEmailDisplayName;
+
+        /// <summary>
+        /// The noreply email of the tenant
+        /// </summary>
+        /// <value>The noreply email of the tenant</value>
+        [DataMember(Name = "noreply_email_display_name")]
+        public string NoreplyEmailDisplayName { get => _NoreplyEmailDisplayName; set { _NoreplyEmailDisplayName = value; NoreplyEmailDisplayNameSet = true; } }
+
+        public bool NoreplyEmailDisplayNameSet = false;
+
+        private string _ProductName;
 		
 		/// <summary>
         /// The product name of the tenant
@@ -336,7 +358,9 @@ namespace HCore.Tenants.Models
             sb.Append("  TextOnPrimaryColor: ").Append(TextOnPrimaryColor).Append("\n");
             sb.Append("  TextOnSecondaryColor: ").Append(TextOnSecondaryColor).Append("\n");
             sb.Append("  SupportEmail: ").Append(SupportEmail).Append("\n");
+            sb.Append("  SupportEmailDisplayName: ").Append(SupportEmailDisplayName).Append("\n");
             sb.Append("  NoreplyEmail: ").Append(NoreplyEmail).Append("\n");
+            sb.Append("  NoreplyEmailDisplayName: ").Append(NoreplyEmailDisplayName).Append("\n");
             sb.Append("  ProductName: ").Append(ProductName).Append("\n");
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
@@ -457,12 +481,22 @@ namespace HCore.Tenants.Models
                     SupportEmail == other.SupportEmail ||
                     SupportEmail != null &&
                     SupportEmail.Equals(other.SupportEmail)
-                ) && 
+                ) &&
+                (
+                    SupportEmailDisplayName == other.SupportEmailDisplayName ||
+                    SupportEmailDisplayName != null &&
+                    SupportEmailDisplayName.Equals(other.SupportEmailDisplayName)
+                ) &&
                 (
                     NoreplyEmail == other.NoreplyEmail ||
                     NoreplyEmail != null &&
                     NoreplyEmail.Equals(other.NoreplyEmail)
-                ) && 
+                ) &&
+                (
+                    NoreplyEmailDisplayName == other.NoreplyEmailDisplayName ||
+                    NoreplyEmailDisplayName != null &&
+                    NoreplyEmailDisplayName.Equals(other.NoreplyEmailDisplayName)
+                ) &&
                 (
                     ProductName == other.ProductName ||
                     ProductName != null &&
@@ -555,8 +589,12 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + TextOnSecondaryColor.GetHashCode();
                     if (SupportEmail != null)
                     hashCode = hashCode * 59 + SupportEmail.GetHashCode();
+                    if (SupportEmailDisplayName != null)
+                    hashCode = hashCode * 59 + SupportEmailDisplayName.GetHashCode();
                     if (NoreplyEmail != null)
                     hashCode = hashCode * 59 + NoreplyEmail.GetHashCode();
+                    if (NoreplyEmailDisplayName != null)
+                    hashCode = hashCode * 59 + NoreplyEmailDisplayName.GetHashCode();
                     if (ProductName != null)
                     hashCode = hashCode * 59 + ProductName.GetHashCode();
                     if (DefaultCulture != null)

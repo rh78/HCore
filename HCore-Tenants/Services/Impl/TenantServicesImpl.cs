@@ -25,6 +25,7 @@ namespace HCore.Tenants.Services.Impl
         private static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
 
         public const int MaxEmailAddressLength = 50;
+        public const int MaxEmailDisplayNameLength = 50;
 
         private readonly ITenantDataProvider _tenantDataProvider;
 
@@ -144,11 +145,25 @@ namespace HCore.Tenants.Services.Impl
                 tenantModel.SupportEmail = supportEmail;
             }
 
+            if (tenantSpec.SupportEmailDisplayNameSet)
+            {
+                string supportEmailDisplayName = ProcessSupportEmailDisplayName(tenantSpec.SupportEmailDisplayName);
+
+                tenantModel.SupportEmailDisplayName = supportEmailDisplayName;
+            }
+
             if (tenantSpec.NoreplyEmailSet)
             {
                 string noreplyEmail = ProcessNoreplyEmail(tenantSpec.NoreplyEmail);
 
                 tenantModel.NoreplyEmail = noreplyEmail;
+            }
+
+            if (tenantSpec.NoreplyEmailDisplayNameSet)
+            {
+                string noreplyEmailDisplayName = ProcessNoreplyEmailDisplayName(tenantSpec.NoreplyEmailDisplayName);
+
+                tenantModel.NoreplyEmailDisplayName = noreplyEmailDisplayName;
             }
 
             if (tenantSpec.DefaultCultureSet)
@@ -436,6 +451,18 @@ namespace HCore.Tenants.Services.Impl
                     }
                 }
 
+                if (tenantSpec.SupportEmailDisplayNameSet)
+                {
+                    string supportEmailDisplayName = ProcessSupportEmailDisplayName(tenantSpec.SupportEmailDisplayName);
+
+                    if (!string.Equals(tenantModelForUpdate.SupportEmailDisplayName, supportEmailDisplayName))
+                    {
+                        tenantModelForUpdate.SupportEmailDisplayName = supportEmailDisplayName;
+
+                        changed = true;
+                    }
+                }
+
                 if (tenantSpec.NoreplyEmailSet)
                 {
                     string noreplyEmail = ProcessNoreplyEmail(tenantSpec.NoreplyEmail);
@@ -443,6 +470,18 @@ namespace HCore.Tenants.Services.Impl
                     if (!string.Equals(tenantModelForUpdate.NoreplyEmail, noreplyEmail))
                     {
                         tenantModelForUpdate.NoreplyEmail = noreplyEmail;
+
+                        changed = true;
+                    }
+                }
+
+                if (tenantSpec.NoreplyEmailDisplayNameSet)
+                {
+                    string noreplyEmailDisplayName = ProcessNoreplyEmailDisplayName(tenantSpec.NoreplyEmailDisplayName);
+
+                    if (!string.Equals(tenantModelForUpdate.NoreplyEmailDisplayName, noreplyEmailDisplayName))
+                    {
+                        tenantModelForUpdate.NoreplyEmailDisplayName = noreplyEmailDisplayName;
 
                         changed = true;
                     }
@@ -638,11 +677,23 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.SupportEmail = supportEmail;
 
+                    string supportEmailDisplayName = tenantModel.SupportEmailDisplayName;
+                    if (string.IsNullOrEmpty(supportEmailDisplayName))
+                        supportEmailDisplayName = developerInfo.SupportEmailDisplayName;
+
+                    tenant.SupportEmailDisplayName = supportEmailDisplayName;
+
                     string noreplyEmail = tenantModel.NoreplyEmail;
                     if (string.IsNullOrEmpty(noreplyEmail))
                         noreplyEmail = developerInfo.NoreplyEmail;
 
                     tenant.NoreplyEmail = noreplyEmail;
+
+                    string noreplyEmailDisplayName = tenantModel.NoreplyEmailDisplayName;
+                    if (string.IsNullOrEmpty(noreplyEmailDisplayName))
+                        noreplyEmailDisplayName = developerInfo.NoreplyEmailDisplayName;
+
+                    tenant.NoreplyEmailDisplayName = noreplyEmailDisplayName;
 
                     string productName = tenantModel.ProductName;
                     if (string.IsNullOrEmpty(productName))
@@ -828,6 +879,22 @@ namespace HCore.Tenants.Services.Impl
             return supportEmail;
         }
 
+        private string ProcessSupportEmailDisplayName(string supportEmailDisplayName)
+        {
+            supportEmailDisplayName = supportEmailDisplayName?.Trim();
+
+            if (string.IsNullOrEmpty(supportEmailDisplayName))
+                return null;
+
+            if (!SafeString.IsMatch(supportEmailDisplayName))
+                throw new RequestFailedApiException(RequestFailedApiException.SupportEmailDisplayNameInvalid, $"The support email display name is invalid");
+
+            if (supportEmailDisplayName.Length > MaxEmailDisplayNameLength)
+                throw new RequestFailedApiException(RequestFailedApiException.SupportEmailDisplayNameTooLong, $"The support email display name is too long");
+
+            return supportEmailDisplayName;
+        }
+
         private string ProcessNoreplyEmail(string noreplyEmail)
         {
             noreplyEmail = noreplyEmail?.Trim();
@@ -842,6 +909,22 @@ namespace HCore.Tenants.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailTooLong, $"The no reply email address is too long");
 
             return noreplyEmail;
+        }
+
+        private string ProcessNoreplyEmailDisplayName(string noreplyEmailDisplayName)
+        {
+            noreplyEmailDisplayName = noreplyEmailDisplayName?.Trim();
+
+            if (string.IsNullOrEmpty(noreplyEmailDisplayName))
+                return null;
+
+            if (!SafeString.IsMatch(noreplyEmailDisplayName))
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameInvalid, $"The no reply email display name is invalid");
+
+            if (noreplyEmailDisplayName.Length > MaxEmailDisplayNameLength)
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameTooLong, $"The no reply email display name is too long");
+
+            return noreplyEmailDisplayName;
         }
 
         private string ProcessDefaultCulture(string defaultCulture)

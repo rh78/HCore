@@ -32,7 +32,7 @@ namespace HCore.Emailing.Sender.Impl
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
         }
 
-        public async Task SendEmailAsync(string configurationKey, string fromOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        public async Task SendEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {
             if (to.TrueForAll(string.IsNullOrEmpty))
                 throw new Exception("At least one valid to address is required!");
@@ -46,6 +46,7 @@ namespace HCore.Emailing.Sender.Impl
             {
                 ConfigurationKey = configurationKey,
                 FromOverride = fromOverride,
+                FromDisplayNameOverride = fromDisplayNameOverride,
                 To = to,
                 Cc = cc,
                 Bcc = bcc,

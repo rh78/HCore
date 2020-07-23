@@ -43,7 +43,10 @@ namespace HCore.Tenants.Models
         string TextOnSecondaryColorHex { get; }
 
         string SupportEmail { get; }
+        string SupportEmailDisplayName { get; }
+
         string NoreplyEmail { get; }
+        string NoreplyEmailDisplayName { get; }
 
         string CustomInvitationEmailTextPrefix { get; }
         string CustomInvitationEmailTextSuffix { get; }

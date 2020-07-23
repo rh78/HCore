@@ -13,6 +13,7 @@ namespace HCore.Emailing.AMQP
         public string ConfigurationKey { get; set; }
 
         public string FromOverride { get; set; }
+        public string FromDisplayNameOverride { get; set; }
 
         public List<string> To { get; set; }
         public List<string> Cc { get; set; }

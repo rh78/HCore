@@ -48,7 +48,10 @@ namespace HCore.Tenants.Models.Impl
         public string TextOnSecondaryColorHex { get; internal set; }
 
         public string SupportEmail { get; internal set; }
+        public string SupportEmailDisplayName { get; internal set; }
+
         public string NoreplyEmail { get; internal set; }
+        public string NoreplyEmailDisplayName { get; internal set; }
 
         public string CustomInvitationEmailTextPrefix { get; internal set; }
         public string CustomInvitationEmailTextSuffix { get; internal set; }
@@ -163,7 +166,9 @@ namespace HCore.Tenants.Models.Impl
                 TextOnPrimaryColorHex = TextOnPrimaryColorHex,
                 TextOnSecondaryColorHex = TextOnSecondaryColorHex,
                 SupportEmail = SupportEmail,
+                SupportEmailDisplayName = SupportEmailDisplayName,
                 NoreplyEmail = NoreplyEmail,
+                NoreplyEmailDisplayName = NoreplyEmailDisplayName,
                 CustomInvitationEmailTextPrefix = CustomInvitationEmailTextPrefix,
                 CustomInvitationEmailTextSuffix = CustomInvitationEmailTextSuffix,
                 ProductName = ProductName,

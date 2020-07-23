@@ -79,7 +79,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public int TextOnSecondaryColor { get; set; }
 
         public string SupportEmail { get; set; }
+        public string SupportEmailDisplayName { get; set; }
+
         public string NoreplyEmail { get; set; }
+        public string NoreplyEmailDisplayName { get; set; }
 
         public string ProductName { get; set; }
 

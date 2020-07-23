@@ -39,7 +39,7 @@ namespace HCore.Emailing.Sender.Impl
                 }
             }
 
-            await SendEmailAsync(emailSenderTask.ConfigurationKey, emailSenderTask.FromOverride, emailSenderTask.To, emailSenderTask.Cc, emailSenderTask.Bcc, emailSenderTask.Subject, emailSenderTask.HtmlMessage, emailAttachments).ConfigureAwait(false);
+            await SendEmailAsync(emailSenderTask.ConfigurationKey, emailSenderTask.FromOverride, emailSenderTask.FromDisplayNameOverride, emailSenderTask.To, emailSenderTask.Cc, emailSenderTask.Bcc, emailSenderTask.Subject, emailSenderTask.HtmlMessage, emailAttachments).ConfigureAwait(false);
             
             return true;
         }

@@ -135,8 +135,14 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.SupportEmail))
                             throw new Exception("The developer support email is empty");
 
+                        if (string.IsNullOrEmpty(developerModel.SupportEmailDisplayName))
+                            throw new Exception("The developer support email display name is empty");
+
                         if (string.IsNullOrEmpty(developerModel.NoreplyEmail))
                             throw new Exception("The developer noreply email is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.NoreplyEmailDisplayName))
+                            throw new Exception("The developer noreply email display name is empty");
 
                         if (string.IsNullOrEmpty(developerModel.ProductName))
                             throw new Exception("The developer product name is empty");
@@ -163,7 +169,9 @@ namespace HCore.Tenants.Providers.Impl
                             TextOnPrimaryColor = developerModel.TextOnPrimaryColor,
                             TextOnSecondaryColor = developerModel.TextOnSecondaryColor,
                             SupportEmail = developerModel.SupportEmail,
+                            SupportEmailDisplayName = developerModel.SupportEmailDisplayName,
                             NoreplyEmail = developerModel.NoreplyEmail,
+                            NoreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName,
                             ProductName = developerModel.ProductName
                         };
 
@@ -423,9 +431,17 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(supportEmail))
                 supportEmail = developerModel.SupportEmail;
 
+            string supportEmailDisplayName = tenantModel.SupportEmailDisplayName;
+            if (string.IsNullOrEmpty(supportEmailDisplayName))
+                supportEmailDisplayName = developerModel.SupportEmailDisplayName;
+
             string noreplyEmail = tenantModel.NoreplyEmail;
             if (string.IsNullOrEmpty(noreplyEmail))
                 noreplyEmail = developerModel.NoreplyEmail;
+
+            string noreplyEmailDisplayName = tenantModel.NoreplyEmailDisplayName;
+            if (string.IsNullOrEmpty(noreplyEmailDisplayName))
+                noreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName;
 
             string customInvitationEmailTextPrefix = tenantModel.CustomInvitationEmailTextPrefix;
             if (string.IsNullOrEmpty(customInvitationEmailTextPrefix))
@@ -648,7 +664,9 @@ namespace HCore.Tenants.Providers.Impl
                 TextOnPrimaryColorHex = ConvertToHexColor(textOnPrimaryColor),
                 TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
                 SupportEmail = supportEmail,
+                SupportEmailDisplayName = supportEmailDisplayName,
                 NoreplyEmail = noreplyEmail,
+                NoreplyEmailDisplayName = noreplyEmailDisplayName,
                 CustomInvitationEmailTextPrefix = customInvitationEmailTextPrefix,
                 CustomInvitationEmailTextSuffix = customInvitationEmailTextSuffix,
                 ProductName = productName,

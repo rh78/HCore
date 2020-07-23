@@ -95,8 +95,12 @@ namespace HCore.Web.Exceptions
         public const string EmailAlreadyConfirmed = "email_already_confirmed";
         public const string SupportEmailInvalid = "support_email_invalid";
         public const string SupportEmailTooLong = "support_email_too_long";
+        public const string SupportEmailDisplayNameInvalid = "support_email_display_name_invalid";
+        public const string SupportEmailDisplayNameTooLong = "support_email_display_name_too_long";
         public const string NoreplyEmailInvalid = "noreply_email_invalid";
         public const string NoreplyEmailTooLong = "noreply_email_too_long";
+        public const string NoreplyEmailDisplayNameInvalid = "noreply_email_display_name_invalid";
+        public const string NoreplyEmailDisplayNameTooLong = "noreply_email_display_name_too_long";
         public const string PhoneNumberMissing = "phone_number_missing";
         public const string PhoneNumberInvalid = "phone_number_invalid";
         public const string PhoneNumberTooLong = "phone_number_too_long";
