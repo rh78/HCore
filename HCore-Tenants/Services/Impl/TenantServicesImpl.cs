@@ -668,6 +668,8 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.ExternalUsersAreManuallyManaged = tenantModel.ExternalUsersAreManuallyManaged;
 
+                    tenant.CreatedByUserUuid = tenantModel.CreatedByUserUuid;
+
                     tenant.Version = tenantModel.Version;
                     
                     tenant.CreatedAt = tenantModel.CreatedAt;

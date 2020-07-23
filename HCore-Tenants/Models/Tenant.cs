@@ -267,9 +267,20 @@ namespace HCore.Tenants.Models
         [DataMember(Name="external_users_are_manually_managed")]
 		public bool? ExternalUsersAreManuallyManaged { get => _ExternalUsersAreManuallyManaged; set { _ExternalUsersAreManuallyManaged = value; ExternalUsersAreManuallyManagedSet = true; } }
 		
-		public bool ExternalUsersAreManuallyManagedSet = false;		
+		public bool ExternalUsersAreManuallyManagedSet = false;
 
-		private int? _Version;
+        private string _CreatedByUserUuid;
+
+        /// <summary>
+        /// The record UUID
+        /// </summary>
+        /// <value>The record UUID</value>
+        [DataMember(Name = "created_by_user_uuid")]
+        public string CreatedByUserUuid { get => _CreatedByUserUuid; set { _CreatedByUserUuid = value; CreatedByUserUuidSet = true; } }
+
+        public bool CreatedByUserUuidSet = false;
+
+        private int? _Version;
 		
 		/// <summary>
         /// The record version
@@ -332,6 +343,7 @@ namespace HCore.Tenants.Models
             sb.Append("  CustomTenantSettingsJson: ").Append(CustomTenantSettingsJson).Append("\n");
             sb.Append("  UsersAreExternallyManaged: ").Append(UsersAreExternallyManaged).Append("\n");
             sb.Append("  ExternalUsersAreManuallyManaged: ").Append(ExternalUsersAreManuallyManaged).Append("\n");
+            sb.Append("  CreatedByUserUuid: ").Append(CreatedByUserUuid).Append("\n");
             sb.Append("  Version: ").Append(Version).Append("\n");
             sb.Append("  CreatedAt: ").Append(CreatedAt).Append("\n");
             sb.Append("  LastUpdatedAt: ").Append(LastUpdatedAt).Append("\n");
@@ -480,6 +492,11 @@ namespace HCore.Tenants.Models
                     ExternalUsersAreManuallyManaged == other.ExternalUsersAreManuallyManaged ||
                     ExternalUsersAreManuallyManaged != null &&
                     ExternalUsersAreManuallyManaged.Equals(other.ExternalUsersAreManuallyManaged)
+                ) &&
+                (
+                    CreatedByUserUuid == other.CreatedByUserUuid ||
+                    CreatedByUserUuid != null &&
+                    CreatedByUserUuid.Equals(other.CreatedByUserUuid)
                 ) && 
                 (
                     Version == other.Version ||
@@ -552,7 +569,9 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + UsersAreExternallyManaged.GetHashCode();
                     if (ExternalUsersAreManuallyManaged != null)
                     hashCode = hashCode * 59 + ExternalUsersAreManuallyManaged.GetHashCode();
-                    if (Version != null)
+                if (CreatedByUserUuid != null)
+                    hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
+                if (Version != null)
                     hashCode = hashCode * 59 + Version.GetHashCode();
                     if (CreatedAt != null)
                     hashCode = hashCode * 59 + CreatedAt.GetHashCode();
