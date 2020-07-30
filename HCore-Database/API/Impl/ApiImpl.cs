@@ -23,7 +23,7 @@ namespace HCore.Database.API.Impl
             return (int)offset;
         }
 
-        public static int ProcessElasticSearchPagingLimit(int? offset, int? limit)
+        public static int ProcessElasticSearchPagingLimit(int? offset, int? limit, int? overrideMaxPagingSize = null)
         {
             if (limit == null)
                 return DefaultPagingLimit;
@@ -31,8 +31,10 @@ namespace HCore.Database.API.Impl
             if (limit < 0)
                 throw new RequestFailedApiException(RequestFailedApiException.PagingLimitInvalid, "The paging limit must be equal to or greater than zero");
 
-            if (limit > ElasticSearchConstants.MaxPagingSize)
-                throw new RequestFailedApiException(RequestFailedApiException.MaxPagingLimitExceeded, $"The paging limit must not exceed {ElasticSearchConstants.MaxPagingSize} records");
+            int maxPagingSize = overrideMaxPagingSize != null ? (int)overrideMaxPagingSize : ElasticSearchConstants.MaxPagingSize;
+
+            if (limit > maxPagingSize)
+                throw new RequestFailedApiException(RequestFailedApiException.MaxPagingLimitExceeded, $"The paging limit must not exceed {maxPagingSize} records");
 
             return (int)limit;
         }
