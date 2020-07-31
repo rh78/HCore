@@ -156,6 +156,8 @@ namespace HCore.Web.Exceptions
         public const string TextOnSecondaryColorInvalid = "text_on_secondary_color_invalid";
         public const string TenantSubdomainImmutable = "tenant_subdomain_immutable";
         public const string TenantSubdomainAlreadyUsed = "tenant_subdomain_already_used";
+        public const string ContactPersonNameMissing = "contact_person_name_missing";
+        public const string ContactPersonNameTooLong = "contact_person_name_too_long";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

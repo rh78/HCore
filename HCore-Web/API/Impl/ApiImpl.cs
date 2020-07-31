@@ -15,8 +15,20 @@ namespace HCore.Web.API.Impl
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
+        public const int MaxScrollUuidLength = 50;
+
         public const int MaxExternalUuidLength = 100;
         public const int MaxEmailAddressLength = 50;
+        public const int MaxAddressLineLength = 50;
+        public const int MaxPostalCodeLength = 10;
+        public const int MaxCityLength = 50;
+        public const int MaxStateLength = 50;
+        public const int MaxVatIdLength = 15;
+
+        public const int MaxFirstNameLength = 50;
+        public const int MaxLastNameLength = 50;
+
+        public const int MaxContactPersonNameLength = MaxFirstNameLength + MaxLastNameLength + 1; // including space
 
         public const int MaxBulkUpdateCount = 50;
 
@@ -107,6 +119,130 @@ namespace HCore.Web.API.Impl
             return email;
         }
 
+        public static string ProcessAddressLine1(string addressLine1, bool isRequired)
+        {
+            addressLine1 = addressLine1?.Trim();
+
+            if (string.IsNullOrEmpty(addressLine1))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.AddressLine1Missing, "The address line 1 is missing");
+
+                return null;
+            }
+
+            if (addressLine1.Length > MaxAddressLineLength)
+                throw new RequestFailedApiException(RequestFailedApiException.AddressLine1TooLong, "The address line 1 is too long");
+
+            return addressLine1;
+        }
+
+        public static string ProcessAddressLine2(string addressLine2)
+        {
+            addressLine2 = addressLine2?.Trim();
+
+            if (string.IsNullOrEmpty(addressLine2))
+                return null;
+
+            if (addressLine2.Length > MaxAddressLineLength)
+                throw new RequestFailedApiException(RequestFailedApiException.AddressLine2TooLong, "The address line 2 is too long");
+
+            return addressLine2;
+        }
+
+        public static string ProcessPostalCode(string postalCode, bool isRequired)
+        {
+            postalCode = postalCode?.Trim();
+
+            if (string.IsNullOrEmpty(postalCode))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.PostalCodeMissing, "The postal code is missing");
+
+                return null;
+            }
+
+            if (postalCode.Length > MaxPostalCodeLength)
+                throw new RequestFailedApiException(RequestFailedApiException.PostalCodeTooLong, "The postal code is too long");
+
+            return postalCode;
+        }
+
+        public static string ProcessCity(string city, bool isRequired)
+        {
+            city = city?.Trim();
+
+            if (string.IsNullOrEmpty(city))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.CityMissing, "The city is missing");
+
+                return null;
+            }
+
+            if (city.Length > MaxCityLength)
+                throw new RequestFailedApiException(RequestFailedApiException.CityTooLong, "The city is too long");
+
+            return city;
+        }
+
+        public static string ProcessState(string state)
+        {
+            state = state?.Trim();
+
+            if (string.IsNullOrEmpty(state))
+                return null;
+
+            if (state.Length > MaxStateLength)
+                throw new RequestFailedApiException(RequestFailedApiException.StateTooLong, "The state is too long");
+
+            return state;
+        }
+
+        public static string ProcessVatIdUnsafe(string country, string vatId, bool isRequired)
+        {
+            vatId = vatId?.Trim();
+
+            if (string.IsNullOrEmpty(country))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.CountryMissing, "The country is missing");
+
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(vatId))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.VatIdMissing, "The VAT ID is missing");
+
+                return null;
+            }
+
+            if (vatId.Length > MaxVatIdLength)
+                throw new RequestFailedApiException(RequestFailedApiException.VatIdTooLong, "The VAT ID is too long");
+
+            return vatId;
+        }
+
+        public static string ProcessContactPersonName(string name, bool isRequired)
+        {
+            name = name?.Trim();
+
+            if (string.IsNullOrEmpty(name))
+            {
+                if (isRequired)
+                    throw new RequestFailedApiException(RequestFailedApiException.ContactPersonNameMissing, "The contact person name is missing");
+
+                return null;
+            }
+
+            if (name.Length > MaxContactPersonNameLength)
+                throw new RequestFailedApiException(RequestFailedApiException.ContactPersonNameTooLong, "The contact person name is too long");
+
+            return name;
+        }
+
         public static CultureInfo ProcessNotificationCulture(string notificationCulture)
         {
             if (string.IsNullOrEmpty(notificationCulture))
@@ -125,6 +261,35 @@ namespace HCore.Web.API.Impl
         public static bool ProcessGroupNotifications(bool? groupNotifications)
         {
             return groupNotifications ?? true;
+        }
+
+        public static string ProcessScrollUuid(string scrollUuid)
+        {
+            if (string.IsNullOrEmpty(scrollUuid))
+                return null;
+
+            if (!Uuid.IsMatch(scrollUuid))
+                throw new RequestFailedApiException(RequestFailedApiException.ScrollUuidInvalid, "The scroll UUID is invalid");
+
+            if (scrollUuid.Length > MaxScrollUuidLength)
+                throw new RequestFailedApiException(RequestFailedApiException.ScrollUuidTooLong, "The scroll UUID is too long");
+
+            return scrollUuid;
+        }
+
+        public static long? ProcessContinuationUuid(string continuationUuid)
+        {
+            if (string.IsNullOrEmpty(continuationUuid))
+                return null;
+
+            try
+            {
+                return Convert.ToInt64(continuationUuid);
+            }
+            catch (Exception)
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.ContinuationUuidInvalid, "The continuation UUID is invalid");
+            }
         }
 
         public static long? ProcessTenantUuid(string tenantUuid)

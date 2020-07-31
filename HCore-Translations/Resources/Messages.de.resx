@@ -654,4 +654,10 @@
   <data name="text_on_secondary_color_invalid" xml:space="preserve">
     <value>Die Textfarbe auf der Nebenfarbe ist ungültig</value>
   </data>
+  <data name="contact_person_name_missing" xml:space="preserve">
+    <value>Der Name der Kontaktperson fehlt</value>
+  </data>
+  <data name="contact_person_name_too_long" xml:space="preserve">
+    <value>Der Name der Kontaktperson ist zu lang</value>
+  </data>
 </root>

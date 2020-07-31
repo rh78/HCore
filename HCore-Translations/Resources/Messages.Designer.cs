@@ -313,6 +313,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The contact person name is missing.
+        /// </summary>
+        public static string contact_person_name_missing {
+            get {
+                return ResourceManager.GetString("contact_person_name_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The contact person name is too long.
+        /// </summary>
+        public static string contact_person_name_too_long {
+            get {
+                return ResourceManager.GetString("contact_person_name_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The continuation UUID is invalid.
         /// </summary>
         public static string continuation_uuid_invalid {

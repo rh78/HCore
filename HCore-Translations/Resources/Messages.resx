@@ -654,4 +654,10 @@
   <data name="text_on_secondary_color_invalid" xml:space="preserve">
     <value>The text on secondary color is invalid</value>
   </data>
+  <data name="contact_person_name_missing" xml:space="preserve">
+    <value>The contact person name is missing</value>
+  </data>
+  <data name="contact_person_name_too_long" xml:space="preserve">
+    <value>The contact person name is too long</value>
+  </data>
 </root>
