@@ -148,7 +148,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (!new EmailAddressAttribute().IsValid(emailAddress))
                 return null;
 
-            if (emailAddress.Length > UserModel.MaxEmailAddressLength)
+            if (emailAddress.Length > Web.API.Impl.ApiImpl.MaxEmailAddressLength)
                 return null;
 
             return emailAddress;
@@ -159,7 +159,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(firstName))
                 return null;
 
-            if (firstName.Length > UserModel.MaxFirstNameLength)
+            if (firstName.Length > Web.API.Impl.ApiImpl.MaxFirstNameLength)
                 return null;
 
             firstName = CleanInput(firstName);            
@@ -175,7 +175,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(lastName))
                 return null;
 
-            if (lastName.Length > UserModel.MaxLastNameLength)
+            if (lastName.Length > Web.API.Impl.ApiImpl.MaxLastNameLength)
                 return null;
 
             lastName = CleanInput(lastName);

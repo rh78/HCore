@@ -182,6 +182,10 @@ namespace HCore.Web.Exceptions
         public const string NotificationUuidInvalid = "notification_uuid_invalid";
         public const string BillingTypeInvalid = "billing_type_invalid";
 
+        // internal, not translated
+
+        public const string ProfileMissing = "profile_missing";
+
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)
         {
