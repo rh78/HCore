@@ -31,8 +31,9 @@ namespace HCore.Web.API.Impl
         public const int MaxVatIdLength = 15;
 
         public const int MaxUserNameLength = 50;
-        public const int MaxFirstNameLength = 50;
-        public const int MaxLastNameLength = 50;
+        public const int MaxFirstNameLength = 255;
+        public const int MaxLastNameLength = 255;
+        public const int MaxDisplayNameLength = MaxFirstNameLength + MaxLastNameLength + 1;
         public const int MinPasswordLength = 6;
         public const int MaxPasswordLength = 50;
 
