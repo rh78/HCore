@@ -729,4 +729,13 @@
   <data name="billing_type_invalid" xml:space="preserve">
     <value>Der Abrechnungsmodus ist ungültig</value>
   </data>
+  <data name="optimistic_lock_violated" xml:space="preserve">
+    <value>Das Element wurde von einem anderen Benutzer geändert. Bitte versuchen Sie es erneut</value>
+  </data>
+  <data name="user_group_optimistic_lock_violated" xml:space="preserve">
+    <value>Die Benutzergruppe '{name}' wurde von einem anderen Benutzer geändert. Bitte versuchen Sie es erneut</value>
+  </data>
+  <data name="user_optimistic_lock_violated" xml:space="preserve">
+    <value>Der Benutzer '{name}' wurde von einem anderen Benutzer geändert. Bitte versuchen Sie es erneut</value>
+  </data>
 </root>

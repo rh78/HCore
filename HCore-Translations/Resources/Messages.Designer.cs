@@ -1096,6 +1096,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The element was modified by another user, please try again.
+        /// </summary>
+        public static string optimistic_lock_violated {
+            get {
+                return ResourceManager.GetString("optimistic_lock_violated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The order ID is missing.
         /// </summary>
         public static string order_id_missing {
@@ -1762,6 +1771,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The user group &apos;{name}&apos; was modified by another user, please try again.
+        /// </summary>
+        public static string user_group_optimistic_lock_violated {
+            get {
+                return ResourceManager.GetString("user_group_optimistic_lock_violated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The user group UUID is invalid.
         /// </summary>
         public static string user_group_uuid_invalid {
@@ -1821,6 +1839,15 @@ namespace HCore.Translations.Resources {
         public static string user_not_found {
             get {
                 return ResourceManager.GetString("user_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The user &apos;{name}&apos; was modified by another user, please try again.
+        /// </summary>
+        public static string user_optimistic_lock_violated {
+            get {
+                return ResourceManager.GetString("user_optimistic_lock_violated", resourceCulture);
             }
         }
         
