@@ -194,7 +194,7 @@ namespace HCore.Identity.Providers.Impl
             if (!ApiImpl.Uuid.IsMatch(userUuid))
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
-            if (userUuid.Length > UserModel.MaxUserUuidLength)
+            if (userUuid.Length > ApiImpl.MaxUserUuidLength)
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidTooLong, "The user UUID is too long");
 
             return userUuid;

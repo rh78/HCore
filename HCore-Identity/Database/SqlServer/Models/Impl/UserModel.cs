@@ -11,19 +11,10 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
     {
         public static readonly Regex ScopedEmail = new Regex(@"^[0-9]+:[0-9]+:.+$");
 
-        public const int MaxUserUuidLength = 100;
-        public const int MaxUserNameLength = 50;
-        public const int MaxEmailAddressLength = 50;
-
-        public const int MaxFirstNameLength = 50;
-        public const int MaxLastNameLength = 50;
-        public const int MinPasswordLength = 6;
-        public const int MaxPasswordLength = 50;
-
-        [StringLength(MaxFirstNameLength)]
+        [StringLength(Web.API.Impl.ApiImpl.MaxFirstNameLength)]
         public string FirstName { get; set; }
 
-        [StringLength(MaxFirstNameLength)]
+        [StringLength(Web.API.Impl.ApiImpl.MaxFirstNameLength)]
         public string LastName { get; set; }
 
         public List<string> MemberOf { get; set; }

@@ -178,11 +178,38 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The billing type is invalid.
+        /// </summary>
+        public static string billing_type_invalid {
+            get {
+                return ResourceManager.GetString("billing_type_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Back.
         /// </summary>
         public static string button_back {
             get {
                 return ResourceManager.GetString("button_back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The cancellation reason is missing.
+        /// </summary>
+        public static string cancellation_reason_missing {
+            get {
+                return ResourceManager.GetString("cancellation_reason_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The cancellation reason is too long.
+        /// </summary>
+        public static string cancellation_reason_too_long {
+            get {
+                return ResourceManager.GetString("cancellation_reason_too_long", resourceCulture);
             }
         }
         
@@ -313,6 +340,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The comment is too long.
+        /// </summary>
+        public static string comment_too_long {
+            get {
+                return ResourceManager.GetString("comment_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The confirmation ID is missing.
+        /// </summary>
+        public static string confirmation_id_missing {
+            get {
+                return ResourceManager.GetString("confirmation_id_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The confirmation ID is too long.
+        /// </summary>
+        public static string confirmation_id_too_long {
+            get {
+                return ResourceManager.GetString("confirmation_id_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The contact person name is missing.
         /// </summary>
         public static string contact_person_name_missing {
@@ -390,6 +444,15 @@ namespace HCore.Translations.Resources {
         public static string default_currency_missing {
             get {
                 return ResourceManager.GetString("default_currency_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The description is too long.
+        /// </summary>
+        public static string description_too_long {
+            get {
+                return ResourceManager.GetString("description_too_long", resourceCulture);
             }
         }
         
@@ -516,6 +579,24 @@ namespace HCore.Translations.Resources {
         public static string error_title {
             get {
                 return ResourceManager.GetString("error_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The external user group mapping contains invalid characters.
+        /// </summary>
+        public static string external_user_group_identifier_invalid {
+            get {
+                return ResourceManager.GetString("external_user_group_identifier_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The external user group mapping is too long.
+        /// </summary>
+        public static string external_user_group_identifier_too_long {
+            get {
+                return ResourceManager.GetString("external_user_group_identifier_too_long", resourceCulture);
             }
         }
         
@@ -763,6 +844,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The last updated at from value is invalid.
+        /// </summary>
+        public static string last_updated_at_from_invalid {
+            get {
+                return ResourceManager.GetString("last_updated_at_from_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The last updated at to date is set to a date before the last updated at date.
+        /// </summary>
+        public static string last_updated_at_to_before_last_updated_at_from {
+            get {
+                return ResourceManager.GetString("last_updated_at_to_before_last_updated_at_from", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The last updated at to value is invalid.
+        /// </summary>
+        public static string last_updated_at_to_invalid {
+            get {
+                return ResourceManager.GetString("last_updated_at_to_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The link is expired or invalid.
         /// </summary>
         public static string link_invalid {
@@ -952,6 +1060,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The notification UUID is invalid.
+        /// </summary>
+        public static string notification_uuid_invalid {
+            get {
+                return ResourceManager.GetString("notification_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The notification UUID is missing.
+        /// </summary>
+        public static string notification_uuid_missing {
+            get {
+                return ResourceManager.GetString("notification_uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to of.
         /// </summary>
         public static string of {
@@ -966,6 +1092,24 @@ namespace HCore.Translations.Resources {
         public static string old_password_missing {
             get {
                 return ResourceManager.GetString("old_password_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The order ID is missing.
+        /// </summary>
+        public static string order_id_missing {
+            get {
+                return ResourceManager.GetString("order_id_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The order ID is too long.
+        /// </summary>
+        public static string order_id_too_long {
+            get {
+                return ResourceManager.GetString("order_id_too_long", resourceCulture);
             }
         }
         
@@ -1258,6 +1402,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The rejection reason is too long.
+        /// </summary>
+        public static string rejection_reason_too_long {
+            get {
+                return ResourceManager.GetString("rejection_reason_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The scoped tenant UUID is invalid.
+        /// </summary>
+        public static string scoped_tenant_uuid_invalid {
+            get {
+                return ResourceManager.GetString("scoped_tenant_uuid_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The scoped tenant UUID is missing.
+        /// </summary>
+        public static string scoped_tenant_uuid_missing {
+            get {
+                return ResourceManager.GetString("scoped_tenant_uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The scroll UUID contains invalid characters.
         /// </summary>
         public static string scroll_uuid_invalid {
@@ -1272,6 +1443,33 @@ namespace HCore.Translations.Resources {
         public static string scroll_uuid_too_long {
             get {
                 return ResourceManager.GetString("scroll_uuid_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The search term is invalid.
+        /// </summary>
+        public static string search_term_invalid {
+            get {
+                return ResourceManager.GetString("search_term_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The search term is too long.
+        /// </summary>
+        public static string search_term_loo_long {
+            get {
+                return ResourceManager.GetString("search_term_loo_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The search term is missing.
+        /// </summary>
+        public static string search_term_missing {
+            get {
+                return ResourceManager.GetString("search_term_missing", resourceCulture);
             }
         }
         
@@ -1398,6 +1596,15 @@ namespace HCore.Translations.Resources {
         public static string subject_too_long {
             get {
                 return ResourceManager.GetString("subject_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The submission message is too long.
+        /// </summary>
+        public static string submission_message_too_long {
+            get {
+                return ResourceManager.GetString("submission_message_too_long", resourceCulture);
             }
         }
         

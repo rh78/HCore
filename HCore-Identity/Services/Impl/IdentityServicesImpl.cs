@@ -1443,7 +1443,7 @@ namespace HCore.Identity.Services.Impl
             if (!ApiImpl.Uuid.IsMatch(userUuid))
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
-            if (userUuid.Length > UserModel.MaxUserUuidLength)
+            if (userUuid.Length > HCore.Web.API.Impl.ApiImpl.MaxUserUuidLength)
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidTooLong, "The user UUID is too long");
 
             return userUuid;
@@ -1459,7 +1459,7 @@ namespace HCore.Identity.Services.Impl
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
 
-            if (email.Length > UserModel.MaxEmailAddressLength)
+            if (email.Length > HCore.Web.API.Impl.ApiImpl.MaxEmailAddressLength)
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is too long");
 
             return email;
@@ -1520,7 +1520,7 @@ namespace HCore.Identity.Services.Impl
             if (!ApiImpl.SafeString.IsMatch(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, "The first name contains invalid characters");
 
-            if (firstName.Length > UserModel.MaxFirstNameLength)
+            if (firstName.Length > HCore.Web.API.Impl.ApiImpl.MaxFirstNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, "The fist name is too long");
 
             return firstName;
@@ -1554,7 +1554,7 @@ namespace HCore.Identity.Services.Impl
             if (!ApiImpl.SafeString.IsMatch(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, "The last name contains invalid characters");
 
-            if (lastName.Length > UserModel.MaxLastNameLength)
+            if (lastName.Length > HCore.Web.API.Impl.ApiImpl.MaxLastNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, "The last name is too long");
 
             return lastName;
@@ -1724,10 +1724,10 @@ namespace HCore.Identity.Services.Impl
             if (string.IsNullOrEmpty(password))
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordMissing, "The password is missing");
             
-            if (password.Length < UserModel.MinPasswordLength)
+            if (password.Length < HCore.Web.API.Impl.ApiImpl.MinPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooShort, "The password is too short");
 
-            if (password.Length > UserModel.MaxPasswordLength)
+            if (password.Length > HCore.Web.API.Impl.ApiImpl.MaxPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooLong, "The password is too long");
 
             return password;

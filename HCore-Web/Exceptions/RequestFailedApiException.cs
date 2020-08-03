@@ -158,6 +158,29 @@ namespace HCore.Web.Exceptions
         public const string TenantSubdomainAlreadyUsed = "tenant_subdomain_already_used";
         public const string ContactPersonNameMissing = "contact_person_name_missing";
         public const string ContactPersonNameTooLong = "contact_person_name_too_long";
+        public const string ScopedTenantUuidMissing = "scoped_tenant_uuid_missing";
+        public const string ScopedTenantUuidInvalid = "scoped_tenant_uuid_invalid";
+        public const string DescriptionTooLong = "description_too_long";
+        public const string CommentTooLong = "comment_too_long";
+        public const string OrderIdMissing = "order_id_missing";
+        public const string OrderIdTooLong = "order_id_too_long";
+        public const string ConfirmationIdMissing = "confirmation_id_missing";
+        public const string ConfirmationIdTooLong = "confirmation_id_too_long";
+        public const string SubmissionMessageTooLong = "submission_message_too_long";
+        public const string RejectionReasonTooLong = "rejection_reason_too_long";
+        public const string CancellationReasonMissing = "cancellation_reason_missing";
+        public const string CancellationReasonTooLong = "cancellation_reason_too_long";
+        public const string ExternalUserGroupIdentifierInvalid = "external_user_group_identifier_invalid";
+        public const string ExternalUserGroupIdentifierTooLong = "external_user_group_identifier_too_long";
+        public const string SearchTermMissing = "search_term_missing";
+        public const string SearchTermInvalid = "search_term_invalid";
+        public const string SearchTermTooLong = "search_term_too_long";
+        public const string LastUpdatedAtFromInvalid = "last_updated_at_from_invalid";
+        public const string LastUpdatedAtToInvalid = "last_updated_at_to_invalid";
+        public const string LastUpdatedAtToBeforeLastUpdatedAtFrom = "last_updated_at_to_before_purchased_at_from";
+        public const string NotificationUuidMissing = "notification_uuid_missing";
+        public const string NotificationUuidInvalid = "notification_uuid_invalid";
+        public const string BillingTypeInvalid = "billing_type_invalid";
 
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)

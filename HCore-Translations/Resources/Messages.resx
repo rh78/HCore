@@ -660,4 +660,73 @@
   <data name="contact_person_name_too_long" xml:space="preserve">
     <value>The contact person name is too long</value>
   </data>
+  <data name="scoped_tenant_uuid_missing" xml:space="preserve">
+    <value>The scoped tenant UUID is missing</value>
+  </data>
+  <data name="scoped_tenant_uuid_invalid" xml:space="preserve">
+    <value>The scoped tenant UUID is invalid</value>
+  </data>
+  <data name="description_too_long" xml:space="preserve">
+    <value>The description is too long</value>
+  </data>
+  <data name="comment_too_long" xml:space="preserve">
+    <value>The comment is too long</value>
+  </data>
+  <data name="order_id_missing" xml:space="preserve">
+    <value>The order ID is missing</value>
+  </data>
+  <data name="order_id_too_long" xml:space="preserve">
+    <value>The order ID is too long</value>
+  </data>
+  <data name="confirmation_id_missing" xml:space="preserve">
+    <value>The confirmation ID is missing</value>
+  </data>
+  <data name="confirmation_id_too_long" xml:space="preserve">
+    <value>The confirmation ID is too long</value>
+  </data>
+  <data name="rejection_reason_too_long" xml:space="preserve">
+    <value>The rejection reason is too long</value>
+  </data>
+  <data name="submission_message_too_long" xml:space="preserve">
+    <value>The submission message is too long</value>
+  </data>
+  <data name="cancellation_reason_too_long" xml:space="preserve">
+    <value>The cancellation reason is too long</value>
+  </data>
+  <data name="cancellation_reason_missing" xml:space="preserve">
+    <value>The cancellation reason is missing</value>
+  </data>
+  <data name="external_user_group_identifier_invalid" xml:space="preserve">
+    <value>The external user group mapping contains invalid characters</value>
+  </data>
+  <data name="external_user_group_identifier_too_long" xml:space="preserve">
+    <value>The external user group mapping is too long</value>
+  </data>
+  <data name="search_term_missing" xml:space="preserve">
+    <value>The search term is missing</value>
+  </data>
+  <data name="search_term_invalid" xml:space="preserve">
+    <value>The search term is invalid</value>
+  </data>
+  <data name="search_term_loo_long" xml:space="preserve">
+    <value>The search term is too long</value>
+  </data>
+  <data name="last_updated_at_from_invalid" xml:space="preserve">
+    <value>The last updated at from value is invalid</value>
+  </data>
+  <data name="last_updated_at_to_before_last_updated_at_from" xml:space="preserve">
+    <value>The last updated at to date is set to a date before the last updated at date</value>
+  </data>
+  <data name="last_updated_at_to_invalid" xml:space="preserve">
+    <value>The last updated at to value is invalid</value>
+  </data>
+  <data name="notification_uuid_missing" xml:space="preserve">
+    <value>The notification UUID is missing</value>
+  </data>
+  <data name="notification_uuid_invalid" xml:space="preserve">
+    <value>The notification UUID is invalid</value>
+  </data>
+  <data name="billing_type_invalid" xml:space="preserve">
+    <value>The billing type is invalid</value>
+  </data>
 </root>
