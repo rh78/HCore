@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
@@ -53,8 +54,7 @@ namespace HCore.Tenants.Models.Impl
         public string NoreplyEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
 
-        public string CustomInvitationEmailTextPrefix { get; internal set; }
-        public string CustomInvitationEmailTextSuffix { get; internal set; }
+        public EmailSettingsModel EmailSettings { get; set; }
 
         public string ProductName { get; internal set; }
 
@@ -169,8 +169,7 @@ namespace HCore.Tenants.Models.Impl
                 SupportEmailDisplayName = SupportEmailDisplayName,
                 NoreplyEmail = NoreplyEmail,
                 NoreplyEmailDisplayName = NoreplyEmailDisplayName,
-                CustomInvitationEmailTextPrefix = CustomInvitationEmailTextPrefix,
-                CustomInvitationEmailTextSuffix = CustomInvitationEmailTextSuffix,
+                EmailSettings = EmailSettings,
                 ProductName = ProductName,
                 DefaultCulture = DefaultCulture,
                 DefaultCurrency = DefaultCurrency,

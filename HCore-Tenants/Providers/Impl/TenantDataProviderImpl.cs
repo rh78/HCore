@@ -172,6 +172,7 @@ namespace HCore.Tenants.Providers.Impl
                             SupportEmailDisplayName = developerModel.SupportEmailDisplayName,
                             NoreplyEmail = developerModel.NoreplyEmail,
                             NoreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName,
+                            EmailSettings = developerModel.GetEmailSettings(),
                             ProductName = developerModel.ProductName
                         };
 
@@ -443,14 +444,17 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(noreplyEmailDisplayName))
                 noreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName;
 
-            string customInvitationEmailTextPrefix = tenantModel.CustomInvitationEmailTextPrefix;
-            if (string.IsNullOrEmpty(customInvitationEmailTextPrefix))
-                customInvitationEmailTextPrefix = null;
+            var emailSettingsModel = developerModel.GetEmailSettings();
+            var customEmailSettingsModel = tenantModel.GetCustomEmailSettings();
 
-            string customInvitationEmailTextSuffix = tenantModel.CustomInvitationEmailTextSuffix;
-            if (string.IsNullOrEmpty(customInvitationEmailTextSuffix))
-                customInvitationEmailTextSuffix = null;
+            if (emailSettingsModel != null &&
+                customEmailSettingsModel != null)
+            {
+                emailSettingsModel.MergeWith(customEmailSettingsModel);
+            }
 
+            emailSettingsModel.Validate();
+                
             string productName = tenantModel.ProductName;
             if (string.IsNullOrEmpty(productName))
                 productName = developerModel.ProductName;
@@ -667,8 +671,7 @@ namespace HCore.Tenants.Providers.Impl
                 SupportEmailDisplayName = supportEmailDisplayName,
                 NoreplyEmail = noreplyEmail,
                 NoreplyEmailDisplayName = noreplyEmailDisplayName,
-                CustomInvitationEmailTextPrefix = customInvitationEmailTextPrefix,
-                CustomInvitationEmailTextSuffix = customInvitationEmailTextSuffix,
+                EmailSettings = emailSettingsModel,
                 ProductName = productName,
                 EcbBackendApiUrl = tenantModel.EcbBackendApiUrl,
                 PortalsBackendApiUrl = tenantModel.PortalsBackendApiUrl,

@@ -1,4 +1,6 @@
-﻿namespace HCore.Templating.Templates.ViewModels.Shared
+﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
+
+namespace HCore.Templating.Templates.ViewModels.Shared
 {
     public class TemplateViewModel
     {
@@ -14,5 +16,7 @@
         public string TenantProductName { get; set; }
         public string TenantDefaultCulture { get; set; }
         public string TenantDefaultCurrency { get; set; }
+
+        public EmailSettingsModel EmailSettings { get; set; }
     }
 }

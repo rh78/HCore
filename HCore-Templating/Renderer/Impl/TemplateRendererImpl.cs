@@ -141,6 +141,8 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantProductName = tenantInfo.ProductName;
             model.TenantDefaultCulture = tenantInfo.DefaultCulture;
             model.TenantDefaultCurrency = tenantInfo.DefaultCurrency;
+
+            model.EmailSettings = tenantInfo.EmailSettings;
         }
 
         private IView FindView(ActionContext actionContext, string viewName)

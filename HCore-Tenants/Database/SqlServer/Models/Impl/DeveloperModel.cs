@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -84,6 +85,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string NoreplyEmail { get; set; }
         public string NoreplyEmailDisplayName { get; set; }
 
+        public string EmailSettingsJson { get; set; }
+
         public string ProductName { get; set; }
 
         public List<TenantModel> Tenants { get; set; }
@@ -91,5 +94,18 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public int Version { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
+
+        public void SetEmailSettings(EmailSettingsModel emailSettingsModel)
+        {
+            EmailSettingsJson = JsonConvert.SerializeObject(emailSettingsModel);
+        }
+
+        public EmailSettingsModel GetEmailSettings()
+        {
+            if (EmailSettingsJson == null)
+                return default;
+
+            return JsonConvert.DeserializeObject<EmailSettingsModel>(EmailSettingsJson);
+        }
     }
 }

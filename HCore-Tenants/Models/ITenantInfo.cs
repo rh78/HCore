@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
+using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models
@@ -48,8 +49,7 @@ namespace HCore.Tenants.Models
         string NoreplyEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
-        string CustomInvitationEmailTextPrefix { get; }
-        string CustomInvitationEmailTextSuffix { get; }
+        EmailSettingsModel EmailSettings { get; set; }
 
         string ProductName { get; }
 

@@ -66,9 +66,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string NoreplyEmail { get; set; }
         public string NoreplyEmailDisplayName { get; set; }
 
-        public string CustomInvitationEmailTextPrefix { get; set; }
-        public string CustomInvitationEmailTextSuffix { get; set; }
-
+        public string CustomEmailSettingsJson { get; set; }
+        
         public string ProductName { get; set; }
 
         public string DefaultCulture { get; set; }
@@ -131,6 +130,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
+
+        public void SetCustomEmailSettings(CustomEmailSettingsModel customEmailSettingsModel)
+        {
+            CustomEmailSettingsJson = JsonConvert.SerializeObject(customEmailSettingsModel);
+        }
+
+        public CustomEmailSettingsModel GetCustomEmailSettings()
+        {
+            if (CustomEmailSettingsJson == null)
+                return default;
+
+            return JsonConvert.DeserializeObject<CustomEmailSettingsModel>(CustomEmailSettingsJson);
+        }
 
         public void SetCustomTenantSettings<TCustomTenantSettingsDataType>(TCustomTenantSettingsDataType customTenantSettings)
         {
