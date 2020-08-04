@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
@@ -87,37 +88,56 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string GetSubject(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(Subject, cultureInfo);
         }
 
         public string GetTitle(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(Title, cultureInfo);
         }
 
         public string GetPreHeader(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(PreHeader, cultureInfo);
         }
 
         public string GetTextPrefix(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(TextPrefix, cultureInfo);
         }
 
         public string GetButton(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(Button, cultureInfo);
         }
 
         public string GetTextSuffix(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(TextSuffix, cultureInfo);
         }
 
         public string GetFooter(CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
+            return ResolveLocalizedText(Footer, cultureInfo);
+        }
+
+        private string ResolveLocalizedText(Dictionary<string, string> translations, CultureInfo cultureInfo)
+        {
+            string culture = cultureInfo.TwoLetterISOLanguageName;
+
+            if (translations.ContainsKey(culture) &&
+                !string.IsNullOrEmpty(translations[culture]))
+            {
+                return translations[culture];
+            }
+
+            if (translations.ContainsKey("en") &&
+                !string.IsNullOrEmpty(translations["en"]))
+            {
+                return translations["en"];
+            }
+
+            return translations.First().Value;
         }
 
         public void Validate()

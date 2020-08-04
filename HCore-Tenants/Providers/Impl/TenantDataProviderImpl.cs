@@ -147,6 +147,12 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.ProductName))
                             throw new Exception("The developer product name is empty");
 
+                        var emailSettingsModel = developerModel.GetEmailSettings();
+                        if (emailSettingsModel == null)
+                            throw new Exception("The developer email settings are missing");
+
+                        emailSettingsModel.Validate();
+
                         var developerInfo = new DeveloperInfoImpl()
                         {
                             DeveloperUuid = developerModel.Uuid,
@@ -172,7 +178,7 @@ namespace HCore.Tenants.Providers.Impl
                             SupportEmailDisplayName = developerModel.SupportEmailDisplayName,
                             NoreplyEmail = developerModel.NoreplyEmail,
                             NoreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName,
-                            EmailSettings = developerModel.GetEmailSettings(),
+                            EmailSettings = emailSettingsModel,
                             ProductName = developerModel.ProductName
                         };
 
@@ -451,9 +457,9 @@ namespace HCore.Tenants.Providers.Impl
                 customEmailSettingsModel != null)
             {
                 emailSettingsModel.MergeWith(customEmailSettingsModel);
-            }
 
-            emailSettingsModel.Validate();
+                emailSettingsModel.Validate();
+            }
                 
             string productName = tenantModel.ProductName;
             if (string.IsNullOrEmpty(productName))
