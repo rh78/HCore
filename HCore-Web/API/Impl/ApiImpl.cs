@@ -362,7 +362,7 @@ namespace HCore.Web.API.Impl
             }
         }
 
-        public static void ProcessUserName(string userName)
+        public static string ProcessUserName(string userName)
         {
             userName = userName?.Trim();
 
@@ -374,9 +374,11 @@ namespace HCore.Web.API.Impl
 
             if (userName.Length > MaxUserNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.UserNameTooLong, "The user name is too long");
+
+            return userName;
         }
 
-        public static void ProcessPassword(string password)
+        public static string ProcessPassword(string password)
         {
             password = password?.Trim();
 
@@ -385,9 +387,11 @@ namespace HCore.Web.API.Impl
 
             if (password.Length > MaxPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooLong, "The password is too long");
+
+            return password;
         }
 
-        public static void ProcessClientId(string clientId)
+        public static string ProcessClientId(string clientId)
         {
             clientId = clientId?.Trim();
 
@@ -399,9 +403,11 @@ namespace HCore.Web.API.Impl
 
             if (clientId.Length > MaxClientIdLength)
                 throw new RequestFailedApiException(RequestFailedApiException.ClientIdTooLong, "The client ID is too long");
+
+            return clientId;
         }
 
-        public static void ProcessClientSecret(string clientSecret)
+        public static string ProcessClientSecret(string clientSecret)
         {
             clientSecret = clientSecret?.Trim();
 
@@ -413,9 +419,11 @@ namespace HCore.Web.API.Impl
 
             if (clientSecret.Length > MaxClientSecretLength)
                 throw new RequestFailedApiException(RequestFailedApiException.ClientSecretTooLong, "The client secret is too long");
+
+            return clientSecret;
         }
 
-        public static void ProcessKey1(string key1, bool required)
+        public static string ProcessKey1(string key1, bool required)
         {
             key1 = key1?.Trim();
 
@@ -424,7 +432,7 @@ namespace HCore.Web.API.Impl
                 if (required)
                     throw new RequestFailedApiException(RequestFailedApiException.Key1Missing, "Key 1 is missing");
 
-                return;
+                return null;
             }
 
             if (!ApiImpl.SafeString.IsMatch(key1))
@@ -432,9 +440,11 @@ namespace HCore.Web.API.Impl
 
             if (key1.Length > MaxKey1Length)
                 throw new RequestFailedApiException(RequestFailedApiException.Key1TooLong, "Key 1 is too long");
+
+            return key1;
         }
 
-        public static void ProcessKey2(string key2, bool required)
+        public static string ProcessKey2(string key2, bool required)
         {
             key2 = key2.Trim();
 
@@ -443,7 +453,7 @@ namespace HCore.Web.API.Impl
                 if (required)
                     throw new RequestFailedApiException(RequestFailedApiException.Key2Missing, "Key 2 is missing");
 
-                return;
+                return null;
             }
 
             if (!ApiImpl.SafeString.IsMatch(key2))
@@ -451,9 +461,11 @@ namespace HCore.Web.API.Impl
 
             if (key2.Length > MaxKey2Length)
                 throw new RequestFailedApiException(RequestFailedApiException.Key2TooLong, "Key 2 is too long");
+
+            return key2;
         }
 
-        public static void ProcessKey3(string key3, bool required)
+        public static string ProcessKey3(string key3, bool required)
         {
             key3 = key3?.Trim();
 
@@ -462,7 +474,7 @@ namespace HCore.Web.API.Impl
                 if (required)
                     throw new RequestFailedApiException(RequestFailedApiException.Key3Missing, "Key 3 is missing");
 
-                return;
+                return null;
             }
 
             if (!ApiImpl.SafeString.IsMatch(key3))
@@ -470,9 +482,11 @@ namespace HCore.Web.API.Impl
 
             if (key3.Length > MaxKey3Length)
                 throw new RequestFailedApiException(RequestFailedApiException.Key3TooLong, "Key 3 is too long");
+
+            return key3;
         }
 
-        public static void ProcessKey4(string key4, bool required)
+        public static string ProcessKey4(string key4, bool required)
         {
             key4 = key4?.Trim();
 
@@ -481,7 +495,7 @@ namespace HCore.Web.API.Impl
                 if (required)
                     throw new RequestFailedApiException(RequestFailedApiException.Key4Missing, "Key 4 is missing");
 
-                return;
+                return null;
             }
 
             if (!ApiImpl.SafeString.IsMatch(key4))
@@ -489,6 +503,8 @@ namespace HCore.Web.API.Impl
 
             if (key4.Length > MaxKey4Length)
                 throw new RequestFailedApiException(RequestFailedApiException.Key4TooLong, "Key 4 is too long");
+
+            return key4;
         }
 
         public static string ProcessRedirectUrlNotAllowed(string redirectUrl)
