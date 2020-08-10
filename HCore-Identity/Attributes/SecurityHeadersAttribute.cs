@@ -35,7 +35,7 @@ namespace HCore.Identity.Attributes
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
                 var csp = "default-src 'self' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net; " +
                           "object-src 'none'; " +
-                          "frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.sharepoint.com https://*.officeapps.live.com; " +
+                          "frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.sharepoint.com https://*.officeapps.live.com https://*.veevavault.com; " +
                           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com https://snap.licdn.com; " +
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
