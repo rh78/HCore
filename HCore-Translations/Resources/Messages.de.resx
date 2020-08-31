@@ -261,6 +261,12 @@
   <data name="name_too_long" xml:space="preserve">
     <value>Der Name ist zu lang</value>
   </data>
+  <data name="culture_missing" xml:space="preserve">
+    <value>Die Sprache fehlt</value>
+  </data>
+  <data name="culture_too_long" xml:space="preserve">
+    <value>Die Sprache ist zu lang</value>
+  </data>
   <data name="subdomain_missing" xml:space="preserve">
     <value>Die Subdomain fehlt</value>
   </data>

@@ -403,6 +403,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The language is missing.
+        /// </summary>
+        public static string culture_missing {
+            get {
+                return ResourceManager.GetString("culture_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The language is too long.
+        /// </summary>
+        public static string culture_too_long {
+            get {
+                return ResourceManager.GetString("culture_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The currency is invalid.
         /// </summary>
         public static string currency_invalid {
