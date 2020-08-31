@@ -20,7 +20,9 @@ namespace HCore.Web.API.Impl
         public const int MaxUserUuidLength = 100;
         
         public const int MaxExternalUuidLength = 100;
-        
+
+        public const int MaxExternalUserGroupUuidLength = 100;
+
         public const int MaxEmailAddressLength = 50;
         public const int MaxPhoneNumberLength = 255;
 
@@ -36,6 +38,8 @@ namespace HCore.Web.API.Impl
         public const int MaxDisplayNameLength = MaxFirstNameLength + MaxLastNameLength + 1;
         public const int MinPasswordLength = 6;
         public const int MaxPasswordLength = 50;
+
+        public const int MaxLocalizedStringLength = 255;
 
         public const int MaxCodeLength = 2048;
 
@@ -53,6 +57,7 @@ namespace HCore.Web.API.Impl
         public const int MaxKey2Length = 255;
         public const int MaxKey3Length = 255;
         public const int MaxKey4Length = 255;
+        public const int MaxUrlLength = 255;
         public const int MaxRedirectUrlLength = 255;
         public const int MaxSecretLength = 50;
         public const int MaxAccessTokenLength = 2048;
@@ -71,6 +76,8 @@ namespace HCore.Web.API.Impl
         public const int MaxSearchTermLength = 50;
 
         public const int MaxBulkUpdateCount = 50;
+
+        public const int MaxIdentifierLength = 255;
 
         public static long? ProcessUserGroupUuid(string userGroupUuid, bool required)
         {
@@ -750,6 +757,16 @@ namespace HCore.Web.API.Impl
         public static bool ProcessDisabled(bool? disabled)
         {
             return disabled ?? false;
+        }
+
+        public static bool ProcessIsDefault(bool? isDefault)
+        {
+            return isDefault ?? true;
+        }
+
+        public static bool ProcessIsAdvanced(bool? isAdvanced)
+        {
+            return isAdvanced ?? false;
         }
 
         public static bool ProcessExcludeDisabledOrExpired(bool? excludeDisabledOrExpired)
