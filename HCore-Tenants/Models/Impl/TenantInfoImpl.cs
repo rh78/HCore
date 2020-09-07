@@ -119,6 +119,11 @@ namespace HCore.Tenants.Models.Impl
 
         public string CreatedByUserUuid { get; set; }
 
+        public long? MapDeveloperUuid { get; set; }
+        public long? MapTenantUuid { get; set; }
+        
+        public long? MapCustomUuid { get; set; }
+
         public int Version { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
@@ -212,6 +217,9 @@ namespace HCore.Tenants.Models.Impl
                 DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 CreatedByUserUuid = CreatedByUserUuid,
+                MapDeveloperUuid = MapDeveloperUuid,
+                MapTenantUuid = MapTenantUuid,
+                MapCustomUuid = MapCustomUuid,
                 Version = Version,
                 CreatedAt = CreatedAt,
                 LastUpdatedAt = LastUpdatedAt

@@ -713,6 +713,9 @@ namespace HCore.Tenants.Providers.Impl
                 DevAdminSsoReplacementSamlPeerEntityId = tenantModel.DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 CreatedByUserUuid = tenantModel.CreatedByUserUuid,
+                MapDeveloperUuid = tenantModel.MapDeveloperUuid,
+                MapTenantUuid = tenantModel.MapTenantUuid,
+                MapCustomUuid = tenantModel.MapCustomUuid,
                 Version = tenantModel.Version,
                 CreatedAt = tenantModel.CreatedAt,
                 LastUpdatedAt = tenantModel.LastUpdatedAt

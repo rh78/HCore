@@ -125,6 +125,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string CreatedByUserUuid { get; set; }
 
+        public long? MapDeveloperUuid { get; set; }
+        public long? MapTenantUuid { get; set; }
+
+        public long? MapCustomUuid { get; set; }
+
         [ConcurrencyCheck]
         public int Version { get; set; }
 

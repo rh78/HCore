@@ -116,6 +116,11 @@ namespace HCore.Tenants.Models
 
         public string CreatedByUserUuid { get; }
 
+        public long? MapDeveloperUuid { get; }
+        public long? MapTenantUuid { get; }
+
+        public long? MapCustomUuid { get; }
+
         public int Version { get; }
 
         public DateTimeOffset CreatedAt { get; }
