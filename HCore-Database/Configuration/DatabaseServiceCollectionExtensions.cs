@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DatabaseServiceCollectionExtensions
     {
-        public static IServiceCollection AddElasticSearch<TElasticSearchDbContext>(this IServiceCollection services, IConfiguration configuration, bool isProduction)
+        public static IServiceCollection AddElasticSearch<TElasticSearchDbContext>(this IServiceCollection services, IConfiguration configuration, bool isProduction, bool useJsonNetSerializer = false)
             where TElasticSearchDbContext : IElasticSearchDbContext
         {
             Console.WriteLine("Initializing ElasticSearch DB context...");
@@ -35,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("ElasticSearch hosts not found");
 
             IElasticSearchClient elasticSearchClient = new ElasticSearchClientImpl(
-                isProduction, numberOfShards, numberOfReplicas, hosts, elasticSearchDbContext);
+                isProduction, numberOfShards, numberOfReplicas, hosts, elasticSearchDbContext, useJsonNetSerializer);
 
             elasticSearchClient.Initialize();
 

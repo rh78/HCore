@@ -4,6 +4,7 @@ using HCore.Database.ElasticSearch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Nest.JsonNetSerializer;
 
 namespace HCore.Database.ElasticSearch.Impl
 {
@@ -21,7 +22,9 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private readonly IElasticSearchDbContext _elasticSearchDbContext;
 
-        public ElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchDbContext elasticSearchDbContext)
+        private readonly bool _useJsonNetSerializer;
+
+        public ElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchDbContext elasticSearchDbContext, bool useJsonNetSerializer)
         {
             _isProduction = isProduction;
 
@@ -30,6 +33,8 @@ namespace HCore.Database.ElasticSearch.Impl
             _hosts = hosts;
 
             _elasticSearchDbContext = elasticSearchDbContext;
+
+            _useJsonNetSerializer = useJsonNetSerializer;
         }
 
         public void Initialize()
@@ -67,9 +72,20 @@ namespace HCore.Database.ElasticSearch.Impl
                     (IConnectionPool) new SniffingConnectionPool(uriList) :
                     (IConnectionPool) new SingleNodeConnectionPool(uriList[0]);
 
-            var settings = new ConnectionSettings(connectionPool)
-                .DisableAutomaticProxyDetection()
-                .ThrowExceptions();
+            ConnectionSettings settings;
+
+            if (_useJsonNetSerializer)
+            {
+                settings = new ConnectionSettings(connectionPool, sourceSerializer: JsonNetSerializer.Default)
+                    .DisableAutomaticProxyDetection()
+                    .ThrowExceptions();
+            }
+            else
+            {
+                settings = new ConnectionSettings(connectionPool)
+                    .DisableAutomaticProxyDetection()
+                    .ThrowExceptions();
+            }
 
             ElasticClient = new ElasticClient(settings);
 
