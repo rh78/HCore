@@ -784,6 +784,17 @@ namespace HCore.Identity.Services.Impl
 
                         throw new Exception("The external authentication failed");
                     }
+
+                    // debug information to the console, without logging it to Sentry
+
+                    Console.WriteLine("Dev admin SSO login diagnostics output:");
+
+                    foreach (var claim in claims)
+                    {
+                        Console.WriteLine($"Dev admin login with claim {claim.Type}: {claim.Value}");
+                    }
+
+                    Console.WriteLine("SSO diagnostics output done");
                 }
 
                 var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
@@ -1632,6 +1643,10 @@ namespace HCore.Identity.Services.Impl
             ProcessMemberOfClaims(claimsPrincipal, "memberOf", result);
             ProcessMemberOfClaims(claimsPrincipal, "member-of", result);
             ProcessMemberOfClaims(claimsPrincipal, "groups", result);
+
+            // Azure AD default
+
+            ProcessMemberOfClaims(claimsPrincipal, "http://schemas.microsoft.com/ws/2008/06/identity/claims/groups", result);
 
             if (result.Count == 0)
                 return null;
