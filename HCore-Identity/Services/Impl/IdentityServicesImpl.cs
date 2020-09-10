@@ -779,7 +779,11 @@ namespace HCore.Identity.Services.Impl
                     string issuer = ProcessIssuer(externalUser);
 
                     if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
+                    {
+                        _logger.LogError($"Dev admin authorized issuers check failed for email address {normalizedEmailAddress} and issuer {issuer}");
+
                         throw new Exception("The external authentication failed");
+                    }
                 }
 
                 var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
