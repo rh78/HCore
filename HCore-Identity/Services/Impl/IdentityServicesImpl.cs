@@ -1628,12 +1628,13 @@ namespace HCore.Identity.Services.Impl
 
         private void PrintClaimsPrincipalDebug(ClaimsPrincipal claimsPrincipal)
         {
-            var claims = claimsPrincipal.Claims;
+            /* var claims = claimsPrincipal.Claims;
 
             foreach(var claim in claims)
             {
                 _logger.LogError($"Claim '{claim.Type}' with value '{claim.Value}' found, but not matching");
             }
+            */
         }
 
         private HashSet<string> ProcessMemberOf(ClaimsPrincipal claimsPrincipal)
@@ -1676,16 +1677,19 @@ namespace HCore.Identity.Services.Impl
 
         private void ProcessMemberOfClaims(ClaimsPrincipal claimsPrincipal, string claimName, HashSet<string> result)
         {
-            var memberOfClaims = claimsPrincipal.FindAll(claimName);
+            var claims = claimsPrincipal.Claims;
 
-            foreach (var claim in memberOfClaims)
+            foreach (var claim in claims)
             {
-                string value = claim.Value;
+                if (string.Equals(claim.Type, claimName, StringComparison.OrdinalIgnoreCase))
+                {
+                    string value = claim.Value;
 
-                value = value?.Trim();
+                    value = value?.Trim();
 
-                if (!string.IsNullOrEmpty(value))
-                    result.Add(value);
+                    if (!string.IsNullOrEmpty(value))
+                        result.Add(value);
+                }
             }
         }
 

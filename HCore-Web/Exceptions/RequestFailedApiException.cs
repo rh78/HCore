@@ -129,6 +129,7 @@ namespace HCore.Web.Exceptions
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
         public const string NotificationCultureInvalid = "notification_culture_invalid";
         public const string DefaultCultureInvalid = "default_culture_invalid";
+        public const string DefaultCultureMissing = "default_culture_missing";
         public const string CurrencyMissing = "currency_missing";
         public const string CurrencyInvalid = "currency_invalid";
         public const string DefaultCurrencyMissing = "default_currency_missing";
