@@ -403,6 +403,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The language is invalid.
+        /// </summary>
+        public static string culture_invalid {
+            get {
+                return ResourceManager.GetString("culture_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The language is missing.
         /// </summary>
         public static string culture_missing {

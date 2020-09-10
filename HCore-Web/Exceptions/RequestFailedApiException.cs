@@ -69,6 +69,7 @@ namespace HCore.Web.Exceptions
         public const string NameInvalid = "name_invalid";
         public const string NameTooLong = "name_too_long";
         public const string CultureMissing = "culture_missing";
+        public const string CultureInvalid = "culture_invalid";
         public const string CultureTooLong = "culture_too_long";
         public const string SubdomainMissing = "subdomain_missing";
         public const string SubdomainInvalid = "subdomain_invalid";
