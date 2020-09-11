@@ -868,6 +868,8 @@ namespace HCore.Identity.Services.Impl
 
                         HashSet<string> memberOf = ProcessMemberOf(externalUser);
 
+                        Console.WriteLine($"Member of count {memberOf?.Count}: {memberOf}");
+
                         if (_configurationProvider.ManageName)
                         {
                             if (!string.Equals(user.FirstName, firstName))
@@ -1681,14 +1683,26 @@ namespace HCore.Identity.Services.Impl
 
             foreach (var claim in claims)
             {
+                Console.WriteLine($"Checking claim {claim.Type} with value {claim.Value}");
+
                 if (string.Equals(claim.Type, claimName, StringComparison.OrdinalIgnoreCase))
                 {
+                    Console.WriteLine("Does match");
+
                     string value = claim.Value;
 
                     value = value?.Trim();
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         result.Add(value);
+
+                        Console.WriteLine($"{value} was added");
+                    }
+                }
+                else
+                {
+                    Console.Write("Does not match");
                 }
             }
         }
