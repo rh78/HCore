@@ -747,4 +747,7 @@
   <data name="user_optimistic_lock_violated" xml:space="preserve">
     <value>The user '{name}' was modified by another user, please try again</value>
   </data>
+  <data name="claims_principal_has_too_many_groups" xml:space="preserve">
+    <value>The user is assigned to more than 150 groups, which is not supported by Azure AD. Please either limit the amount of user groups assigned to the user, or use application roles</value>
+  </data>
 </root>

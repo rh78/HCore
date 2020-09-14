@@ -868,7 +868,7 @@ namespace HCore.Identity.Services.Impl
 
                         HashSet<string> memberOf = ProcessMemberOf(externalUser);
 
-                        Console.WriteLine($"Member of count {memberOf?.Count}: {memberOf}");
+                        // Console.WriteLine($"Member of count {memberOf?.Count}: {memberOf}");
 
                         if (_configurationProvider.ManageName)
                         {
@@ -1683,11 +1683,19 @@ namespace HCore.Identity.Services.Impl
 
             foreach (var claim in claims)
             {
-                Console.WriteLine($"Checking claim {claim.Type} with value {claim.Value}");
+                // Console.WriteLine($"Checking claim {claim.Type} with value {claim.Value}");
+
+                if (string.Equals(claim.Type, "http://schemas.microsoft.com/claims/groups.link"))
+                {
+                    // will be added by Azure AD if there is > 150 user groups for the user
+                    // the user then will not contain any group claims anymore
+
+                    throw new RequestFailedApiException(RequestFailedApiException.ClaimsPrincipalHasTooManyGroups, "The claims principal used to log in has > 150 groups, which is not supported by Azure AD. Please either limit the amount of user groups assigned to the user, or use application roles");
+                }
 
                 if (string.Equals(claim.Type, claimName, StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Does match");
+                    // Console.WriteLine("Does match");
 
                     string value = claim.Value;
 
@@ -1697,12 +1705,12 @@ namespace HCore.Identity.Services.Impl
                     {
                         result.Add(value);
 
-                        Console.WriteLine($"{value} was added");
+                        // Console.WriteLine($"{value} was added");
                     }
                 }
                 else
                 {
-                    Console.Write("Does not match");
+                    // Console.WriteLine("Does not match");
                 }
             }
         }

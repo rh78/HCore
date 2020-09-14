@@ -241,6 +241,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The user is assigned to more than 150 groups, which is not supported by Azure AD. Please either limit the amount of user groups assigned to the user, or use application roles.
+        /// </summary>
+        public static string claims_principal_has_too_many_groups {
+            get {
+                return ResourceManager.GetString("claims_principal_has_too_many_groups", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The client ID contains invalid characters.
         /// </summary>
         public static string client_id_invalid {

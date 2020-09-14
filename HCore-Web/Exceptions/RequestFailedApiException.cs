@@ -185,6 +185,7 @@ namespace HCore.Web.Exceptions
         public const string NotificationUuidMissing = "notification_uuid_missing";
         public const string NotificationUuidInvalid = "notification_uuid_invalid";
         public const string BillingTypeInvalid = "billing_type_invalid";
+        public const string ClaimsPrincipalHasTooManyGroups = "claims_principal_has_too_many_groups";
 
         // internal, not translated
 
