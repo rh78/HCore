@@ -140,6 +140,19 @@ namespace HCore.Web.Providers.Impl
                 {
                     HttpResponseMessage responseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
+                    if (responseMessage.StatusCode == System.Net.HttpStatusCode.Redirect)
+                    {
+                        var location = responseMessage.Headers.Location;
+
+                        if (location != null && !string.IsNullOrEmpty(location.AbsoluteUri))
+                        {
+                            using (var requestMessageRedirect = new HttpRequestMessage(HttpMethod.Get, location.AbsoluteUri))
+                            {
+                                responseMessage = await httpClient.SendAsync(requestMessageRedirect, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                            }
+                        }
+                    }
+
                     if (!responseMessage.IsSuccessStatusCode)
                     {
                         _logger.LogError(
