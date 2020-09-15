@@ -146,6 +146,8 @@ namespace HCore.Web.Providers.Impl
 
                         if (location != null && !string.IsNullOrEmpty(location.AbsoluteUri))
                         {
+                            responseMessage.Dispose();
+
                             using (var requestMessageRedirect = new HttpRequestMessage(HttpMethod.Get, location.AbsoluteUri))
                             {
                                 responseMessage = await httpClient.SendAsync(requestMessageRedirect, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
