@@ -774,6 +774,11 @@ namespace HCore.Web.API.Impl
             return excludeDisabledOrExpired ?? true;
         }
 
+        public static bool ProcessExcludeDone(bool? excludeDone)
+        {
+            return excludeDone ?? true;
+        }
+
         public static bool ProcessInvertSelection(bool? invertSelection)
         {
             return invertSelection ?? false;
