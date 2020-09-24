@@ -740,6 +740,9 @@ namespace HCore.Tenants.Services.Impl
             if (string.IsNullOrEmpty(name))
                 throw new RequestFailedApiException(RequestFailedApiException.NameMissing, "The name is missing");
 
+            if (!ApiImpl.SafeString.IsMatch(name))
+                throw new RequestFailedApiException(RequestFailedApiException.NameInvalid, "The name is invalid");
+
             if (name.Length > TenantModel.MaxNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.NameTooLong, "The name is too long");
 
