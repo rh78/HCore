@@ -40,7 +40,7 @@ namespace HCore.Identity.Attributes
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com; " +
                           "font-src 'self' 'unsafe-inline' data: httos://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.gstatic.com https://w.chatlio.com; " +
-                          "frame-src 'self' https://*.smint.io:40443 https://*.smint.io https://www.google.com; " +
+                          "frame-src 'self' *; " +
                           "img-src * data:; " +
                           "media-src *; " +
                           // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
