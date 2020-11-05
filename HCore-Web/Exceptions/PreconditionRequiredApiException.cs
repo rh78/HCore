@@ -11,7 +11,13 @@ namespace HCore.Web.Exceptions
         {
             _errorCode = errorCode;            
         }
-       
+
+        public PreconditionRequiredApiException(string errorCode, string message, string uuid, string name) :
+           base(message, uuid, name)
+        {
+            _errorCode = errorCode;
+        }
+
         public override int GetStatusCode()
         {
             return StatusCodes.Status428PreconditionRequired;
