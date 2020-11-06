@@ -556,7 +556,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This e-mail address does not exist.
+        ///   Looks up a localized string similar to This email address does not exist.
         /// </summary>
         public static string email_not_existing {
             get {
@@ -1006,7 +1006,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please do not use an disposable e-mail address.
+        ///   Looks up a localized string similar to Please do not use an disposable email address.
         /// </summary>
         public static string no_disposable_emails_allowed {
             get {
