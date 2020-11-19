@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using HCore.Web.Exceptions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -28,12 +30,19 @@ namespace HCore.Web.Json
                 // Attempt to convert the input value
                 var valueAsString = valueProviderResult.FirstValue;
 
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(valueAsString, bindingContext.ModelType);
-
-                if (result != null)
+                try
                 {
-                    bindingContext.Result = ModelBindingResult.Success(result);
-                    return Task.CompletedTask;
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(valueAsString, bindingContext.ModelType);
+
+                    if (result != null)
+                    {
+                        bindingContext.Result = ModelBindingResult.Success(result);
+                        return Task.CompletedTask;
+                    }
+                } 
+                catch (JsonReaderException)
+                {
+                    throw new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, $"Parameter {bindingContext.ModelName} is not valid JSON value");
                 }
             }
 
