@@ -36,7 +36,8 @@ namespace HCore.Identity.Services.Impl
             {
                 UserUuid = userUuid,
                 TenantInfo = tenantInfo,
-                IsDeveloperAdmin = isDeveloperAdmin
+                IsDeveloperAdmin = isDeveloperAdmin,
+                IsAnonymous = isAnonymous
             };
         }
 
