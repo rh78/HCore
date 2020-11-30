@@ -29,7 +29,8 @@ namespace HCore.Identity.Services.Impl
 
             ITenantInfo tenantInfo = _tenantInfoAccessor.TenantInfo;
 
-            bool isDeveloperAdmin = IsDeveloperAdmin(httpContext, tenantInfo);
+            bool isAnonymous = IsAnonymous(httpContext, tenantInfo);
+            bool isDeveloperAdmin = !isAnonymous && IsDeveloperAdmin(httpContext, tenantInfo);
 
             return new AuthInfoImpl()
             {
@@ -37,6 +38,37 @@ namespace HCore.Identity.Services.Impl
                 TenantInfo = tenantInfo,
                 IsDeveloperAdmin = isDeveloperAdmin
             };
+        }
+
+        private bool IsAnonymous(HttpContext context, ITenantInfo tenantInfo)
+        {
+            var anonymousUserClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.AnonymousUserClaim);
+
+            if (anonymousUserClaim == null || string.IsNullOrEmpty(anonymousUserClaim.Value))
+            {
+                anonymousUserClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.AnonymousUserClientClaim);
+
+                if (anonymousUserClaim == null || string.IsNullOrEmpty(anonymousUserClaim.Value))
+                {
+                    return false;
+                }
+            }
+
+            string anonymousUserString = anonymousUserClaim.Value;
+
+            long anonymousUserUuid;
+
+            if (!long.TryParse(anonymousUserString, out anonymousUserUuid))
+            {
+                return false;
+            }
+
+            if (tenantInfo.DeveloperUuid != anonymousUserUuid)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool IsDeveloperAdmin(HttpContext context, ITenantInfo tenantInfo)

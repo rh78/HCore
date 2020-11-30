@@ -12,5 +12,7 @@ namespace HCore.Identity.Services
         long? TenantUuid { get; }
 
         bool IsDeveloperAdmin { get; }
+
+        bool IsAnonymous { get; }
     }
 }
