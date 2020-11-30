@@ -30,7 +30,7 @@ namespace HCore.Tenants.Options.Impl
 
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, _tenantInfoAccessor.TenantInfo.Version, name);
 
             return base.GetOrAdd(adjustedOptionsName, () => TenantsFactoryWrapper(name, adjustedOptionsName, createOptions));
         }
@@ -39,7 +39,7 @@ namespace HCore.Tenants.Options.Impl
         {
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
-            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, name);
+            var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, _tenantInfoAccessor.TenantInfo.Version, name);
 
             if (base.TryAdd(adjustedOptionsName, options))
             {
@@ -78,7 +78,7 @@ namespace HCore.Tenants.Options.Impl
             return result;
         }
 
-        private string AdjustOptionsName(long? developerUuid, long? tenantUuid, string additionalCacheKey, string name)
+        private string AdjustOptionsName(long? developerUuid, long? tenantUuid, string additionalCacheKey, long version, string name)
         {
             if (developerUuid == null)
                 throw new Exception("Developer UUID is empty");
@@ -91,7 +91,7 @@ namespace HCore.Tenants.Options.Impl
             string key = $"{developerUuid}:{tenantUuid}";
 
             if (!string.IsNullOrEmpty(additionalCacheKey))
-                key = $"{developerUuid}:{tenantUuid}:{additionalCacheKey}";
+                key = $"{developerUuid}:{tenantUuid}:{additionalCacheKey}:{version}";
 
             byte[] buffer = Encoding.UTF8.GetBytes(key);
 
