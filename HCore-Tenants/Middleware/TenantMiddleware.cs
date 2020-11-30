@@ -61,7 +61,7 @@ namespace HCore.Tenants.Middleware
                 {
                     host = hostString.Host;
                     
-                    (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(host).ConfigureAwait(false);
+                    (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(host, context.Request, context.Response).ConfigureAwait(false);
 
                     if (tenantInfo != null && tenantInfo.RequiresDevAdminSsoReplacement)
                     {
