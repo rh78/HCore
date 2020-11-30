@@ -10,6 +10,8 @@
 
         public const string JwtPolicy = "JwtPolicy";
 
+        public const string TenantUuidClaim = "tenant_uuid";
+
         public const string DeveloperUuidClientClaim = "client_developer_uuid";
         public const string TenantUuidClientClaim = "client_tenant_uuid";
 
