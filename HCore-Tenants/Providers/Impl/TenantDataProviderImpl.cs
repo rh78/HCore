@@ -6,6 +6,7 @@ using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
 using HCore.Web.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -204,7 +205,7 @@ namespace HCore.Tenants.Providers.Impl
             return _developerInfosByUuid[developerUuid];
         }
 
-        public async Task<(string, ITenantInfo)> GetTenantByHostAsync(string host)
+        public async Task<(string, ITenantInfo)> GetTenantByHostAsync(string host, HttpRequest request = null, HttpResponse response = null)
         {
             if (string.IsNullOrEmpty(host))
             {
@@ -261,7 +262,7 @@ namespace HCore.Tenants.Providers.Impl
                 return (null, null);
             }
 
-            var tenantInfo = await _tenantCache.GetTenantInfoBySubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup).ConfigureAwait(false);
+            var tenantInfo = await _tenantCache.GetTenantInfoBySubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false).ConfigureAwait(false);
 
             if (tenantInfo == null)
             {
@@ -274,7 +275,7 @@ namespace HCore.Tenants.Providers.Impl
                     return (null, null);
                 }
 
-                await _tenantCache.CreateOrUpdateTenantInfoForSubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, tenantInfo).ConfigureAwait(false);
+                await _tenantCache.CreateOrUpdateTenantInfoForSubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false, tenantInfo).ConfigureAwait(false);
             }
 
             return (subDomainLookup, tenantInfo);
@@ -310,7 +311,7 @@ namespace HCore.Tenants.Providers.Impl
 
             var developerInfo = _developerInfosByUuid[developerUuid];
 
-            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid).ConfigureAwait(false);
+            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false).ConfigureAwait(false);
 
             if (tenantInfo == null)
             {
@@ -321,7 +322,7 @@ namespace HCore.Tenants.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"No tenant found for developer UUID {developerUuid} and tenant UUID {tenantUuid}");
                 }
 
-                await _tenantCache.CreateOrUpdateTenantInfoForUuidAsync(developerUuid, tenantUuid, tenantInfo).ConfigureAwait(false);
+                await _tenantCache.CreateOrUpdateTenantInfoForUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false, tenantInfo).ConfigureAwait(false);
             }
 
             return tenantInfo;
