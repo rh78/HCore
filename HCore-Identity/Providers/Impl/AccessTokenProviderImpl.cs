@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace HCore.Identity.Providers.Impl
 {
-    internal class AccessTokenProviderImpl : IAccessTokenProvider
+    public class AccessTokenProviderImpl : IAccessTokenProvider
     {
         private readonly UserManager<UserModel> _userManager;
         private readonly IUserClaimsPrincipalFactory<UserModel> _principalFactory;

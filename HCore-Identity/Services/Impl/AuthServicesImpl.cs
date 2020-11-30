@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace HCore.Identity.Services.Impl
 {
-    internal class AuthServicesImpl : IAuthServices
+    public class AuthServicesImpl : IAuthServices
     { 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITenantInfoAccessor _tenantInfoAccessor;

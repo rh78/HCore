@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace HCore.Identity.Providers.Impl
 {
-    internal class ConfigurationProviderImpl : IConfigurationProvider
+    public class ConfigurationProviderImpl : IConfigurationProvider
     {
         public string DefaultClientId { get; private set; }
         public string DefaultClientAuthority { get; private set; }

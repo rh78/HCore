@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HCore.Identity.Validators.Impl
 {
-    internal class WildcardRedirectUriValidatorImpl : IRedirectUriValidator
+    public class WildcardRedirectUriValidatorImpl : IRedirectUriValidator
     {
         public Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
         {

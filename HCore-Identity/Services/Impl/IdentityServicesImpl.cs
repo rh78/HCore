@@ -36,7 +36,7 @@ using System.Web;
 
 namespace HCore.Identity.Services.Impl
 {
-    internal class IdentityServicesImpl : IIdentityServices
+    public class IdentityServicesImpl : IIdentityServices
     {
         public const int MaxCodeLength = 512;
 

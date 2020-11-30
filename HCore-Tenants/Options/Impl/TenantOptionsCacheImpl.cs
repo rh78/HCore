@@ -28,6 +28,11 @@ namespace HCore.Tenants.Options.Impl
                 throw new ArgumentNullException(nameof(createOptions));
             }
 
+            if (_tenantInfoAccessor.TenantInfo == null)
+            {
+                return createOptions.Invoke();
+            }
+
             name = name ?? Microsoft.Extensions.Options.Options.DefaultName;
 
             var adjustedOptionsName = AdjustOptionsName(_tenantInfoAccessor.TenantInfo.DeveloperUuid, _tenantInfoAccessor.TenantInfo.TenantUuid, _tenantInfoAccessor.TenantInfo.AdditionalCacheKey, _tenantInfoAccessor.TenantInfo.Version, name);
