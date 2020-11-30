@@ -52,7 +52,7 @@ namespace HCore.Identity.Providers.Impl
             _logger = logger;
         }
 
-        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClientClaims = null)
+        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -65,7 +65,7 @@ namespace HCore.Identity.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                 }
 
-                return await GetAccessTokenAsync(user, additionalClientClaims).ConfigureAwait(false);
+                return await GetAccessTokenAsync(user, additionalClientClaims, userUuidOverride).ConfigureAwait(false);
             }
             catch (ApiException e)
             {
@@ -79,7 +79,7 @@ namespace HCore.Identity.Providers.Impl
             }
         }
 
-        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClientClaims = null)
+        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
         { 
             try
             {
@@ -87,7 +87,7 @@ namespace HCore.Identity.Providers.Impl
 
                 var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
 
-                var identityUser = new IdentityServerUser(user.Id.ToString());
+                var identityUser = new IdentityServerUser(!string.IsNullOrEmpty(userUuidOverride) ? userUuidOverride : user.Id.ToString());
 
                 identityUser.AdditionalClaims = identityPricipal.Claims.ToArray();
 
@@ -99,6 +99,7 @@ namespace HCore.Identity.Providers.Impl
                 var subject = identityUser.CreatePrincipal();
 
                 tokenCreationRequest.Subject = subject;
+
                 tokenCreationRequest.IncludeAllIdentityClaims = true;
 
                 tokenCreationRequest.ValidatedRequest = new ValidatedRequest();
@@ -129,7 +130,8 @@ namespace HCore.Identity.Providers.Impl
                 string defaultClientAuthority = _configurationProvider.DefaultClientAuthority;
                 
                 accessToken.Issuer = defaultClientAuthority;
-                
+                accessToken.Audiences = new string[] { _configurationProvider.DefaultClientAudience };
+
                 var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken).ConfigureAwait(false);
 
                 return accessTokenValue;

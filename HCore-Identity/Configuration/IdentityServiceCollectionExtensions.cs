@@ -211,7 +211,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     jwt.RequireHttpsMetadata = true;                                                
                 });
 
-                tenantsBuilder.WithPerTenantOptions<JwtBearerOptions>((jwt, tenantInfo) =>
+                tenantsBuilder.WithPerTenantOptions<JwtBearerOptions>((jwt, tenantInfo, name) =>
                 {
                     jwt.Authority = tenantInfo.DeveloperAuthority;
                     jwt.Audience = tenantInfo.DeveloperAudience;
@@ -289,7 +289,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     openIdConnect.Authority = "https://nowhere.nowhere";
                 });
 
-                tenantsBuilder.WithPerTenantOptions<OpenIdConnectOptions>((openIdConnect, tenantInfo) =>
+                tenantsBuilder.WithPerTenantOptions<OpenIdConnectOptions>((openIdConnect, tenantInfo, name) =>
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
@@ -323,7 +323,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 CryptoConfig.AddAlgorithm(typeof(RSAPKCS1SHA1SignatureDescription), SignedXml.XmlDsigRSASHA1Url);
 
-                tenantsBuilder.WithPerTenantOptions<Saml2Options>((saml, tenantInfo) =>
+                tenantsBuilder.WithPerTenantOptions<Saml2Options>((saml, tenantInfo, name) =>
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
                     {
@@ -455,7 +455,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 });
             } else
             {
-                tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo) =>
+                tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo, name) =>
                 {
                     options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
 

@@ -11,11 +11,11 @@ namespace HCore.Tenants.Options.Impl
     internal class TenantOptionsFactoryImpl<TOptions> : IOptionsFactory<TOptions> where TOptions : class, new()
     {
         private readonly IEnumerable<IConfigureOptions<TOptions>> _setups;
-        private readonly Action<TOptions, ITenantInfo> _tenantConfig;
+        private readonly Action<TOptions, ITenantInfo, string> _tenantConfig;
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
         private readonly IEnumerable<IPostConfigureOptions<TOptions>> _postConfigures;
 
-        public TenantOptionsFactoryImpl(IEnumerable<IConfigureOptions<TOptions>> setups, IEnumerable<IPostConfigureOptions<TOptions>> postConfigures, Action<TOptions, ITenantInfo> tenantConfig, ITenantInfoAccessor tenantInfoAccessor)
+        public TenantOptionsFactoryImpl(IEnumerable<IConfigureOptions<TOptions>> setups, IEnumerable<IPostConfigureOptions<TOptions>> postConfigures, Action<TOptions, ITenantInfo, string> tenantConfig, ITenantInfoAccessor tenantInfoAccessor)
         {
             _setups = setups;
 
@@ -42,7 +42,7 @@ namespace HCore.Tenants.Options.Impl
             
             if (_tenantInfoAccessor.TenantInfo != null)
             {
-                _tenantConfig(options, _tenantInfoAccessor.TenantInfo);
+                _tenantConfig(options, _tenantInfoAccessor.TenantInfo, name);
             }
 
             foreach (var post in _postConfigures)

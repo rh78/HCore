@@ -5,7 +5,7 @@ using HCore.Identity.Resources;
 
 namespace HCore.Identity.Providers.Impl
 {
-    internal class MessagesStringLocalizerProviderImpl : IStringLocalizerProvider
+    public class MessagesStringLocalizerProviderImpl : IStringLocalizerProvider
     {
         public IStringLocalizer StringLocalizer { get; }
 

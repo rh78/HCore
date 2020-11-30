@@ -11,6 +11,7 @@
         public const string JwtPolicy = "JwtPolicy";
 
         public const string DeveloperUuidClientClaim = "client_developer_uuid";
+        public const string TenantUuidClientClaim = "client_tenant_uuid";
 
         public const string DeveloperAdminClaim = "developer_admin";
         public const string DeveloperAdminClientClaim = "client_developer_admin";

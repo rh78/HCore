@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
             this.services = services;
         }
 
-        public TenantsBuilder WithPerTenantOptions<TOptions>(Action<TOptions, ITenantInfo> tenantInfo) where TOptions : class, new()
+        public TenantsBuilder WithPerTenantOptions<TOptions>(Action<TOptions, ITenantInfo, string> tenantInfo) where TOptions : class, new()
         {
             if (tenantInfo == null)
             {
