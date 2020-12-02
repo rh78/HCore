@@ -19,11 +19,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public long DeveloperUuid { get; set; }
         public DeveloperModel Developer { get; set; }
 
-		// Deprecated, for migration only
-		// TODO: remove, once migrated
-        [StringLength(MaxSubdomainPatternLength)]
-        public string SubdomainPattern { get; set; }
-
         public string[] SubdomainPatterns { get; set; }
 
         [StringLength(MaxUrlLength)]
