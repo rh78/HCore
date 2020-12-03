@@ -533,15 +533,23 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(oidcClientId))
                         throw new Exception("The tenant OIDC client ID is missing");
 
-                    oidcClientSecret = tenantModel.OidcClientSecret;
-                    if (string.IsNullOrEmpty(oidcClientSecret))
-                        throw new Exception("The tenant OIDC client secret is missing");
+                    oidcUsePkce = tenantModel.OidcUsePkce;
+
+                    if (!oidcUsePkce)
+                    {
+                        oidcClientSecret = tenantModel.OidcClientSecret;
+                        if (string.IsNullOrEmpty(oidcClientSecret))
+                            throw new Exception("The tenant OIDC client secret is missing");
+                    }
+                    else
+                    {
+                        oidcClientSecret = null;
+                    }
 
                     oidcEndpointUrl = tenantModel.OidcEndpointUrl;
                     if (string.IsNullOrEmpty(oidcEndpointUrl))
                         throw new Exception("The tenant OIDC endpoint URL is missing");
-
-                    oidcUsePkce = tenantModel.OidcUsePkce;
+                    
                     oidcScopes = tenantModel.OidcScopes;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
