@@ -484,6 +484,8 @@ namespace HCore.Tenants.Providers.Impl
             string oidcClientId = null;
             string oidcClientSecret = null;
             string oidcEndpointUrl = null;
+            bool oidcUsePkce = false;
+            string[] oidcScopes = null;
 
             string samlEntityId = null;
 
@@ -538,6 +540,9 @@ namespace HCore.Tenants.Providers.Impl
                     oidcEndpointUrl = tenantModel.OidcEndpointUrl;
                     if (string.IsNullOrEmpty(oidcEndpointUrl))
                         throw new Exception("The tenant OIDC endpoint URL is missing");
+
+                    oidcUsePkce = tenantModel.OidcUsePkce;
+                    oidcScopes = tenantModel.OidcScopes;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
@@ -692,6 +697,8 @@ namespace HCore.Tenants.Providers.Impl
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,
                 OidcEndpointUrl = oidcEndpointUrl,
+                OidcUsePkce = oidcUsePkce,
+                OidcScopes = oidcScopes,
                 SamlEntityId = samlEntityId,
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,

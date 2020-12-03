@@ -75,6 +75,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
+        public bool OidcUsePkce { get; set; }
+
+        public string[] OidcScopes { get; set; }
+
         public string SamlEntityId { get; set; }
 
         public string SamlPeerEntityId { get; set; }

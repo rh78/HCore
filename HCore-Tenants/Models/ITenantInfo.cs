@@ -71,11 +71,11 @@ namespace HCore.Tenants.Models
         string OidcClientId { get; }
         string OidcClientSecret { get; }
 
+        string OidcEndpointUrl { get; }
+
         bool OidcUsePkce { get; }
 
         string[] OidcScopes { get; set; }
-
-        string OidcEndpointUrl { get; }
 
         string SamlEntityId { get; }
 
