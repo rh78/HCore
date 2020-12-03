@@ -41,6 +41,8 @@ using System.Security.Cryptography.Xml;
 using HCore.Identity.Internal;
 using Sustainsys.Saml2.Saml2P;
 using HCore.Translations.Providers;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Collections.Generic;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -294,8 +296,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
                         var oidcClientId = tenantInfo.OidcClientId;
+                        var oidcUsePkce = tenantInfo.OidcUsePkce;
                         var oidcClientSecret = tenantInfo.OidcClientSecret;
                         var oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
+                        var oidcScopes = tenantInfo.OidcScopes;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -303,16 +307,41 @@ namespace Microsoft.Extensions.DependencyInjection
                         openIdConnect.Authority = oidcEndpointUrl;
 
                         openIdConnect.ClientId = oidcClientId;
-                        openIdConnect.ClientSecret = oidcClientSecret;
+
+                        if (!oidcUsePkce)
+                        {
+                            openIdConnect.ClientSecret = oidcClientSecret;
+                        }
+                        else
+                        {
+                            openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
+
+                            openIdConnect.UsePkce = true;
+                        }
 
                         // make sure we get user group membership information
 
                         openIdConnect.GetClaimsFromUserInfoEndpoint = true;
 
-                        openIdConnect.Scope.Add("openid");
-                        openIdConnect.Scope.Add("email");
-                        openIdConnect.Scope.Add("phone");
-                        openIdConnect.Scope.Add("profile");
+                        var scopes = new HashSet<string>();
+
+                        scopes.Add("openid");
+                        scopes.Add("email");
+                        scopes.Add("phone");
+                        scopes.Add("profile");
+
+                        if (oidcScopes != null)
+                        {
+                            foreach (var oidcScope in oidcScopes)
+                            {
+                                scopes.Add(oidcScope);
+                            }
+                        }
+
+                        foreach (var scope in scopes)
+                        {
+                            openIdConnect.Scope.Add(scope);
+                        }
                     }
                 });
 

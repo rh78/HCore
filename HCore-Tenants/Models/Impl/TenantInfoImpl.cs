@@ -78,6 +78,10 @@ namespace HCore.Tenants.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
+        public bool OidcUsePkce { get; set; }
+
+        public string[] OidcScopes { get; set; }
+
         public string SamlEntityId { get; set; }
 
         public string SamlPeerEntityId { get; set; }
@@ -188,6 +192,8 @@ namespace HCore.Tenants.Models.Impl
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,
                 OidcEndpointUrl = OidcEndpointUrl,
+                OidcUsePkce = OidcUsePkce,
+                OidcScopes = OidcScopes,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,
