@@ -74,30 +74,22 @@ namespace HCore.Identity.Services.Impl
 
         private bool IsDeveloperAdmin(HttpContext context, ITenantInfo tenantInfo)
         {
-            var developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClaim);
+            var developerAdminClaim = context.User.Claims.FirstOrDefault(c => 
+                c.Type == IdentityCoreConstants.DeveloperAdminClaim &&
+                !string.IsNullOrEmpty(c.Value) &&
+                long.TryParse(c.Value, out var developerAdminUuid) &&
+                tenantInfo.DeveloperUuid == developerAdminUuid);
 
-            if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
+            if (developerAdminClaim == null)
             {
-                developerAdminClaim = context.User.Claims.FirstOrDefault(c => c.Type == IdentityCoreConstants.DeveloperAdminClientClaim);
+                developerAdminClaim = context.User.Claims.FirstOrDefault(c =>
+                    c.Type == IdentityCoreConstants.DeveloperAdminClientClaim &&
+                    !string.IsNullOrEmpty(c.Value) &&
+                    long.TryParse(c.Value, out var developerAdminUuid) &&
+                    tenantInfo.DeveloperUuid == developerAdminUuid);
 
-                if (developerAdminClaim == null || string.IsNullOrEmpty(developerAdminClaim.Value))
-                {
+                if (developerAdminClaim == null)
                     return false;
-                }
-            }
-
-            string developerAdminString = developerAdminClaim.Value;
-
-            long developerAdminUuid;
-
-            if (!long.TryParse(developerAdminString, out developerAdminUuid))
-            {
-                return false;
-            }
-
-            if (tenantInfo.DeveloperUuid != developerAdminUuid)
-            {
-                return false;
             }
 
             return true;
