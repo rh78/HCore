@@ -65,6 +65,19 @@ namespace HCore.Identity.Models
 
         public bool LastNameSet = false;
 
+        private string _Organization;
+
+        /// <summary>
+        /// The last name of the user
+        /// </summary>
+        /// <value>The last name of the user</value>
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "last_name_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "last_name")]
+        [DataMember(Name = "organization")]
+        public string Organization { get => _Organization; set { _Organization = value; OrganizationSet = true; } }
+
+        public bool OrganizationSet = false;
+
         private string _Password;
 
         /// <summary>
@@ -162,6 +175,7 @@ namespace HCore.Identity.Models
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  FirstName: ").Append(FirstName).Append("\n");
             sb.Append("  LastName: ").Append(LastName).Append("\n");
+            sb.Append("  Organization: ").Append(Organization).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
@@ -221,6 +235,11 @@ namespace HCore.Identity.Models
                     LastName.Equals(other.LastName)
                 ) &&
                 (
+                    Organization == other.Organization ||
+                    Organization != null &&
+                    Organization.Equals(other.Organization)
+                ) &&
+                (
                     Password == other.Password ||
                     Password != null &&
                     Password.Equals(other.Password)
@@ -271,6 +290,8 @@ namespace HCore.Identity.Models
                         hashCode = hashCode * 59 + FirstName.GetHashCode();
                     if (LastName != null)
                         hashCode = hashCode * 59 + LastName.GetHashCode();
+                    if (Organization != null)
+                        hashCode = hashCode * 59 + Organization.GetHashCode();
                     if (Password != null)
                         hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)
