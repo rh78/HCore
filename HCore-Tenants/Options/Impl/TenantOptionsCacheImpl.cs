@@ -93,10 +93,12 @@ namespace HCore.Tenants.Options.Impl
 
             // Hash so that prefix + option name can't cause a collision. 
 
-            string key = $"{developerUuid}:{tenantUuid}";
+            string key;
 
             if (!string.IsNullOrEmpty(additionalCacheKey))
                 key = $"{developerUuid}:{tenantUuid}:{additionalCacheKey}:{version}";
+            else
+                key = $"{developerUuid}:{tenantUuid}:{version}";
 
             byte[] buffer = Encoding.UTF8.GetBytes(key);
 
