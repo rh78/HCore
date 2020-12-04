@@ -13,18 +13,22 @@ namespace HCore.Identity.Providers.Impl
         public bool SelfRegistration { get; private set; }
         public bool RegisterName { get; private set; }
         public bool RegisterPhoneNumber { get; private set; }
+        public bool RegisterCompanyName { get; private set; }
 
         public bool SelfManagement { get; private set; }
         public bool ManageName { get; private set; }
         public bool ManagePhoneNumber { get; private set; }
+        public bool ManageCompanyName { get; private set; }
 
         public bool RequireEmailConfirmed { get; private set; }
 
         public string PrivacyPolicyUrl { get; private set; }
+        public string PrivacyPolicyText { get; private set; }
         public int PrivacyPolicyVersion { get; private set; }
 
         public bool RequiresTermsAndConditions { get; private set; }
         public string TermsAndConditionsUrl { get; private set; }
+        public string TermsAndConditionsText { get; private set; }
         public int TermsAndConditionsVersion { get; private set; }
 
         public string ProductName { get; private set; }
@@ -48,10 +52,12 @@ namespace HCore.Identity.Providers.Impl
             SelfRegistration = configuration.GetValue<bool>("Identity:FeatureSet:SelfRegistration");
             RegisterName = configuration.GetValue<bool>("Identity:FeatureSet:RegisterName");
             RegisterPhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:RegisterPhoneNumber");
+            // Company name not implemented
 
             SelfManagement = configuration.GetValue<bool>("Identity:FeatureSet:SelfManagement");
             ManageName = configuration.GetValue<bool>("Identity:FeatureSet:ManageName");
             ManagePhoneNumber = configuration.GetValue<bool>("Identity:FeatureSet:ManagePhoneNumber");
+            // Company name not implemented
 
             RequireEmailConfirmed = configuration.GetValue<bool>("Identity:FeatureSet:RequireEmailConfirmed");
 
@@ -68,6 +74,8 @@ namespace HCore.Identity.Providers.Impl
             if (string.IsNullOrEmpty(PrivacyPolicyUrl))
                 throw new Exception("Identity default privacy policy URL is empty");
 
+            // Privacy policy text not implemented
+
             PrivacyPolicyVersion = configuration.GetValue<int>("Identity:DefaultPrivacyPolicyVersion");
             if (PrivacyPolicyVersion <= 0)
                 throw new Exception("Identity default privacy policy version is invalid");
@@ -79,6 +87,8 @@ namespace HCore.Identity.Providers.Impl
                 TermsAndConditionsUrl = configuration["Identity:DefaultTermsAndConditionsUrl"];
                 if (string.IsNullOrEmpty(TermsAndConditionsUrl))
                     throw new Exception("Identity default terms and conditions URL is empty");
+
+                // Terms and conditions text not implemented
 
                 TermsAndConditionsVersion = configuration.GetValue<int>("Identity:DefaultTermsAndConditionsVersion");
                 if (TermsAndConditionsVersion <= 0)
