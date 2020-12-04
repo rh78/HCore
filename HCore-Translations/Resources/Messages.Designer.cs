@@ -1159,6 +1159,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The company name is invalid.
+        /// </summary>
+        public static string organization_invalid {
+            get {
+                return ResourceManager.GetString("organization_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The company name is missing.
+        /// </summary>
+        public static string organization_missing {
+            get {
+                return ResourceManager.GetString("organization_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The company name is too long.
+        /// </summary>
+        public static string organization_too_long {
+            get {
+                return ResourceManager.GetString("organization_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Page.
         /// </summary>
         public static string page {

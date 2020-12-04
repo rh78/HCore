@@ -399,6 +399,15 @@
   <data name="permission_denied" xml:space="preserve">
     <value>Der Zugang wurde verweigert</value>
   </data>
+  <data name="organization_invalid" xml:space="preserve">
+    <value>Der Firmenname ist ungültig</value>
+  </data>
+  <data name="organization_missing" xml:space="preserve">
+    <value>Der Firmenname fehlt</value>
+  </data>
+  <data name="organization_too_long" xml:space="preserve">
+    <value>Der Firmenname ist zu lang</value>
+  </data>
   <data name="phone_number_invalid" xml:space="preserve">
     <value>Die Telefonnummer ist ungültig</value>
   </data>

@@ -10,8 +10,6 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 { 
     public class UserModel : IdentityUser
     {
-        public const int MaxOrganizationLength = 255;
-
         public static readonly Regex ScopedEmail3Parts = new Regex(@"^[0-9]+:[0-9]+:.+$");
         public static readonly Regex ScopedEmail4Parts = new Regex(@"^[0-9]+:[0-9]+:[0-9]+:.+$");
 
@@ -21,7 +19,7 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         [StringLength(Web.API.Impl.ApiImpl.MaxFirstNameLength)]
         public string LastName { get; set; }
 
-        [StringLength(MaxOrganizationLength)]
+        [StringLength(Web.API.Impl.ApiImpl.MaxOrganizationLength)]
         public string Organization { get; set; }
 
         public List<string> MemberOf { get; set; }

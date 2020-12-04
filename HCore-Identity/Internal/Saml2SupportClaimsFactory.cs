@@ -15,7 +15,7 @@ namespace HCore.Identity.Internal
     // we had issues when the logout was not performed, because LogoutNameIdentifier and SessionIndex was not stored to
     // the user. After long search we found this code - it stores it to the user token, and then it works
 
-    internal class Saml2SupportClaimsFactory : IUserClaimsPrincipalFactory<UserModel>
+    public class Saml2SupportClaimsFactory : IUserClaimsPrincipalFactory<UserModel>
     {
         IUserClaimsPrincipalFactory<UserModel> _inner;
         ClaimsPrincipal _claimsPrincipal;

@@ -37,6 +37,9 @@ namespace HCore.Tenants.Models
         string NoreplyEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
+        string PrivacyPolicyUrl { get; }
+        int? PrivacyPolicyVersion { get; }
+
         EmailSettingsModel EmailSettings { get; }
 
         string ProductName { get; }

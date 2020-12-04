@@ -24,6 +24,9 @@ namespace HCore.Web.API.Impl
         public const int MaxExternalUserGroupUuidLength = 100;
 
         public const int MaxEmailAddressLength = 50;
+        
+        public const int MaxOrganizationLength = 255;
+
         public const int MaxPhoneNumberLength = 255;
 
         public const int MaxAddressLineLength = 50;
@@ -819,6 +822,22 @@ namespace HCore.Web.API.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, $"The last name address is too long");
 
             return lastName;
+        }
+
+        public static string ProcessOrganization(string organization)
+        {
+            organization = organization?.Trim();
+
+            if (string.IsNullOrEmpty(organization))
+                return null;
+
+            if (!SafeString.IsMatch(organization))
+                throw new RequestFailedApiException(RequestFailedApiException.OrganizationInvalid, $"The company name is invalid");
+
+            if (organization.Length > MaxOrganizationLength)
+                throw new RequestFailedApiException(RequestFailedApiException.OrganizationTooLong, $"The company name is too long");
+
+            return organization;
         }
 
         public static string ProcessPhoneNumber(string phoneNumber)

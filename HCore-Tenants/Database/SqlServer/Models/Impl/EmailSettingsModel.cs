@@ -13,6 +13,44 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ForgotPasswordEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewUnreadNotificationsEmailSettings { get; set; }
 
+        public void MergeWith(EmailSettingsModel customEmailSettingsModel)
+        {
+            if (customEmailSettingsModel == null)
+                return;
+
+            if (customEmailSettingsModel.InvitationEmailSettings != null)
+            {
+                if (InvitationEmailSettings == null)
+                    InvitationEmailSettings = customEmailSettingsModel.InvitationEmailSettings;
+                else
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+            }
+
+            if (customEmailSettingsModel.ConfirmAccountEmailSettings != null)
+            {
+                if (ConfirmAccountEmailSettings == null)
+                    ConfirmAccountEmailSettings = customEmailSettingsModel.ConfirmAccountEmailSettings;
+                else
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+            }
+
+            if (customEmailSettingsModel.ForgotPasswordEmailSettings != null)
+            {
+                if (ForgotPasswordEmailSettings == null)
+                    ForgotPasswordEmailSettings = customEmailSettingsModel.ForgotPasswordEmailSettings;
+                else
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+            }
+
+            if (customEmailSettingsModel.NewUnreadNotificationsEmailSettings != null)
+            {
+                if (NewUnreadNotificationsEmailSettings == null)
+                    NewUnreadNotificationsEmailSettings = customEmailSettingsModel.NewUnreadNotificationsEmailSettings;
+                else
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+            }
+        }
+
         public void MergeWith(CustomEmailSettingsModel customEmailSettingsModel)
         {
             if (customEmailSettingsModel == null)

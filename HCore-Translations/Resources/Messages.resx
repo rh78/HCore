@@ -399,6 +399,15 @@
   <data name="permission_denied" xml:space="preserve">
     <value>The permission to access this location was denied</value>
   </data>
+  <data name="organization_invalid" xml:space="preserve">
+    <value>The company name is invalid</value>
+  </data>
+  <data name="organization_missing" xml:space="preserve">
+    <value>The company name is missing</value>
+  </data>
+  <data name="organization_too_long" xml:space="preserve">
+    <value>The company name is too long</value>
+  </data>
   <data name="phone_number_invalid" xml:space="preserve">
     <value>The phone number is invalid</value>
   </data>
