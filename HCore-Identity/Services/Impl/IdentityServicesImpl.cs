@@ -756,6 +756,29 @@ namespace HCore.Identity.Services.Impl
                 // the most common claim type for that are the sub claim and the NameIdentifier
                 // depending on the external provider, some other claim type might be used
 
+                var claimMappings = tenantInfo.ExternalAuthenticationClaimMappings;
+
+                if (claimMappings != null && claimMappings.Count > 0)
+                {
+                    // map claims
+
+                    foreach (var claimMapping in claimMappings)
+                    {
+                        foreach (var identity in externalUser.Identities)
+                        {
+                            var existingTargetClaim = identity.FindFirst(claimMapping.Value);
+                            if (existingTargetClaim == null)
+                            {
+                                var claimToMap = identity.FindFirst(claimMapping.Key);
+                                if (claimToMap != null)
+                                {
+                                    identity.AddClaim(new Claim(claimMapping.Value, claimToMap.Value));
+                                }
+                            }
+                        }
+                    }
+                }
+
                 var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                     externalUser.FindFirst(ClaimTypes.NameIdentifier);
 
