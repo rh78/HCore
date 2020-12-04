@@ -479,6 +479,8 @@ namespace HCore.Tenants.Providers.Impl
 
             string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
 
+            Dictionary<string, string> externalAuthenticationClaimMappings = null;
+
             // external authorization is optional
 
             string oidcClientId = null;
@@ -486,6 +488,7 @@ namespace HCore.Tenants.Providers.Impl
             string oidcEndpointUrl = null;
             bool oidcUsePkce = false;
             string[] oidcScopes = null;
+            string oidcAcrValues = null;
 
             string samlEntityId = null;
 
@@ -551,6 +554,8 @@ namespace HCore.Tenants.Providers.Impl
                         throw new Exception("The tenant OIDC endpoint URL is missing");
                     
                     oidcScopes = tenantModel.OidcScopes;
+
+                    oidcAcrValues = tenantModel.OidcAcrValues;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
@@ -584,6 +589,8 @@ namespace HCore.Tenants.Providers.Impl
 
                     samlAllowWeakSigningAlgorithm = tenantModel.SamlAllowWeakSigningAlgorithm ?? false;
                 }
+
+                externalAuthenticationClaimMappings = tenantModel.ExternalAuthenticationClaimMappings;
 
                 externalDirectoryType = tenantModel.ExternalDirectoryType;
 
@@ -702,11 +709,13 @@ namespace HCore.Tenants.Providers.Impl
                 UsersAreExternallyManaged = usersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = externalAuthorizationMethod,
+                ExternalAuthenticationClaimMappings = externalAuthenticationClaimMappings,
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,
                 OidcEndpointUrl = oidcEndpointUrl,
                 OidcUsePkce = oidcUsePkce,
                 OidcScopes = oidcScopes,
+                OidcAcrValues = oidcAcrValues,
                 SamlEntityId = samlEntityId,
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,

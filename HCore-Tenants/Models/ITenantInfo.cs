@@ -1,5 +1,6 @@
 ﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models
@@ -68,6 +69,8 @@ namespace HCore.Tenants.Models
 
         string ExternalAuthenticationMethod { get; }
 
+        Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
+
         string OidcClientId { get; }
         string OidcClientSecret { get; }
 
@@ -76,6 +79,8 @@ namespace HCore.Tenants.Models
         bool OidcUsePkce { get; }
 
         string[] OidcScopes { get; set; }
+
+        string OidcAcrValues { get; set; }
 
         string SamlEntityId { get; }
 

@@ -43,6 +43,7 @@ using Sustainsys.Saml2.Saml2P;
 using HCore.Translations.Providers;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -300,6 +301,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcClientSecret = tenantInfo.OidcClientSecret;
                         var oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
                         var oidcScopes = tenantInfo.OidcScopes;
+                        var oidcAcrValues = tenantInfo.OidcAcrValues;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -317,6 +319,19 @@ namespace Microsoft.Extensions.DependencyInjection
                             openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
 
                             openIdConnect.UsePkce = true;
+                        }
+
+                        if (!string.IsNullOrEmpty(oidcAcrValues))
+                        {
+                            openIdConnect.Events = new OpenIdConnectEvents
+                            {
+                                OnRedirectToIdentityProvider = context =>
+                                {
+                                    context.ProtocolMessage.SetParameter("acr_values", oidcAcrValues);
+
+                                    return Task.CompletedTask;
+                                }
+                            };
                         }
 
                         // make sure we get user group membership information

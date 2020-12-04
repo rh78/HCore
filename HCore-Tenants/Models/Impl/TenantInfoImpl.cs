@@ -73,6 +73,8 @@ namespace HCore.Tenants.Models.Impl
 
         public string ExternalAuthenticationMethod { get; set; }
 
+        public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
+
         public string OidcClientId { get; set; }
         public string OidcClientSecret { get; set; }
 
@@ -81,6 +83,8 @@ namespace HCore.Tenants.Models.Impl
         public bool OidcUsePkce { get; set; }
 
         public string[] OidcScopes { get; set; }
+
+        public string OidcAcrValues { get; set; }
 
         public string SamlEntityId { get; set; }
 
@@ -189,11 +193,13 @@ namespace HCore.Tenants.Models.Impl
                 UsersAreExternallyManaged = UsersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = ExternalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = ExternalAuthenticationMethod,
+                ExternalAuthenticationClaimMappings = ExternalAuthenticationClaimMappings,
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,
                 OidcEndpointUrl = OidcEndpointUrl,
                 OidcUsePkce = OidcUsePkce,
                 OidcScopes = OidcScopes,
+                OidcAcrValues = OidcAcrValues,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,

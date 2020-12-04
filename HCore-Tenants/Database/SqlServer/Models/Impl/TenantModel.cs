@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -78,6 +79,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public bool OidcUsePkce { get; set; }
 
         public string[] OidcScopes { get; set; }
+
+        public string OidcAcrValues { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
         public string SamlEntityId { get; set; }
 
