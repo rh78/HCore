@@ -45,7 +45,6 @@ namespace HCore.Identity.Models
         /// The first name of the user
         /// </summary>
         /// <value>The first name of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "first_name_missing")]
         [Display(ResourceType = typeof(Messages), Name = "first_name")]
         [DataMember(Name = "first_name")]
         public string FirstName { get => _FirstName; set { _FirstName = value; FirstNameSet = true; } }
@@ -58,7 +57,6 @@ namespace HCore.Identity.Models
         /// The last name of the user
         /// </summary>
         /// <value>The last name of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "last_name_missing")]
         [Display(ResourceType = typeof(Messages), Name = "last_name")]
         [DataMember(Name = "last_name")]
         public string LastName { get => _LastName; set { _LastName = value; LastNameSet = true; } }
@@ -71,8 +69,7 @@ namespace HCore.Identity.Models
         /// The last name of the user
         /// </summary>
         /// <value>The last name of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "last_name_missing")]
-        [Display(ResourceType = typeof(Messages), Name = "last_name")]
+        [Display(ResourceType = typeof(Messages), Name = "organization")]
         [DataMember(Name = "organization")]
         public string Organization { get => _Organization; set { _Organization = value; OrganizationSet = true; } }
 

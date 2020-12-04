@@ -222,6 +222,9 @@
   <data name="last_name" xml:space="preserve">
     <value>Nachname</value>
   </data>
+  <data name="organization" xml:space="preserve">
+    <value>Firmenname</value>
+  </data>
   <data name="log_out_confirmed_header" xml:space="preserve">
     <value>Sie wurden abgemeldet</value>
   </data>
