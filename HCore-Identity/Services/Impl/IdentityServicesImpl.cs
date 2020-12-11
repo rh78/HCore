@@ -1666,6 +1666,7 @@ namespace HCore.Identity.Services.Impl
         {
             var result = new HashSet<string>();
 
+            ProcessMemberOfClaims(claimsPrincipal, "member", result);
             ProcessMemberOfClaims(claimsPrincipal, "memberOf", result);
             ProcessMemberOfClaims(claimsPrincipal, "member-of", result);
             ProcessMemberOfClaims(claimsPrincipal, "groups", result);
