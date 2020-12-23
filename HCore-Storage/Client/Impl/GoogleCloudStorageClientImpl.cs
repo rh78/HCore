@@ -2,6 +2,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Storage.v1.Data;
 using Google.Cloud.Storage.V1;
+using HCore.Storage.Exceptions;
 using HCore.Web.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -110,7 +111,7 @@ namespace HCore.Storage.Client.Impl
                     // exists
 
                     if (!overwriteIfExists)
-                        throw new Exception("The target storage object already exists");
+                        throw new AlreadyExistsException();
 
                     await storageClient.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
                 }

@@ -1,4 +1,5 @@
-﻿using HCore.Web.Exceptions;
+﻿using HCore.Storage.Exceptions;
+using HCore.Web.Exceptions;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using System;
@@ -70,9 +71,14 @@ namespace HCore.Storage.Client.Impl
             else
             {
                 bool alreadyExists = await blockBlob.ExistsAsync().ConfigureAwait(false);
-            
+
                 if (alreadyExists)
-                    throw new Exception("The target storage object already exists");
+                {
+                    if (!overwriteIfExists)
+                    {
+                        throw new AlreadyExistsException();
+                    }
+                }
             }
 
             blockBlob.Properties.ContentType = mimeType;

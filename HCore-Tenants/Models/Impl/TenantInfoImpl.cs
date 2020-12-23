@@ -132,6 +132,8 @@ namespace HCore.Tenants.Models.Impl
         
         public long? MapCustomUuid { get; set; }
 
+        public bool? IsDraft { get; set; }
+
         public int Version { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; }
