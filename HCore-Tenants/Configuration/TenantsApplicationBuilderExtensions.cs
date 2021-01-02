@@ -35,7 +35,9 @@ namespace Microsoft.AspNetCore.Builder
                     List<string> developerWildcardSubdomains = tenantDataProvider.DeveloperWildcardSubdomains;
 
                     developerWildcardSubdomains.Add("http://localhost");
+                    developerWildcardSubdomains.Add("http://127.0.0.1:8080");
                     developerWildcardSubdomains.Add("https://localhost");
+                    developerWildcardSubdomains.Add("https://127.0.0.1:8080");
 
                     List<Regex> developerWildcardSubdomainRegexes = developerWildcardSubdomains.Select(developerWildcardSubdomain =>
                         new Regex("^" + Regex.Escape(developerWildcardSubdomain).Replace("\\*", ".*") + "$")).ToList();
