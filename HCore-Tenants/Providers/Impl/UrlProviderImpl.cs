@@ -23,12 +23,24 @@ namespace HCore.Tenants.Providers.Impl
             else
                 BaseUrl = null;
 
-            WebUrl = tenantInfoAccessor.TenantInfo.WebUrl;
+            if (tenantInfoAccessor.TenantInfo != null)
+            {
+                WebUrl = tenantInfoAccessor.TenantInfo.WebUrl;
 
-            EcbBackendApiUrl = tenantInfoAccessor.TenantInfo.EcbBackendApiUrl;
-            PortalsBackendApiUrl = tenantInfoAccessor.TenantInfo.PortalsBackendApiUrl;
+                EcbBackendApiUrl = tenantInfoAccessor.TenantInfo.EcbBackendApiUrl;
+                PortalsBackendApiUrl = tenantInfoAccessor.TenantInfo.PortalsBackendApiUrl;
 
-            FrontendApiUrl = tenantInfoAccessor.TenantInfo.FrontendApiUrl;
+                FrontendApiUrl = tenantInfoAccessor.TenantInfo.FrontendApiUrl;
+            }
+            else
+            {
+                WebUrl = null;
+
+                EcbBackendApiUrl = null;
+                PortalsBackendApiUrl = null;
+
+                FrontendApiUrl = null;
+            }
         }
 
         public string BuildUrl(string path)
