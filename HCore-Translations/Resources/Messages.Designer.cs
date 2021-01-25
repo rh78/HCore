@@ -70,6 +70,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The access token is missing.
+        /// </summary>
+        public static string access_token_missing {
+            get {
+                return ResourceManager.GetString("access_token_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The access token is too long.
+        /// </summary>
+        public static string access_token_too_long {
+            get {
+                return ResourceManager.GetString("access_token_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This operation cannot be performed, because the user account is externally managed.
         /// </summary>
         public static string account_is_externally_managed {
@@ -1470,6 +1488,24 @@ namespace HCore.Translations.Resources {
         public static string redirect_url_too_long {
             get {
                 return ResourceManager.GetString("redirect_url_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The refresh token is missing.
+        /// </summary>
+        public static string refresh_token_missing {
+            get {
+                return ResourceManager.GetString("refresh_token_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The refresh token is too long.
+        /// </summary>
+        public static string refresh_token_too_long {
+            get {
+                return ResourceManager.GetString("refresh_token_too_long", resourceCulture);
             }
         }
         

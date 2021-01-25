@@ -189,6 +189,18 @@
   <data name="code_too_long" xml:space="preserve">
     <value>Der Code ist zu lang</value>
   </data>
+  <data name="access_token_missing" xml:space="preserve">
+    <value>Der Zugangscode fehlt</value>
+  </data>
+  <data name="access_token_too_long" xml:space="preserve">
+    <value>Der Zugangscode ist zu lang</value>
+  </data>
+  <data name="refresh_token_missing" xml:space="preserve">
+    <value>Der Aktualisierungscode fehlt</value>
+  </data>
+  <data name="refresh_token_too_long" xml:space="preserve">
+    <value>Der Aktualisierungscode ist zu lang</value>
+  </data>
   <data name="duplicate_user_name" xml:space="preserve">
     <value>Dieser Benutzername ist schon vergeben</value>
   </data>

@@ -189,6 +189,18 @@
   <data name="code_too_long" xml:space="preserve">
     <value>The code is too long</value>
   </data>
+  <data name="access_token_missing" xml:space="preserve">
+    <value>The access token is missing</value>
+  </data>
+  <data name="access_token_too_long" xml:space="preserve">
+    <value>The access token is too long</value>
+  </data>
+  <data name="refresh_token_missing" xml:space="preserve">
+    <value>The refresh token is missing</value>
+  </data>
+  <data name="refresh_token_too_long" xml:space="preserve">
+    <value>The refresh token is too long</value>
+  </data>
   <data name="duplicate_user_name" xml:space="preserve">
     <value>This user name already exists</value>
   </data>
