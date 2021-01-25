@@ -77,6 +77,17 @@ namespace HCore.Web.Middleware
             {
                 resultException = e;
             }
+            catch (RedirectApiException e)
+            {
+                string path = context.Request.Path;
+
+                if (!string.Equals(path, e.Location))
+                {
+                    context.Response.Redirect(e.Location);
+                }
+
+                return;
+            }
             catch (JsonSerializationException e)
             {
                 resultException = new RequestFailedApiException(RequestFailedApiException.ArgumentInvalid, e.Message);

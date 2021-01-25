@@ -9,6 +9,7 @@ namespace HCore.Web.Exceptions
         public const string PermissionDenied = "permission_denied";
         public const string SelfRegistrationNotAllowed = "self_registration_not_allowed";
         public const string SelfServiceNotAllowed = "self_service_not_allowed";
+        public const string RedirectNecessary = "redirect_necessary";
 
         public ForbiddenApiException(string errorCode, string message) : 
             base(message)

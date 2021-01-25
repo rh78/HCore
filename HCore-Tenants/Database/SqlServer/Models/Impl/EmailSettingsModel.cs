@@ -169,6 +169,12 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 return translations[culture];
             }
 
+            if (translations.ContainsKey("x-default") &&
+                !string.IsNullOrEmpty(translations["x-default"]))
+            {
+                return translations["x-default"];
+            }
+
             if (translations.ContainsKey("en") &&
                 !string.IsNullOrEmpty(translations["en"]))
             {
