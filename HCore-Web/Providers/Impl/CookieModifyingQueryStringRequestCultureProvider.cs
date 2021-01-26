@@ -8,6 +8,13 @@ namespace HCore.Web.Providers.Impl
 {
     public class CookieModifyingQueryStringRequestCultureProvider : QueryStringRequestCultureProvider
     {
+        private readonly string _cookieName;
+
+        public CookieModifyingQueryStringRequestCultureProvider(string cookieName)
+        {
+            _cookieName = cookieName;
+        }
+
         public override Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext)
         {
             if (httpContext == null)
@@ -67,12 +74,12 @@ namespace HCore.Web.Providers.Impl
 
             var desiredCookieValue = $"c={queryCulture}|uic={queryCulture}";
 
-            if (!httpContext.Request.Cookies.ContainsKey(".AspNetCore.Culture") ||
-                !string.Equals(httpContext.Request.Cookies[".AspNetCore.Culture"], desiredCookieValue))
+            if (!httpContext.Request.Cookies.ContainsKey(_cookieName) ||
+                !string.Equals(httpContext.Request.Cookies[_cookieName], desiredCookieValue))
             {
                 // add or change the cookie to the new value
 
-                httpContext.Response.Cookies.Append(".AspNetCore.Culture", desiredCookieValue, new CookieOptions()
+                httpContext.Response.Cookies.Append(_cookieName, desiredCookieValue, new CookieOptions()
                 {
                     Expires = DateTime.Now.AddYears(1),
                     Secure = true,
