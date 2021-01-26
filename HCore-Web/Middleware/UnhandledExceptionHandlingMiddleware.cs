@@ -73,10 +73,6 @@ namespace HCore.Web.Middleware
             {
                 await _next.Invoke(context).ConfigureAwait(false);
             }
-            catch (ApiException e)
-            {
-                resultException = e;
-            }
             catch (RedirectApiException e)
             {
                 string path = context.Request.Path;
@@ -87,6 +83,10 @@ namespace HCore.Web.Middleware
                 }
 
                 return;
+            }
+            catch (ApiException e)
+            {
+                resultException = e;
             }
             catch (JsonSerializationException e)
             {
@@ -133,11 +133,18 @@ namespace HCore.Web.Middleware
                 return;
             }
 
-            if (_webPort == null || context.Connection.LocalPort != _webPort)
-            {
-                // we have a call to some endpoint outside of our web interface, so just return the error JSON
+            string redirectUrl = null;
 
-                await resultException.WriteResponseAsync(context).ConfigureAwait(false);
+            if (_webPort == null || context.Connection.LocalPort != _webPort)
+            { 
+                // we have a call to some API endpoint, so just return the error JSON
+
+                if (resultException.Redirect() && (string.IsNullOrEmpty(path) || !path.ToLower().StartsWith("/error")))
+                {
+                    redirectUrl = GetRedirectUrl(resultException);
+                }
+
+                await resultException.WriteResponseAsync(context, redirectUrl).ConfigureAwait(false);
 
                 return;
             }
@@ -154,6 +161,13 @@ namespace HCore.Web.Middleware
                 return;
             }
 
+            redirectUrl = GetRedirectUrl(resultException);
+
+            context.Response.Redirect(redirectUrl);
+        }
+
+        private string GetRedirectUrl(ApiException resultException)
+        {
             string errorCode = resultException.GetErrorCode();
             string errorDescription = resultException.Message;
 
@@ -163,7 +177,7 @@ namespace HCore.Web.Middleware
             if (!string.IsNullOrEmpty(errorDescription))
                 errorDescription = _dataProtectionProvider.CreateProtector("Error").Protect(errorDescription);
 
-            context.Response.Redirect($"/Error?errorCode={HttpUtility.UrlEncode(errorCode ?? "")}&errorDescription={HttpUtility.UrlEncode(errorDescription ?? "")}");
+            return $"/Error?errorCode={HttpUtility.UrlEncode(errorCode ?? "")}&errorDescription={HttpUtility.UrlEncode(errorDescription ?? "")}";
         }
     }
 }

@@ -87,6 +87,10 @@ namespace HCore.PagesUI.Classes.Pages
                 {
                     errorDescription = $"{Messages.page_not_found}.";
                 }
+                else if (string.Equals(errorCode, "permission_denied"))
+                {
+                    errorDescription = $"{Messages.permission_denied}.";
+                }
                 else if (!string.IsNullOrEmpty(errorDescription))
                 {
                     try

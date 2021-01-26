@@ -48,15 +48,15 @@ namespace HCore.Web.Exceptions
         public abstract int GetStatusCode();
         public abstract string GetErrorCode();
         
-        public async Task WriteResponseAsync(HttpContext context)
+        public async Task WriteResponseAsync(HttpContext context, string redirectUrl = null)
         {
             context.Response.StatusCode = GetStatusCode();
             context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
 
-            await context.Response.WriteAsync(SerializeException()).ConfigureAwait(false);            
+            await context.Response.WriteAsync(SerializeException(redirectUrl)).ConfigureAwait(false);            
         }
 
-        public Models.ApiException GetApiExceptionModel()
+        public Models.ApiException GetApiExceptionModel(string redirectUrl = null)
         {
             Models.ApiException apiExceptionResult = new Models.ApiException()
             {
@@ -65,6 +65,11 @@ namespace HCore.Web.Exceptions
             };
 
             apiExceptionResult.ErrorDetails = GetErrorDetails();
+
+            if (!string.IsNullOrEmpty(redirectUrl))
+            {
+                apiExceptionResult.RedirectUrl = redirectUrl;
+            }
             
             return apiExceptionResult;
         }
@@ -80,13 +85,13 @@ namespace HCore.Web.Exceptions
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
-        private string SerializeException()
+        protected virtual string SerializeException(string redirectUrl = null)
         {           
-            return JsonConvert.SerializeObject(GetApiExceptionModel(), Formatting.None,
+            return JsonConvert.SerializeObject(GetApiExceptionModel(redirectUrl), Formatting.None,
                 new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
         }
 
-        private ErrorDetails GetErrorDetails()
+        protected ErrorDetails GetErrorDetails()
         {
             if (string.IsNullOrEmpty(Uuid) && string.IsNullOrEmpty(Name))
                 return null;
@@ -96,6 +101,11 @@ namespace HCore.Web.Exceptions
                 Uuid = Uuid,
                 Name = Name
             };
+        }
+
+        public virtual bool Redirect()
+        {
+            return false;
         }
     }
 }

@@ -53,6 +53,17 @@ namespace HCore.Web.Models
 
         public bool ErrorDetailsSet = false;
 
+        private string _RedirectUrl;
+
+        /// <summary>
+        /// The redirect URL
+        /// </summary>
+        /// <value>The redirect URL</value>
+        [DataMember(Name = "redirect_url")]
+        public string RedirectUrl { get => _RedirectUrl; set { _RedirectUrl = value; RedirectUrlSet = true; } }
+
+        public bool RedirectUrlSet = false;
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -60,10 +71,11 @@ namespace HCore.Web.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ApiException {\n");
+            sb.Append("class Error {\n");
             sb.Append("  ErrorCode: ").Append(ErrorCode).Append("\n");
             sb.Append("  ErrorMessage: ").Append(ErrorMessage).Append("\n");
             sb.Append("  ErrorDetails: ").Append(ErrorDetails).Append("\n");
+            sb.Append("  RedirectUrl: ").Append(RedirectUrl).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -74,7 +86,7 @@ namespace HCore.Web.Models
         /// <returns>JSON string presentation of the object</returns>
         public string ToJson()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
         /// <summary>
@@ -90,9 +102,9 @@ namespace HCore.Web.Models
         }
 
         /// <summary>
-        /// Returns true if ApiException instances are equal
+        /// Returns true if Error instances are equal
         /// </summary>
-        /// <param name="other">Instance of ApiException to be compared</param>
+        /// <param name="other">Instance of Error to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(ApiException other)
         {
@@ -114,6 +126,11 @@ namespace HCore.Web.Models
                     ErrorDetails == other.ErrorDetails ||
                     ErrorDetails != null &&
                     ErrorDetails.Equals(other.ErrorDetails)
+                ) &&
+                (
+                    RedirectUrl == other.RedirectUrl ||
+                    RedirectUrl != null &&
+                    RedirectUrl.Equals(other.RedirectUrl)
                 );
         }
 
@@ -133,6 +150,8 @@ namespace HCore.Web.Models
                     hashCode = hashCode * 59 + ErrorMessage.GetHashCode();
                 if (ErrorDetails != null)
                     hashCode = hashCode * 59 + ErrorDetails.GetHashCode();
+                if (RedirectUrl != null)
+                    hashCode = hashCode * 59 + RedirectUrl.GetHashCode();
                 return hashCode;
             }
         }
