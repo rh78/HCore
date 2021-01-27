@@ -12,6 +12,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ConfirmAccountEmailSettings { get; set; }
         public EmailInstanceSettingsModel ForgotPasswordEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewUnreadNotificationsEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
 
         public void MergeWith(EmailSettingsModel customEmailSettingsModel)
         {
@@ -49,6 +52,30 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                     NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
             }
+
+            if (customEmailSettingsModel.CollectionInvitationEmailSettings != null)
+            {
+                if (CollectionInvitationEmailSettings == null)
+                    CollectionInvitationEmailSettings = customEmailSettingsModel.CollectionInvitationEmailSettings;
+                else
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings != null)
+            {
+                if (CollectionInvitationAcceptedEmailSettings == null)
+                    CollectionInvitationAcceptedEmailSettings = customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings;
+                else
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings != null)
+            {
+                if (CollectionInvitationDeclinedEmailSettings == null)
+                    CollectionInvitationDeclinedEmailSettings = customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings;
+                else
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+            }
         }
 
         public void MergeWith(CustomEmailSettingsModel customEmailSettingsModel)
@@ -62,6 +89,30 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     InvitationEmailSettings = customEmailSettingsModel.InvitationEmailSettings;
                 else
                     InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationEmailSettings != null)
+            {
+                if (CollectionInvitationEmailSettings == null)
+                    CollectionInvitationEmailSettings = customEmailSettingsModel.CollectionInvitationEmailSettings;
+                else
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings != null)
+            {
+                if (CollectionInvitationAcceptedEmailSettings == null)
+                    CollectionInvitationAcceptedEmailSettings = customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings;
+                else
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings != null)
+            {
+                if (CollectionInvitationDeclinedEmailSettings == null)
+                    CollectionInvitationDeclinedEmailSettings = customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings;
+                else
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
             }
 
             if (customEmailSettingsModel.ConfirmAccountEmailSettings != null)
