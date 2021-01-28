@@ -10,5 +10,8 @@ namespace HCore.Identity.Amqp
         }
 
         public string UserUuid { get; set; }
+
+        public string AccessTokenCache { get; set; }
+        public string RefreshTokenCache { get; set; }
     }
 }
