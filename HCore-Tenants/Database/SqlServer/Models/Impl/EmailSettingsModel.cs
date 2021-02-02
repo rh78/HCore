@@ -15,6 +15,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
+        public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
 
         public void MergeWith(EmailSettingsModel customEmailSettingsModel)
         {
@@ -75,6 +77,22 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     CollectionInvitationDeclinedEmailSettings = customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings;
                 else
                     CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.DownloadAvailableEmailSettings != null)
+            {
+                if (DownloadAvailableEmailSettings == null)
+                    DownloadAvailableEmailSettings = customEmailSettingsModel.DownloadAvailableEmailSettings;
+                else
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+            }
+
+            if (customEmailSettingsModel.DownloadFailedEmailSettings != null)
+            {
+                if (DownloadFailedEmailSettings == null)
+                    DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
+                else
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
             }
         }
 
@@ -137,6 +155,22 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     NewUnreadNotificationsEmailSettings = customEmailSettingsModel.NewUnreadNotificationsEmailSettings;
                 else
                     NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+            }
+
+            if (customEmailSettingsModel.DownloadAvailableEmailSettings != null)
+            {
+                if (DownloadAvailableEmailSettings == null)
+                    DownloadAvailableEmailSettings = customEmailSettingsModel.DownloadAvailableEmailSettings;
+                else
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+            }
+
+            if (customEmailSettingsModel.DownloadFailedEmailSettings != null)
+            {
+                if (DownloadFailedEmailSettings == null)
+                    DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
+                else
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
             }
         }
 
