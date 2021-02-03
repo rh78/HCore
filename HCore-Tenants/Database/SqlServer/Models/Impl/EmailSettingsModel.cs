@@ -17,6 +17,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
 
         public void MergeWith(EmailSettingsModel customEmailSettingsModel)
         {
@@ -93,6 +94,14 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
                 else
                     DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+            }
+            
+            if (customEmailSettingsModel.DownloadDeclinedEmailSettings != null)
+            {
+                if (DownloadDeclinedEmailSettings == null)
+                    DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
+                else
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
             }
         }
 
@@ -171,6 +180,14 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
                 else
                     DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+            }
+            
+            if (customEmailSettingsModel.DownloadDeclinedEmailSettings != null)
+            {
+                if (DownloadDeclinedEmailSettings == null)
+                    DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
+                else
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
             }
         }
 
