@@ -15,5 +15,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel AccessRequestDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel AccessRequestDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel PermissionRequestDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
     }
 }

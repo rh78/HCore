@@ -18,6 +18,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel AccessRequestDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel AccessRequestDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel PermissionRequestDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
 
         public void MergeWith(EmailSettingsModel customEmailSettingsModel)
         {
@@ -102,6 +106,38 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
                 else
                     DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.AccessRequestDoneEmailSettings != null)
+            {
+                if (AccessRequestDoneEmailSettings == null)
+                    AccessRequestDoneEmailSettings = customEmailSettingsModel.AccessRequestDoneEmailSettings;
+                else
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+            }
+
+            if (customEmailSettingsModel.AccessRequestDeclinedEmailSettings != null)
+            {
+                if (AccessRequestDeclinedEmailSettings == null)
+                    AccessRequestDeclinedEmailSettings = customEmailSettingsModel.AccessRequestDeclinedEmailSettings;
+                else
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.PermissionRequestDoneEmailSettings != null)
+            {
+                if (PermissionRequestDoneEmailSettings == null)
+                    PermissionRequestDoneEmailSettings = customEmailSettingsModel.PermissionRequestDoneEmailSettings;
+                else
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+            }
+
+            if (customEmailSettingsModel.PermissionRequestDeclinedEmailSettings != null)
+            {
+                if (PermissionRequestDeclinedEmailSettings == null)
+                    PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
+                else
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
             }
         }
 
@@ -188,6 +224,38 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
                 else
                     DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.AccessRequestDoneEmailSettings != null)
+            {
+                if (AccessRequestDoneEmailSettings == null)
+                    AccessRequestDoneEmailSettings = customEmailSettingsModel.AccessRequestDoneEmailSettings;
+                else
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+            }
+
+            if (customEmailSettingsModel.AccessRequestDeclinedEmailSettings != null)
+            {
+                if (AccessRequestDeclinedEmailSettings == null)
+                    AccessRequestDeclinedEmailSettings = customEmailSettingsModel.AccessRequestDeclinedEmailSettings;
+                else
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.PermissionRequestDoneEmailSettings != null)
+            {
+                if (PermissionRequestDoneEmailSettings == null)
+                    PermissionRequestDoneEmailSettings = customEmailSettingsModel.PermissionRequestDoneEmailSettings;
+                else
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+            }
+
+            if (customEmailSettingsModel.PermissionRequestDeclinedEmailSettings != null)
+            {
+                if (PermissionRequestDeclinedEmailSettings == null)
+                    PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
+                else
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
             }
         }
 
