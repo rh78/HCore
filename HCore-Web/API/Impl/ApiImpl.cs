@@ -64,6 +64,7 @@ namespace HCore.Web.API.Impl
         public const int MaxRedirectUrlLength = 255;
         public const int MaxSecretLength = 50;
         public const int MaxAccessTokenLength = 2048;
+        public const int MaxIdentityTokenLength = 2048;
         public const int MaxRefreshTokenLength = 2048;
         public const int MaxIssuerLength = 50;
         public const int MaxSubjectLength = 50;

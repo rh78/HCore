@@ -195,6 +195,12 @@
   <data name="access_token_too_long" xml:space="preserve">
     <value>The access token is too long</value>
   </data>
+  <data name="identity_token_missing" xml:space="preserve">
+    <value>The identity token is missing</value>
+  </data>
+  <data name="identity_token_too_long" xml:space="preserve">
+    <value>The identity token is too long</value>
+  </data>
   <data name="refresh_token_missing" xml:space="preserve">
     <value>The refresh token is missing</value>
   </data>

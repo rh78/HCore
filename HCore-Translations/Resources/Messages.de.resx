@@ -195,6 +195,12 @@
   <data name="access_token_too_long" xml:space="preserve">
     <value>Der Zugangscode ist zu lang</value>
   </data>
+  <data name="identity_token_missing" xml:space="preserve">
+    <value>Der Identitätscode fehlt</value>
+  </data>
+  <data name="identity_token_too_long" xml:space="preserve">
+    <value>Der Identitätscode ist zu lang</value>
+  </data>
   <data name="refresh_token_missing" xml:space="preserve">
     <value>Der Aktualisierungscode fehlt</value>
   </data>

@@ -718,6 +718,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The identity token is missing.
+        /// </summary>
+        public static string identity_token_missing {
+            get {
+                return ResourceManager.GetString("identity_token_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The identity token is too long.
+        /// </summary>
+        public static string identity_token_too_long {
+            get {
+                return ResourceManager.GetString("identity_token_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected server error occured.
         /// </summary>
         public static string internal_server_error {

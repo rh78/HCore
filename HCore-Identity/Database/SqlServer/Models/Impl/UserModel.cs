@@ -53,6 +53,7 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public string ClaimsJson { get; set; }
 
         public string AccessTokenCache { get; set; }
+        public string IdentityTokenCache { get; set; }
         public string RefreshTokenCache { get; set; }
 
         public string GetDisplayName()
