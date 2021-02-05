@@ -29,5 +29,7 @@
         public const int AccessTokenValidityInSeconds = 3600;
 
         public const string UuidSeparator = ":";
+
+        public const string HttpContextItemsIdTokenHint = "SmintIo:IdTokenHint";
     }
 }
