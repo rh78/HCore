@@ -97,6 +97,15 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accept updated terms.
+        /// </summary>
+        public static string accept_terms_title {
+            get {
+                return ResourceManager.GetString("accept_terms_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Access denied.
         /// </summary>
         public static string access_to_page_denied_header {

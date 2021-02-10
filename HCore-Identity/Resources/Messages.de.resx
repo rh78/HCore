@@ -348,6 +348,9 @@
   <data name="email_confirmation_sent_title" xml:space="preserve">
     <value>Bestätigungs-Nachricht gesendet</value>
   </data>
+  <data name="accept_terms_title" xml:space="preserve">
+    <value>Aktualisierte Bedingungen akzeptieren</value>
+  </data>
   <data name="email_not_confirmed_title" xml:space="preserve">
     <value>Bestätigen Sie Ihre E-Mail-Adresse</value>
   </data>

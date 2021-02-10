@@ -348,6 +348,9 @@
   <data name="email_confirmation_sent_title" xml:space="preserve">
     <value>Verification email sent</value>
   </data>
+  <data name="accept_terms_title" xml:space="preserve">
+    <value>Accept updated terms</value>
+  </data>
   <data name="email_not_confirmed_title" xml:space="preserve">
     <value>Verify your email address</value>
   </data>
