@@ -200,6 +200,8 @@ namespace HCore.Web.Exceptions
 
         public const string ProfileMissing = "profile_missing";
 
+        public string UserUuid { get; set; }
+
         public RequestFailedApiException(string errorCode, string message) : 
             base(message)
         {
