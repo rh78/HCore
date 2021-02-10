@@ -1473,7 +1473,12 @@ namespace HCore.Identity.Services.Impl
 
                 throw new InternalServerErrorApiException();
             }
-        }        
+        }
+
+        public Task AcceptTermsAsync(string userUuid, UserSpec userSpec)
+        {
+            throw new NotImplementedException();
+        }
 
         private string ProcessUserUuid(string userUuid)
         {
