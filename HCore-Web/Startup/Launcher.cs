@@ -353,7 +353,8 @@ namespace HCore.Web.Startup
                         {
                             var port = ((IPEndPoint)connectionContext.LocalEndPoint).Port;
 
-                            if (hostName.EndsWith(".smint.io"))
+                            if (string.IsNullOrEmpty(hostName) ||
+                                hostName.EndsWith(".smint.io"))
                             {
                                 // this is our default certificates
 
