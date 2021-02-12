@@ -479,7 +479,7 @@ namespace HCore.Tenants.Providers.Impl
 
             if (!string.IsNullOrEmpty(tenantModel.HttpsCertificate))
             {
-                httpsCertificateBytes = GetCertificateBytesFromPEM(tenantModel.HttpsCertificate);
+                httpsCertificateBytes = Convert.FromBase64String(tenantModel.HttpsCertificate);
                 httpsCertificatePassword = tenantModel.HttpsCertificatePassword;
             }
 
