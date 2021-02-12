@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using HCore.Web.Json;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Hosting;
+using System.Linq;
 
 namespace HCore.Web.Startup
 {
@@ -95,15 +96,17 @@ namespace HCore.Web.Startup
         protected virtual void ConfigureLocalization(IServiceCollection services)
         {
             var englishCultureInfo = CultureInfo.GetCultureInfo("en");
-            var germanCultureInfo = CultureInfo.GetCultureInfo("de");
 
-            var cultures = new CultureInfo[] { englishCultureInfo, germanCultureInfo };
+            CultureInfo[] supportedCultures = CultureInfo.GetCultures(CultureTypes.NeutralCultures)
+                .Where(cultureInfo => !string.IsNullOrEmpty(cultureInfo.Name))
+                .ToArray();
 
             services.Configure<RequestLocalizationOptions>(options =>
             {
                 options.DefaultRequestCulture = new RequestCulture(englishCultureInfo);
-                options.SupportedCultures = cultures;
-                options.SupportedUICultures = cultures;
+
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
             });
 
             services.AddLocalization(options =>
