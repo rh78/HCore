@@ -474,6 +474,15 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(defaultCurrency))
                 defaultCurrency = "eur";
 
+            byte[] httpsCertificateBytes = null;
+            string httpsCertificatePassword = null;
+
+            if (!string.IsNullOrEmpty(tenantModel.HttpsCertificate))
+            {
+                httpsCertificateBytes = GetCertificateBytesFromPEM(tenantModel.HttpsCertificate);
+                httpsCertificatePassword = tenantModel.HttpsCertificatePassword;
+            }
+
             bool usersAreExternallyManaged = false;
             bool externalUsersAreManuallyManaged = false;
 
@@ -579,7 +588,7 @@ namespace HCore.Tenants.Providers.Impl
                     if (!string.IsNullOrEmpty(tenantModel.SamlCertificate))
                     {
                         samlCertificateBytes = GetCertificateBytesFromPEM(tenantModel.SamlCertificate);
-                        samlCertificatePassword = null;
+                        samlCertificatePassword = tenantModel.SamlCertificatePassword;
                     }
                     else
                     {
@@ -747,6 +756,7 @@ namespace HCore.Tenants.Providers.Impl
             };
 
             tenantInfo.SetDeveloperCertificate(developerCertificateBytes, developerCertificatePassword);
+            tenantInfo.SetHttpsCertificate(httpsCertificateBytes, httpsCertificatePassword);
             tenantInfo.SetSamlCertificate(samlCertificateBytes, samlCertificatePassword);
             tenantInfo.SetExternalDirectorySslCertificate(externalDirectorySslCertificateBytes, externalDirectorySslCertificatePassword);
 

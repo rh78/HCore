@@ -188,6 +188,9 @@ namespace HCore.Tenants.Models.Impl
                 ProductName = ProductName,
                 DefaultCulture = DefaultCulture,
                 DefaultCurrency = DefaultCurrency,
+                HttpsCertificateBytes = HttpsCertificateBytes,
+                HttpsCertificatePassword = HttpsCertificatePassword,
+                HttpsCertificateThumbprint = HttpsCertificateThumbprint,
                 EcbBackendApiUrl = EcbBackendApiUrl,
                 PortalsBackendApiUrl = PortalsBackendApiUrl,
                 FrontendApiUrl = FrontendApiUrl,
@@ -275,6 +278,43 @@ namespace HCore.Tenants.Models.Impl
             }
 
             return StaticCertificates[DeveloperCertificateThumbprint];
+        }
+
+        public byte[] HttpsCertificateBytes { get; internal set; }
+        public string HttpsCertificatePassword { get; internal set; }
+        public string HttpsCertificateThumbprint { get; internal set; }
+
+        public void SetHttpsCertificate(byte[] certificateBytes, string certificatePassword)
+        {
+            if (certificateBytes == null || certificateBytes.Length == 0)
+                return;
+
+            HttpsCertificateBytes = certificateBytes;
+            HttpsCertificatePassword = certificatePassword;
+
+            X509Certificate2 certificate;
+
+            if (string.IsNullOrEmpty(certificatePassword))
+                certificate = new X509Certificate2(certificateBytes);
+            else
+                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+
+            HttpsCertificateThumbprint = certificate.Thumbprint;
+
+            StaticCertificates[certificate.Thumbprint] = certificate;
+        }
+
+        public X509Certificate2 GetHttpsCertificate()
+        {
+            if (string.IsNullOrEmpty(HttpsCertificateThumbprint))
+                return null;
+
+            if (!StaticCertificates.ContainsKey(HttpsCertificateThumbprint))
+            {
+                SetHttpsCertificate(HttpsCertificateBytes, HttpsCertificatePassword);
+            }
+
+            return StaticCertificates[HttpsCertificateThumbprint];
         }
 
         public byte[] SamlCertificateBytes { get; internal set; }

@@ -69,6 +69,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string DefaultCulture { get; set; }
         public string DefaultCurrency { get; set; }
 
+        public string HttpsCertificate { get; set; }
+        public string HttpsCertificatePassword { get; set; }
+
         public string ExternalAuthenticationMethod { get; set; }
 
         public string OidcClientId { get; set; }
@@ -93,6 +96,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SamlPeerIdpMetadata { get; set; }
 
         public string SamlCertificate { get; set; }
+        public string SamlCertificatePassword { get; set; }
 
         public bool? SamlAllowWeakSigningAlgorithm { get; set; }
 

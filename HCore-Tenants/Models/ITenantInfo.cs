@@ -138,6 +138,7 @@ namespace HCore.Tenants.Models
         ITenantInfo Clone();
 
         public X509Certificate2 GetDeveloperCertificate();
+        public X509Certificate2 GetHttpsCertificate();
         public X509Certificate2 GetSamlCertificate();
         public X509Certificate2 GetExternalDirectorySslCertificate();
     }
