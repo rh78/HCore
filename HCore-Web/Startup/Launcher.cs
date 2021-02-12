@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Hosting;
 using System.Net.Security;
+using HCore.Web.Providers;
 
 namespace HCore.Web.Startup
 {
@@ -215,6 +216,86 @@ namespace HCore.Web.Startup
 
             webHostBuilder.UseKestrel((builderContext, options) =>
             {
+                X509Certificate2 defaultWebCertificate = null;
+                X509Certificate2 defaultApiCertificate = null;
+
+                if (useHttps)
+                {
+                    if (useWeb)
+                    {
+                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Web:Assembly"];
+                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                            throw new Exception("HTTPS web certificate assembly not found");
+
+                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Web:Name"];
+
+                        if (string.IsNullOrEmpty(httpsCertificateName))
+                            throw new Exception("HTTPS web certificate name not found");
+
+                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Web:Password"];
+
+                        if (string.IsNullOrEmpty(httpsCertificatePassword))
+                            throw new Exception("HTTPS web certificate password not found");
+
+                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                        if (httpsAssembly == null)
+                            throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
+
+                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                        if (resourceStream == null)
+                            throw new Exception("HTTPS web certificate resource not found");
+
+                        using (var memory = new MemoryStream((int)resourceStream.Length))
+                        {
+                            resourceStream.CopyTo(memory);
+
+                            defaultWebCertificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                        }
+                    }
+
+                    if (useApi)
+                    {
+                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Api:Assembly"];
+                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
+                            throw new Exception("HTTPS API certificate assembly not found");
+
+                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Api:Name"];
+
+                        if (string.IsNullOrEmpty(httpsCertificateName))
+                            throw new Exception("HTTPS API certificate name not found");
+
+                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Api:Password"];
+
+                        if (string.IsNullOrEmpty(httpsCertificatePassword))
+                            throw new Exception("HTTPS API certificate password not found");
+
+                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+                        if (httpsAssembly == null)
+                            throw new Exception("HTTPS API certificate assembly is not present in the list of assemblies");
+
+                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+                        if (resourceStream == null)
+                            throw new Exception("HTTPS API certificate resource not found");
+
+                        using (var memory = new MemoryStream((int)resourceStream.Length))
+                        {
+                            resourceStream.CopyTo(memory);
+
+                            defaultApiCertificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
+                        }
+                    }
+                }
+
                 options.Configure(builderContext.Configuration.GetSection("Kestrel"));
 
                 // try to avoid thread starvation problems
@@ -253,50 +334,82 @@ namespace HCore.Web.Startup
                                 sslAuthOptions.CipherSuitesPolicy = CipherSuitesPolicy;
                             };
                         }
+
+                        int? webPort = null;
+
+                        if (useWeb)
+                        {
+                            webPort = _configuration.GetValue<int>("WebServer:WebPort");
+                        }
+
+                        int? apiPort = null;
+
+                        if (useApi)
+                        {
+                            apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
+                        }
+
+                        httpsOptions.ServerCertificateSelector = (connectionContext, hostName) =>
+                        {
+                            var port = ((IPEndPoint)connectionContext.LocalEndPoint).Port;
+
+                            if (hostName.EndsWith(".smint.io"))
+                            {
+                                // this is our default certificates
+
+                                if (useWeb && port == webPort && defaultWebCertificate != null)
+                                {
+                                    return defaultWebCertificate;
+                                }
+                                else if (useApi && port == apiPort && defaultApiCertificate != null)
+                                {
+                                    return defaultApiCertificate;
+                                }
+                                else
+                                {
+                                    throw new Exception("Certificate not found");
+                                }
+                            }
+
+                            // this is some external certificates coming e.g. from the tenant database
+
+                            var serviceProvider = options.ApplicationServices;
+
+                            var serverCertificateSelector = serviceProvider.GetService<IServerCertificateSelector>();
+
+                            if (serverCertificateSelector != null)
+                            {
+                                var customCertificate = serverCertificateSelector.GetServerCertificate(hostName);
+
+                                if (customCertificate == null)
+                                    throw new Exception("Certificate not found");
+
+                                return customCertificate;
+                            }
+
+                            // default fallback
+
+                            if (useWeb && port == webPort && defaultWebCertificate != null)
+                            {
+                                return defaultWebCertificate;
+                            }
+                            else if (useApi && port == apiPort && defaultApiCertificate != null)
+                            {
+                                return defaultApiCertificate;
+                            }
+                            else
+                            {
+                                throw new Exception("Certificate not found");
+                            }
+                        };
                     });
 
                     if (useWeb)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Web:Assembly"];
-                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                            throw new Exception("HTTPS web certificate assembly not found");
-
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Web:Name"];
-
-                        if (string.IsNullOrEmpty(httpsCertificateName))
-                            throw new Exception("HTTPS web certificate name not found");
-
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Web:Password"];
-
-                        if (string.IsNullOrEmpty(httpsCertificatePassword))
-                            throw new Exception("HTTPS web certificate password not found");
-
-                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                        X509Certificate2 certificate = null;
-
-                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                        if (httpsAssembly == null)
-                            throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
-
-                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                        if (resourceStream == null)
-                            throw new Exception("HTTPS web certificate resource not found");
-
-                        using (var memory = new MemoryStream((int)resourceStream.Length))
-                        {
-                            resourceStream.CopyTo(memory);
-
-                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                        }
-
                         int webPort = _configuration.GetValue<int>("WebServer:WebPort");
 
                         options.Listen(IPAddress.Any, webPort, listenOptions =>
-                            listenOptions.UseHttps(certificate));
+                            listenOptions.UseHttps());
 
                         int httpHealthCheckPort = _configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
 
@@ -317,46 +430,11 @@ namespace HCore.Web.Startup
 
                     if (useApi)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Api:Assembly"];
-                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                            throw new Exception("HTTPS API certificate assembly not found");
-
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Api:Name"];
-
-                        if (string.IsNullOrEmpty(httpsCertificateName))
-                            throw new Exception("HTTPS API certificate name not found");
-
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Api:Password"];
-
-                        if (string.IsNullOrEmpty(httpsCertificatePassword))
-                            throw new Exception("HTTPS API certificate password not found");
-
-                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                        X509Certificate2 certificate = null;
-
-                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                        if (httpsAssembly == null)
-                            throw new Exception("HTTPS API certificate assembly is not present in the list of assemblies");
-
-                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                        if (resourceStream == null)
-                            throw new Exception("HTTPS API certificate resource not found");
-
-                        using (var memory = new MemoryStream((int)resourceStream.Length))
-                        {
-                            resourceStream.CopyTo(memory);
-
-                            certificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                        }
 
                         int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
                         options.Listen(IPAddress.Any, apiPort, listenOptions =>
-                            listenOptions.UseHttps(certificate));
+                            listenOptions.UseHttps());
                     }                        
                 }
             });
