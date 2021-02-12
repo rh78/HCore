@@ -57,9 +57,6 @@ namespace HCore.Tenants.Models
         string DefaultCulture { get; }
         string DefaultCurrency { get; }
 
-        string HttpsCertificate { get; }
-        string HttpsCertificatePassword { get; }
-
         string EcbBackendApiUrl { get; }
         string PortalsBackendApiUrl { get; }
 
