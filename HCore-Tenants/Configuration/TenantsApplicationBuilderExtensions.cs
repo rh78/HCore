@@ -50,8 +50,13 @@ namespace Microsoft.AspNetCore.Builder
 
                         builder.SetIsOriginAllowed((origin) =>
                         {
-                            return developerWildcardSubdomainRegexes.Any(developerWildcardSubdomainRegex =>
-                                developerWildcardSubdomainRegex.IsMatch(origin));
+                            // For Portals we need this open
+                            // TODO: make this safer
+
+                            return true;
+                            
+                            /* return developerWildcardSubdomainRegexes.Any(developerWildcardSubdomainRegex =>
+                                developerWildcardSubdomainRegex.IsMatch(origin)); */
                         });
                     });
                 }
