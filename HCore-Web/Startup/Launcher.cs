@@ -368,7 +368,7 @@ namespace HCore.Web.Startup
                                 }
                                 else
                                 {
-                                    throw new Exception("Certificate not found");
+                                    throw new Exception($"Default certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
                                 }
                             }
 
@@ -383,7 +383,7 @@ namespace HCore.Web.Startup
                                 var customCertificate = serverCertificateSelector.GetServerCertificate(hostName);
 
                                 if (customCertificate == null)
-                                    throw new Exception("Certificate not found");
+                                    throw new Exception($"Custom certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
 
                                 return customCertificate;
                             }
@@ -400,7 +400,7 @@ namespace HCore.Web.Startup
                             }
                             else
                             {
-                                throw new Exception("Certificate not found");
+                                throw new Exception($"Fallback certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
                             }
                         };
                     });
