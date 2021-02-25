@@ -282,6 +282,9 @@
   <data name="culture_missing" xml:space="preserve">
     <value>Die Sprache fehlt</value>
   </data>
+  <data name="cultures_missing" xml:space="preserve">
+    <value>Die Sprachen fehlen</value>
+  </data>
   <data name="culture_invalid" xml:space="preserve">
     <value>Die Sprache ist ungültig</value>
   </data>

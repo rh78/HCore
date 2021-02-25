@@ -457,6 +457,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The languages are missing.
+        /// </summary>
+        public static string cultures_missing {
+            get {
+                return ResourceManager.GetString("cultures_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The currency is invalid.
         /// </summary>
         public static string currency_invalid {

@@ -28,6 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             services.AddSingleton<ICountryMetadataProvider, CountryMetadataProviderImpl>();
+            services.AddSingleton<ILanguageMetadataProvider, LanguageMetadataProviderImpl>();
 
             Console.WriteLine("Metadata initialized successfully");
 
