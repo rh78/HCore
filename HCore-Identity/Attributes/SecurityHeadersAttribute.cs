@@ -39,8 +39,8 @@ namespace HCore.Identity.Attributes
                           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com https://snap.licdn.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;" +
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                          "font-src 'self' 'unsafe-inline' data: httos://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                          "frame-src 'self' *; " +
+                          "font-src 'self' 'unsafe-inline' data: https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+                          "frame-src data: 'self' *; " +
                           "img-src * data:; " +
                           "media-src *; " +
                           // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
