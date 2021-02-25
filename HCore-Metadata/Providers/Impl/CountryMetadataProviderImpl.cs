@@ -173,8 +173,7 @@ namespace HCore.Metadata.Impl
                     string.Equals(countryCode, "si") ||
                     string.Equals(countryCode, "sk") ||
                     string.Equals(countryCode, "fi") ||
-                    string.Equals(countryCode, "se") ||
-                    string.Equals(countryCode, "uk"); // TODO (?)
+                    string.Equals(countryCode, "se"); // TODO (?)
         }
     }
 }
