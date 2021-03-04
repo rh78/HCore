@@ -75,6 +75,7 @@ namespace HCore.Web.API.Impl
         public const int MaxContactPersonNameLength = MaxFirstNameLength + MaxLastNameLength + 1; // including space
 
         public const int MaxCommentLength = 255;
+        public const int MaxJobIdLength = 50;
         public const int MaxOrderIdLength = 50;
 
         public const int MaxSearchTermLength = 50;
@@ -623,6 +624,24 @@ namespace HCore.Web.API.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.CommentTooLong, "The comment is too long");
 
             return comment;
+        }
+
+        public static string ProcessJobId(string jobId, bool required = true)
+        {
+            jobId = jobId?.Trim();
+
+            if (string.IsNullOrEmpty(jobId))
+            {
+                if (required)
+                    throw new RequestFailedApiException(RequestFailedApiException.JobIdMissing, "The job ID is missing");
+
+                return null;
+            }
+
+            if (jobId.Length > MaxJobIdLength)
+                throw new RequestFailedApiException(RequestFailedApiException.JobIdTooLong, "The job ID is too long");
+
+            return jobId.ToUpper();
         }
 
         public static string ProcessOrderId(string orderId, bool required = true)

@@ -711,11 +711,17 @@
   <data name="comment_too_long" xml:space="preserve">
     <value>Der Kommentar ist zu lang</value>
   </data>
+  <data name="job_id_missing" xml:space="preserve">
+    <value>Die Jobkennung fehlt</value>
+  </data>
+  <data name="job_id_too_long" xml:space="preserve">
+    <value>Die Jobkennung ist zu lang</value>
+  </data>
   <data name="order_id_missing" xml:space="preserve">
-    <value>Die Auftragsnummer fehlt</value>
+    <value>Die Kauf-Auftragsnummer fehlt</value>
   </data>
   <data name="order_id_too_long" xml:space="preserve">
-    <value>Die Auftragsnummer ist zu lang</value>
+    <value>Die Kauf-Auftragsnummer ist zu lang</value>
   </data>
   <data name="confirmation_id_missing" xml:space="preserve">
     <value>Die Bestätigungsnummer fehlt</value>

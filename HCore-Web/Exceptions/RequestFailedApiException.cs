@@ -176,6 +176,8 @@ namespace HCore.Web.Exceptions
         public const string ScopedTenantUuidInvalid = "scoped_tenant_uuid_invalid";
         public const string DescriptionTooLong = "description_too_long";
         public const string CommentTooLong = "comment_too_long";
+        public const string JobIdMissing = "job_id_missing";
+        public const string JobIdTooLong = "job_id_too_long";
         public const string OrderIdMissing = "order_id_missing";
         public const string OrderIdTooLong = "order_id_too_long";
         public const string ConfirmationIdMissing = "confirmation_id_missing";

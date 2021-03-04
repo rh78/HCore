@@ -790,6 +790,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The job ID is missing.
+        /// </summary>
+        public static string job_id_missing {
+            get {
+                return ResourceManager.GetString("job_id_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The job ID is too long.
+        /// </summary>
+        public static string job_id_too_long {
+            get {
+                return ResourceManager.GetString("job_id_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key 1 contains invalid characters.
         /// </summary>
         public static string key_1_invalid {
@@ -1186,7 +1204,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The order ID is missing.
+        ///   Looks up a localized string similar to The purchase order ID is missing.
         /// </summary>
         public static string order_id_missing {
             get {
@@ -1195,7 +1213,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The order ID is too long.
+        ///   Looks up a localized string similar to The purchase order ID is too long.
         /// </summary>
         public static string order_id_too_long {
             get {

@@ -711,11 +711,17 @@
   <data name="comment_too_long" xml:space="preserve">
     <value>The comment is too long</value>
   </data>
+  <data name="job_id_missing" xml:space="preserve">
+    <value>The job ID is missing</value>
+  </data>
+  <data name="job_id_too_long" xml:space="preserve">
+    <value>The job ID is too long</value>
+  </data>
   <data name="order_id_missing" xml:space="preserve">
-    <value>The order ID is missing</value>
+    <value>The purchase order ID is missing</value>
   </data>
   <data name="order_id_too_long" xml:space="preserve">
-    <value>The order ID is too long</value>
+    <value>The purchase order ID is too long</value>
   </data>
   <data name="confirmation_id_missing" xml:space="preserve">
     <value>The confirmation ID is missing</value>
