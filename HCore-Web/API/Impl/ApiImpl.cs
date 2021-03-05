@@ -33,7 +33,7 @@ namespace HCore.Web.API.Impl
         public const int MaxPostalCodeLength = 10;
         public const int MaxCityLength = 50;
         public const int MaxStateLength = 50;
-        public const int MaxVatIdLength = 30;
+        public const int MaxVatIdLength = 50;
 
         public const int MaxUserNameLength = 50;
         public const int MaxFirstNameLength = 255;
