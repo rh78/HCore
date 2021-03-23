@@ -138,48 +138,63 @@ namespace HCore.Web.Providers.Impl
 
                 using (var requestMessage = new HttpRequestMessage(HttpMethod.Get, downloadUri))
                 {
-                    HttpResponseMessage responseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-
-                    if (responseMessage.StatusCode == System.Net.HttpStatusCode.Redirect)
+                    HttpResponseMessage responseMessage = null;
+                    
+                    try
                     {
-                        var location = responseMessage.Headers.Location;
+                        responseMessage = await httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
-                        if (location != null && !string.IsNullOrEmpty(location.AbsoluteUri))
+                        if (responseMessage.StatusCode == System.Net.HttpStatusCode.Redirect)
                         {
-                            responseMessage.Dispose();
+                            var location = responseMessage.Headers.Location;
 
-                            using (var requestMessageRedirect = new HttpRequestMessage(HttpMethod.Get, location.AbsoluteUri))
+                            if (location != null && !string.IsNullOrEmpty(location.AbsoluteUri))
                             {
-                                responseMessage = await httpClient.SendAsync(requestMessageRedirect, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                                responseMessage.Dispose();
+
+                                using (var requestMessageRedirect = new HttpRequestMessage(HttpMethod.Get, location.AbsoluteUri))
+                                {
+                                    responseMessage = await httpClient.SendAsync(requestMessageRedirect, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                                }
                             }
                         }
-                    }
 
-                    if (!responseMessage.IsSuccessStatusCode)
+                        if (!responseMessage.IsSuccessStatusCode)
+                        {
+                            _logger.LogError(
+                                $"Failed to download file from source location {downloadUri}. " +
+                                $"file name: {JsonConvert.SerializeObject(fileName)}. " +
+                                $"HTTP result was: {responseMessage.StatusCode} {responseMessage.ReasonPhrase}, response body: {responseMessage.Content}"
+                            );
+
+                            throw new HttpRequestException("Failed to download file from source location");
+                        }
+
+                        var contentDispositionHeader = responseMessage.Content.Headers.ContentDisposition;
+
+                        string originalMediaType = responseMessage.Content?.Headers?.ContentType?.MediaType;
+                        string originalCharacterSet = responseMessage.Content?.Headers?.ContentType?.CharSet;
+
+                        contentLength = responseMessage.Content?.Headers?.ContentLength;
+
+                        if (string.IsNullOrEmpty(mimeType))
+                            mimeType = originalMediaType;
+
+                        if (!string.IsNullOrEmpty(originalCharacterSet))
+                            characterSet = originalCharacterSet;
+
+                        fileData = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception)
                     {
-                        _logger.LogError(
-                            $"Failed to download file from source location {downloadUri}. " +
-                            $"file name: {JsonConvert.SerializeObject(fileName)}. " +
-                            $"HTTP result was: {responseMessage.StatusCode} {responseMessage.ReasonPhrase}, response body: {responseMessage.Content}"
-                        );
+                        if (responseMessage != null)
+                        {
+                            responseMessage.Dispose();
+                            responseMessage = null;
+                        }
 
-                        throw new HttpRequestException("Failed to download file from source location");
+                        throw;
                     }
-
-                    var contentDispositionHeader = responseMessage.Content.Headers.ContentDisposition;
-
-                    string originalMediaType = responseMessage.Content?.Headers?.ContentType?.MediaType;
-                    string originalCharacterSet = responseMessage.Content?.Headers?.ContentType?.CharSet;
-
-                    contentLength = responseMessage.Content?.Headers?.ContentLength;
-
-                    if (string.IsNullOrEmpty(mimeType))
-                        mimeType = originalMediaType;
-
-                    if (!string.IsNullOrEmpty(originalCharacterSet))
-                        characterSet = originalCharacterSet;
-
-                    fileData = await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
                 }
             }
 
