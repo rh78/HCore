@@ -49,6 +49,8 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class IdentityServiceCollectionExtensions
     {
+        private const string TriggerAcrValuesGetParameterKey = "AcrTrigger";
+
         public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IStringLocalizerProvider, MessagesStringLocalizerProviderImpl>();
@@ -302,6 +304,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcEndpointUrl = tenantInfo.OidcEndpointUrl;
                         var oidcScopes = tenantInfo.OidcScopes;
                         var oidcAcrValues = tenantInfo.OidcAcrValues;
+                        var oidcAcrValuesAppendix = tenantInfo.OidcAcrValuesAppendix;
+                        var oidcTriggerAcrValuesAppendixByUrlParameter = tenantInfo.OidcTriggerAcrValuesAppendixByUrlParameter;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -327,7 +331,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             {
                                 OnRedirectToIdentityProvider = context =>
                                 {
-                                    context.ProtocolMessage.SetParameter("acr_values", oidcAcrValues);
+                                    context.ProtocolMessage.SetParameter("acr_values", AdjustAcrValues(oidcAcrValues, oidcAcrValuesAppendix, oidcTriggerAcrValuesAppendixByUrlParameter, context.Request));
 
                                     return Task.CompletedTask;
                                 }
@@ -454,6 +458,20 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 });
             }
+        }
+
+        private static string AdjustAcrValues(string oidcAcrValues, string oidcAcrValuesAppendix, bool oidcTriggerAcrValuesAppendixByUrlParameter, HttpRequest request)
+        {
+            if (string.IsNullOrEmpty(oidcAcrValuesAppendix))
+                return oidcAcrValues;
+
+            if (oidcTriggerAcrValuesAppendixByUrlParameter)
+            {
+                if (!request.Query.ContainsKey(TriggerAcrValuesGetParameterKey))
+                    return oidcAcrValues;
+            }
+
+            return $"{oidcAcrValues}{oidcAcrValuesAppendix}";
         }
 
         private static bool CheckScopes(ClaimsPrincipal user, string[] requiredScopes)
