@@ -82,6 +82,9 @@ namespace HCore.Tenants.Models
 
         string OidcAcrValues { get; set; }
 
+        string OidcAcrValuesAppendix { get; set; }
+        bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
+
         string SamlEntityId { get; }
 
         string SamlPeerEntityId { get; set; }

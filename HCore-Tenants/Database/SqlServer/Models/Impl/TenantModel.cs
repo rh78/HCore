@@ -85,6 +85,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string OidcAcrValues { get; set; }
 
+        public string OidcAcrValuesAppendix { get; set; }
+        public bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
+
         [Column(TypeName = "jsonb")]
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
