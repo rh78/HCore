@@ -268,6 +268,10 @@ namespace HCore.Database.ElasticSearch.Impl
                         .MinGram(3)
                         .MaxGram(50)
                     )
+                    .NGram("short_ngram_filter", nGram => nGram
+                        .MinGram(1)
+                        .MaxGram(50)
+                    )
                 )
                 .Analyzers(analyzer => analyzer
                     .Custom("edge_ngram_concatenate_index", custom => custom
@@ -282,9 +286,17 @@ namespace HCore.Database.ElasticSearch.Impl
                         .Tokenizer("standard")
                         .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "ngram_filter" })
                     )
+                    .Custom("short_ngram_concatenate_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "short_ngram_filter" })
+                    )
                     .Custom("ngram_partial_index", custom => custom
                         .Tokenizer("standard")
                         .Filters(new string[] { "lowercase", "asciifolding", "ngram_filter" })
+                    )
+                    .Custom("short_ngram_partial_index", custom => custom
+                        .Tokenizer("standard")
+                        .Filters(new string[] { "lowercase", "asciifolding", "short_ngram_filter" })
                     )
                     .Custom("concatenate_search", custom => custom
                         .Tokenizer("standard")
