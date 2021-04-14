@@ -10,6 +10,7 @@ using HCore.Identity.Services;
 using HCore.Identity.Resources;
 using HCore.Translations.Providers;
 using Newtonsoft.Json;
+using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -62,11 +63,15 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         {
             ModelState.Clear();
 
-            PasswordChangePossible = true;
+            UserModel userModel = null;
 
             try
             {
                 var userUuid = User.GetUserUuid();
+
+                userModel = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
+
+                PasswordChangePossible = userModel.PasswordHash != null;
 
                 await _identityServices.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 
@@ -77,6 +82,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             catch (ApiException e)
             {
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
+
+                if (userModel != null)
+                {
+                    PasswordChangePossible = userModel.PasswordHash != null;
+                }
             }
 
             return Page();
