@@ -205,7 +205,7 @@ namespace HCore.Tenants.Providers.Impl
             return _developerInfosByUuid[developerUuid];
         }
 
-        public async Task<(string, ITenantInfo)> GetTenantByHostAsync(string host, HttpRequest request = null, HttpResponse response = null)
+        public async Task<(string, ITenantInfo)> GetTenantByHostAsync(string host, HttpContext context = null)
         {
             if (string.IsNullOrEmpty(host))
             {

@@ -12,7 +12,7 @@ namespace HCore.Tenants.Providers
 
         IDeveloperInfo GetDeveloper(long developerUuid);
 
-        Task<(string, ITenantInfo)> GetTenantByHostAsync(string host, HttpRequest request = null, HttpResponse response = null);
+        Task<(string, ITenantInfo)> GetTenantByHostAsync(string host, HttpContext context = null);
         Task<ITenantInfo> GetTenantByUuidThrowAsync(long developerUuid, long tenantUuid);
         
         int? HealthCheckPort { get; }
