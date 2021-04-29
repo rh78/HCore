@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Web.Providers.Impl
 {
@@ -14,18 +16,23 @@ namespace HCore.Web.Providers.Impl
 
         private readonly IHtmlIncludesProvider _defaultIncludeProvider;
 
+        private readonly IHtmlTemplateFileIncludesProviderCustomProcessor _htmlTemplateFileIncludesProviderCustomProcessor;
+
         private readonly Dictionary<string, IHtmlIncludesProvider> _htmlIncludeProviders =
             new Dictionary<string, IHtmlIncludesProvider>();
 
         public HtmlIncludesTemplateDetectorProviderImpl(
             IConfiguration configuration,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            IServiceProvider serviceProvider)
         {
             _hostEnvironment = hostingEnvironment;
             _configuration = configuration;
 
+            _htmlTemplateFileIncludesProviderCustomProcessor = serviceProvider.GetService<IHtmlTemplateFileIncludesProviderCustomProcessor>();
+
             // default provider will set its "Applies" property to "False", as the file is "null"
-            _defaultIncludeProvider = new HtmlTemplateFileIncludesProviderImpl(null);
+            _defaultIncludeProvider = new HtmlTemplateFileIncludesProviderImpl(null, _htmlTemplateFileIncludesProviderCustomProcessor);
 
             ParseAllHtmlFiles();
         }
@@ -86,14 +93,14 @@ namespace HCore.Web.Providers.Impl
 
                 filePath = filePath.Replace("\\", "/").ToLower();
 
-                _htmlIncludeProviders.Add(filePath, new HtmlTemplateFileIncludesProviderImpl(fullPath));
+                _htmlIncludeProviders.Add(filePath, new HtmlTemplateFileIncludesProviderImpl(fullPath, _htmlTemplateFileIncludesProviderCustomProcessor));
 
                 if (filePath.StartsWith("/ecb") &&
                     !string.Equals(filePath, "/ecb/index.html"))
                 {
                     // map ECB to root for account UI
 
-                    _htmlIncludeProviders.Add(filePath.Replace("/ecb", ""), new HtmlTemplateFileIncludesProviderImpl(fullPath));
+                    _htmlIncludeProviders.Add(filePath.Replace("/ecb", ""), new HtmlTemplateFileIncludesProviderImpl(fullPath, _htmlTemplateFileIncludesProviderCustomProcessor));
                 }
             }
         }

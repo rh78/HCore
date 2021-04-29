@@ -17,7 +17,7 @@ namespace HCore.Web.Providers.Impl
 
         public string BodyJsIncludes { get; }
 
-        public HtmlTemplateFileIncludesProviderImpl(string htmlFilePath)
+        public HtmlTemplateFileIncludesProviderImpl(string htmlFilePath, IHtmlTemplateFileIncludesProviderCustomProcessor customProcessor = null)
         {
             HeaderIncludes = "";
             BodyIncludes = "";
@@ -30,6 +30,11 @@ namespace HCore.Web.Providers.Impl
             if (Applies)
             {             
                 string html = File.ReadAllText(htmlFilePath);
+
+                if (customProcessor != null)
+                {
+                    html = customProcessor.ProcessHtml(htmlFilePath, html);
+                }
 
                 // header part of the HTML <head></head>
                 Match header = Regex.Match(
