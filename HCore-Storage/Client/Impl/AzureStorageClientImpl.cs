@@ -2,10 +2,12 @@
 using HCore.Web.Exceptions;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using Microsoft.Azure.Storage.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HCore.Storage.Client.Impl
@@ -56,7 +58,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
 
@@ -90,12 +92,24 @@ namespace HCore.Storage.Client.Impl
                 }
             }
 
-            await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);
+            Progress<StorageProgress> progress = null;
+
+            if (progressHandler != null)
+            {
+                progress = new Progress<StorageProgress>();
+
+                progress.ProgressChanged += (s, e) =>
+                {
+                    progressHandler.Report(e.BytesTransferred);
+                };
+            }
+
+            await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
 
             return blockBlob.Uri.AbsoluteUri;
         }
 
-        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
             
@@ -121,7 +135,19 @@ namespace HCore.Storage.Client.Impl
                 }
             }
 
-            await blockBlob.UploadFromStreamAsync(stream).ConfigureAwait(false);
+            Progress<StorageProgress> progress = null;
+
+            if (progressHandler != null)
+            {
+                progress = new Progress<StorageProgress>();
+
+                progress.ProgressChanged += (s, e) =>
+                {
+                    progressHandler.Report(e.BytesTransferred);
+                };
+            }
+
+            await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
 
             return blockBlob.Uri.AbsoluteUri;
         }

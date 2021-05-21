@@ -1,6 +1,7 @@
 ﻿using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Storage.v1.Data;
+using Google.Apis.Upload;
 using Google.Cloud.Storage.V1;
 using HCore.Storage.Exceptions;
 using HCore.Web.Exceptions;
@@ -71,7 +72,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -132,17 +133,29 @@ namespace HCore.Storage.Client.Impl
                 {
                     blockBlob.Metadata = additionalHeaders;
                 }
-                
+
+                Progress<IUploadProgress> progress = null;
+
+                if (progressHandler != null)
+                {
+                    progress = new Progress<IUploadProgress>();
+
+                    progress.ProgressChanged += (s, e) =>
+                    {
+                        progressHandler.Report(e.BytesSent);
+                    };
+                }
+
                 var result = await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
                 {
                     ChunkSize = ChunkSize
-                }).ConfigureAwait(false);
+                }, progress: progress).ConfigureAwait(false);
 
                 return result.MediaLink;
             }
         }
 
-        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -193,10 +206,22 @@ namespace HCore.Storage.Client.Impl
                     blockBlob.Metadata = additionalHeaders;
                 }
 
+                Progress<IUploadProgress> progress = null;
+
+                if (progressHandler != null)
+                {
+                    progress = new Progress<IUploadProgress>();
+
+                    progress.ProgressChanged += (s, e) =>
+                    {
+                        progressHandler.Report(e.BytesSent);
+                    };
+                }
+
                 var result = await storageClient.UploadObjectAsync(blockBlob, stream, new UploadObjectOptions()
                 {
                     ChunkSize = ChunkSize
-                }).ConfigureAwait(false);
+                }, progress: progress).ConfigureAwait(false);
 
                 return result.MediaLink;
             }
