@@ -346,8 +346,6 @@ namespace Microsoft.Extensions.DependencyInjection
                         var scopes = new HashSet<string>();
 
                         scopes.Add("openid");
-                        scopes.Add("email");
-                        scopes.Add("phone");
                         scopes.Add("profile");
 
                         if (oidcScopes != null)
@@ -356,6 +354,11 @@ namespace Microsoft.Extensions.DependencyInjection
                             {
                                 scopes.Add(oidcScope);
                             }
+                        }
+                        else
+                        {
+                            scopes.Add("email");
+                            scopes.Add("phone");
                         }
 
                         foreach (var scope in scopes)
