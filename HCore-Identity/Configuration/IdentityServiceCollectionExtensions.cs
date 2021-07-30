@@ -44,6 +44,7 @@ using HCore.Translations.Providers;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -496,7 +497,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SignIn.RequireConfirmedEmail = requireEmailConfirmed;
             });
 
-            // IdentityModelEventSource.ShowPII = true;
+            IdentityModelEventSource.ShowPII = true;
 
             identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
             identityBuilder.AddDefaultTokenProviders();
