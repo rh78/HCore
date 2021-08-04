@@ -207,11 +207,11 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true, bool ignoreSelfRegistrationRestriction = false)
         {
             if (isSelfRegistration)
             {
-                if (!_configurationProvider.SelfRegistration)
+                if (!_configurationProvider.SelfRegistration && !ignoreSelfRegistrationRestriction)
                     throw new ForbiddenApiException(ForbiddenApiException.SelfRegistrationNotAllowed, "It is not allowed to register users in self-service on this system");
             }
 
