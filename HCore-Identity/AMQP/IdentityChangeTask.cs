@@ -13,5 +13,6 @@ namespace HCore.Identity.Amqp
 
         public string AccessTokenCache { get; set; }
         public string RefreshTokenCache { get; set; }
+        public bool IsRegistration { get; set; }
     }
 }
