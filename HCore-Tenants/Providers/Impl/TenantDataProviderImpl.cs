@@ -40,6 +40,8 @@ namespace HCore.Tenants.Providers.Impl
         private byte[] _standardSamlCertificateBytes;
         private string _standardSamlCertificatePassword;
 
+        public bool IsPortals { get; private set; }
+
         private readonly ILogger<TenantDataProviderImpl> _logger;
 
         public TenantDataProviderImpl(IServiceProvider serviceProvider, ITenantCache tenantCache, ILogger<TenantDataProviderImpl> logger)
@@ -59,6 +61,8 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckPort = httpHealthCheckPort;
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
+
+            IsPortals = configuration.GetValue<bool?>("IsPortals") ?? false;
 
             ReadStandardSamlCertificate(configuration);
 
@@ -145,7 +149,9 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.NoreplyEmailDisplayName))
                             throw new Exception("The developer noreply email display name is empty");
 
-                        if (string.IsNullOrEmpty(developerModel.ProductName))
+                        var productName = IsPortals ? developerModel.PortalsProductName : developerModel.EcbProductName;
+
+                        if (string.IsNullOrEmpty(productName))
                             throw new Exception("The developer product name is empty");
 
                         var emailSettingsModel = developerModel.GetEmailSettings();
@@ -180,7 +186,7 @@ namespace HCore.Tenants.Providers.Impl
                             NoreplyEmail = developerModel.NoreplyEmail,
                             NoreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName,
                             EmailSettings = emailSettingsModel,
-                            ProductName = developerModel.ProductName
+                            ProductName = productName
                         };
 
                         _developerInfosByHostPattern.Add(developerModel.HostPattern, developerInfo);
@@ -461,10 +467,11 @@ namespace HCore.Tenants.Providers.Impl
 
                 emailSettingsModel.Validate();
             }
-                
-            string productName = tenantModel.ProductName;
+
+            var productName = IsPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
+            
             if (string.IsNullOrEmpty(productName))
-                productName = developerModel.ProductName;
+                productName = IsPortals ? developerModel.PortalsProductName : developerModel.EcbProductName;
 
             string defaultCulture = tenantModel.DefaultCulture;
             if (string.IsNullOrEmpty(defaultCulture))

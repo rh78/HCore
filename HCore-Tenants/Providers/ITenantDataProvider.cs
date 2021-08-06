@@ -17,5 +17,7 @@ namespace HCore.Tenants.Providers
         
         int? HealthCheckPort { get; }
         string HealthCheckTenantHost { get; }
+
+        bool IsPortals { get; }
     }
 }

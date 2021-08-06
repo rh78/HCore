@@ -695,7 +695,7 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.NoreplyEmailDisplayName = noreplyEmailDisplayName;
 
-                    string productName = tenantModel.ProductName;
+                    string productName = _tenantDataProvider.IsPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
                     if (string.IsNullOrEmpty(productName))
                         productName = developerInfo.ProductName;
 

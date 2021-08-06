@@ -64,7 +64,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string CustomEmailSettingsJson { get; set; }
         
-        public string ProductName { get; set; }
+        public string EcbProductName { get; set; }
+        public string PortalsProductName { get; set; }
 
         public string DefaultCulture { get; set; }
         public string DefaultCurrency { get; set; }

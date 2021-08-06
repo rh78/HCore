@@ -87,7 +87,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string EmailSettingsJson { get; set; }
 
-        public string ProductName { get; set; }
+        public string EcbProductName { get; set; }
+        public string PortalsProductName { get; set; }
 
         public List<TenantModel> Tenants { get; set; }
         
