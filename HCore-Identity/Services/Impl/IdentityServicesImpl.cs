@@ -420,7 +420,7 @@ namespace HCore.Identity.Services.Impl
                                 protocol: "https");
 
                             EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                                new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
+                                new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                             await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
                         } 
@@ -1075,7 +1075,7 @@ namespace HCore.Identity.Services.Impl
                         protocol: "https");
 
                     EmailTemplate emailTemplate = await _emailTemplateProvider.GetForgotPasswordEmailAsync(
-                            new ForgotPasswordEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
+                            new ForgotPasswordEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(userForgotPasswordSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
@@ -1452,7 +1452,7 @@ namespace HCore.Identity.Services.Impl
                         protocol: "https");
 
                     EmailTemplate emailTemplate = await _emailTemplateProvider.GetConfirmAccountEmailAsync(
-                        new ConfirmAccountEmailViewModel(callbackUrl), currentCultureInfo).ConfigureAwait(false);
+                        new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 

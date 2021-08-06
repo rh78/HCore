@@ -40,8 +40,6 @@ namespace HCore.Tenants.Providers.Impl
         private byte[] _standardSamlCertificateBytes;
         private string _standardSamlCertificatePassword;
 
-        public bool IsPortals { get; private set; }
-
         private readonly ILogger<TenantDataProviderImpl> _logger;
 
         public TenantDataProviderImpl(IServiceProvider serviceProvider, ITenantCache tenantCache, ILogger<TenantDataProviderImpl> logger)
@@ -61,8 +59,6 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckPort = httpHealthCheckPort;
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
-
-            IsPortals = configuration.GetValue<bool?>("IsPortals") ?? false;
 
             ReadStandardSamlCertificate(configuration);
 

@@ -16,12 +16,12 @@ namespace HCore.Templating.Emails.Impl
         }
 
         public abstract string GetConfirmAccountEmailView(CultureInfo cultureInfo);
-        public abstract string GetConfirmAccountEmailSubject(bool isPortals, CultureInfo cultureInfo);
+        public abstract string GetConfirmAccountEmailSubject(bool? isPortals, CultureInfo cultureInfo);
 
         public abstract string GetForgotPasswordEmailView(CultureInfo cultureInfo);
-        public abstract string GetForgotPasswordEmailSubject(bool isPortals, CultureInfo cultureInfo);
+        public abstract string GetForgotPasswordEmailSubject(bool? isPortals, CultureInfo cultureInfo);
 
-        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, bool isPortals, CultureInfo cultureInfo)
+        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, bool? isPortals, CultureInfo cultureInfo)
         {
             CultureInfo cultureInfoBackup = CultureInfo.CurrentCulture;
 
@@ -44,7 +44,7 @@ namespace HCore.Templating.Emails.Impl
             return new EmailTemplate(subject, body);
         }
 
-        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, bool isPortals, CultureInfo cultureInfo)
+        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, bool? isPortals, CultureInfo cultureInfo)
         {
             CultureInfo cultureInfoBackup = CultureInfo.CurrentCulture;
 

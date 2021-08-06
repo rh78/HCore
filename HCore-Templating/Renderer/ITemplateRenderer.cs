@@ -8,10 +8,10 @@ namespace HCore.Templating.Renderer
 {
     public interface ITemplateRenderer
     {
-        Task<string> RenderViewAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null)
+        Task<string> RenderViewAsync<TModel>(string viewName, TModel model, bool? isPortals, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel;
 
-        Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null)
+        Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool? isPortals, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel;
     }
 }

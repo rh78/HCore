@@ -529,7 +529,7 @@ namespace HCore.Tenants.Services.Impl
             }, version).ConfigureAwait(false);
         }
 
-        public async Task<PagingResult<Tenant>> GetTenantsAsync(long developerUuid, string searchTerm, int? offset, int? limit, string sortByTenant, string sortOrder)
+        public async Task<PagingResult<Tenant>> GetTenantsAsync(bool isPortals, long developerUuid, string searchTerm, int? offset, int? limit, string sortByTenant, string sortOrder)
         {
             int offsetInt = HCore.Database.API.Impl.ApiImpl.ProcessSqlServerPagingOffset(offset, limit);
             int limitInt = HCore.Database.API.Impl.ApiImpl.ProcessSqlServerPagingLimit(offset, limit);
@@ -695,9 +695,9 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.NoreplyEmailDisplayName = noreplyEmailDisplayName;
 
-                    string productName = _tenantDataProvider.IsPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
+                    string productName = isPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
                     if (string.IsNullOrEmpty(productName))
-                        productName = _tenantDataProvider.IsPortals ? developerInfo.PortalsProductName : developerInfo.EcbProductName;
+                        productName = isPortals ? developerInfo.PortalsProductName : developerInfo.EcbProductName;
 
                     tenant.ProductName = productName;
 

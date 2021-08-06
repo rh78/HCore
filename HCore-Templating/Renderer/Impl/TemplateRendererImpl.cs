@@ -50,7 +50,7 @@ namespace HCore.Templating.Renderer.Impl
             _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();            
         }
 
-        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null)
+        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, bool? isPortals, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel
         {
             EnrichTenantInfo(model, isPortals, tenantInfo);
@@ -82,7 +82,7 @@ namespace HCore.Templating.Renderer.Impl
             }
         }
 
-        public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null) 
+        public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool? isPortals, ITenantInfo tenantInfo = null) 
             where TModel : TemplateViewModel
         {
             if (_renderService == null)
@@ -121,7 +121,7 @@ namespace HCore.Templating.Renderer.Impl
             return ms;
         }
 
-        private void EnrichTenantInfo<TModel>(TModel model, bool isPortals, ITenantInfo tenantInfo) 
+        private void EnrichTenantInfo<TModel>(TModel model, bool? isPortals, ITenantInfo tenantInfo) 
             where TModel : TemplateViewModel
         {
             if (_tenantInfoAccessor != null && tenantInfo == null)
@@ -138,7 +138,9 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantTextOnPrimaryColor = tenantInfo.TextOnPrimaryColorHex;
             model.TenantTextOnSecondaryColor = tenantInfo.TextOnSecondaryColorHex;
             model.TenantSupportEmail = tenantInfo.SupportEmail;
-            model.TenantProductName = isPortals ? tenantInfo.PortalsProductName : tenantInfo.EcbProductName;
+
+            model.TenantProductName = isPortals == true || isPortals == null ? tenantInfo.PortalsProductName : tenantInfo.EcbProductName;
+
             model.TenantDefaultCulture = tenantInfo.DefaultCulture;
             model.TenantDefaultCurrency = tenantInfo.DefaultCurrency;
 
