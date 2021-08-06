@@ -697,7 +697,7 @@ namespace HCore.Tenants.Services.Impl
 
                     string productName = _tenantDataProvider.IsPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
                     if (string.IsNullOrEmpty(productName))
-                        productName = developerInfo.ProductName;
+                        productName = _tenantDataProvider.IsPortals ? developerInfo.PortalsProductName : developerInfo.EcbProductName;
 
                     tenant.ProductName = productName;
 

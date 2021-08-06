@@ -16,12 +16,12 @@ namespace HCore.Templating.Emails.Impl
         }
 
         public abstract string GetConfirmAccountEmailView(CultureInfo cultureInfo);
-        public abstract string GetConfirmAccountEmailSubject(CultureInfo cultureInfo);
+        public abstract string GetConfirmAccountEmailSubject(bool isPortals, CultureInfo cultureInfo);
 
         public abstract string GetForgotPasswordEmailView(CultureInfo cultureInfo);
-        public abstract string GetForgotPasswordEmailSubject(CultureInfo cultureInfo);
+        public abstract string GetForgotPasswordEmailSubject(bool isPortals, CultureInfo cultureInfo);
 
-        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, CultureInfo cultureInfo)
+        public async Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, bool isPortals, CultureInfo cultureInfo)
         {
             CultureInfo cultureInfoBackup = CultureInfo.CurrentCulture;
 
@@ -32,11 +32,11 @@ namespace HCore.Templating.Emails.Impl
             if (string.IsNullOrEmpty(view))
                 throw new Exception("Confirm account email view model path is empty");
 
-            string subject = GetConfirmAccountEmailSubject(cultureInfo);
+            string subject = GetConfirmAccountEmailSubject(isPortals, cultureInfo);
             if (string.IsNullOrEmpty(subject))
                 throw new Exception("Confirm account email subject is empty");
 
-            string body = await _templateRenderer.RenderViewAsync(view, confirmAccountEmailViewModel).ConfigureAwait(false);
+            string body = await _templateRenderer.RenderViewAsync(view, confirmAccountEmailViewModel, isPortals).ConfigureAwait(false);
 
             CultureInfo.CurrentCulture = cultureInfoBackup;
             CultureInfo.CurrentUICulture = cultureInfoBackup;
@@ -44,7 +44,7 @@ namespace HCore.Templating.Emails.Impl
             return new EmailTemplate(subject, body);
         }
 
-        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, CultureInfo cultureInfo)
+        public async Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, bool isPortals, CultureInfo cultureInfo)
         {
             CultureInfo cultureInfoBackup = CultureInfo.CurrentCulture;
 
@@ -55,11 +55,11 @@ namespace HCore.Templating.Emails.Impl
             if (string.IsNullOrEmpty(view))
                 throw new Exception("Forgot password email view model path is empty");
 
-            string subject = GetForgotPasswordEmailSubject(cultureInfo);
+            string subject = GetForgotPasswordEmailSubject(isPortals, cultureInfo);
             if (string.IsNullOrEmpty(subject))
                 throw new Exception("Forgot password email subject is empty");
 
-            string body = await _templateRenderer.RenderViewAsync(view, forgotPasswordEmailViewModel).ConfigureAwait(false);
+            string body = await _templateRenderer.RenderViewAsync(view, forgotPasswordEmailViewModel, isPortals).ConfigureAwait(false);
 
             CultureInfo.CurrentCulture = cultureInfoBackup;
             CultureInfo.CurrentUICulture = cultureInfoBackup;

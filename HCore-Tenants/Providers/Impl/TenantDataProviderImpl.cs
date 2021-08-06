@@ -149,10 +149,13 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.NoreplyEmailDisplayName))
                             throw new Exception("The developer noreply email display name is empty");
 
-                        var productName = IsPortals ? developerModel.PortalsProductName : developerModel.EcbProductName;
+                        var ecbProductName = developerModel.EcbProductName;
+                        if (string.IsNullOrEmpty(ecbProductName))
+                            throw new Exception("The developer ECB product name is empty");
 
-                        if (string.IsNullOrEmpty(productName))
-                            throw new Exception("The developer product name is empty");
+                        var portalsProductName = developerModel.PortalsProductName;
+                        if (string.IsNullOrEmpty(portalsProductName))
+                            throw new Exception("The developer Portals product name is empty");
 
                         var emailSettingsModel = developerModel.GetEmailSettings();
                         if (emailSettingsModel == null)
@@ -186,7 +189,8 @@ namespace HCore.Tenants.Providers.Impl
                             NoreplyEmail = developerModel.NoreplyEmail,
                             NoreplyEmailDisplayName = developerModel.NoreplyEmailDisplayName,
                             EmailSettings = emailSettingsModel,
-                            ProductName = productName
+                            EcbProductName = ecbProductName,
+                            PortalsProductName = portalsProductName
                         };
 
                         _developerInfosByHostPattern.Add(developerModel.HostPattern, developerInfo);
@@ -468,10 +472,13 @@ namespace HCore.Tenants.Providers.Impl
                 emailSettingsModel.Validate();
             }
 
-            var productName = IsPortals ? tenantModel.PortalsProductName : tenantModel.EcbProductName;
-            
-            if (string.IsNullOrEmpty(productName))
-                productName = IsPortals ? developerModel.PortalsProductName : developerModel.EcbProductName;
+            var ecbProductName = tenantModel.EcbProductName;
+            if (string.IsNullOrEmpty(ecbProductName))
+                ecbProductName = developerModel.EcbProductName;
+
+            var portalsProductName = tenantModel.PortalsProductName;
+            if (string.IsNullOrEmpty(portalsProductName))
+                portalsProductName = developerModel.PortalsProductName;
 
             string defaultCulture = tenantModel.DefaultCulture;
             if (string.IsNullOrEmpty(defaultCulture))
@@ -720,7 +727,8 @@ namespace HCore.Tenants.Providers.Impl
                 NoreplyEmail = noreplyEmail,
                 NoreplyEmailDisplayName = noreplyEmailDisplayName,
                 EmailSettings = emailSettingsModel,
-                ProductName = productName,
+                EcbProductName = ecbProductName,
+                PortalsProductName = portalsProductName,
                 EcbBackendApiUrl = tenantModel.EcbBackendApiUrl,
                 PortalsBackendApiUrl = tenantModel.PortalsBackendApiUrl,
                 FrontendApiUrl = tenantModel.FrontendApiUrl,

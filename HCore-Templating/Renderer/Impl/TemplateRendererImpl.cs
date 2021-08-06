@@ -50,10 +50,10 @@ namespace HCore.Templating.Renderer.Impl
             _tenantInfoAccessor = _serviceProvider.GetService<ITenantInfoAccessor>();            
         }
 
-        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null)
+        public async Task<string> RenderViewAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel
         {
-            EnrichTenantInfo(model, tenantInfo);
+            EnrichTenantInfo(model, isPortals, tenantInfo);
 
             var actionContext = GetActionContext();
             var view = FindView(actionContext, viewName);
@@ -82,13 +82,13 @@ namespace HCore.Templating.Renderer.Impl
             }
         }
 
-        public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, ITenantInfo tenantInfo = null) 
+        public async Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool isPortals, ITenantInfo tenantInfo = null) 
             where TModel : TemplateViewModel
         {
             if (_renderService == null)
                 throw new Exception("JSReport render service is not available");
 
-            var htmlContent = await RenderViewAsync(viewName, model, tenantInfo).ConfigureAwait(false);
+            var htmlContent = await RenderViewAsync(viewName, model, isPortals, tenantInfo).ConfigureAwait(false);
             
             var pdf = await _renderService.RenderAsync(new RenderRequest()
             {
@@ -121,7 +121,7 @@ namespace HCore.Templating.Renderer.Impl
             return ms;
         }
 
-        private void EnrichTenantInfo<TModel>(TModel model, ITenantInfo tenantInfo) 
+        private void EnrichTenantInfo<TModel>(TModel model, bool isPortals, ITenantInfo tenantInfo) 
             where TModel : TemplateViewModel
         {
             if (_tenantInfoAccessor != null && tenantInfo == null)
@@ -138,7 +138,7 @@ namespace HCore.Templating.Renderer.Impl
             model.TenantTextOnPrimaryColor = tenantInfo.TextOnPrimaryColorHex;
             model.TenantTextOnSecondaryColor = tenantInfo.TextOnSecondaryColorHex;
             model.TenantSupportEmail = tenantInfo.SupportEmail;
-            model.TenantProductName = tenantInfo.ProductName;
+            model.TenantProductName = isPortals ? tenantInfo.PortalsProductName : tenantInfo.EcbProductName;
             model.TenantDefaultCulture = tenantInfo.DefaultCulture;
             model.TenantDefaultCurrency = tenantInfo.DefaultCurrency;
 

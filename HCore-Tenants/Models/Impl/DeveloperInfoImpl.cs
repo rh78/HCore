@@ -42,6 +42,7 @@ namespace HCore.Tenants.Models.Impl
 
         public EmailSettingsModel EmailSettings { get; set; }
 
-        public string ProductName { get; internal set; }
+        public string EcbProductName { get; internal set; }
+        public string PortalsProductName { get; internal set; }
     }
 }

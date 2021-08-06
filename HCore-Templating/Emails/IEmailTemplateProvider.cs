@@ -6,7 +6,7 @@ namespace HCore.Templating.Emails
 {
     public interface IEmailTemplateProvider
     {
-        Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, CultureInfo cultureInfo);
-        Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, CultureInfo cultureInfo);
+        Task<EmailTemplate> GetConfirmAccountEmailAsync(ConfirmAccountEmailViewModel confirmAccountEmailViewModel, bool isPortals, CultureInfo cultureInfo);
+        Task<EmailTemplate> GetForgotPasswordEmailAsync(ForgotPasswordEmailViewModel forgotPasswordEmailViewModel, bool isPortals, CultureInfo cultureInfo);
     }
 }

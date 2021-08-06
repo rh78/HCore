@@ -56,7 +56,8 @@ namespace HCore.Tenants.Models.Impl
 
         public EmailSettingsModel EmailSettings { get; set; }
 
-        public string ProductName { get; internal set; }
+        public string EcbProductName { get; internal set; }
+        public string PortalsProductName { get; internal set; }
 
         public string DefaultCulture { get; internal set; }
         public string DefaultCurrency { get; internal set; }
@@ -188,7 +189,8 @@ namespace HCore.Tenants.Models.Impl
                 NoreplyEmail = NoreplyEmail,
                 NoreplyEmailDisplayName = NoreplyEmailDisplayName,
                 EmailSettings = EmailSettings,
-                ProductName = ProductName,
+                EcbProductName = EcbProductName,
+                PortalsProductName = PortalsProductName,
                 DefaultCulture = DefaultCulture,
                 DefaultCurrency = DefaultCurrency,
                 HttpsCertificateBytes = HttpsCertificateBytes,

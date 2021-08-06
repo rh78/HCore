@@ -52,7 +52,8 @@ namespace HCore.Tenants.Models
 
         EmailSettingsModel EmailSettings { get; set; }
 
-        string ProductName { get; }
+        string EcbProductName { get; }
+        string PortalsProductName { get; }
 
         string DefaultCulture { get; }
         string DefaultCurrency { get; }
