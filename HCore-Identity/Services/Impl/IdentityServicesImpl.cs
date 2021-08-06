@@ -1633,6 +1633,9 @@ namespace HCore.Identity.Services.Impl
             if (!new PhoneAttribute().IsValid(phoneNumber))
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, "The phone number is invalid");
 
+            if (phoneNumber.Length > ApiImpl.MaxPhoneNumberLength)
+                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberTooLong, $"The phone number is too long");
+
             return phoneNumber;
         }
 

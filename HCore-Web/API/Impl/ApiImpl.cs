@@ -867,10 +867,10 @@ namespace HCore.Web.API.Impl
             if (string.IsNullOrEmpty(phoneNumber))
                 return null;
 
-            if (!SafeString.IsMatch(phoneNumber))
-                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, $"The phone number is invalid");
+            if (!new PhoneAttribute().IsValid(phoneNumber))
+                throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberInvalid, "The phone number is invalid");
 
-            if (phoneNumber.Length > MaxPhoneNumberLength)
+            if (phoneNumber.Length > ApiImpl.MaxPhoneNumberLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberTooLong, $"The phone number is too long");
 
             return phoneNumber;
