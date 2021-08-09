@@ -12,6 +12,7 @@ namespace HCore.Web.API.Impl
     {
         public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9\.@_\-\+\:\{\}]+$");
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\):/]+$");
+        public static readonly Regex ExtendedSafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\)\[\]\&:/]+$");
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
