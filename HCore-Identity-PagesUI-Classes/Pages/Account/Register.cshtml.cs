@@ -23,6 +23,7 @@ using reCAPTCHA.AspNetCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
+using HCore.Web.API.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -143,6 +144,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private string ProcessEmail(string emailAddress)
         {
             if (string.IsNullOrEmpty(emailAddress))
+                return null;
+
+            if (!ApiImpl.SafeString.IsMatch(emailAddress))
                 return null;
 
             if (!new EmailAddressAttribute().IsValid(emailAddress))

@@ -1500,7 +1500,10 @@ namespace HCore.Identity.Services.Impl
 
             if (string.IsNullOrEmpty(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
-            
+
+            if (!ApiImpl.SafeString.IsMatch(email))
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, $"The email address is invalid");
+
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
 

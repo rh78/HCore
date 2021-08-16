@@ -135,12 +135,17 @@ namespace HCore.Web.API.Impl
             return userUuids.Select(userUuid => ProcessUserUuid(userUuid)).ToHashSet();
         }
 
-        public static string ProcessEmailAddress(string emailAddress)
+        public static string ProcessEmailAddress(string emailAddress, bool required)
         {
             emailAddress = emailAddress?.Trim();
 
             if (string.IsNullOrEmpty(emailAddress))
+            {
+                if (required)
+                    throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
+
                 return null;
+            }
 
             if (!SafeString.IsMatch(emailAddress))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, $"The email address is invalid");
@@ -162,6 +167,9 @@ namespace HCore.Web.API.Impl
 
                 return null;
             }
+
+            if (!SafeString.IsMatch(email))
+                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, $"The email address is invalid");
 
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
