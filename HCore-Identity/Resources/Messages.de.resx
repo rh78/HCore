@@ -372,6 +372,9 @@
   <data name="sign_in_title" xml:space="preserve">
     <value>Anmelden</value>
   </data>
+  <data name="select_product_title" xml:space="preserve">
+    <value>Produkt auswählen</value>
+  </data>
   <data name="verification_email_resent" xml:space="preserve">
     <value>Die Bestätigungs-Nachricht wurde gesendet, bitte überprüfen Sie Ihr E-Mail-Postfach</value>
   </data>

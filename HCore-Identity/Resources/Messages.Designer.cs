@@ -835,6 +835,15 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Produkt auswählen.
+        /// </summary>
+        public static string select_product_title {
+            get {
+                return ResourceManager.GetString("select_product_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do you already have a user account?.
         /// </summary>
         public static string sign_in_button_already_have_account {
