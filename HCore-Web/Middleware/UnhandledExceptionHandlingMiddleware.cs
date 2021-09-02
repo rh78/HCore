@@ -161,7 +161,7 @@ namespace HCore.Web.Middleware
                 return false;
 
             if (userAgent.Contains("MSIE ") ||
-                userAgent.Contains("Trident/") || true)
+                userAgent.Contains("Trident/"))
             {
                 // IE < 11, IE 11 or similar
 
