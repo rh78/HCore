@@ -207,7 +207,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true, bool ignoreSelfRegistrationRestriction = false)
+        public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true, RecaptchaSettings recaptchaSettings = null, bool ignoreSelfRegistrationRestriction = false)
         {
             if (isSelfRegistration)
             {
@@ -1040,7 +1040,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec, HttpRequest request = null)
+        public async Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec, HttpRequest request = null, RecaptchaSettings recaptchaSettings = null)
         {
             userForgotPasswordSpec.Email = ProcessEmail(userForgotPasswordSpec.Email);
 
