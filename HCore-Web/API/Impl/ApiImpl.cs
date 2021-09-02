@@ -412,12 +412,17 @@ namespace HCore.Web.API.Impl
             return password;
         }
 
-        public static string ProcessClientId(string clientId)
+        public static string ProcessClientId(string clientId, bool requiresClientId = true)
         {
             clientId = clientId?.Trim();
 
             if (string.IsNullOrEmpty(clientId))
-                throw new RequestFailedApiException(RequestFailedApiException.ClientIdMissing, "The client ID is missing");
+            {
+                if (requiresClientId)
+                    throw new RequestFailedApiException(RequestFailedApiException.ClientIdMissing, "The client ID is missing");
+
+                return null;
+            }
 
             if (!ApiImpl.SafeString.IsMatch(clientId))
                 throw new RequestFailedApiException(RequestFailedApiException.ClientIdInvalid, "The client ID contains invalid characters");
