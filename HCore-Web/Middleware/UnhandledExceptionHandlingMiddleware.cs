@@ -9,6 +9,7 @@ using System.Web;
 using HCore.Translations.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
+using System.Linq;
 
 namespace HCore.Web.Middleware
 {
@@ -26,6 +27,8 @@ namespace HCore.Web.Middleware
         private string _criticalFallbackUrl;
         private string _tenantSelectorFallbackUrl;
 
+        private readonly bool _blockIE;
+
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
         public UnhandledExceptionHandlingMiddleware(
@@ -40,6 +43,8 @@ namespace HCore.Web.Middleware
 
             bool useWeb = configuration.GetValue<bool>("WebServer:UseWeb");
             bool useApi = configuration.GetValue<bool>("WebServer:UseApi");
+
+            _blockIE = configuration.GetValue<bool>("WebServer:BlockIE");
 
             _criticalFallbackUrl = configuration["WebServer:CriticalFallbackUrl"];
             _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
@@ -71,7 +76,12 @@ namespace HCore.Web.Middleware
 
             try
             {
-                await _next.Invoke(context).ConfigureAwait(false);
+                var blocked = BlockIE11(context);
+
+                if (!blocked)
+                {
+                    await _next.Invoke(context).ConfigureAwait(false);
+                }
             }
             catch (RedirectApiException e)
             {
@@ -118,6 +128,53 @@ namespace HCore.Web.Middleware
             {
                 await HandleResultExceptionAsync(context, resultException).ConfigureAwait(false);
             }                           
+        }
+
+        private bool BlockIE11(HttpContext context)
+        {
+            if (context == null)
+                return false;
+
+            if (!_blockIE)
+                return false;
+
+            if (_webPort == null || context.Connection.LocalPort != _webPort)
+            {
+                // we have a call to some API endpoint, that's OK
+
+                return false;
+            }
+
+            if (!context.Request.Headers.ContainsKey("User-Agent"))
+                return false;
+
+            var path = context.Request.Path.Value;
+
+            if (!string.IsNullOrEmpty(path) && (path.ToLower().StartsWith("/error") || path.Contains("/js/") || path.Contains("/css/") || path.Contains("/fonts/")))
+            {
+                return false;
+            }
+
+            var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
+            
+            if (string.IsNullOrEmpty(userAgent))
+                return false;
+
+            if (userAgent.Contains("MSIE ") ||
+                userAgent.Contains("Trident/") || true)
+            {
+                // IE < 11, IE 11 or similar
+
+                var redirectUrl = $"/Error?errorCode=ie11_and_lower_not_supported";
+
+                context.Response.Redirect(redirectUrl);
+
+                return true;
+            }
+
+            // lets allow Edge, it should be fine
+
+            return false;
         }
 
         private async Task HandleResultExceptionAsync(HttpContext context, ApiException resultException)

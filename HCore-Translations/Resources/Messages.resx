@@ -420,6 +420,9 @@
   <data name="permission_denied" xml:space="preserve">
     <value>The permission to access this location was denied</value>
   </data>
+  <data name="ie11_and_lower_not_supported" xml:space="preserve">
+    <value>Microsoft has ended official support for Internet Explorer 11 and older generations of Internet Explorer. For security reasons, this page therefore only works with the Microsoft Edge browser</value>
+  </data>
   <data name="organization_invalid" xml:space="preserve">
     <value>The company name is invalid</value>
   </data>

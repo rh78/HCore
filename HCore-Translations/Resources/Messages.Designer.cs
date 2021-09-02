@@ -745,6 +745,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Microsoft has ended official support for Internet Explorer 11 and older generations of Internet Explorer. For security reasons, this page therefore only works with the Microsoft Edge browser.
+        /// </summary>
+        public static string ie11_and_lower_not_supported {
+            get {
+                return ResourceManager.GetString("ie11_and_lower_not_supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected server error occured.
         /// </summary>
         public static string internal_server_error {
