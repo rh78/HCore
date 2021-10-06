@@ -108,7 +108,7 @@ namespace HCore.Emailing.Sender.Impl
             }            
         }
 
-        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool fallback = true)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -159,6 +159,15 @@ namespace HCore.Emailing.Sender.Impl
             if (response.StatusCode != HttpStatusCode.Accepted)
             {
                 string body = await response.Body.ReadAsStringAsync().ConfigureAwait(false);
+
+                if (!string.IsNullOrEmpty(body) && body.IndexOf("The from address does not match a verified Sender Identity") > -1 && fallback)
+                {
+                    // fall back to verified sender identity
+
+                    await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, fallback: false).ConfigureAwait(false);
+
+                    return;
+                }
 
                 throw new Exception($"SendGrid email sending failed with status code {response.StatusCode}: {body}");
             }                               
