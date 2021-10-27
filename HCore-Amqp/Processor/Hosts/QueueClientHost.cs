@@ -26,7 +26,7 @@ namespace HCore.Amqp.Processor.Hosts
 
         protected readonly CancellationToken CancellationToken;
 
-        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private readonly static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
@@ -149,7 +149,7 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     error = true;
 
-                    await semaphore.WaitAsync().ConfigureAwait(false);
+                    await _semaphore.WaitAsync().ConfigureAwait(false);
 
                     try { 
                         if (queueClient == _queueClient)
@@ -168,7 +168,7 @@ namespace HCore.Amqp.Processor.Hosts
                     }
                     finally
                     {
-                        semaphore.Release();
+                        _semaphore.Release();
                     }
 
                     if (!CancellationToken.IsCancellationRequested)

@@ -13,7 +13,7 @@ namespace HCore.Amqp.Processor.Hosts
     {
         private SenderLink _senderLink;
 
-        private readonly static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        private readonly static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         private ILogger<AMQP10MessengerImpl> _logger;
 
@@ -62,7 +62,7 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     error = true;
 
-                    await semaphore.WaitAsync().ConfigureAwait(false);
+                    await _semaphore.WaitAsync().ConfigureAwait(false);
 
                     try
                     {
@@ -82,7 +82,7 @@ namespace HCore.Amqp.Processor.Hosts
                     }
                     finally
                     {
-                        semaphore.Release();
+                        _semaphore.Release();
                     }
 
                     if (!CancellationToken.IsCancellationRequested)
