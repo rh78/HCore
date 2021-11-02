@@ -62,6 +62,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 Email = user.GetEmail(),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
+                Organization = user.Organization,
+                CustomIdentifier = user.CustomIdentifier,
                 PhoneNumber = user.PhoneNumber,
                 NotificationCulture = user.NotificationCulture,
                 GroupNotifications = user.GroupNotifications,
