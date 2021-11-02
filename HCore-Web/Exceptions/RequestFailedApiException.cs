@@ -114,6 +114,9 @@ namespace HCore.Web.Exceptions
         public const string OrganizationMissing = "organization_missing";
         public const string OrganizationInvalid = "organization_invalid";
         public const string OrganizationTooLong = "organization_too_long";
+        public const string CustomIdentifierMissing = "custom_identifier_missing";
+        public const string CustomIdentifierInvalid = "custom_identifier_invalid";
+        public const string CustomIdentifierTooLong = "custom_identifier_too_long";
         public const string PhoneNumberMissing = "phone_number_missing";
         public const string PhoneNumberInvalid = "phone_number_invalid";
         public const string PhoneNumberTooLong = "phone_number_too_long";

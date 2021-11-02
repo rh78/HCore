@@ -432,6 +432,15 @@
   <data name="organization_too_long" xml:space="preserve">
     <value>The company name is too long</value>
   </data>
+  <data name="custom_identifier_invalid" xml:space="preserve">
+    <value>The custom identifier is invalid</value>
+  </data>
+  <data name="custom_identifier_missing" xml:space="preserve">
+    <value>The custom identifier is missing</value>
+  </data>
+  <data name="custom_identifier_too_long" xml:space="preserve">
+    <value>The custom identifier is too long</value>
+  </data>
   <data name="phone_number_invalid" xml:space="preserve">
     <value>The phone number is invalid</value>
   </data>

@@ -28,6 +28,8 @@ namespace HCore.Web.API.Impl
         
         public const int MaxOrganizationLength = 255;
 
+        public const int MaxCustomIdentifierLength = 255;
+
         public const int MaxPhoneNumberLength = 255;
 
         public const int MaxAddressLineLength = 50;
@@ -872,6 +874,22 @@ namespace HCore.Web.API.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.OrganizationTooLong, $"The company name is too long");
 
             return organization;
+        }
+
+        public static string ProcessCustomIdentifier(string customIdentifier)
+        {
+            customIdentifier = customIdentifier?.Trim();
+
+            if (string.IsNullOrEmpty(customIdentifier))
+                return null;
+
+            if (!SafeString.IsMatch(customIdentifier))
+                throw new RequestFailedApiException(RequestFailedApiException.CustomIdentifierInvalid, $"The custom identifier is invalid");
+
+            if (customIdentifier.Length > MaxCustomIdentifierLength)
+                throw new RequestFailedApiException(RequestFailedApiException.CustomIdentifierTooLong, $"The custom identifier is too long");
+
+            return customIdentifier;
         }
 
         public static string ProcessPhoneNumber(string phoneNumber)

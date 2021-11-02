@@ -432,6 +432,15 @@
   <data name="organization_too_long" xml:space="preserve">
     <value>Der Firmenname ist zu lang</value>
   </data>
+  <data name="custom_identifier_invalid" xml:space="preserve">
+    <value>Der benutzerdefinierte Wert ist ungültig</value>
+  </data>
+  <data name="custom_identifier_missing" xml:space="preserve">
+    <value>Der benutzerdefinierte Wert fehlt</value>
+  </data>
+  <data name="custom_identifier_too_long" xml:space="preserve">
+    <value>Der benutzerdefinierte Wert ist zu lang</value>
+  </data>
   <data name="phone_number_invalid" xml:space="preserve">
     <value>Die Telefonnummer ist ungültig</value>
   </data>

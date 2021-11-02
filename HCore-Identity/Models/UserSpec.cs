@@ -75,6 +75,18 @@ namespace HCore.Identity.Models
 
         public bool OrganizationSet = false;
 
+        private string _CustomIdentifier;
+
+        /// <summary>
+        /// The last name of the user
+        /// </summary>
+        /// <value>The last name of the user</value>
+        [Display(ResourceType = typeof(Messages), Name = "custom_identifier")]
+        [DataMember(Name = "custom_identifier")]
+        public string CustomIdentifier { get => _CustomIdentifier; set { _CustomIdentifier = value; CustomIdentifierSet = true; } }
+
+        public bool CustomIdentifierSet = false;
+
         private string _Password;
 
         /// <summary>
@@ -173,6 +185,7 @@ namespace HCore.Identity.Models
             sb.Append("  FirstName: ").Append(FirstName).Append("\n");
             sb.Append("  LastName: ").Append(LastName).Append("\n");
             sb.Append("  Organization: ").Append(Organization).Append("\n");
+            sb.Append("  CustomIdentifier: ").Append(CustomIdentifier).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
@@ -237,6 +250,11 @@ namespace HCore.Identity.Models
                     Organization.Equals(other.Organization)
                 ) &&
                 (
+                    CustomIdentifier == other.CustomIdentifier ||
+                    CustomIdentifier != null &&
+                    CustomIdentifier.Equals(other.CustomIdentifier)
+                ) &&
+                (
                     Password == other.Password ||
                     Password != null &&
                     Password.Equals(other.Password)
@@ -289,6 +307,8 @@ namespace HCore.Identity.Models
                         hashCode = hashCode * 59 + LastName.GetHashCode();
                     if (Organization != null)
                         hashCode = hashCode * 59 + Organization.GetHashCode();
+                    if (CustomIdentifier != null)
+                        hashCode = hashCode * 59 + CustomIdentifier.GetHashCode();
                     if (Password != null)
                         hashCode = hashCode * 59 + Password.GetHashCode();
                     if (PasswordConfirmation != null)

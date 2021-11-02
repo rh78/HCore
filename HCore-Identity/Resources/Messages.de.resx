@@ -225,6 +225,9 @@
   <data name="organization" xml:space="preserve">
     <value>Firmenname</value>
   </data>
+  <data name="custom_identifier" xml:space="preserve">
+    <value>Benutzerdefinierter Wert</value>
+  </data>
   <data name="log_out_confirmed_header" xml:space="preserve">
     <value>Sie wurden abgemeldet</value>
   </data>

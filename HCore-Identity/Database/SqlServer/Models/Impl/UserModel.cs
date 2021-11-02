@@ -22,6 +22,9 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         [StringLength(Web.API.Impl.ApiImpl.MaxOrganizationLength)]
         public string Organization { get; set; }
 
+        [StringLength(Web.API.Impl.ApiImpl.MaxCustomIdentifierLength)]
+        public string CustomIdentifier { get; set; }
+
         public List<string> MemberOf { get; set; }
 
         public string NotificationCulture { get; set; }

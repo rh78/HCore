@@ -484,6 +484,33 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The custom identifier is invalid.
+        /// </summary>
+        public static string custom_identifier_invalid {
+            get {
+                return ResourceManager.GetString("custom_identifier_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The custom identifier is missing.
+        /// </summary>
+        public static string custom_identifier_missing {
+            get {
+                return ResourceManager.GetString("custom_identifier_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The custom identifier is too long.
+        /// </summary>
+        public static string custom_identifier_too_long {
+            get {
+                return ResourceManager.GetString("custom_identifier_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The default language is missing.
         /// </summary>
         public static string default_culture_missing {

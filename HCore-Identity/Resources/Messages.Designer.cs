@@ -295,6 +295,15 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom identifier.
+        /// </summary>
+        public static string custom_identifier {
+            get {
+                return ResourceManager.GetString("custom_identifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email.
         /// </summary>
         public static string email_address {
