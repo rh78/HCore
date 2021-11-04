@@ -22,6 +22,7 @@ namespace HCore.Tenants.Models.Impl
         public string LogoSvgUrl { get; internal set; }
         public string LogoPngUrl { get; internal set; }
         public string IconIcoUrl { get; internal set; }
+        public string AppleTouchIconUrl { get; internal set; }
 
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }

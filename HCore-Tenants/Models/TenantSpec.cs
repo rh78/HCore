@@ -80,7 +80,18 @@ namespace HCore.Tenants.Models
         [DataMember(Name="icon_ico_url")]
 		public string IconIcoUrl { get => _IconIcoUrl; set { _IconIcoUrl = value; IconIcoUrlSet = true; } }
 		
-		public bool IconIcoUrlSet = false;		
+		public bool IconIcoUrlSet = false;	
+        
+        private string _AppleTouchIconUrl;
+		
+		/// <summary>
+        /// An optional link to the content provider apple touch icon in PNG format for favicon use
+        /// </summary>
+        /// <value>An optional link to the content provider apple touch icon in PNG format for favicon use</value>
+        [DataMember(Name="apple_touch_icon_url")]
+		public string AppleTouchIconUrl { get => _AppleTouchIconUrl; set { _AppleTouchIconUrl = value; AppleTouchIconUrlSet = true; } }
+		
+		public bool AppleTouchIconUrlSet = false;		
 
 		private int? _PrimaryColor;
 		
@@ -227,6 +238,7 @@ namespace HCore.Tenants.Models
             sb.Append("  LogoSvgUrl: ").Append(LogoSvgUrl).Append("\n");
             sb.Append("  LogoPngUrl: ").Append(LogoPngUrl).Append("\n");
             sb.Append("  IconIcoUrl: ").Append(IconIcoUrl).Append("\n");
+            sb.Append("  AppleTouchIconUrl: ").Append(AppleTouchIconUrl).Append("\n");
             sb.Append("  PrimaryColor: ").Append(PrimaryColor).Append("\n");
             sb.Append("  SecondaryColor: ").Append(SecondaryColor).Append("\n");
             sb.Append("  TextOnPrimaryColor: ").Append(TextOnPrimaryColor).Append("\n");
@@ -299,6 +311,11 @@ namespace HCore.Tenants.Models
                     IconIcoUrl == other.IconIcoUrl ||
                     IconIcoUrl != null &&
                     IconIcoUrl.Equals(other.IconIcoUrl)
+                ) && 
+                (
+                    AppleTouchIconUrl == other.AppleTouchIconUrl ||
+                    AppleTouchIconUrl != null &&
+                    AppleTouchIconUrl.Equals(other.AppleTouchIconUrl)
                 ) && 
                 (
                     PrimaryColor == other.PrimaryColor ||
@@ -382,6 +399,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + LogoPngUrl.GetHashCode();
                     if (IconIcoUrl != null)
                     hashCode = hashCode * 59 + IconIcoUrl.GetHashCode();
+                    if (AppleTouchIconUrl != null)
+                    hashCode = hashCode * 59 + AppleTouchIconUrl.GetHashCode();
                     if (PrimaryColor != null)
                     hashCode = hashCode * 59 + PrimaryColor.GetHashCode();
                     if (SecondaryColor != null)

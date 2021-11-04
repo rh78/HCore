@@ -160,6 +160,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The Apple touch icon URL is missing.
+        /// </summary>
+        public static string apple_touch_icon_url_missing {
+            get {
+                return ResourceManager.GetString("apple_touch_icon_url_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Apple touch icon URL is too long.
+        /// </summary>
+        public static string apple_touch_icon_url_too_long {
+            get {
+                return ResourceManager.GetString("apple_touch_icon_url_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The argument is invalid.
         /// </summary>
         public static string argument_invalid {

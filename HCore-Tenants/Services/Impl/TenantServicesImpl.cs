@@ -110,6 +110,13 @@ namespace HCore.Tenants.Services.Impl
                 tenantModel.IconIcoUrl = iconIcoUrl;
             }
 
+            if (tenantSpec.AppleTouchIconUrlSet)
+            {
+                string appleTouchIconUrl = ProcessAppleTouchIconUrl(tenantSpec.AppleTouchIconUrl);
+
+                tenantModel.AppleTouchIconUrl = appleTouchIconUrl;
+            }
+
             if (tenantSpec.PrimaryColorSet)
             {
                 int? primaryColor = ProcessPrimaryColor(tenantSpec.PrimaryColor);
@@ -391,6 +398,18 @@ namespace HCore.Tenants.Services.Impl
                     }
                 }
 
+                if (tenantSpec.AppleTouchIconUrlSet)
+                {
+                    string appleTouchIconUrl = ProcessAppleTouchIconUrl(tenantSpec.AppleTouchIconUrl);
+
+                    if (!string.Equals(tenantModelForUpdate.AppleTouchIconUrl, appleTouchIconUrl))
+                    {
+                        tenantModelForUpdate.AppleTouchIconUrl = appleTouchIconUrl;
+
+                        changed = true;
+                    }
+                }
+
                 if (tenantSpec.PrimaryColorSet)
                 {
                     int? primaryColor = ProcessPrimaryColor(tenantSpec.PrimaryColor);
@@ -647,6 +666,12 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.IconIcoUrl = iconIcoUrl;
 
+                    string appleTouchIconUrl = tenantModel.AppleTouchIconUrl;
+                    if (string.IsNullOrEmpty(appleTouchIconUrl))
+                        appleTouchIconUrl = developerInfo.AppleTouchIconUrl;
+
+                    tenant.AppleTouchIconUrl = appleTouchIconUrl;
+
                     int? primaryColor = tenantModel.PrimaryColor;
                     if (primaryColor == null)
                         primaryColor = developerInfo.PrimaryColor;
@@ -804,6 +829,19 @@ namespace HCore.Tenants.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.IconIcoUrlTooLong, "The icon ICO URL is too long");
 
             return iconIcoUrl;
+        }
+
+        private string ProcessAppleTouchIconUrl(string appleTouchIconUrl)
+        {
+            appleTouchIconUrl = appleTouchIconUrl?.Trim();
+
+            if (string.IsNullOrEmpty(appleTouchIconUrl))
+                throw new RequestFailedApiException(RequestFailedApiException.AppleTouchIconUrlMissing, "The apple touch icon URL is missing");
+
+            if (appleTouchIconUrl.Length > TenantModel.MaxUrlLength)
+                throw new RequestFailedApiException(RequestFailedApiException.AppleTouchIconUrlTooLong, "The apple touch icon URL is too long");
+
+            return appleTouchIconUrl;
         }
 
         private int? ProcessPrimaryColor(int? primaryColor)

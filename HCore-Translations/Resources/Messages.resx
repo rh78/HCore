@@ -318,6 +318,12 @@
   <data name="icon_ico_url_too_long" xml:space="preserve">
     <value>The icon ICO URL is too long</value>
   </data>
+  <data name="apple_touch_icon_url_missing" xml:space="preserve">
+    <value>The Apple touch icon URL is missing</value>
+  </data>
+  <data name="apple_touch_icon_url_too_long" xml:space="preserve">
+    <value>The Apple touch icon URL is too long</value>
+  </data>
   <data name="not_found" xml:space="preserve">
     <value>The record was not found</value>
   </data>

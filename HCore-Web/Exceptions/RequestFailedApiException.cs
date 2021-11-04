@@ -87,6 +87,8 @@ namespace HCore.Web.Exceptions
         public const string LogoPngUrlTooLong = "logo_png_url_too_long";
         public const string IconIcoUrlMissing = "icon_ico_url_missing";
         public const string IconIcoUrlTooLong = "icon_ico_url_too_long";
+        public const string AppleTouchIconUrlMissing = "apple_touch_icon_url_missing";
+        public const string AppleTouchIconUrlTooLong = "apple_touch_icon_url_too_long";
         public const string TooManyUpdateRecords = "too_many_update_records";
         public const string NoRecordsSpecified = "no_records_specified";
         public const string UserGroupUuidMissing = "user_group_uuid_missing";

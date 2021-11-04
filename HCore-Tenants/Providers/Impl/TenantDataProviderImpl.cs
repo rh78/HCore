@@ -174,6 +174,7 @@ namespace HCore.Tenants.Providers.Impl
                             LogoSvgUrl = developerModel.LogoSvgUrl,
                             LogoPngUrl = developerModel.LogoPngUrl,
                             IconIcoUrl = developerModel.IconIcoUrl,
+                            AppleTouchIconUrl = developerModel.AppleTouchIconUrl,
                             StorageImplementation = developerModel.StorageImplementation,
                             StorageConnectionString = developerModel.StorageConnectionString,
                             PrimaryColor = developerModel.PrimaryColor,
@@ -406,6 +407,10 @@ namespace HCore.Tenants.Providers.Impl
             string iconIcoUrl = tenantModel.IconIcoUrl;
             if (string.IsNullOrEmpty(iconIcoUrl))
                 iconIcoUrl = developerModel.IconIcoUrl;
+
+            string appleTouchIconUrl = tenantModel.AppleTouchIconUrl;
+            if (string.IsNullOrEmpty(appleTouchIconUrl))
+                appleTouchIconUrl = developerModel.AppleTouchIconUrl;
 
             string storageImplementation = tenantModel.StorageImplementation;
             if (string.IsNullOrEmpty(storageImplementation))
@@ -708,6 +713,7 @@ namespace HCore.Tenants.Providers.Impl
                 LogoSvgUrl = logoSvgUrl,
                 LogoPngUrl = logoPngUrl,
                 IconIcoUrl = iconIcoUrl,
+                AppleTouchIconUrl = appleTouchIconUrl,
                 StorageImplementation = storageImplementation,
                 StorageConnectionString = storageConnectionString,
                 PrimaryColor = (int)primaryColor,

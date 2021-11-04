@@ -69,6 +69,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxUrlLength)]
         public string IconIcoUrl { get; set; }
 
+        [StringLength(MaxUrlLength)]
+        public string AppleTouchIconUrl { get; set; }
+
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
 
