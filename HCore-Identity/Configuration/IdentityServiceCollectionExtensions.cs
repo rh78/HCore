@@ -326,16 +326,15 @@ namespace Microsoft.Extensions.DependencyInjection
                             openIdConnect.UsePkce = true;
                         }
 
+                        openIdConnect.Events = new OpenIdConnectEvents();
+
                         if (!string.IsNullOrEmpty(oidcAcrValues))
                         {
-                            openIdConnect.Events = new OpenIdConnectEvents
+                            openIdConnect.Events.OnRedirectToIdentityProvider = (context) =>
                             {
-                                OnRedirectToIdentityProvider = context =>
-                                {
-                                    context.ProtocolMessage.SetParameter("acr_values", AdjustAcrValues(oidcAcrValues, oidcAcrValuesAppendix, oidcTriggerAcrValuesAppendixByUrlParameter, context.Request));
+                                context.ProtocolMessage.SetParameter("acr_values", AdjustAcrValues(oidcAcrValues, oidcAcrValuesAppendix, oidcTriggerAcrValuesAppendixByUrlParameter, context.Request));
 
-                                    return Task.CompletedTask;
-                                }
+                                return Task.CompletedTask;
                             };
                         }
 
@@ -365,6 +364,27 @@ namespace Microsoft.Extensions.DependencyInjection
                         {
                             openIdConnect.Scope.Add(scope);
                         }
+
+                        openIdConnect.Events.OnTokenValidated = (context) =>
+                        {
+                            var authorizationEndpoint = context.ProtocolMessage.AuthorizationEndpoint;
+
+                            var identity = context.Principal.Identity as ClaimsIdentity;
+
+                            if (identity != null)
+                            {
+                                Claim issuerClaim;
+
+                                while ((issuerClaim = identity.Claims.FirstOrDefault(claim => string.Equals(claim.Type, "issuer"))) != null)
+                                {
+                                    identity.RemoveClaim(issuerClaim);
+                                }
+
+                                identity.AddClaim(new Claim("issuer", authorizationEndpoint));
+                            }
+
+                            return Task.CompletedTask;
+                        };
                     }
                 });
 
