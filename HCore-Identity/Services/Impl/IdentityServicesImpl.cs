@@ -799,15 +799,6 @@ namespace HCore.Identity.Services.Impl
 
                 if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedEmailAddress))
                 {
-                    string issuer = ProcessIssuer(externalUser);
-
-                    if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
-                    {
-                        _logger.LogError($"Dev admin authorized issuers check failed for email address {normalizedEmailAddress} and issuer {issuer}");
-
-                        throw new Exception("The external authentication failed");
-                    }
-
                     // debug information to the console, without logging it to Sentry
 
                     Console.WriteLine("Dev admin SSO login diagnostics output:");
@@ -818,6 +809,15 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     Console.WriteLine("SSO diagnostics output done");
+
+                    string issuer = ProcessIssuer(externalUser);
+
+                    if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
+                    {
+                        _logger.LogError($"Dev admin authorized issuers check failed for email address {normalizedEmailAddress} and issuer {issuer}");
+
+                        throw new Exception("The external authentication failed");
+                    }
                 }
 
                 var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
