@@ -372,8 +372,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
                             var identity = context.Principal.Identity as ClaimsIdentity;
 
-                            // TODO remove after debugging
-
                             if (string.IsNullOrEmpty(issuer))
                             {
                                 Console.WriteLine($"Didnt find issuer. Original message: {JsonConvert.SerializeObject(context.SecurityToken)}");
