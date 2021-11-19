@@ -343,7 +343,7 @@ namespace HCore.Identity.Services.Impl
                     }
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-                    user.GroupNotifications = true;
+                    user.GroupNotifications = false;
                     user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
@@ -568,7 +568,7 @@ namespace HCore.Identity.Services.Impl
                     user.EmailConfirmed = true;
 
                     user.NotificationCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
-                    user.GroupNotifications = true;
+                    user.GroupNotifications = false;
                     user.Currency = GetDefaultCurrency();
 
                     user.PrivacyPolicyAccepted = _nowProvider.Now;
