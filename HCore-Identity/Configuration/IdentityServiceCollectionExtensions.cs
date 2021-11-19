@@ -368,7 +368,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.Events.OnTokenValidated = (context) =>
                         {
-                            var issuer = context.ProtocolMessage.Iss;
+                            var issuer = context.SecurityToken?.Issuer;
 
                             var identity = context.Principal.Identity as ClaimsIdentity;
 
@@ -376,7 +376,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                             if (string.IsNullOrEmpty(issuer))
                             {
-                                Console.WriteLine($"Didnt find issuer. Original message: {JsonConvert.SerializeObject(context.ProtocolMessage)}");
+                                Console.WriteLine($"Didnt find issuer. Original message: {JsonConvert.SerializeObject(context.SecurityToken)}");
 
                                 return Task.CompletedTask;
                             }
