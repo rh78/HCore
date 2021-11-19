@@ -323,7 +323,7 @@ namespace HCore.Web.API.Impl
 
         public static bool ProcessGroupNotifications(bool? groupNotifications)
         {
-            return groupNotifications ?? true;
+            return groupNotifications ?? false;
         }
 
         public static string ProcessScrollUuid(string scrollUuid)
