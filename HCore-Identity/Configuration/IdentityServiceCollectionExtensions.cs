@@ -45,6 +45,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Logging;
+using Newtonsoft.Json;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -367,11 +368,18 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.Events.OnTokenValidated = (context) =>
                         {
-                            var authorizationEndpoint = context.ProtocolMessage.AuthorizationEndpoint;
+                            var issuer = context.ProtocolMessage.Iss;
 
                             var identity = context.Principal.Identity as ClaimsIdentity;
 
-                            if (identity != null)
+                            // TODO remove after debugging
+
+                            if (string.IsNullOrEmpty(issuer))
+                            {
+                                Console.WriteLine($"Didnt find issuer. Original message: {JsonConvert.SerializeObject(context.ProtocolMessage)}");
+                            }
+
+                            if (identity != null && !string.IsNullOrEmpty(issuer))
                             {
                                 Claim issuerClaim;
 
@@ -380,7 +388,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                     identity.RemoveClaim(issuerClaim);
                                 }
 
-                                identity.AddClaim(new Claim("issuer", authorizationEndpoint));
+                                identity.AddClaim(new Claim("issuer", issuer));
                             }
 
                             return Task.CompletedTask;
