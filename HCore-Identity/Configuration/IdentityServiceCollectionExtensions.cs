@@ -377,6 +377,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             if (string.IsNullOrEmpty(issuer))
                             {
                                 Console.WriteLine($"Didnt find issuer. Original message: {JsonConvert.SerializeObject(context.ProtocolMessage)}");
+
+                                return Task.CompletedTask;
                             }
 
                             if (identity != null && !string.IsNullOrEmpty(issuer))
