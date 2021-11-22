@@ -10,5 +10,6 @@ namespace HCore.Templating.Emails.ViewModels.Shared
         
         public string Title { get; set; }
         public string PreHeader { get; set; }
+        public bool HideVendorAds { get; set; }
     }
 }
