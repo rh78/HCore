@@ -1868,11 +1868,11 @@ namespace HCore.Identity.Services.Impl
         private string ProcessIdentityToken(AuthenticationTicket authenticationTicket)
         {
             if (authenticationTicket == null || authenticationTicket.Properties == null)
-                throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenMissing, "The identity token is missing");
+                return null;
 
             var identityToken = authenticationTicket.Properties.GetTokenValue("id_token");
             if (string.IsNullOrEmpty(identityToken))
-                throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenMissing, "The identity token is missing");
+                return null;
 
             if (identityToken.Length > ApiImpl.MaxIdentityTokenLength)
                 throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenTooLong, "The identity token is too long");

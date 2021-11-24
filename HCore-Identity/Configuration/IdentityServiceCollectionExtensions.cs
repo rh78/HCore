@@ -325,7 +325,11 @@ namespace Microsoft.Extensions.DependencyInjection
                             openIdConnect.UsePkce = true;
                         }
 
-                        openIdConnect.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                        if (oidcUsePkce)
+                        {
+                            openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
+                        }
+
                         openIdConnect.SaveTokens = true;
 
                         openIdConnect.Events = new OpenIdConnectEvents();
