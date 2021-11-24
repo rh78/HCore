@@ -464,7 +464,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
 
@@ -562,6 +562,9 @@ namespace HCore.Identity.Services.Impl
                     {
                         user.PhoneNumber = phoneNumber;
                     }
+
+                    var identityToken = ProcessIdentityToken(authenticationTicket);
+                    user.IdentityTokenCache = identityToken;
 
                     // we'll have external emails always confirmed
 
@@ -835,7 +838,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
 
                         return (user, true);
                     }
@@ -888,6 +891,9 @@ namespace HCore.Identity.Services.Impl
                         {
                             phoneNumber = ProcessPhoneNumber(externalUser);
                         }
+
+                        var identityToken = ProcessIdentityToken(authenticateResult.Ticket);
+                        user.IdentityTokenCache = identityToken;
 
                         HashSet<string> memberOf = ProcessMemberOf(externalUser);
 
@@ -1209,6 +1215,27 @@ namespace HCore.Identity.Services.Impl
 
                 if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                 {
+                    UserModel userModel = null;
+
+                    var userUuid = httpContext.User.GetUserUuid();
+
+                    if (!string.IsNullOrEmpty(userUuid))
+                    {
+                        userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                    }
+
+                    string idTokenHint = null;
+
+                    if (userModel != null)
+                    {
+                        idTokenHint = userModel.IdentityTokenCache;
+                    }
+
+                    if (!string.IsNullOrEmpty(idTokenHint))
+                    {
+                        httpContext.Items[IdentityCoreConstants.HttpContextItemsIdTokenHint] = idTokenHint;
+                    }
+
                     await httpContext.SignOutAsync(IdentityCoreConstants.ExternalOidcScheme).ConfigureAwait(false);
                 }
                 else if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
@@ -1836,6 +1863,21 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.CodeTooLong, "The code is too long");
 
             return code;
+        }
+
+        private string ProcessIdentityToken(AuthenticationTicket authenticationTicket)
+        {
+            if (authenticationTicket == null || authenticationTicket.Properties == null)
+                throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenMissing, "The identity token is missing");
+
+            var identityToken = authenticationTicket.Properties.GetTokenValue("id_token");
+            if (string.IsNullOrEmpty(identityToken))
+                throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenMissing, "The identity token is missing");
+
+            if (identityToken.Length > ApiImpl.MaxIdentityTokenLength)
+                throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenTooLong, "The identity token is too long");
+
+            return identityToken;
         }
 
         private string GetDefaultCurrency()

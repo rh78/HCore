@@ -322,10 +322,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         }
                         else
                         {
-                            openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
-
                             openIdConnect.UsePkce = true;
                         }
+
+                        openIdConnect.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                        openIdConnect.SaveTokens = true;
 
                         openIdConnect.Events = new OpenIdConnectEvents();
 
@@ -338,6 +339,16 @@ namespace Microsoft.Extensions.DependencyInjection
                                 return Task.CompletedTask;
                             };
                         }
+
+                        openIdConnect.Events.OnRedirectToIdentityProviderForSignOut = context =>
+                        {
+                            if (context.HttpContext.Items.ContainsKey(IdentityCoreConstants.HttpContextItemsIdTokenHint))
+                            {
+                                context.ProtocolMessage.IdTokenHint = (string)context.HttpContext.Items[IdentityCoreConstants.HttpContextItemsIdTokenHint];
+                            }
+
+                            return Task.CompletedTask;
+                        };
 
                         // make sure we get user group membership information
 
