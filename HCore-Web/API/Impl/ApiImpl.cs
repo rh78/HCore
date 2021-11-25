@@ -949,7 +949,7 @@ namespace HCore.Web.API.Impl
             // see https://www.pusher.com/docs/channels/using_channels/channels
 
             return string.IsNullOrWhiteSpace(channelName) ?
-                channelName : Regex.Replace(channelName, @"[^-=@,;_a-zA-Z0-9\.]", "_");
+                channelName : Regex.Replace(channelName, @"[^-=@,:;_a-zA-Z0-9\.]", "_");
         }
 
         public static void ProcessBulkUpdateCount(int count)
