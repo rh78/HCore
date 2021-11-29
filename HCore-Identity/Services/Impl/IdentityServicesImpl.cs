@@ -1502,7 +1502,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public Task AcceptTermsAsync(string userUuid, UserAcceptTermsSpec userAcceptTermsSpec)
+        public Task AcceptTermsAsync(string userUuid, string code, UserAcceptTermsSpec userAcceptTermsSpec)
         {
             throw new NotImplementedException();
         }

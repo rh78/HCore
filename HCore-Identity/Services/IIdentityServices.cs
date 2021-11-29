@@ -12,7 +12,7 @@ namespace HCore.Identity.Services
         Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true, RecaptchaSettings recaptcha = null, bool ignoreSelfRegistrationRestriction = false);
         Task<UserModel> ConfirmUserEmailAddressAsync(string userUuid, UserConfirmEmailSpec userConfirmEmailSpec);
         Task ResendUserEmailConfirmationEmailAsync(string userUuid);
-        Task AcceptTermsAsync(string userUuid, UserAcceptTermsSpec userAcceptTermsSpec);
+        Task AcceptTermsAsync(string userUuid, string code, UserAcceptTermsSpec userAcceptTermsSpec);
 
         Task UserForgotPasswordAsync(UserForgotPasswordSpec userForgotPasswordSpec, HttpRequest request = null, RecaptchaSettings recaptchaSettings = null);
         Task ResetUserPasswordAsync(ResetUserPasswordSpec resetUserPasswordSpec);
