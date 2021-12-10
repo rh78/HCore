@@ -1592,7 +1592,7 @@ namespace HCore.Identity.Services.Impl
             if (string.IsNullOrEmpty(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
             
-            if (!ApiImpl.SafeString.IsMatch(firstName))
+            if (!ApiImpl.SafeStringName.IsMatch(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, "The first name contains invalid characters");
 
             if (firstName.Length > HCore.Web.API.Impl.ApiImpl.MaxFirstNameLength)
@@ -1626,7 +1626,7 @@ namespace HCore.Identity.Services.Impl
             if (string.IsNullOrEmpty(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
             
-            if (!ApiImpl.SafeString.IsMatch(lastName))
+            if (!ApiImpl.SafeStringName.IsMatch(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, "The last name contains invalid characters");
 
             if (lastName.Length > HCore.Web.API.Impl.ApiImpl.MaxLastNameLength)

@@ -12,7 +12,7 @@ namespace HCore.Web.API.Impl
     {
         public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9\.@_\-\+\:\{\}]+$");
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\):/]+$");
-        public static readonly Regex ExtendedSafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\)\[\]\&:/]+$");
+        public static readonly Regex SafeStringName = new Regex(@"^[\w\s\.@_\-\+\=\(\):/\']+$");
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
@@ -835,7 +835,7 @@ namespace HCore.Web.API.Impl
             if (string.IsNullOrEmpty(firstName))
                 return null;
 
-            if (!SafeString.IsMatch(firstName))
+            if (!SafeStringName.IsMatch(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, $"The first name is invalid");
 
             if (firstName.Length > MaxFirstNameLength)
@@ -851,7 +851,7 @@ namespace HCore.Web.API.Impl
             if (string.IsNullOrEmpty(lastName))
                 return null;
 
-            if (!SafeString.IsMatch(lastName))
+            if (!SafeStringName.IsMatch(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, $"The last name is invalid");
 
             if (lastName.Length > MaxLastNameLength)
