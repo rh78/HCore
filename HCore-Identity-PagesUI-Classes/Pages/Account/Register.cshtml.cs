@@ -152,7 +152,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (!new EmailAddressAttribute().IsValid(emailAddress))
                 return null;
 
-            if (emailAddress.Length > Web.API.Impl.ApiImpl.MaxEmailAddressLength)
+            if (emailAddress.Length > ApiImpl.MaxEmailAddressLength)
                 return null;
 
             return emailAddress;
@@ -163,7 +163,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(firstName))
                 return null;
 
-            if (firstName.Length > Web.API.Impl.ApiImpl.MaxFirstNameLength)
+            if (firstName.Length > ApiImpl.MaxFirstNameLength)
                 return null;
 
             firstName = CleanInput(firstName);            
@@ -179,7 +179,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(lastName))
                 return null;
 
-            if (lastName.Length > Web.API.Impl.ApiImpl.MaxLastNameLength)
+            if (lastName.Length > ApiImpl.MaxLastNameLength)
                 return null;
 
             lastName = CleanInput(lastName);
@@ -319,8 +319,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             }
         }
 
-        // see https://docs.microsoft.com/en-us/dotnet/standard/base-types/how-to-strip-invalid-characters-from-a-string
-
         private string CleanInput(string str)
         {
             if (string.IsNullOrEmpty(str))
@@ -330,17 +328,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             str = WebUtility.UrlDecode(str);
 
-            try
-            {
-                return Regex.Replace(str, @"[^\w\.@\-\s]", "",
-                                     RegexOptions.None, TimeSpan.FromSeconds(1.5));
-            }
-            // If we timeout when replacing invalid characters, 
-            // we should return Empty.
-            catch (RegexMatchTimeoutException)
-            {
-                return null;
-            }
+            return ApiImpl.CleanToSafeString(str);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace HCore.Web.API.Impl
     {
         public static readonly Regex Uuid = new Regex(@"^[a-zA-Z0-9\.@_\-\+\:\{\}]+$");
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\):/]+$");
-        public static readonly Regex SafeStringName = new Regex(@"^[\w\s\.@_\-\+\=\(\):/\']+$");
+        public static readonly string CleanToSafeStringRegex = @"[^\w\s\.@_\-\+\=\(\):/]";
 
         public static readonly CultureInfo DefaultCultureInfo = CultureInfo.GetCultureInfo("en-US");
 
@@ -830,13 +830,10 @@ namespace HCore.Web.API.Impl
 
         public static string ProcessFirstName(string firstName)
         {
-            firstName = firstName?.Trim();
+            firstName = CleanToSafeString(firstName);
 
             if (string.IsNullOrEmpty(firstName))
                 return null;
-
-            if (!SafeStringName.IsMatch(firstName))
-                throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, $"The first name is invalid");
 
             if (firstName.Length > MaxFirstNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, $"The first name address is too long");
@@ -846,13 +843,10 @@ namespace HCore.Web.API.Impl
 
         public static string ProcessLastName(string lastName)
         {
-            lastName = lastName?.Trim();
+            lastName = CleanToSafeString(lastName);
 
             if (string.IsNullOrEmpty(lastName))
                 return null;
-
-            if (!SafeStringName.IsMatch(lastName))
-                throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, $"The last name is invalid");
 
             if (lastName.Length > MaxLastNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, $"The last name address is too long");
@@ -959,6 +953,31 @@ namespace HCore.Web.API.Impl
 
             if (count > MaxBulkUpdateCount)
                 throw new RequestFailedApiException(RequestFailedApiException.TooManyUpdateRecords, $"Please only update up to {MaxBulkUpdateCount} records at once");
+        }
+
+        public static string CleanToSafeString(string str)
+        {
+            if (str == null)
+                return null;
+
+            try
+            {
+                str = Regex.Replace(str, CleanToSafeStringRegex, "",
+                                    RegexOptions.None, TimeSpan.FromSeconds(1.5));
+
+                str = str?.Trim();
+
+                if (string.IsNullOrEmpty(str))
+                    return null;
+
+                return str;
+            }
+            // If we timeout when replacing invalid characters, 
+            // we should return Empty.
+            catch (RegexMatchTimeoutException)
+            {
+                return null;
+            }
         }
     }
 }

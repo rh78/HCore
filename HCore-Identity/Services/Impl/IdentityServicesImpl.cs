@@ -1515,7 +1515,7 @@ namespace HCore.Identity.Services.Impl
             if (!ApiImpl.Uuid.IsMatch(userUuid))
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidInvalid, "The user UUID is invalid");
 
-            if (userUuid.Length > HCore.Web.API.Impl.ApiImpl.MaxUserUuidLength)
+            if (userUuid.Length > ApiImpl.MaxUserUuidLength)
                 throw new RequestFailedApiException(RequestFailedApiException.UserUuidTooLong, "The user UUID is too long");
 
             return userUuid;
@@ -1534,7 +1534,7 @@ namespace HCore.Identity.Services.Impl
             if (!new EmailAddressAttribute().IsValid(email))
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
 
-            if (email.Length > HCore.Web.API.Impl.ApiImpl.MaxEmailAddressLength)
+            if (email.Length > ApiImpl.MaxEmailAddressLength)
                 throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is too long");
 
             return email;
@@ -1587,15 +1587,12 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessFirstName(string firstName)
         {
-            firstName = firstName?.Trim();
+            firstName = ApiImpl.CleanToSafeString(firstName);
 
             if (string.IsNullOrEmpty(firstName))
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
             
-            if (!ApiImpl.SafeStringName.IsMatch(firstName))
-                throw new RequestFailedApiException(RequestFailedApiException.FirstNameInvalid, "The first name contains invalid characters");
-
-            if (firstName.Length > HCore.Web.API.Impl.ApiImpl.MaxFirstNameLength)
+            if (firstName.Length > ApiImpl.MaxFirstNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, "The fist name is too long");
 
             return firstName;
@@ -1621,15 +1618,12 @@ namespace HCore.Identity.Services.Impl
 
         private string ProcessLastName(string lastName)
         {
-            lastName = lastName?.Trim();
+            lastName = ApiImpl.CleanToSafeString(lastName);
 
             if (string.IsNullOrEmpty(lastName))
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
             
-            if (!ApiImpl.SafeStringName.IsMatch(lastName))
-                throw new RequestFailedApiException(RequestFailedApiException.LastNameInvalid, "The last name contains invalid characters");
-
-            if (lastName.Length > HCore.Web.API.Impl.ApiImpl.MaxLastNameLength)
+            if (lastName.Length > ApiImpl.MaxLastNameLength)
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, "The last name is too long");
 
             return lastName;
@@ -1831,10 +1825,10 @@ namespace HCore.Identity.Services.Impl
             if (string.IsNullOrEmpty(password))
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordMissing, "The password is missing");
             
-            if (password.Length < HCore.Web.API.Impl.ApiImpl.MinPasswordLength)
+            if (password.Length < ApiImpl.MinPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooShort, "The password is too short");
 
-            if (password.Length > HCore.Web.API.Impl.ApiImpl.MaxPasswordLength)
+            if (password.Length > ApiImpl.MaxPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooLong, "The password is too long");
 
             return password;
