@@ -531,6 +531,12 @@
   <data name="user_name_too_long" xml:space="preserve">
     <value>Der Benutzername ist zu lang</value>
   </data>
+  <data name="user_already_registered" xml:space="preserve">
+    <value>Es kann keine Einladung gesendet werden, da sich der Benutzer inzwischen bereits registriert hat</value>
+  </data>
+  <data name="email_sending_failed" xml:space="preserve">
+    <value>Die E-Mail-Nachricht konnte leider nicht gesendet werden. Bitte stellen Sie sicher, dass die E-Mail-Adresse gültig ist</value>
+  </data>
   <data name="user_not_found" xml:space="preserve">
     <value>Der Benutzer wurde nicht gefunden</value>
   </data>

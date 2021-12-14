@@ -19,7 +19,7 @@ namespace HCore.Translations.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Messages {
@@ -633,6 +633,15 @@ namespace HCore.Translations.Resources {
         public static string email_not_existing {
             get {
                 return ResourceManager.GetString("email_not_existing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The email message unfortunately could not be send. Please make sure the email address is valid.
+        /// </summary>
+        public static string email_sending_failed {
+            get {
+                return ResourceManager.GetString("email_sending_failed", resourceCulture);
             }
         }
         
@@ -1938,6 +1947,15 @@ namespace HCore.Translations.Resources {
         public static string too_many_update_records {
             get {
                 return ResourceManager.GetString("too_many_update_records", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The invitation message cannot be sent, because the user already signed up in the meanwhile.
+        /// </summary>
+        public static string user_already_registered {
+            get {
+                return ResourceManager.GetString("user_already_registered", resourceCulture);
             }
         }
         

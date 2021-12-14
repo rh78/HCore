@@ -531,6 +531,12 @@
   <data name="user_name_too_long" xml:space="preserve">
     <value>The user name is too long</value>
   </data>
+  <data name="user_already_registered" xml:space="preserve">
+    <value>The invitation message cannot be sent, because the user already signed up in the meanwhile</value>
+  </data>
+	<data name="email_sending_failed" xml:space="preserve">
+    <value>The email message unfortunately could not be send. Please make sure the email address is valid</value>
+  </data>
   <data name="user_not_found" xml:space="preserve">
     <value>The user was not found</value>
   </data>
