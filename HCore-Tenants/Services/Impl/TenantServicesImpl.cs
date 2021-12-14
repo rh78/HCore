@@ -904,7 +904,7 @@ namespace HCore.Tenants.Services.Impl
             }
         }
 
-        private string ProcessSupportEmail(string supportEmail)
+        public static string ProcessSupportEmail(string supportEmail)
         {
             supportEmail = supportEmail?.Trim();
 
@@ -920,7 +920,7 @@ namespace HCore.Tenants.Services.Impl
             return supportEmail;
         }
 
-        private string ProcessSupportEmailDisplayName(string supportEmailDisplayName)
+        public static string ProcessSupportEmailDisplayName(string supportEmailDisplayName)
         {
             supportEmailDisplayName = supportEmailDisplayName?.Trim();
 
@@ -936,7 +936,7 @@ namespace HCore.Tenants.Services.Impl
             return supportEmailDisplayName;
         }
 
-        private string ProcessNoreplyEmail(string noreplyEmail)
+        public static string ProcessNoreplyEmail(string noreplyEmail)
         {
             noreplyEmail = noreplyEmail?.Trim();
 
@@ -952,7 +952,7 @@ namespace HCore.Tenants.Services.Impl
             return noreplyEmail;
         }
 
-        private string ProcessNoreplyEmailDisplayName(string noreplyEmailDisplayName)
+        public static string ProcessNoreplyEmailDisplayName(string noreplyEmailDisplayName)
         {
             noreplyEmailDisplayName = noreplyEmailDisplayName?.Trim();
 

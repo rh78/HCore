@@ -637,7 +637,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The email message unfortunately could not be send. Please make sure the email address is valid.
+        ///   Looks up a localized string similar to The email message to {uuid} unfortunately could not be send. Please make sure that the email address is valid and that your email sending settings are correct.
         /// </summary>
         public static string email_sending_failed {
             get {
@@ -1740,6 +1740,15 @@ namespace HCore.Translations.Resources {
         public static string sort_order_invalid {
             get {
                 return ResourceManager.GetString("sort_order_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The sender verification for email address {uuid} has not yet been finalized. You need to get in touch with support@smint.io to finalize the sender verification before you can proceed.
+        /// </summary>
+        public static string spf_dkim_setup_not_finalized {
+            get {
+                return ResourceManager.GetString("spf_dkim_setup_not_finalized", resourceCulture);
             }
         }
         

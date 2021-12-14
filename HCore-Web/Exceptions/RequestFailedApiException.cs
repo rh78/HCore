@@ -68,6 +68,7 @@ namespace HCore.Web.Exceptions
         public const string UserNameTooLong = "user_name_too_long";
         public const string UserAlreadyRegistered = "user_already_registered";
         public const string EmailSendingFailed = "email_sending_failed";
+        public const string SpfDkimSetupNotFinalized = "spf_dkim_setup_not_finalized";
         public const string PasswordMissing = "password_missing";        
         public const string PasswordTooShort = "password_too_short";
         public const string PasswordTooLong = "password_too_long";

@@ -25,7 +25,7 @@ namespace HCore.Identity.EmailSender.Impl
             string fromOverride = _tenantInfoAccessor != null ? _tenantInfoAccessor.TenantInfo.NoreplyEmail : null;
             string fromDisplayNameOverride = _tenantInfoAccessor != null ? _tenantInfoAccessor.TenantInfo.NoreplyEmailDisplayName : null;
 
-            await _emailSender.SendEmailAsync(null, fromOverride, fromDisplayNameOverride, new string[] { email }.ToList(), null, null, subject, htmlMessage).ConfigureAwait(false);
+            await _emailSender.SendEmailAsync(configurationKey: null, emailSenderConfiguration: null, fromOverride, fromDisplayNameOverride, new string[] { email }.ToList(), null, null, subject, htmlMessage).ConfigureAwait(false);
         }
     }
 }

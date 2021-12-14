@@ -23,6 +23,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel PermissionRequestDoneEmailSettings { get; set; }
         public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
 
+        public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
+
         public void MergeWith(EmailSettingsModel customEmailSettingsModel)
         {
             if (customEmailSettingsModel == null)
@@ -138,6 +140,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
                 else
                     PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.EmailSenderConfiguration != null)
+            {
+                EmailSenderConfiguration = customEmailSettingsModel.EmailSenderConfiguration;
             }
         }
 
@@ -256,6 +263,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                     PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
                 else
                     PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+            }
+
+            if (customEmailSettingsModel.EmailSenderConfiguration != null)
+            {
+                EmailSenderConfiguration = customEmailSettingsModel.EmailSenderConfiguration;
             }
         }
 

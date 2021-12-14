@@ -535,7 +535,10 @@
     <value>Es kann keine Einladung gesendet werden, da sich der Benutzer inzwischen bereits registriert hat</value>
   </data>
   <data name="email_sending_failed" xml:space="preserve">
-    <value>Die E-Mail-Nachricht konnte leider nicht gesendet werden. Bitte stellen Sie sicher, dass die E-Mail-Adresse gültig ist</value>
+    <value>Die E-Mail-Nachricht an {uuid} konnte leider nicht gesendet werden. Bitte stellen Sie sicher, dass die E-Mail-Adresse gültig ist und dass Ihre Email-Versandseinstellungen gültig sind</value>
+  </data>
+  <data name="spf_dkim_setup_not_finalized" xml:space="preserve">
+    <value>Die Absender-Verifizierung für die E-Mail-Adresse {uuid} ist noch nicht abgeschlossen. Sie müssen mit support@smint.io in Kontakt treten, um die Absender-Verifizierung abzuschließen, bevor Sie fortfahren können</value>
   </data>
   <data name="user_not_found" xml:space="preserve">
     <value>Der Benutzer wurde nicht gefunden</value>

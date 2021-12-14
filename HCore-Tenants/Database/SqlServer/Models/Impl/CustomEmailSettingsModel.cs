@@ -19,5 +19,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel AccessRequestDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel PermissionRequestDoneEmailSettings { get; set; }
         public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
+
+        public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
     }
 }

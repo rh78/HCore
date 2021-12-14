@@ -1,4 +1,5 @@
 ﻿using HCore.Amqp.Message;
+using HCore.Tenants.Database.SqlServer.Models.Impl;
 using System.Collections.Generic;
 
 namespace HCore.Emailing.AMQP
@@ -12,6 +13,8 @@ namespace HCore.Emailing.AMQP
 
         public string ConfigurationKey { get; set; }
 
+        public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
+
         public string FromOverride { get; set; }
         public string FromDisplayNameOverride { get; set; }
 
@@ -23,5 +26,7 @@ namespace HCore.Emailing.AMQP
         public string HtmlMessage { get; set; }
 
         public List<EmailSenderTaskEmailAttachment> EmailAttachments { get; set; }
+
+        public bool AllowFallback { get; set; }
     }
 }

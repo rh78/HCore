@@ -31,6 +31,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 services.AddSingleton<IEmailSender, AMQPEmailSenderImpl>();
 
+                services.AddSingleton<IDirectEmailSender, DirectEmailSenderImpl>();
+
                 Console.WriteLine("AMQP email sender initialized successfully");
             }
             else
@@ -38,6 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 Console.WriteLine("Initializing direct email sender...");
 
                 services.AddSingleton<IEmailSender, DirectEmailSenderImpl>();
+
+                services.AddSingleton<IDirectEmailSender, DirectEmailSenderImpl>();
 
                 Console.WriteLine("Direct email sender initialized successfully");
             }

@@ -534,8 +534,11 @@
   <data name="user_already_registered" xml:space="preserve">
     <value>The invitation message cannot be sent, because the user already signed up in the meanwhile</value>
   </data>
-	<data name="email_sending_failed" xml:space="preserve">
-    <value>The email message unfortunately could not be send. Please make sure the email address is valid</value>
+  <data name="email_sending_failed" xml:space="preserve">
+    <value>The email message to {uuid} unfortunately could not be send. Please make sure that the email address is valid and that your email sending settings are correct</value>
+  </data>
+  <data name="spf_dkim_setup_not_finalized" xml:space="preserve">
+    <value>The sender verification for email address {uuid} has not yet been finalized. You need to get in touch with support@smint.io to finalize the sender verification before you can proceed</value>
   </data>
   <data name="user_not_found" xml:space="preserve">
     <value>The user was not found</value>

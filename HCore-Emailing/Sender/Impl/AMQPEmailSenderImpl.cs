@@ -1,6 +1,7 @@
 ﻿using HCore.Amqp.Messenger;
 using HCore.Emailing.AMQP;
 using HCore.Emailing.Models;
+using HCore.Tenants.Database.SqlServer.Models.Impl;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace HCore.Emailing.Sender.Impl
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
         }
 
-        public async Task SendEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
         {
             if (to.TrueForAll(string.IsNullOrEmpty))
                 throw new Exception("At least one valid to address is required!");
@@ -45,13 +46,15 @@ namespace HCore.Emailing.Sender.Impl
             var emailSenderTask = new EmailSenderTask()
             {
                 ConfigurationKey = configurationKey,
+                EmailSenderConfiguration = emailSenderConfiguration,
                 FromOverride = fromOverride,
                 FromDisplayNameOverride = fromDisplayNameOverride,
                 To = to,
                 Cc = cc,
                 Bcc = bcc,
                 Subject = subject,
-                HtmlMessage = htmlMessage
+                HtmlMessage = htmlMessage,
+                AllowFallback = allowFallback
             };
 
             totalApproximateSize += htmlMessage.Length;
