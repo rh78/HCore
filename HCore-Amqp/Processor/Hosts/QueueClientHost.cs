@@ -51,12 +51,15 @@ namespace HCore.Amqp.Processor.Hosts
 
             _queueClient = new QueueClient(_connectionString, _lowLevelAddress);
 
-            _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+            if (_amqpListenerCount > 0)
             {
-                MaxConcurrentCalls = _amqpListenerCount,
-                AutoComplete = false,
-                MaxAutoRenewDuration = TimeSpan.FromHours(2)               
-            });            
+                _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                {
+                    MaxConcurrentCalls = _amqpListenerCount,
+                    AutoComplete = false,
+                    MaxAutoRenewDuration = TimeSpan.FromHours(2)
+                });
+            }
         }
 
         private async Task ProcessMessageAsync(Microsoft.Azure.ServiceBus.Message message, CancellationToken token)
