@@ -468,7 +468,12 @@ namespace HCore.Tenants.Providers.Impl
             if (emailSettingsModel != null &&
                 customEmailSettingsModel != null)
             {
-                emailSettingsModel.MergeWith(customEmailSettingsModel);
+                var targetEmailSettingsModel = new EmailSettingsModel();
+
+                targetEmailSettingsModel.MergeWith(emailSettingsModel);
+                targetEmailSettingsModel.MergeWith(customEmailSettingsModel);
+
+                emailSettingsModel = targetEmailSettingsModel;
 
                 emailSettingsModel.Validate();
             }

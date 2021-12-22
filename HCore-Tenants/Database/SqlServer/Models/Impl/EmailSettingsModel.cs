@@ -33,118 +33,197 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             if (customEmailSettingsModel.InvitationEmailSettings != null)
             {
                 if (InvitationEmailSettings == null)
-                    InvitationEmailSettings = customEmailSettingsModel.InvitationEmailSettings;
-                else
+                {
+                    InvitationEmailSettings = new EmailInstanceSettingsModel();
                     InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                }
+                else
+                {
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.ConfirmAccountEmailSettings != null)
             {
                 if (ConfirmAccountEmailSettings == null)
-                    ConfirmAccountEmailSettings = customEmailSettingsModel.ConfirmAccountEmailSettings;
-                else
+                {
+                    ConfirmAccountEmailSettings = new EmailInstanceSettingsModel();
                     ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                }
+                else
+                {
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.ForgotPasswordEmailSettings != null)
             {
                 if (ForgotPasswordEmailSettings == null)
-                    ForgotPasswordEmailSettings = customEmailSettingsModel.ForgotPasswordEmailSettings;
-                else
+                {
+                    ForgotPasswordEmailSettings = new EmailInstanceSettingsModel();
                     ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                }
+                else
+                {
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.NewUnreadNotificationsEmailSettings != null)
             {
                 if (NewUnreadNotificationsEmailSettings == null)
-                    NewUnreadNotificationsEmailSettings = customEmailSettingsModel.NewUnreadNotificationsEmailSettings;
-                else
+                {
+                    NewUnreadNotificationsEmailSettings = new EmailInstanceSettingsModel();
                     NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                }
+                else
+                {
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.CollectionInvitationEmailSettings != null)
             {
                 if (CollectionInvitationEmailSettings == null)
-                    CollectionInvitationEmailSettings = customEmailSettingsModel.CollectionInvitationEmailSettings;
-                else
+                {
+                    CollectionInvitationEmailSettings = new EmailInstanceSettingsModel();
                     CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings != null)
             {
                 if (CollectionInvitationAcceptedEmailSettings == null)
-                    CollectionInvitationAcceptedEmailSettings = customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings;
-                else
+                {
+                    CollectionInvitationAcceptedEmailSettings = new EmailInstanceSettingsModel();
                     CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings != null)
             {
                 if (CollectionInvitationDeclinedEmailSettings == null)
-                    CollectionInvitationDeclinedEmailSettings = customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings;
-                else
+                {
+                    CollectionInvitationDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.DownloadAvailableEmailSettings != null)
             {
                 if (DownloadAvailableEmailSettings == null)
-                    DownloadAvailableEmailSettings = customEmailSettingsModel.DownloadAvailableEmailSettings;
-                else
+                {
+                    DownloadAvailableEmailSettings = new EmailInstanceSettingsModel();
                     DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                }
+                else
+                {
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.DownloadFailedEmailSettings != null)
             {
                 if (DownloadFailedEmailSettings == null)
-                    DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
-                else
+                {
+                    DownloadFailedEmailSettings = new EmailInstanceSettingsModel();
                     DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                }
+                else
+                {
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                }
             }
             
             if (customEmailSettingsModel.DownloadDeclinedEmailSettings != null)
             {
                 if (DownloadDeclinedEmailSettings == null)
-                    DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
-                else
+                {
+                    DownloadDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                }
+                else
+                {
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.AccessRequestDoneEmailSettings != null)
             {
                 if (AccessRequestDoneEmailSettings == null)
-                    AccessRequestDoneEmailSettings = customEmailSettingsModel.AccessRequestDoneEmailSettings;
-                else
+                {
+                    AccessRequestDoneEmailSettings = new EmailInstanceSettingsModel();
                     AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                }
+                else
+                {
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.AccessRequestDeclinedEmailSettings != null)
             {
                 if (AccessRequestDeclinedEmailSettings == null)
-                    AccessRequestDeclinedEmailSettings = customEmailSettingsModel.AccessRequestDeclinedEmailSettings;
-                else
+                {
+                    AccessRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                }
+                else
+                {
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.PermissionRequestDoneEmailSettings != null)
             {
                 if (PermissionRequestDoneEmailSettings == null)
-                    PermissionRequestDoneEmailSettings = customEmailSettingsModel.PermissionRequestDoneEmailSettings;
-                else
+                {
+                    PermissionRequestDoneEmailSettings = new EmailInstanceSettingsModel();
                     PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                }
+                else
+                {
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.PermissionRequestDeclinedEmailSettings != null)
             {
                 if (PermissionRequestDeclinedEmailSettings == null)
-                    PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
-                else
+                {
+                    PermissionRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                }
+                else
+                {
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.EmailSenderConfiguration != null)
             {
-                EmailSenderConfiguration = customEmailSettingsModel.EmailSenderConfiguration;
+                EmailSenderConfiguration = new SmtpEmailSenderConfigurationModel();
+
+                EmailSenderConfiguration.SmtpEmailAddress = customEmailSettingsModel.EmailSenderConfiguration.SmtpEmailAddress;
+                EmailSenderConfiguration.SmtpFromDisplayName = customEmailSettingsModel.EmailSenderConfiguration.SmtpFromDisplayName;
+                EmailSenderConfiguration.SmtpHost = customEmailSettingsModel.EmailSenderConfiguration.SmtpHost;
+                EmailSenderConfiguration.SmtpPort = customEmailSettingsModel.EmailSenderConfiguration.SmtpPort;
+                EmailSenderConfiguration.SmtpUserName = customEmailSettingsModel.EmailSenderConfiguration.SmtpUserName;
+                EmailSenderConfiguration.SmtpPassword = customEmailSettingsModel.EmailSenderConfiguration.SmtpPassword;
+                EmailSenderConfiguration.SmtpEnableSsl = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableSsl;
+                EmailSenderConfiguration.SmtpStartTls = customEmailSettingsModel.EmailSenderConfiguration.SmtpStartTls;
             }
         }
 
@@ -156,118 +235,197 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             if (customEmailSettingsModel.InvitationEmailSettings != null)
             {
                 if (InvitationEmailSettings == null)
-                    InvitationEmailSettings = customEmailSettingsModel.InvitationEmailSettings;
-                else
+                {
+                    InvitationEmailSettings = new EmailInstanceSettingsModel();
                     InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
-            }
-
-            if (customEmailSettingsModel.CollectionInvitationEmailSettings != null)
-            {
-                if (CollectionInvitationEmailSettings == null)
-                    CollectionInvitationEmailSettings = customEmailSettingsModel.CollectionInvitationEmailSettings;
+                }
                 else
-                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
-            }
-
-            if (customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings != null)
-            {
-                if (CollectionInvitationAcceptedEmailSettings == null)
-                    CollectionInvitationAcceptedEmailSettings = customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings;
-                else
-                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
-            }
-
-            if (customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings != null)
-            {
-                if (CollectionInvitationDeclinedEmailSettings == null)
-                    CollectionInvitationDeclinedEmailSettings = customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings;
-                else
-                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                {
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.ConfirmAccountEmailSettings != null)
             {
                 if (ConfirmAccountEmailSettings == null)
-                    ConfirmAccountEmailSettings = customEmailSettingsModel.ConfirmAccountEmailSettings;
-                else
+                {
+                    ConfirmAccountEmailSettings = new EmailInstanceSettingsModel();
                     ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                }
+                else
+                {
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.ForgotPasswordEmailSettings != null)
             {
                 if (ForgotPasswordEmailSettings == null)
-                    ForgotPasswordEmailSettings = customEmailSettingsModel.ForgotPasswordEmailSettings;
-                else
+                {
+                    ForgotPasswordEmailSettings = new EmailInstanceSettingsModel();
                     ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                }
+                else
+                {
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.NewUnreadNotificationsEmailSettings != null)
             {
                 if (NewUnreadNotificationsEmailSettings == null)
-                    NewUnreadNotificationsEmailSettings = customEmailSettingsModel.NewUnreadNotificationsEmailSettings;
-                else
+                {
+                    NewUnreadNotificationsEmailSettings = new EmailInstanceSettingsModel();
                     NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                }
+                else
+                {
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationEmailSettings != null)
+            {
+                if (CollectionInvitationEmailSettings == null)
+                {
+                    CollectionInvitationEmailSettings = new EmailInstanceSettingsModel();
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings != null)
+            {
+                if (CollectionInvitationAcceptedEmailSettings == null)
+                {
+                    CollectionInvitationAcceptedEmailSettings = new EmailInstanceSettingsModel();
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings != null)
+            {
+                if (CollectionInvitationDeclinedEmailSettings == null)
+                {
+                    CollectionInvitationDeclinedEmailSettings = new EmailInstanceSettingsModel();
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
+                else
+                {
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.DownloadAvailableEmailSettings != null)
             {
                 if (DownloadAvailableEmailSettings == null)
-                    DownloadAvailableEmailSettings = customEmailSettingsModel.DownloadAvailableEmailSettings;
-                else
+                {
+                    DownloadAvailableEmailSettings = new EmailInstanceSettingsModel();
                     DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                }
+                else
+                {
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.DownloadFailedEmailSettings != null)
             {
                 if (DownloadFailedEmailSettings == null)
-                    DownloadFailedEmailSettings = customEmailSettingsModel.DownloadFailedEmailSettings;
-                else
+                {
+                    DownloadFailedEmailSettings = new EmailInstanceSettingsModel();
                     DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                }
+                else
+                {
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                }
             }
-            
+
             if (customEmailSettingsModel.DownloadDeclinedEmailSettings != null)
             {
                 if (DownloadDeclinedEmailSettings == null)
-                    DownloadDeclinedEmailSettings = customEmailSettingsModel.DownloadDeclinedEmailSettings;
-                else
+                {
+                    DownloadDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                }
+                else
+                {
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.AccessRequestDoneEmailSettings != null)
             {
                 if (AccessRequestDoneEmailSettings == null)
-                    AccessRequestDoneEmailSettings = customEmailSettingsModel.AccessRequestDoneEmailSettings;
-                else
+                {
+                    AccessRequestDoneEmailSettings = new EmailInstanceSettingsModel();
                     AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                }
+                else
+                {
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.AccessRequestDeclinedEmailSettings != null)
             {
                 if (AccessRequestDeclinedEmailSettings == null)
-                    AccessRequestDeclinedEmailSettings = customEmailSettingsModel.AccessRequestDeclinedEmailSettings;
-                else
+                {
+                    AccessRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                }
+                else
+                {
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.PermissionRequestDoneEmailSettings != null)
             {
                 if (PermissionRequestDoneEmailSettings == null)
-                    PermissionRequestDoneEmailSettings = customEmailSettingsModel.PermissionRequestDoneEmailSettings;
-                else
+                {
+                    PermissionRequestDoneEmailSettings = new EmailInstanceSettingsModel();
                     PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                }
+                else
+                {
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.PermissionRequestDeclinedEmailSettings != null)
             {
                 if (PermissionRequestDeclinedEmailSettings == null)
-                    PermissionRequestDeclinedEmailSettings = customEmailSettingsModel.PermissionRequestDeclinedEmailSettings;
-                else
+                {
+                    PermissionRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
                     PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                }
+                else
+                {
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                }
             }
 
             if (customEmailSettingsModel.EmailSenderConfiguration != null)
             {
-                EmailSenderConfiguration = customEmailSettingsModel.EmailSenderConfiguration;
+                EmailSenderConfiguration = new SmtpEmailSenderConfigurationModel();
+
+                EmailSenderConfiguration.SmtpEmailAddress = customEmailSettingsModel.EmailSenderConfiguration.SmtpEmailAddress;
+                EmailSenderConfiguration.SmtpFromDisplayName = customEmailSettingsModel.EmailSenderConfiguration.SmtpFromDisplayName;
+                EmailSenderConfiguration.SmtpHost = customEmailSettingsModel.EmailSenderConfiguration.SmtpHost;
+                EmailSenderConfiguration.SmtpPort = customEmailSettingsModel.EmailSenderConfiguration.SmtpPort;
+                EmailSenderConfiguration.SmtpUserName = customEmailSettingsModel.EmailSenderConfiguration.SmtpUserName;
+                EmailSenderConfiguration.SmtpPassword = customEmailSettingsModel.EmailSenderConfiguration.SmtpPassword;
+                EmailSenderConfiguration.SmtpEnableSsl = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableSsl;
+                EmailSenderConfiguration.SmtpStartTls = customEmailSettingsModel.EmailSenderConfiguration.SmtpStartTls;
             }
         }
 
