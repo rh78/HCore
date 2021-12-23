@@ -1,12 +1,16 @@
-﻿using Enyim.Caching;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using Enyim.Caching;
+using Microsoft.Extensions.Logging;
 
 namespace HCore.Cache.Impl
 {
     internal class MemcachedCacheImpl : ICache
     {
+        private const byte CacheKeyMaxBytes = 250;
+
         private readonly IMemcachedClient _memcachedClient;
 
         private readonly ILogger<MemcachedCacheImpl> _logger;
@@ -24,6 +28,8 @@ namespace HCore.Cache.Impl
 
         public void Store(string key, object value, TimeSpan expiresIn)
         {
+            key = EnsureKeyMaxLengthNotReached(key);
+
             int cacheMinutes = (int)expiresIn.TotalMinutes;
 
             bool successfullyWritten = _memcachedClient.Set(key, value, cacheMinutes);
@@ -36,6 +42,8 @@ namespace HCore.Cache.Impl
 
         public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
+            key = EnsureKeyMaxLengthNotReached(key);
+
             int cacheMinutes = (int)expiresIn.TotalMinutes;
 
             bool successfullyWritten = await _memcachedClient.SetAsync(key, value, cacheMinutes).ConfigureAwait(false);
@@ -48,21 +56,54 @@ namespace HCore.Cache.Impl
 
         public T Get<T>(string key) where T : class
         {
+            key = EnsureKeyMaxLengthNotReached(key);
+
             return _memcachedClient.Get<T>(key);
         }
 
         public async Task<T> GetAsync<T>(string key) where T : class
         {
+            key = EnsureKeyMaxLengthNotReached(key);
+
             return await _memcachedClient.GetAsync<T>(key).ConfigureAwait(false);
         }
 
         public async Task InvalidateAsync(string key)
         {
+            key = EnsureKeyMaxLengthNotReached(key);
+
             bool successfullyRemoved = await _memcachedClient.RemoveAsync(key).ConfigureAwait(false);
 
             if (!successfullyRemoved)
             {
                 _logger.LogWarning($"Value for key {key} could not be removed from Memcached cache");
+            }
+        }
+
+        private static string EnsureKeyMaxLengthNotReached(string key)
+        {
+            var bytesCount = Encoding.UTF8.GetByteCount(key.AsSpan());
+
+            if (bytesCount > CacheKeyMaxBytes)
+            {
+                var encodedKey = EncodeKey(key);
+
+                return encodedKey;
+            }
+
+            return key;
+        }
+
+        private static string EncodeKey(string key)
+        {
+            using (var md5 = MD5.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(key);
+                var challengeBytes = md5.ComputeHash(bytes);
+
+                var encodedKey = Convert.ToBase64String(challengeBytes);
+
+                return encodedKey;
             }
         }
     }
