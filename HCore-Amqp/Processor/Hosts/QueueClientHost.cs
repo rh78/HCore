@@ -73,7 +73,7 @@ namespace HCore.Amqp.Processor.Hosts
                         MaxConcurrentSessions = _amqpListenerCount,
                         AutoComplete = false,
                         MaxAutoRenewDuration = TimeSpan.FromHours(2),
-                        MessageWaitTimeout = TimeSpan.Zero
+                        MessageWaitTimeout = TimeSpan.FromSeconds(1)
                     });
                 }
             }
@@ -127,7 +127,7 @@ namespace HCore.Amqp.Processor.Hosts
                     firstMessage
                 };
 
-                var otherMessages = await session.ReceiveAsync(int.MaxValue).ConfigureAwait(false);
+                var otherMessages = await session.ReceiveAsync(int.MaxValue, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
 
                 if (otherMessages != null && otherMessages.Count > 0)
                 {
