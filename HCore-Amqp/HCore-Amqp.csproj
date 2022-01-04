@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.3.0" />
     <PackageReference Include="Microsoft.Azure.Management.ServiceBus" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="4.2.1" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
   </ItemGroup>
 
