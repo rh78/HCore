@@ -37,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("AMQP addresses are empty");
 
             int[] amqpListenerCounts = new int[addressesSplit.Length];
+            bool[] amqpIsSessions = new bool[addressesSplit.Length];
 
             for (int i = 0; i < addressesSplit.Length; i++)
             {
@@ -45,6 +46,13 @@ namespace Microsoft.Extensions.DependencyInjection
                     throw new Exception($"AMQP listener count for address {addressesSplit[i]} is not defined");
 
                 amqpListenerCounts[i] = (int)amqpListenerCount;
+
+                bool? isSession = configuration.GetValue<bool?>($"Amqp:AddressDetails:{addressesSplit[i]}:IsSession");
+
+                amqpIsSessions[i] = isSession ?? false;
+
+                if (!useServiceBus && amqpIsSessions[i])
+                    throw new Exception($"AMQP 1.0 implementation does not support sessions");
             }
 
             services.AddSingleton(serviceProvider =>
@@ -56,7 +64,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 if (useServiceBus)
                 {
                     // Service Bus
-                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
+
+                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, amqpListenerCounts, amqpIsSessions, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
                 }
                 else
                 {

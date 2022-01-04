@@ -25,15 +25,17 @@ namespace HCore.Amqp.Messenger.Impl
 
         private readonly string[] _addresses;
         private readonly int[] _addressListenerCounts;
+        private readonly bool[] _isSessions;
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
-        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
+        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
 
             _addresses = addresses;
             _addressListenerCounts = addressListenerCount;
+            _isSessions = isSessions;
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -55,6 +57,7 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 string address = _addresses[i];
                 int listenerCount = _addressListenerCounts[i];
+                bool isSession = _isSessions[i];
 
                 if (!await managementClient.QueueExistsAsync(address).ConfigureAwait(false))
                 {
@@ -65,13 +68,14 @@ namespace HCore.Amqp.Messenger.Impl
                         LockDuration = TimeSpan.FromMinutes(1),
                         MaxDeliveryCount = Int32.MaxValue,
                         EnablePartitioning = true,
-                        MaxSizeInMB = 2048                        
+                        MaxSizeInMB = 2048,
+                        RequiresSession = isSession
                     }).ConfigureAwait(false);
 
                     Console.WriteLine($"Created AMQP queue {address}");
                 }
 
-                await AddQueueClientAsync(listenerCount, address).ConfigureAwait(false);
+                await AddQueueClientAsync(listenerCount, address, isSession).ConfigureAwait(false);
             }
 
             await managementClient.CloseAsync().ConfigureAwait(false);
@@ -79,9 +83,9 @@ namespace HCore.Amqp.Messenger.Impl
             Console.WriteLine($"AMQP initialized successfully");
         }
 
-        private async Task AddQueueClientAsync(int amqpListenerCount, string address)
+        private async Task AddQueueClientAsync(int amqpListenerCount, string address, bool isSession)
         {
-            var queueClientHost = new QueueClientHost(_connectionString, amqpListenerCount, address, this, _cancellationToken, _logger);
+            var queueClientHost = new QueueClientHost(_connectionString, amqpListenerCount, address, isSession, this, _cancellationToken, _logger);
 
             _queueClientHosts.Add(address, queueClientHost);
 
@@ -108,15 +112,15 @@ namespace HCore.Amqp.Messenger.Impl
             Console.WriteLine("AMQP shut down successfully");
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null)
+        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             if (!_queueClientHosts.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
 
-            await _queueClientHosts[address].SendMessageAsync(body, timeOffsetSeconds).ConfigureAwait(false);
+            await _queueClientHosts[address].SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
         }
 
-        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null)
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             try
             {
@@ -128,7 +132,7 @@ namespace HCore.Amqp.Messenger.Impl
                 {
                     _logger.LogError($"AMQP exception in sender link for address {address}: {e}");
 
-                    await SendMessageAsync(address, body, timeOffsetSeconds).ConfigureAwait(false);
+                    await SendMessageAsync(address, body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
                 }
             }
         }
@@ -136,6 +140,11 @@ namespace HCore.Amqp.Messenger.Impl
         public async Task ProcessMessageAsync(string address, string messageBodyJson)
         {
             await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
+        }
+
+        public async Task ProcessMessagesAsync(string address, List<string> messageBodyJsons)
+        {
+            await _messageProcessor.ProcessMessagesAsync(address, messageBodyJsons).ConfigureAwait(false);
         }
     }
 }

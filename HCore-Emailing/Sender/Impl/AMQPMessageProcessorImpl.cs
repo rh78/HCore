@@ -43,5 +43,10 @@ namespace HCore.Emailing.Sender.Impl
             
             return true;
         }
+
+        public Task<bool> ProcessMessagesAsync(string address, List<string> messageBodyJsons)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

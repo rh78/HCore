@@ -121,15 +121,18 @@ namespace HCore.Amqp.Messenger.Impl
             _messageProcessorTasks.Add(receiverLinkHost.MessageProcessorTask);
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null)
+        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             if (!_senderLinks.ContainsKey(address))
                 throw new Exception($"Address {address} is not available for AMQP sending");
 
+            if (!string.IsNullOrEmpty(sessionId))
+                throw new Exception("Session ID is not supported by the AMQP 1.0 implementation");
+
             await _senderLinks[address].SendMessageAsync(body, timeOffsetSeconds).ConfigureAwait(false);
         }
 
-        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null)
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             try
             {
@@ -141,7 +144,7 @@ namespace HCore.Amqp.Messenger.Impl
                 {
                     _logger.LogError($"AMQP exception in sender link for address {address}: {e}");
 
-                    await SendMessageAsync(address, body, timeOffsetSeconds).ConfigureAwait(false);
+                    await SendMessageAsync(address, body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
                 }
             }
         }

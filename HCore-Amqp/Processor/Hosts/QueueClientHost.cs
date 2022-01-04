@@ -8,6 +8,8 @@ using HCore.Amqp.Message;
 using HCore.Amqp.Messenger.Impl;
 using HCore.Amqp.Exceptions;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -15,6 +17,7 @@ namespace HCore.Amqp.Processor.Hosts
     {
         private readonly string _connectionString;
         private readonly int _amqpListenerCount;
+        private readonly bool _isSession;
 
         private readonly string _lowLevelAddress;
 
@@ -30,10 +33,11 @@ namespace HCore.Amqp.Processor.Hosts
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
-        public QueueClientHost(string connectionString, int amqpListenerCount, string address, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken, ILogger<ServiceBusMessengerImpl> logger)
+        public QueueClientHost(string connectionString, int amqpListenerCount, string address, bool isSession, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken, ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
             _amqpListenerCount = amqpListenerCount;
+            _isSession = isSession;
 
             Address = address;
             _lowLevelAddress = Address.ToLower();
@@ -53,12 +57,25 @@ namespace HCore.Amqp.Processor.Hosts
 
             if (_amqpListenerCount > 0)
             {
-                _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                if (!_isSession)
                 {
-                    MaxConcurrentCalls = _amqpListenerCount,
-                    AutoComplete = false,
-                    MaxAutoRenewDuration = TimeSpan.FromHours(2)
-                });
+                    _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                    {
+                        MaxConcurrentCalls = _amqpListenerCount,
+                        AutoComplete = false,
+                        MaxAutoRenewDuration = TimeSpan.FromHours(2)
+                    });
+                }
+                else
+                {
+                    _queueClient.RegisterSessionHandler(ProcessSessionAsync, new SessionHandlerOptions(ExceptionReceivedHandlerAsync)
+                    {
+                        MaxConcurrentSessions = _amqpListenerCount,
+                        AutoComplete = false,
+                        MaxAutoRenewDuration = TimeSpan.FromHours(2),
+                        MessageWaitTimeout = TimeSpan.Zero
+                    });
+                }
             }
         }
 
@@ -94,6 +111,78 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
+        private async Task ProcessSessionAsync(IMessageSession session, Microsoft.Azure.ServiceBus.Message firstMessage, CancellationToken token)
+        {
+            IList<Microsoft.Azure.ServiceBus.Message> messages;
+
+            try
+            {
+                if (!string.Equals(firstMessage.ContentType, "application/json"))
+                    throw new Exception($"Invalid content type for AMQP message: {firstMessage.ContentType}");
+
+                // try to receive as many messages as possible
+
+                messages = new List<Microsoft.Azure.ServiceBus.Message>()
+                {
+                    firstMessage
+                };
+
+                var otherMessages = await session.ReceiveAsync(int.MaxValue).ConfigureAwait(false);
+
+                if (otherMessages != null && otherMessages.Count > 0)
+                {
+                    foreach (var otherMessage in otherMessages)
+                    {
+                        if (!string.Equals(otherMessage.ContentType, "application/json"))
+                            throw new Exception($"Invalid content type for AMQP message: {otherMessage.ContentType}");
+
+                        messages.Add(otherMessage);
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+
+                return;
+            }
+
+            try
+            {
+                var bodies = messages.Select(message =>
+                {
+                    if (message.Body != null)
+                    {
+                        return Encoding.UTF8.GetString(message.Body);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }).ToList();
+
+                await _messenger.ProcessMessagesAsync(Address, bodies).ConfigureAwait(false);
+
+                foreach (var message in messages)
+                {
+                    await session.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                }
+            }
+            catch (RescheduleException)
+            {
+                // no log, this is "wanted"
+
+                foreach (var message in messages)
+                {
+                    await session.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                }
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Exception during processing AMQP message(s), not abandoning them for timeout (this will avoid duplicates): {exception}");
+            }
+        }
+
         private Task ExceptionReceivedHandlerAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
             _logger.LogError($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
@@ -119,7 +208,7 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null)
+        public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null, string sessionId = null)
         {
             QueueClient queueClient;
             bool error;
@@ -142,6 +231,17 @@ namespace HCore.Amqp.Processor.Hosts
                         ContentType = "application/json",
                         MessageId = Guid.NewGuid().ToString()
                     };
+
+                    if (!string.IsNullOrEmpty(sessionId))
+                    {
+                        if (!_isSession)
+                            throw new Exception("Service Bus AMQP queue is no session queue");
+
+                        message.SessionId = sessionId;
+                    }
+
+                    if (_isSession && string.IsNullOrEmpty(sessionId))
+                        throw new Exception("Session ID is missing for Service Bus AMQP session queue");
 
                     if (timeOffsetSeconds == null)
                         await queueClient.SendAsync(message).ConfigureAwait(false);
