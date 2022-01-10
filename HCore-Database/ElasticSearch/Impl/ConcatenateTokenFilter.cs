@@ -12,7 +12,7 @@ namespace HCore.Database.ElasticSearch.Impl
         int? IncrementGap { get; set; }
     }
 
-    internal class ConcatenateTokenFilter : TokenFilterBase, IConcatenateTokenFilter
+    public class ConcatenateTokenFilter : TokenFilterBase, IConcatenateTokenFilter
     {
         public ConcatenateTokenFilter() : base("concatenate") { }
 
