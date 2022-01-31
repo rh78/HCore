@@ -58,7 +58,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
 
@@ -85,6 +85,11 @@ namespace HCore.Storage.Client.Impl
 
             blockBlob.Properties.ContentType = mimeType;
 
+            if (!string.IsNullOrEmpty(downloadFileName))
+            {
+                blockBlob.Properties.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+            }
+
             if (additionalHeaders != null) {
                 foreach (var key in additionalHeaders.Keys)
                 {
@@ -103,13 +108,13 @@ namespace HCore.Storage.Client.Impl
                     progressHandler.Report(e.BytesTransferred);
                 };
             }
-
+            
             await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
 
             return blockBlob.Uri.AbsoluteUri;
         }
 
-        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var container = _cloudBlobClient.GetContainerReference(containerName);
             
@@ -126,6 +131,11 @@ namespace HCore.Storage.Client.Impl
             var blockBlob = container.GetBlockBlobReference(fileName);
 
             blockBlob.Properties.ContentType = mimeType;
+
+            if (!string.IsNullOrEmpty(downloadFileName))
+            {
+                blockBlob.Properties.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+            }
 
             if (additionalHeaders != null)
             {
@@ -150,6 +160,13 @@ namespace HCore.Storage.Client.Impl
             await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
 
             return blockBlob.Uri.AbsoluteUri;
+        }
+
+        public async Task DeleteContainerAsync(string containerName)
+        {
+            var container = _cloudBlobClient.GetContainerReference(containerName);
+
+            await container.DeleteIfExistsAsync().ConfigureAwait(false);
         }
 
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.

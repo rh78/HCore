@@ -72,7 +72,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -126,8 +126,13 @@ namespace HCore.Storage.Client.Impl
                 {
                     Bucket = containerName,
                     Name = fileName,
-                    ContentType = mimeType
+                    ContentType = mimeType,
                 };
+
+                if (!string.IsNullOrEmpty(downloadFileName))
+                {
+                    blockBlob.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                }
 
                 if (additionalHeaders != null)
                 {
@@ -155,7 +160,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null)
+        public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
 
@@ -201,6 +206,11 @@ namespace HCore.Storage.Client.Impl
                     ContentType = mimeType
                 };
 
+                if (!string.IsNullOrEmpty(downloadFileName))
+                {
+                    blockBlob.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                }
+
                 if (additionalHeaders != null)
                 {
                     blockBlob.Metadata = additionalHeaders;
@@ -225,6 +235,11 @@ namespace HCore.Storage.Client.Impl
 
                 return result.MediaLink;
             }
+        }
+
+        public Task DeleteContainerAsync(string containerName)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
