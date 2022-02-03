@@ -13,5 +13,8 @@ namespace HCore.Templating.Renderer
 
         Task<MemoryStream> RenderPdfAsync<TModel>(string viewName, TModel model, bool? isPortals, ITenantInfo tenantInfo = null)
             where TModel : TemplateViewModel;
+
+        Task<MemoryStream> RenderPngAsync<TModel>(string viewName, TModel model, int width, int height, bool? isPortals, ITenantInfo tenantInfo = null)
+            where TModel : TemplateViewModel;
     }
 }

@@ -121,6 +121,47 @@ namespace HCore.Templating.Renderer.Impl
             return ms;
         }
 
+        public async Task<MemoryStream> RenderPngAsync<TModel>(string viewName, TModel model, int width, int height, bool? isPortals, ITenantInfo tenantInfo = null)
+            where TModel : TemplateViewModel
+        {
+            if (_renderService == null)
+                throw new Exception("JSReport render service is not available");
+
+            var htmlContent = await RenderViewAsync(viewName, model, isPortals, tenantInfo).ConfigureAwait(false);
+
+            var pdf = await _renderService.RenderAsync(new RenderRequest()
+            {
+                Template = new Template()
+                {
+                    Content = htmlContent,
+                    Engine = Engine.None,
+                    Recipe = Recipe.ChromeImage,
+                    ChromeImage = new ChromeImage()
+                    {
+                        Type = "png",
+                        ClipWidth = width,
+                        ClipHeight = height
+                    },
+                    Chrome = new Chrome()
+                    {
+                        DisplayHeaderFooter = true,
+                        MarginTop = "2cm",
+                        MarginLeft = "2cm",
+                        MarginRight = "2cm",
+                        MarginBottom = "2cm",
+                        HeaderTemplate = "",
+                        FooterTemplate = ""
+                    }
+                }
+            }).ConfigureAwait(false);
+
+            var ms = new MemoryStream();
+
+            await pdf.Content.CopyToAsync(ms);
+
+            return ms;
+        }
+
         private void EnrichTenantInfo<TModel>(TModel model, bool? isPortals, ITenantInfo tenantInfo) 
             where TModel : TemplateViewModel
         {
