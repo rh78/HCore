@@ -535,14 +535,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             if (PreHeader == null || PreHeader.Count == 0)
                 throw new Exception("Preheader is missing");
 
-            if (TextPrefix == null || TextPrefix.Count == 0)
-                throw new Exception("Text prefix is missing");
-
             if (Button == null || Button.Count == 0)
                 throw new Exception("Button is missing");
-
-            if (TextSuffix == null || TextSuffix.Count == 0)
-                throw new Exception("Text suffix is missing");
 
             if (Footer == null || Footer.Count == 0)
                 throw new Exception("Footer is missing");
