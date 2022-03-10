@@ -15,6 +15,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel ShareEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
@@ -118,6 +119,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.ShareEmailSettings != null)
+            {
+                if (ShareEmailSettings == null)
+                {
+                    ShareEmailSettings = new EmailInstanceSettingsModel();
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                }
+                else
+                {
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
                 }
             }
 
@@ -320,6 +334,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.ShareEmailSettings != null)
+            {
+                if (ShareEmailSettings == null)
+                {
+                    ShareEmailSettings = new EmailInstanceSettingsModel();
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                }
+                else
+                {
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
                 }
             }
 
