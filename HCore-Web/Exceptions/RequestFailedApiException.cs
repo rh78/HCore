@@ -108,6 +108,7 @@ namespace HCore.Web.Exceptions
         public const string EmailTooLong = "email_too_long";
         public const string EmailAlreadyExists = "email_already_exists";
         public const string EmailAlreadyConfirmed = "email_already_confirmed";
+        public const string EmailsMissing = "emails_missing";
         public const string SupportEmailInvalid = "support_email_invalid";
         public const string SupportEmailTooLong = "support_email_too_long";
         public const string SupportEmailDisplayNameInvalid = "support_email_display_name_invalid";

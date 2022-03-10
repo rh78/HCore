@@ -158,6 +158,24 @@ namespace HCore.Web.API.Impl
             return emailAddress;
         }
 
+        public static List<string> ProcessEmailAddresses(List<string> emailAddresses, bool required)
+        {
+            emailAddresses = emailAddresses?
+                .Select(emailAddress => ProcessEmailAddress(emailAddress, required: true))
+                .Distinct()
+                .ToList();
+
+            if (emailAddresses == null || emailAddresses.Count == 0)
+            {
+                if (required)
+                    throw new RequestFailedApiException(RequestFailedApiException.EmailsMissing, "The email addresses are missing");
+
+                return null;
+            }
+
+            return emailAddresses;
+        }
+
         public static string ProcessEmailAddressStrict(string email, bool required)
         {
             email = email?.Trim();

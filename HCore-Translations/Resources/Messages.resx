@@ -225,6 +225,9 @@
   <data name="email_too_long" xml:space="preserve">
     <value>The email address is too long</value>
   </data>
+  <data name="emails_missing" xml:space="preserve">
+    <value>Please give at least one email address</value>
+  </data>
   <data name="support_email_invalid" xml:space="preserve">
     <value>The support email address is invalid</value>
   </data>
