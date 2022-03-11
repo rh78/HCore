@@ -419,12 +419,17 @@ namespace HCore.Web.API.Impl
             return userName;
         }
 
-        public static string ProcessPassword(string password)
+        public static string ProcessPassword(string password, bool required = true)
         {
             password = password?.Trim();
 
             if (string.IsNullOrEmpty(password))
-                throw new RequestFailedApiException(RequestFailedApiException.PasswordMissing, "The password is missing");
+            {
+                if (required)
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordMissing, "The password is missing");
+
+                return null;
+            }
 
             if (password.Length > MaxPasswordLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PasswordTooLong, "The password is too long");
