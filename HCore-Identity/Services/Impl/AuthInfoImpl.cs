@@ -2,7 +2,7 @@
 
 namespace HCore.Identity.Services.Impl
 {
-    public class AuthInfoImpl : IAuthInfo
+    internal class AuthInfoImpl : IAuthInfo
     {
         public string UserUuid { get; internal set; }
 
