@@ -121,7 +121,7 @@
     <value>Das Zugangstoken ist ungültig oder abgelaufen</value>
   </data>
   <data name="account_locked_out" xml:space="preserve">
-    <value>Das Benutzerkonto ist gesperrt</value>
+    <value>Sie haben das Passwort zu oft falsch eingegeben. Das Benutzerkonto wurde aus Sicherheitsgründen für 15 Minuten gesperrt</value>
   </data>
   <data name="api_credentials_missing" xml:space="preserve">
     <value>Die API-Anmeldeinformationen fehlen</value>

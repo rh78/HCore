@@ -121,7 +121,7 @@
     <value>The access token is invalid or expired</value>
   </data>
   <data name="account_locked_out" xml:space="preserve">
-    <value>The user account is locked out</value>
+    <value>You have entered a wrong password for too many times. The user account has been locked for 15 minutes due to security reasons</value>
   </data>
   <data name="api_credentials_missing" xml:space="preserve">
     <value>The API credentials are missing</value>

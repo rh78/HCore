@@ -97,7 +97,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The user account is locked out ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die You have entered a wrong password for too many times. The user account has been locked for 15 minutes due to security reasons ähnelt.
         /// </summary>
         public static string account_locked_out {
             get {
