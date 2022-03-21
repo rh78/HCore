@@ -65,6 +65,8 @@ namespace HCore.Identity.Services.Impl
 
         private readonly List<string> _devAdminSsoAuthorizedIssuers = new List<string>();
 
+        private readonly bool _blockLowQuality = false;
+
         public IdentityServicesImpl(
             SignInManager<UserModel> signInManager,
             UserManager<UserModel> userManager,
@@ -125,6 +127,8 @@ namespace HCore.Identity.Services.Impl
             {
                 _emailValidationApiKey = null;
             }
+
+            _blockLowQuality = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:BlockLowQuality") ?? false;
         }
 
         public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
@@ -239,6 +243,17 @@ namespace HCore.Identity.Services.Impl
 
                                 throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
                             }
+                        case "low_quality":
+                            {
+                                if (_blockLowQuality)
+                                {
+                                    _logger.LogWarning($"Discovered low quality email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                                    throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                }
+                            }
+
+                            break;
                         default:
                             // low_quality - ignore for now
                             // low_deliverability - ignore for now
@@ -260,6 +275,13 @@ namespace HCore.Identity.Services.Impl
                         _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
 
                         throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                    }
+                    
+                    if (response.Free && _blockLowQuality)
+                    {
+                        _logger.LogWarning($"Discovered free email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
                     }
                 }
             }

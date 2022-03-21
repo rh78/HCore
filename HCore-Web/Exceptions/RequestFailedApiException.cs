@@ -105,6 +105,7 @@ namespace HCore.Web.Exceptions
         public const string EmailInvalid = "email_invalid";
         public const string EmailNotExisting = "email_not_existing";
         public const string NoDisposableEmailsAllowed = "no_disposable_emails_allowed";
+        public const string EmailRequiresBusinessAccount = "email_requires_business_account";
         public const string EmailTooLong = "email_too_long";
         public const string EmailAlreadyExists = "email_already_exists";
         public const string EmailAlreadyConfirmed = "email_already_confirmed";

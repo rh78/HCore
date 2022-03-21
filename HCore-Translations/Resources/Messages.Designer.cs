@@ -637,6 +637,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Signing up to our service with a free or low quality email address unfortunately is not possible ähnelt.
+        /// </summary>
+        public static string email_requires_business_account {
+            get {
+                return ResourceManager.GetString("email_requires_business_account", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The email message to {uuid} unfortunately could not be send. Please make sure that the email address is valid and that your email sending settings are correct ähnelt.
         /// </summary>
         public static string email_sending_failed {
@@ -1141,7 +1150,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Please do not use an disposable email address ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Signing up to our service with an disposable email address unfortunately is not possible ähnelt.
         /// </summary>
         public static string no_disposable_emails_allowed {
             get {

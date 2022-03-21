@@ -217,7 +217,10 @@
     <value>This email address does not exist</value>
   </data>
   <data name="no_disposable_emails_allowed" xml:space="preserve">
-    <value>Please do not use an disposable email address</value>
+    <value>Signing up to our service with an disposable email address unfortunately is not possible</value>
+  </data>
+  <data name="email_requires_business_account" xml:space="preserve">
+    <value>Signing up to our service with a free or low quality email address unfortunately is not possible</value>
   </data>
   <data name="email_missing" xml:space="preserve">
     <value>The email address is missing</value>

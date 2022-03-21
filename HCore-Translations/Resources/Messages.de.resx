@@ -217,7 +217,10 @@
     <value>Diese E-Mail-Adresse existiert nicht</value>
   </data>
   <data name="no_disposable_emails_allowed" xml:space="preserve">
-    <value>Bitte verwenden Sie keine Wegwerf-E-Mail-Adresse</value>
+    <value>Eine Anmeldung zu unserem Service mit einer Wegwerf-E-Mail-Adresse ist leider nicht möglich</value>
+  </data>
+  <data name="email_requires_business_account" xml:space="preserve">
+    <value>Eine Anmeldung zu unserem Service mit einer Gratis-E-Mail-Adresse oder mit einer E-Mail-Adresse mit niedriger Reputation ist leider nicht möglich</value>
   </data>
   <data name="email_missing" xml:space="preserve">
     <value>Die E-Mail-Adresse fehlt</value>
