@@ -10,7 +10,11 @@ namespace HCore.Web.Exceptions
 
         public const string ArgumentInvalid = "argument_invalid";
         public const string ArgumentMissing = "argument_missing";
+        public const string BodyDataInvalid = "body_data_invalid";
+        public const string BodyDataMissing = "body_data_missing";
+        public const string NotificationTypeMissing = "notification_type_missing";
         public const string LinkInvalid = "link_invalid";
+        public const string WebhookRequestInvalid = "webhook_request_invalid";
         public const string MaxPagingOffsetExceeded = "max_paging_offset_exceeded";
         public const string MaxPagingLimitExceeded = "max_paging_limit_exceeded";
         public const string PagingOffsetInvalid = "paging_offset_invalid";
@@ -96,6 +100,8 @@ namespace HCore.Web.Exceptions
         public const string NoRecordsSpecified = "no_records_specified";
         public const string UserGroupUuidMissing = "user_group_uuid_missing";
         public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
+        public const string DeveloperUuidMissing = "developer_uuid_missing";
+        public const string DeveloperUuidInvalid = "developer_uuid_invalid";
         public const string TenantUuidMissing = "tenant_uuid_missing";
         public const string TenantUuidInvalid = "tenant_uuid_invalid";
         public const string UserUuidMissing = "user_uuid_missing";
