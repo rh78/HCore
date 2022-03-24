@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace HCore.Cache.Impl
 {
@@ -49,6 +50,11 @@ namespace HCore.Cache.Impl
                 return null;
 
             return FromByteArray<T>(value);
+        }
+
+        public Task<IDictionary<string, T>> GetAsync<T>(IEnumerable<string> keys) where T : class
+        {
+            throw new NotImplementedException();
         }
 
         public async Task InvalidateAsync(string key)

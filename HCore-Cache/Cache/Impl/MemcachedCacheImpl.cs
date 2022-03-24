@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,6 +69,13 @@ namespace HCore.Cache.Impl
             return await _memcachedClient.GetAsync<T>(key).ConfigureAwait(false);
         }
 
+        public async Task<IDictionary<string, T>> GetAsync<T>(IEnumerable<string> keys) where T : class
+        {
+            keys = EnsureKeyMaxLengthNotReached(keys);
+
+            return await _memcachedClient.GetAsync<T>(keys).ConfigureAwait(false);
+        }
+
         public async Task InvalidateAsync(string key)
         {
             key = EnsureKeyMaxLengthNotReached(key);
@@ -77,6 +85,23 @@ namespace HCore.Cache.Impl
             if (!successfullyRemoved)
             {
                 _logger.LogWarning($"Value for key {key} could not be removed from Memcached cache");
+            }
+        }
+
+        private static IEnumerable<string> EnsureKeyMaxLengthNotReached(IEnumerable<string> keys)
+        {
+            foreach (var key in keys)
+            {
+                var bytesCount = Encoding.UTF8.GetByteCount(key.AsSpan());
+
+                if (bytesCount > CacheKeyMaxBytes)
+                {
+                    var encodedKey = EncodeKey(key);
+
+                    yield return encodedKey;
+                }
+
+                yield return key;
             }
         }
 
