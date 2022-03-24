@@ -754,6 +754,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The filter value is invalid ähnelt.
+        /// </summary>
+        public static string filter_value_invalid {
+            get {
+                return ResourceManager.GetString("filter_value_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The first name contains invalid characters ähnelt.
         /// </summary>
         public static string first_name_invalid {

@@ -660,6 +660,9 @@
   <data name="sort_order_invalid" xml:space="preserve">
     <value>Die Sortierreihenfolge ist ungültig</value>
   </data>
+  <data name="filter_value_invalid" xml:space="preserve">
+    <value>Der Filter-Wert ist ungültig</value>
+  </data>
   <data name="error_title" xml:space="preserve">
     <value>Unerwarteter Fehler</value>
   </data>
