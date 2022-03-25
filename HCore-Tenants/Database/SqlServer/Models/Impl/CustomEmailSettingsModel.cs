@@ -14,7 +14,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel ShareEmailSettings { get; set; }
         public EmailInstanceSettingsModel CommentCollectionEmailSettings { get; set; }
-        public EmailInstanceSettingsModel CommentAssetEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CommentCollectionAssetEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CommentShareEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CommentShareAssetEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
