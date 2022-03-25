@@ -16,6 +16,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel ShareEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CommentCollectionEmailSettings { get; set; }
+        public EmailInstanceSettingsModel CommentAssetEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
@@ -132,6 +134,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CommentCollectionEmailSettings != null)
+            {
+                if (CommentCollectionEmailSettings == null)
+                {
+                    CommentCollectionEmailSettings = new EmailInstanceSettingsModel();
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                }
+                else
+                {
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CommentAssetEmailSettings != null)
+            {
+                if (CommentAssetEmailSettings == null)
+                {
+                    CommentAssetEmailSettings = new EmailInstanceSettingsModel();
+                    CommentAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentAssetEmailSettings);
+                }
+                else
+                {
+                    CommentAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentAssetEmailSettings);
                 }
             }
 
@@ -347,6 +375,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CommentCollectionEmailSettings != null)
+            {
+                if (CommentCollectionEmailSettings == null)
+                {
+                    CommentCollectionEmailSettings = new EmailInstanceSettingsModel();
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                }
+                else
+                {
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.CommentAssetEmailSettings != null)
+            {
+                if (CommentAssetEmailSettings == null)
+                {
+                    CommentAssetEmailSettings = new EmailInstanceSettingsModel();
+                    CommentAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentAssetEmailSettings);
+                }
+                else
+                {
+                    CommentAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentAssetEmailSettings);
                 }
             }
 
