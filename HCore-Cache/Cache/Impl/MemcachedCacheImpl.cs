@@ -84,7 +84,7 @@ namespace HCore.Cache.Impl
 
             if (!successfullyRemoved)
             {
-                _logger.LogWarning($"Value for key {key} could not be removed from Memcached cache");
+                _logger.LogInformation($"Value for key {key} could not be removed from Memcached cache");
             }
         }
 
