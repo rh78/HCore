@@ -18,8 +18,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ShareEmailSettings { get; set; }
         public EmailInstanceSettingsModel CommentCollectionEmailSettings { get; set; }
         public EmailInstanceSettingsModel CommentCollectionAssetEmailSettings { get; set; }
+        public EmailInstanceSettingsModel FlagCollectionAssetEmailSettings { get; set; }
         public EmailInstanceSettingsModel CommentShareEmailSettings { get; set; }
         public EmailInstanceSettingsModel CommentShareAssetEmailSettings { get; set; }
+        public EmailInstanceSettingsModel FlagShareAssetEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadAvailableEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadFailedEmailSettings { get; set; }
         public EmailInstanceSettingsModel DownloadDeclinedEmailSettings { get; set; }
@@ -165,6 +167,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 }
             }
 
+            if (customEmailSettingsModel.FlagCollectionAssetEmailSettings != null)
+            {
+                if (FlagCollectionAssetEmailSettings == null)
+                {
+                    FlagCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                }
+                else
+                {
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                }
+            }
+
             if (customEmailSettingsModel.CommentShareEmailSettings != null)
             {
                 if (CommentShareEmailSettings == null)
@@ -188,6 +203,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.FlagShareAssetEmailSettings != null)
+            {
+                if (FlagShareAssetEmailSettings == null)
+                {
+                    FlagShareAssetEmailSettings = new EmailInstanceSettingsModel();
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                }
+                else
+                {
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
                 }
             }
 
@@ -432,6 +460,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 }
             }
 
+            if (customEmailSettingsModel.FlagCollectionAssetEmailSettings != null)
+            {
+                if (FlagCollectionAssetEmailSettings == null)
+                {
+                    FlagCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                }
+                else
+                {
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                }
+            }
+
             if (customEmailSettingsModel.CommentShareEmailSettings != null)
             {
                 if (CommentShareEmailSettings == null)
@@ -455,6 +496,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                }
+            }
+
+            if (customEmailSettingsModel.FlagShareAssetEmailSettings != null)
+            {
+                if (FlagShareAssetEmailSettings == null)
+                {
+                    FlagShareAssetEmailSettings = new EmailInstanceSettingsModel();
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                }
+                else
+                {
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
                 }
             }
 
