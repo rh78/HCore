@@ -7,6 +7,7 @@ using SendGrid.Helpers.Mail;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -177,13 +178,31 @@ namespace HCore.Emailing.Sender.Impl
             {
                 string body = await response.Body.ReadAsStringAsync().ConfigureAwait(false);
 
-                if (!string.IsNullOrEmpty(body) && body.IndexOf("The from address does not match a verified Sender Identity") > -1 && allowFallback)
+                if (!string.IsNullOrEmpty(body))
                 {
-                    // fall back to verified sender identity
+                    if (body.IndexOf("The from address does not match a verified Sender Identity") > -1 && allowFallback)
+                    {
+                        // fall back to verified sender identity
 
-                    await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
+                        await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
 
-                    return;
+                        return;
+                    }
+                    else if (body.IndexOf("Does not contain a valid address") > -1)
+                    {
+                        // invalid recipient address, log warning and bail out
+
+                        var firstTo = to?.FirstOrDefault();
+
+                        if (string.IsNullOrEmpty(firstTo))
+                        {
+                            firstTo = "(none)";
+                        }
+
+                        _logger.LogWarning($"SendGrid sender discovered invalid email address input: {firstTo}");
+
+                        return;
+                    }
                 }
 
                 throw new Exception($"SendGrid email sending failed with status code {response.StatusCode}: {body}");
