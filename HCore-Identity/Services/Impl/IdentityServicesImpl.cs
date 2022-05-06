@@ -1834,7 +1834,10 @@ namespace HCore.Identity.Services.Impl
                 return null;
 
             if (string.Equals(currency, "eur") ||
-                string.Equals(currency, "usd"))
+                string.Equals(currency, "usd") ||
+                string.Equals(currency, "gbp") ||
+                string.Equals(currency, "cad") ||
+                string.Equals(currency, "aud"))
             {
                 return currency;
             }

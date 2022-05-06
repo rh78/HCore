@@ -129,6 +129,15 @@ namespace HCore.Metadata.Impl
             if (string.Equals(defaultCurrency, "EUR"))
                 return "eur";
 
+            if (string.Equals(defaultCurrency, "GBP"))
+                return "gbp";
+
+            if (string.Equals(defaultCurrency, "CAD"))
+                return "cad";
+
+            if (string.Equals(defaultCurrency, "AUD"))
+                return "aud";
+
             return "usd";
         }
 
