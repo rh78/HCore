@@ -994,13 +994,7 @@ namespace HCore.Tenants.Services.Impl
                 return defaultCurrency;
             else if (string.Equals(defaultCurrency, "usd"))
                 return defaultCurrency;
-            else if (string.Equals(defaultCurrency, "gbp"))
-                return defaultCurrency;
-            else if (string.Equals(defaultCurrency, "cad"))
-                return defaultCurrency;
-            else if (string.Equals(defaultCurrency, "aud"))
-                return defaultCurrency;
-
+            
             throw new RequestFailedApiException(RequestFailedApiException.DefaultCurrencyInvalid, "The default currency is invalid");
         }
 
