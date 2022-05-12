@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Collections.Generic;
@@ -16,6 +17,9 @@ using System.Threading;
 using Microsoft.Extensions.Hosting;
 using System.Net.Security;
 using HCore.Web.Providers;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Security;
 
 namespace HCore.Web.Startup
 {
@@ -68,8 +72,8 @@ namespace HCore.Web.Startup
             }
         );
 
-        private string _environment;        
-        
+        private string _environment;
+
         private HostBuilder _hostBuilder;
         private IConfigurationRoot _configuration;
 
@@ -85,9 +89,9 @@ namespace HCore.Web.Startup
         public void Launch()
         {
             _environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            
+
             CreateWebHostBuilder();
-            
+
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
             _hostBuilder.Build().Run();
@@ -123,7 +127,7 @@ namespace HCore.Web.Startup
             {
                 options.ValidateScopes = true;
             });
-        }        
+        }
 
         private void ConfigureLogging()
         {
@@ -250,12 +254,7 @@ namespace HCore.Web.Startup
                         if (resourceStream == null)
                             throw new Exception("HTTPS web certificate resource not found");
 
-                        using (var memory = new MemoryStream((int)resourceStream.Length))
-                        {
-                            resourceStream.CopyTo(memory);
-
-                            defaultWebCertificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                        }
+                        defaultWebCertificate = GetX509Certificate2(resourceStream, httpsCertificatePassword);
                     }
 
                     if (useApi)
@@ -287,12 +286,7 @@ namespace HCore.Web.Startup
                         if (resourceStream == null)
                             throw new Exception("HTTPS API certificate resource not found");
 
-                        using (var memory = new MemoryStream((int)resourceStream.Length))
-                        {
-                            resourceStream.CopyTo(memory);
-
-                            defaultApiCertificate = new X509Certificate2(memory.ToArray(), httpsCertificatePassword);
-                        }
+                        defaultApiCertificate = GetX509Certificate2(resourceStream, httpsCertificatePassword);
                     }
                 }
 
@@ -303,13 +297,13 @@ namespace HCore.Web.Startup
                 // see https://www.strathweb.com/2019/02/be-careful-when-manually-handling-json-requests-in-asp-net-core/
 
                 // see https://www.monitis.com/blog/improving-asp-net-performance-part3-threading/
-                
+
                 options.Limits.MaxConcurrentConnections = 24 * numberOfCores;
                 options.Limits.MaxConcurrentUpgradedConnections = 24 * numberOfCores;
-                
+
                 if (maxRequestBodySizeKB > 0)
                     options.Limits.MaxRequestBodySize = maxRequestBodySizeKB * 1024;
-                
+
                 if (useHttps)
                 {
                     // Important: Only enable TLS 1.2 and TLS 1.3 to comply with SSL Server tests.
@@ -322,8 +316,8 @@ namespace HCore.Web.Startup
                         if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
                         {
                             var allowedCipherSuites = CipherSuitesPolicy.AllowedCipherSuites;
-                            
-                            foreach (var allowedCipherSuite in allowedCipherSuites) 
+
+                            foreach (var allowedCipherSuite in allowedCipherSuites)
                             {
                                 Console.WriteLine($"Cipher suite supported: {allowedCipherSuite}");
                             }
@@ -436,7 +430,7 @@ namespace HCore.Web.Startup
 
                         options.Listen(IPAddress.Any, apiPort, listenOptions =>
                             listenOptions.UseHttps());
-                    }                        
+                    }
                 }
             });
 
@@ -459,7 +453,7 @@ namespace HCore.Web.Startup
                 services.AddSingleton<IOptionsChangeTokenSource<HostFilteringOptions>>(
                     new ConfigurationChangeTokenSource<HostFilteringOptions>(configuration));
 
-                services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();                
+                services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();
             });
 
             webHostBuilder.UseIISIntegration();
@@ -514,8 +508,8 @@ namespace HCore.Web.Startup
             }
 
             if (useApi)
-            { 
-                string apiServerUrl = useHttps ? "https://" : "http://";                
+            {
+                string apiServerUrl = useHttps ? "https://" : "http://";
 
                 int apiPort = _configuration.GetValue<int>("WebServer:ApiPort");
 
@@ -534,7 +528,45 @@ namespace HCore.Web.Startup
             if (_configuration.GetValue<bool>("Sentry:UseSentry"))
                 webHostBuilder.UseSentry();
 
-            _serverUrl = string.Join(" / ", urlsArray);            
+            _serverUrl = string.Join(" / ", urlsArray);
+        }
+
+        private static X509Certificate2 GetX509Certificate2(Stream stream, string password)
+        {
+            X509Certificate2 x509Certificate2;
+
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
+                var store = new Pkcs12Store();
+                
+                store.Load(stream, password.ToArray());
+
+                var keyAlias = store.Aliases.Cast<string>().SingleOrDefault(a => store.IsKeyEntry(a));
+
+                var key = (RsaPrivateCrtKeyParameters)store.GetKey(keyAlias).Key;
+
+                var parameters = DotNetUtilities.ToRSAParameters(key);
+
+                var rsa = new RSACryptoServiceProvider();
+
+                rsa.ImportParameters(parameters);
+
+                var bouncyCertificate = store.GetCertificate(keyAlias).Certificate;
+
+                x509Certificate2 = new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCertificate));
+                x509Certificate2 = RSACertificateExtensions.CopyWithPrivateKey(x509Certificate2, rsa);
+            }
+            else
+            {
+                using (var memoryStream = new MemoryStream((int)stream.Length))
+                {
+                    stream.CopyTo(memoryStream);
+
+                    x509Certificate2 = new X509Certificate2(memoryStream.ToArray(), password);
+                }
+            }
+
+            return x509Certificate2;
         }
     }
 
