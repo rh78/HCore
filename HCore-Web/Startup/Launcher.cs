@@ -535,7 +535,7 @@ namespace HCore.Web.Startup
         {
             X509Certificate2 x509Certificate2;
 
-            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
                 var store = new Pkcs12Store();
 
