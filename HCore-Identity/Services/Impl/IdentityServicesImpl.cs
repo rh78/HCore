@@ -131,7 +131,7 @@ namespace HCore.Identity.Services.Impl
             _blockLowQuality = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:BlockLowQuality") ?? false;
         }
 
-        public async Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
+        public async Task<ReservedEmailAddressModel> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
         {
             if (processEmailAddress)
                 emailAddress = ProcessEmail(emailAddress);
@@ -172,12 +172,10 @@ namespace HCore.Identity.Services.Impl
                     
                     query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.NormalizedEmailAddress == normalizedEmailAddress);
 
-                    var reservedUserUuidQuery = query.Select(reservedEmailAddress => reservedEmailAddress.Uuid);
+                    var reservedEmailAddressModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
 
-                    string reservedUserUuid = await reservedUserUuidQuery.FirstOrDefaultAsync().ConfigureAwait(false);
-
-                    if (!string.IsNullOrEmpty(reservedUserUuid))
-                        return reservedUserUuid;
+                    if (reservedEmailAddressModel != null)
+                        return reservedEmailAddressModel;
 
                     if (!createReservationIfNotPresent)
                         return null;
@@ -186,17 +184,21 @@ namespace HCore.Identity.Services.Impl
 
                     newUserUuid = $"{prefix}{newUserUuid}";
 
-                    _identityDbContext.ReservedEmailAddresses.Add(new ReservedEmailAddressModel()
+                    reservedEmailAddressModel = new ReservedEmailAddressModel()
                     {
                         Uuid = newUserUuid,
                         NormalizedEmailAddress = normalizedEmailAddress
-                    });
+                    };
+
+                    _identityDbContext.ReservedEmailAddresses.Add(reservedEmailAddressModel);
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                     transaction.Commit();
 
-                    return newUserUuid;
+                    // no expiry date upon reservation supported right now
+
+                    return reservedEmailAddressModel;
                 }
             }
             catch (ApiException e)
@@ -206,6 +208,58 @@ namespace HCore.Identity.Services.Impl
             catch (Exception e)
             {
                 _logger.LogError($"Error when reserving user UUID: {e}");
+
+                throw new InternalServerErrorApiException();
+            }
+        }
+
+        public async Task<bool> SetReservationExpiryDateAsync(string userUuid, DateTimeOffset? expiryDate)
+        {
+            try
+            {
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    // make sure we have no race conditions
+
+                    if (_identityDbContext.Database.ProviderName != null && _identityDbContext.Database.ProviderName.StartsWith("Npgsql"))
+                    {
+                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT \"Uuid\" FROM public.\"ReservedEmailAddresses\" WHERE \"Uuid\" = {0} FOR UPDATE", userUuid).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE Uuid = {0}", userUuid).ConfigureAwait(false);
+                    }
+
+                    IQueryable<ReservedEmailAddressModel> query = _identityDbContext.ReservedEmailAddresses;
+
+                    query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.Uuid == userUuid);
+
+                    var reservedEmailAddressModel = await query.FirstOrDefaultAsync();
+
+                    if (reservedEmailAddressModel == null)
+                        return false;
+
+                    if (reservedEmailAddressModel.ExpiryDate != expiryDate)
+                    {
+                        reservedEmailAddressModel.ExpiryDate = expiryDate;
+
+                        _identityDbContext.Update(reservedEmailAddressModel);
+
+                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                        transaction.Commit();
+                    }
+
+                    return true;
+                }
+            }
+            catch (ApiException e)
+            {
+                throw e;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error when setting expiry date for user reservation: {e}");
 
                 throw new InternalServerErrorApiException();
             }
@@ -334,7 +388,7 @@ namespace HCore.Identity.Services.Impl
 
             try
             {
-                string newUserUuid = await ReserveUserUuidAsync(userSpec.Email).ConfigureAwait(false);
+                var reservedEmailAddressModel = await ReserveUserUuidAsync(userSpec.Email).ConfigureAwait(false);
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
@@ -343,7 +397,13 @@ namespace HCore.Identity.Services.Impl
                     if (existingUser != null)
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
-                    var user = new UserModel { Id = newUserUuid, UserName = userSpec.Email, Email = userSpec.Email, NormalizedEmailWithoutScope = userSpec.Email.Trim().ToUpper() };
+                    var user = new UserModel { 
+                        Id = reservedEmailAddressModel.Uuid, 
+                        UserName = userSpec.Email, 
+                        Email = userSpec.Email, 
+                        NormalizedEmailWithoutScope = userSpec.Email.Trim().ToUpper(),
+                        ExpiryDate = reservedEmailAddressModel.ExpiryDate
+                    };
 
                     if (_configurationProvider.SelfManagement)
                     {
@@ -486,7 +546,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, DateTimeOffset? expiryDate, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
 
@@ -572,7 +632,14 @@ namespace HCore.Identity.Services.Impl
                         preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
                     }
 
-                    var user = new UserModel { Id = providerUserUuid, UserName = preferredUserName, Email = scopedEmail, MemberOf = memberOf?.ToList(), NormalizedEmailWithoutScope = normalizedEmailAddress };
+                    var user = new UserModel { 
+                        Id = providerUserUuid, 
+                        UserName = preferredUserName, 
+                        Email = scopedEmail, 
+                        MemberOf = memberOf?.ToList(), 
+                        NormalizedEmailWithoutScope = normalizedEmailAddress,
+                        ExpiryDate = expiryDate
+                    };
 
                     if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
                     {
@@ -845,7 +912,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
 
-                var providerUserUuid = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
+                var reservedEmailAddressModel = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
+
+                var providerUserUuid = reservedEmailAddressModel?.Uuid;
 
                 if (string.IsNullOrEmpty(providerUserUuid))
                     providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
@@ -860,7 +929,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, reservedEmailAddressModel?.ExpiryDate, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
 
                         return (user, true);
                     }

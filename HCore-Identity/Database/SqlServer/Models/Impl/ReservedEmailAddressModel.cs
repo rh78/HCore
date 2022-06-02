@@ -1,4 +1,6 @@
-﻿namespace HCore.Identity.Database.SqlServer.Models.Impl
+﻿using System;
+
+namespace HCore.Identity.Database.SqlServer.Models.Impl
 {
     public class ReservedEmailAddressModel
     {
@@ -7,6 +9,8 @@
 
         public long? DeveloperUuid { get; set; }
         public long? TenantUuid { get; set; }
+
+        public DateTimeOffset? ExpiryDate { get; set; }
 
         public long? AuthScopeConfigurationUuid { get; set; }
     }

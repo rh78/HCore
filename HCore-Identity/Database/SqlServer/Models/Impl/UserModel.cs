@@ -59,6 +59,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public string IdentityTokenCache { get; set; }
         public string RefreshTokenCache { get; set; }
 
+        public DateTimeOffset? ExpiryDate { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))

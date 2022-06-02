@@ -15,6 +15,7 @@ namespace HCore.Web.Exceptions
         public const string CookieInvalidOrExpired = "cookie_invalid_or_expired";
         public const string ExternalUserIdIsMissing = "external_user_id_is_missing";
         public const string ExternalUserNotFound = "external_user_not_found";
+        public const string AccountExpired = "account_expired";
 
         public string UserUuid { get; set; }
 

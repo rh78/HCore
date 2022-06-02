@@ -88,6 +88,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately, your user account has expired. Please contact us if you want to extend the validity of your user account ähnelt.
+        /// </summary>
+        public static string account_expired {
+            get {
+                return ResourceManager.GetString("account_expired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die This operation cannot be performed, because the user account is externally managed ähnelt.
         /// </summary>
         public static string account_is_externally_managed {

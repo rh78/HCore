@@ -3,6 +3,7 @@ using HCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using reCAPTCHA.AspNetCore;
+using System;
 using System.Threading.Tasks;
 
 namespace HCore.Identity.Services
@@ -28,6 +29,7 @@ namespace HCore.Identity.Services
 
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
-        Task<string> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true);
+        Task<ReservedEmailAddressModel> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true);
+        Task<bool> SetReservationExpiryDateAsync(string userUuid, DateTimeOffset? expiryDate);
     }
 }
