@@ -213,58 +213,6 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<bool> SetReservationExpiryDateAsync(string userUuid, DateTimeOffset? expiryDate)
-        {
-            try
-            {
-                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
-                {
-                    // make sure we have no race conditions
-
-                    if (_identityDbContext.Database.ProviderName != null && _identityDbContext.Database.ProviderName.StartsWith("Npgsql"))
-                    {
-                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT \"Uuid\" FROM public.\"ReservedEmailAddresses\" WHERE \"Uuid\" = {0} FOR UPDATE", userUuid).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE Uuid = {0}", userUuid).ConfigureAwait(false);
-                    }
-
-                    IQueryable<ReservedEmailAddressModel> query = _identityDbContext.ReservedEmailAddresses;
-
-                    query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.Uuid == userUuid);
-
-                    var reservedEmailAddressModel = await query.FirstOrDefaultAsync();
-
-                    if (reservedEmailAddressModel == null)
-                        return false;
-
-                    if (reservedEmailAddressModel.ExpiryDate != expiryDate)
-                    {
-                        reservedEmailAddressModel.ExpiryDate = expiryDate;
-
-                        _identityDbContext.Update(reservedEmailAddressModel);
-
-                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-                        transaction.Commit();
-                    }
-
-                    return true;
-                }
-            }
-            catch (ApiException e)
-            {
-                throw e;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error when setting expiry date for user reservation: {e}");
-
-                throw new InternalServerErrorApiException();
-            }
-        }
-
         public async Task<UserModel> CreateUserAsync(UserSpec userSpec, bool isSelfRegistration, bool emailIsAlreadyConfirmed = false, HttpRequest request = null, bool requiresRecaptcha = true, RecaptchaSettings recaptchaSettings = null, bool ignoreSelfRegistrationRestriction = false)
         {
             if (isSelfRegistration)

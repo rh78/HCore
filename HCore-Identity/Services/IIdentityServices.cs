@@ -30,6 +30,5 @@ namespace HCore.Identity.Services
         Task<UserModel> UpdateUserAsync(string userUuid, UserSpec user, bool isAdmin);
 
         Task<ReservedEmailAddressModel> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true);
-        Task<bool> SetReservationExpiryDateAsync(string userUuid, DateTimeOffset? expiryDate);
     }
 }
