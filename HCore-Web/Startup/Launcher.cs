@@ -290,8 +290,10 @@ namespace HCore.Web.Startup
                     }
                 }
 
-                options.Configure(builderContext.Configuration.GetSection("Kestrel"));
+                options.AddServerHeader = false;
 
+                options.Configure(builderContext.Configuration.GetSection("Kestrel"));
+                
                 // try to avoid thread starvation problems
 
                 // see https://www.strathweb.com/2019/02/be-careful-when-manually-handling-json-requests-in-asp-net-core/
