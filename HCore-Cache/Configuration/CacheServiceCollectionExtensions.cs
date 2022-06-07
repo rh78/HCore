@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
 using HCore.Cache;
 using HCore.Cache.Impl;
-using System;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis.Extensions.Binary;
+using StackExchange.Redis.Extensions.Core.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,28 +24,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (implementation.Equals(CacheConstants.CacheImplementationRedis))
             {
-                string connectionString = configuration["Cache:Redis:ConnectionString"];
-
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception("Redis cache connection string is empty");
-
-                string instanceName = configuration["Cache:Redis:InstanceName"];
-
-                if (string.IsNullOrEmpty(instanceName))
-                    throw new Exception("Redis instance name is empty");
-
-                services.AddDistributedRedisCache(options =>
-                {
-                    options.Configuration = connectionString;
-                    options.InstanceName = instanceName;
-                });
+                // Switch at some point to NewtonsoftSerializer or SystemTextJsonSerializer
+                // https://docs.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/binaryformatter-serialization-obsolete
+                services.AddStackExchangeRedisExtensions<BinarySerializer>(o => configuration.GetSection("Cache:Redis").Get<RedisConfiguration>());
 
                 services.AddSingleton<ICache, RedisCacheImpl>();
-            } 
+            }
             else
             {
                 services.AddMemcached(options =>
-                {                    
+                {
                     configuration.GetSection("Cache:Memcached").Bind(options);
 
                     options.Protocol = Enyim.Caching.Memcached.MemcachedProtocol.Binary;
