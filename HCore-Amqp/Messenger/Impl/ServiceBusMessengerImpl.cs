@@ -81,7 +81,7 @@ namespace HCore.Amqp.Messenger.Impl
 
                 if (await managementClient.TopicExistsAsync(address).ConfigureAwait(false))
                 {
-                    await managementClient.DeleteTopicAsync(address).ConfigureAwait(false);
+                    throw new Exception($"Address {address} already exists as a topic");
                 }
 
                 if (!await managementClient.QueueExistsAsync(address).ConfigureAwait(false))
@@ -110,7 +110,7 @@ namespace HCore.Amqp.Messenger.Impl
 
                 if (await managementClient.QueueExistsAsync(topicAddress).ConfigureAwait(false))
                 {
-                    await managementClient.DeleteQueueAsync(topicAddress).ConfigureAwait(false);
+                    throw new Exception($"Address {topicAddress} already exists as a queue");
                 }
 
                 if (!await managementClient.TopicExistsAsync(topicAddress).ConfigureAwait(false))
