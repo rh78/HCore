@@ -28,13 +28,15 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly string[] _topicAddresses;
 
         private readonly int[] _addressListenerCounts;
+        private readonly int[] _topicAddressListenerCounts;
+
         private readonly bool[] _isSessions;
         private readonly bool[] _isTopicSessions;
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
         public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
-            : this(connectionString, addresses, topicAddresses: new string[0], addressListenerCount, isSessions, new bool[0], applicationLifetime, messageProcessor, logger)
+            : this(connectionString, addresses, topicAddresses: new string[0], addressListenerCount, topicAddressListenerCount: new int[0], isSessions, new bool[0], applicationLifetime, messageProcessor, logger)
         {
         }
 
@@ -43,6 +45,7 @@ namespace HCore.Amqp.Messenger.Impl
             string[] addresses,
             string[] topicAddresses,
             int[] addressListenerCount,
+            int[] topicAddressListenerCount,
             bool[] isSessions,
             bool[] isTopicSessions,
             IHostApplicationLifetime applicationLifetime,
@@ -54,6 +57,7 @@ namespace HCore.Amqp.Messenger.Impl
             _addresses = addresses;
             _topicAddresses = topicAddresses;
             _addressListenerCounts = addressListenerCount;
+            _topicAddressListenerCounts = topicAddressListenerCount;
             _isSessions = isSessions;
             _isTopicSessions = isTopicSessions;
 
@@ -106,6 +110,7 @@ namespace HCore.Amqp.Messenger.Impl
             for (int i = 0; i < _topicAddresses.Length; i++)
             {
                 var topicAddress = _topicAddresses[i];
+                var listenerCount = _topicAddressListenerCounts[i];
                 var isTopicSession = _isTopicSessions[i];
 
                 if (await managementClient.QueueExistsAsync(topicAddress).ConfigureAwait(false))
@@ -138,7 +143,7 @@ namespace HCore.Amqp.Messenger.Impl
                     }).ConfigureAwait(false);
                 }
 
-                await AddTopicClientAsync(topicAddress, subscriptionName, isTopicSession).ConfigureAwait(false);
+                await AddTopicClientAsync(listenerCount, topicAddress, subscriptionName, isTopicSession).ConfigureAwait(false);
             }
 
             await managementClient.CloseAsync().ConfigureAwait(false);
@@ -155,9 +160,9 @@ namespace HCore.Amqp.Messenger.Impl
             await queueClientHost.InitializeAsync().ConfigureAwait(false);
         }
 
-        private async Task AddTopicClientAsync(string address, string subscriptionName, bool isTopicSession)
+        private async Task AddTopicClientAsync(int amqpListenerCount, string address, string subscriptionName, bool isTopicSession)
         {
-            var topicClientHost = new TopicClientHost(_connectionString, address, subscriptionName, isTopicSession, this, _cancellationToken, _logger);
+            var topicClientHost = new TopicClientHost(_connectionString, amqpListenerCount, address, subscriptionName, isTopicSession, this, _cancellationToken, _logger);
 
             _topicClientHosts.Add(address, topicClientHost);
 

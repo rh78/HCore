@@ -49,6 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var topicAddressesSplit = topicAddresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+            var amqpTopicListenerCounts = GetListenerCounts(configuration, topicAddressesSplit);
             var amqpIsTopicSessions = GetSessions(configuration, topicAddressesSplit, useServiceBus);
 
             services.AddSingleton(serviceProvider =>
@@ -61,7 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // Service Bus
 
-                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpIsSessions, amqpIsTopicSessions, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
+                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
                 }
                 else
                 {

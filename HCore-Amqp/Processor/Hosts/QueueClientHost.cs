@@ -86,7 +86,9 @@ namespace HCore.Amqp.Processor.Hosts
             try
             {
                 if (!string.Equals(message.ContentType, "application/json"))
+                {
                     throw new Exception($"Invalid content type for AMQP message: {message.ContentType}");
+                }
 
                 if (message.Body != null)
                 {
@@ -118,7 +120,9 @@ namespace HCore.Amqp.Processor.Hosts
             try
             {
                 if (!string.Equals(firstMessage.ContentType, "application/json"))
+                {
                     throw new Exception($"Invalid content type for AMQP message: {firstMessage.ContentType}");
+                }
 
                 // try to receive as many messages as possible
 
@@ -134,7 +138,9 @@ namespace HCore.Amqp.Processor.Hosts
                     foreach (var otherMessage in otherMessages)
                     {
                         if (!string.Equals(otherMessage.ContentType, "application/json"))
+                        {
                             throw new Exception($"Invalid content type for AMQP message: {otherMessage.ContentType}");
+                        }
 
                         messages.Add(otherMessage);
                     }
@@ -219,12 +225,16 @@ namespace HCore.Amqp.Processor.Hosts
                 error = false;
 
                 if (CancellationToken.IsCancellationRequested)
+                {
                     throw new Exception("AMQP cancellation is requested, can not send message");
+                }
 
                 try
                 {
                     if (queueClient == null || queueClient.IsClosedOrClosing)
+                    {
                         await InitializeAsync().ConfigureAwait(false);
+                    }
 
                     var message = new Microsoft.Azure.ServiceBus.Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
                     {
@@ -235,18 +245,26 @@ namespace HCore.Amqp.Processor.Hosts
                     if (!string.IsNullOrEmpty(sessionId))
                     {
                         if (!_isSession)
+                        {
                             throw new Exception("Service Bus AMQP queue is no session queue");
+                        }
 
                         message.SessionId = sessionId;
                     }
 
                     if (_isSession && string.IsNullOrEmpty(sessionId))
+                    {
                         throw new Exception("Session ID is missing for Service Bus AMQP session queue");
+                    }
 
                     if (timeOffsetSeconds == null)
+                    {
                         await queueClient.SendAsync(message).ConfigureAwait(false);
+                    }
                     else
+                    {
                         await queueClient.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -260,7 +278,9 @@ namespace HCore.Amqp.Processor.Hosts
                             // nobody else handled this before
 
                             if (!CancellationToken.IsCancellationRequested)
+                            {
                                 _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
+                            }
 
                             await CloseAsync().ConfigureAwait(false);
                         }

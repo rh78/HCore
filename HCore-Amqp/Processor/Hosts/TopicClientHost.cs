@@ -17,29 +17,35 @@ namespace HCore.Amqp.Processor.Hosts
     internal class TopicClientHost
     {
         private readonly string _connectionString;
-
-        private readonly string _address;
-        private readonly string _lowLevelAddress;
-        private readonly string _subscriptionName;
+        private readonly int _amqpListenerCount;
         private readonly bool _isTopicSession;
+
+        private readonly string _lowLevelAddress;
+
+        protected string Address { get; set; }
+
+        protected string SubscriptionName { get; set; }
 
         private TopicClient _topicClient;
         private SubscriptionClient _subscriptionClient;
 
-        private readonly static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-
         private readonly ServiceBusMessengerImpl _messenger;
+        
         private readonly CancellationToken CancellationToken;
+
+        private readonly static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
-        public TopicClientHost(string connectionString, string address, string subscriptionName, bool isTopicSession, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken, ILogger<ServiceBusMessengerImpl> logger)
+        public TopicClientHost(string connectionString, int amqpListenerCount, string address, string subscriptionName, bool isTopicSession, ServiceBusMessengerImpl messenger, CancellationToken cancellationToken, ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
-
-            _address = address;
-            _lowLevelAddress = _address.ToLower();
-            _subscriptionName = subscriptionName;
+            _amqpListenerCount = amqpListenerCount;
             _isTopicSession = isTopicSession;
+
+            Address = address;
+            SubscriptionName = subscriptionName;
+            _lowLevelAddress = Address.ToLower();
 
             _messenger = messenger;
 
@@ -54,26 +60,29 @@ namespace HCore.Amqp.Processor.Hosts
 
             _topicClient = new TopicClient(_connectionString, _lowLevelAddress);
 
-            _subscriptionClient = new SubscriptionClient(_connectionString, _lowLevelAddress, _subscriptionName);
+            _subscriptionClient = new SubscriptionClient(_connectionString, _lowLevelAddress, SubscriptionName);
 
-            if (!_isTopicSession)
+            if (_amqpListenerCount > 0)
             {
-                _subscriptionClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                if (!_isTopicSession)
                 {
-                    MaxConcurrentCalls = 1,
-                    AutoComplete = false,
-                    MaxAutoRenewDuration = TimeSpan.FromHours(2)
-                });
-            }
-            else
-            {
-                _subscriptionClient.RegisterSessionHandler(ProcessSessionAsync, new SessionHandlerOptions(ExceptionReceivedHandlerAsync)
+                    _subscriptionClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                    {
+                        MaxConcurrentCalls = _amqpListenerCount,
+                        AutoComplete = false,
+                        MaxAutoRenewDuration = TimeSpan.FromHours(2)
+                    });
+                }
+                else
                 {
-                    MaxConcurrentSessions = 1,
-                    AutoComplete = false,
-                    MaxAutoRenewDuration = TimeSpan.FromHours(2),
-                    MessageWaitTimeout = TimeSpan.FromSeconds(1)
-                });
+                    _subscriptionClient.RegisterSessionHandler(ProcessSessionAsync, new SessionHandlerOptions(ExceptionReceivedHandlerAsync)
+                    {
+                        MaxConcurrentSessions = _amqpListenerCount,
+                        AutoComplete = false,
+                        MaxAutoRenewDuration = TimeSpan.FromHours(2),
+                        MessageWaitTimeout = TimeSpan.FromSeconds(1)
+                    });
+                }
             }
         }
 
@@ -90,11 +99,11 @@ namespace HCore.Amqp.Processor.Hosts
 
                 if (message.Body != null)
                 {
-                    await _messenger.ProcessMessageAsync(_address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
+                    await _messenger.ProcessMessageAsync(Address, Encoding.UTF8.GetString(message.Body)).ConfigureAwait(false);
                 }
                 else
                 {
-                    await _messenger.ProcessMessageAsync(_address, null).ConfigureAwait(false);
+                    await _messenger.ProcessMessageAsync(Address, null).ConfigureAwait(false);
                 }
 
                 await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
@@ -159,7 +168,7 @@ namespace HCore.Amqp.Processor.Hosts
                         : null)
                     .ToList();
 
-                await _messenger.ProcessMessagesAsync(_address, bodies).ConfigureAwait(false);
+                await _messenger.ProcessMessagesAsync(Address, bodies).ConfigureAwait(false);
 
                 foreach (var message in messages)
                 {
@@ -264,7 +273,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                             if (!CancellationToken.IsCancellationRequested)
                             {
-                                _logger.LogError($"AMQP exception in sender link for address {_address}: {e}");
+                                _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
                             }
 
                             await CloseAsync().ConfigureAwait(false);
