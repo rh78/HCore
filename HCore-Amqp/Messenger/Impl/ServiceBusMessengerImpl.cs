@@ -15,8 +15,9 @@ namespace HCore.Amqp.Messenger.Impl
     internal class ServiceBusMessengerImpl : IAMQPMessenger
     {
         private readonly Dictionary<string, QueueClientHost> _queueClientHosts = new Dictionary<string, QueueClientHost>();
+        private readonly Dictionary<string, TopicClientHost> _topicClientHosts = new Dictionary<string, TopicClientHost>();
 
-        private readonly string _connectionString;       
+        private readonly string _connectionString;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly CancellationToken _cancellationToken;
@@ -24,18 +25,37 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly IAMQPMessageProcessor _messageProcessor;
 
         private readonly string[] _addresses;
+        private readonly string[] _topicAddresses;
+
         private readonly int[] _addressListenerCounts;
         private readonly bool[] _isSessions;
+        private readonly bool[] _isTopicSessions;
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
         public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
+            : this(connectionString, addresses, topicAddresses: new string[0], addressListenerCount, isSessions, new bool[0], applicationLifetime, messageProcessor, logger)
+        {
+        }
+
+        public ServiceBusMessengerImpl(
+            string connectionString,
+            string[] addresses,
+            string[] topicAddresses,
+            int[] addressListenerCount,
+            bool[] isSessions,
+            bool[] isTopicSessions,
+            IHostApplicationLifetime applicationLifetime,
+            IAMQPMessageProcessor messageProcessor,
+            ILogger<ServiceBusMessengerImpl> logger)
         {
             _connectionString = connectionString;
 
             _addresses = addresses;
+            _topicAddresses = topicAddresses;
             _addressListenerCounts = addressListenerCount;
             _isSessions = isSessions;
+            _isTopicSessions = isTopicSessions;
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -55,9 +75,14 @@ namespace HCore.Amqp.Messenger.Impl
 
             for (int i = 0; i < _addresses.Length; i++)
             {
-                string address = _addresses[i];
-                int listenerCount = _addressListenerCounts[i];
-                bool isSession = _isSessions[i];
+                var address = _addresses[i];
+                var listenerCount = _addressListenerCounts[i];
+                var isSession = _isSessions[i];
+
+                if (await managementClient.TopicExistsAsync(address).ConfigureAwait(false))
+                {
+                    throw new Exception($"Address {address} already exists as a topic");
+                }
 
                 if (!await managementClient.QueueExistsAsync(address).ConfigureAwait(false))
                 {
@@ -66,7 +91,7 @@ namespace HCore.Amqp.Messenger.Impl
                     await managementClient.CreateQueueAsync(new QueueDescription(address)
                     {
                         LockDuration = TimeSpan.FromMinutes(1),
-                        MaxDeliveryCount = Int32.MaxValue,
+                        MaxDeliveryCount = int.MaxValue,
                         EnablePartitioning = true,
                         MaxSizeInMB = 2048,
                         RequiresSession = isSession
@@ -76,6 +101,44 @@ namespace HCore.Amqp.Messenger.Impl
                 }
 
                 await AddQueueClientAsync(listenerCount, address, isSession).ConfigureAwait(false);
+            }
+
+            for (int i = 0; i < _topicAddresses.Length; i++)
+            {
+                var topicAddress = _topicAddresses[i];
+                var isTopicSession = _isTopicSessions[i];
+
+                if (await managementClient.QueueExistsAsync(topicAddress).ConfigureAwait(false))
+                {
+                    throw new Exception($"Address {topicAddress} already exists as a queue");
+                }
+
+                if (!await managementClient.TopicExistsAsync(topicAddress).ConfigureAwait(false))
+                {
+                    Console.WriteLine($"Creating AMQP topic {topicAddress}...");
+
+                    await managementClient.CreateTopicAsync(new TopicDescription(topicAddress)
+                    {
+                        DefaultMessageTimeToLive = TimeSpan.FromMinutes(1),
+                        EnablePartitioning = true,
+                        MaxSizeInMB = 2048
+                    }).ConfigureAwait(false);
+
+                    Console.WriteLine($"Created AMQP topic {topicAddress}");
+                }
+
+                var subscriptionName = $"subscription_{Environment.MachineName}";
+
+                if (!await managementClient.SubscriptionExistsAsync(topicAddress, subscriptionName).ConfigureAwait(false))
+                {
+                    await managementClient.CreateSubscriptionAsync(new SubscriptionDescription(topicAddress, subscriptionName)
+                    {
+                        RequiresSession = isTopicSession,
+                        AutoDeleteOnIdle = TimeSpan.FromDays(1)
+                    }).ConfigureAwait(false);
+                }
+
+                await AddTopicClientAsync(topicAddress, subscriptionName, isTopicSession).ConfigureAwait(false);
             }
 
             await managementClient.CloseAsync().ConfigureAwait(false);
@@ -89,19 +152,32 @@ namespace HCore.Amqp.Messenger.Impl
 
             _queueClientHosts.Add(address, queueClientHost);
 
-            await queueClientHost.InitializeAsync().ConfigureAwait(false);            
+            await queueClientHost.InitializeAsync().ConfigureAwait(false);
+        }
+
+        private async Task AddTopicClientAsync(string address, string subscriptionName, bool isTopicSession)
+        {
+            var topicClientHost = new TopicClientHost(_connectionString, address, subscriptionName, isTopicSession, this, _cancellationToken, _logger);
+
+            _topicClientHosts.Add(address, topicClientHost);
+
+            await topicClientHost.InitializeAsync().ConfigureAwait(false);
         }
 
         private void OnShutdown()
         {
             Console.WriteLine("Shutting down AMQP...");
 
-            try { 
+            try
+            {
                 _cancellationTokenSource.Cancel();
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
                     queueClientHost.CloseAsync().Wait();
+
+                foreach (TopicClientHost topicClientHost in _topicClientHosts.Values)
+                    topicClientHost.CloseAsync().Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
             catch (Exception)
@@ -114,10 +190,19 @@ namespace HCore.Amqp.Messenger.Impl
 
         public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
-            if (!_queueClientHosts.ContainsKey(address))
-                throw new Exception($"Address {address} is not available for AMQP sending");
+            if (_topicClientHosts.TryGetValue(address, out var topicClientHost))
+            {
+                await topicClientHost.SendMessageAsync(body, timeOffsetSeconds);
 
-            await _queueClientHosts[address].SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+                return;
+            }
+
+            if (!_queueClientHosts.TryGetValue(address, out var queueClientHost))
+            {
+                throw new Exception($"Address {address} is not available for AMQP sending");
+            }
+
+            await queueClientHost.SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
         }
 
         public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
@@ -125,7 +210,7 @@ namespace HCore.Amqp.Messenger.Impl
             try
             {
                 await ProcessMessageAsync(address, JsonConvert.SerializeObject(body)).ConfigureAwait(false);
-            } 
+            }
             catch (Exception e)
             {
                 if (!_cancellationToken.IsCancellationRequested)
