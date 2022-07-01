@@ -157,7 +157,7 @@ namespace HCore.Tenants.Providers.Impl
                         if (emailSettingsModel == null)
                             throw new Exception("The developer email settings are missing");
 
-                        emailSettingsModel.Validate();
+                        emailSettingsModel.Validate(allowEmpty: false);
 
                         var developerInfo = new DeveloperInfoImpl()
                         {
@@ -470,12 +470,12 @@ namespace HCore.Tenants.Providers.Impl
             {
                 var targetEmailSettingsModel = new EmailSettingsModel();
 
-                targetEmailSettingsModel.MergeWith(emailSettingsModel);
-                targetEmailSettingsModel.MergeWith(customEmailSettingsModel);
+                targetEmailSettingsModel.MergeWith(emailSettingsModel, allowEmpty: false);
+                targetEmailSettingsModel.MergeWith(customEmailSettingsModel, allowEmpty: false);
 
                 emailSettingsModel = targetEmailSettingsModel;
 
-                emailSettingsModel.Validate();
+                emailSettingsModel.Validate(allowEmpty: false);
             }
 
             var ecbProductName = tenantModel.EcbProductName;

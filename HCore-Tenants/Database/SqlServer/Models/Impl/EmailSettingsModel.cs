@@ -32,7 +32,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
 
-        public void MergeWith(EmailSettingsModel customEmailSettingsModel)
+        public void MergeWith(EmailSettingsModel customEmailSettingsModel, bool allowEmpty)
         {
             if (customEmailSettingsModel == null)
                 return;
@@ -42,11 +42,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (InvitationEmailSettings == null)
                 {
                     InvitationEmailSettings = new EmailInstanceSettingsModel();
-                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings, allowEmpty);
                 }
             }
 
@@ -55,11 +55,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ConfirmAccountEmailSettings == null)
                 {
                     ConfirmAccountEmailSettings = new EmailInstanceSettingsModel();
-                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings, allowEmpty);
                 }
             }
 
@@ -68,11 +68,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ForgotPasswordEmailSettings == null)
                 {
                     ForgotPasswordEmailSettings = new EmailInstanceSettingsModel();
-                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings, allowEmpty);
                 }
             }
 
@@ -81,11 +81,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (NewUnreadNotificationsEmailSettings == null)
                 {
                     NewUnreadNotificationsEmailSettings = new EmailInstanceSettingsModel();
-                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings, allowEmpty);
                 }
             }
 
@@ -94,11 +94,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationEmailSettings == null)
                 {
                     CollectionInvitationEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings, allowEmpty);
                 }
             }
 
@@ -107,11 +107,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationAcceptedEmailSettings == null)
                 {
                     CollectionInvitationAcceptedEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings, allowEmpty);
                 }
             }
 
@@ -120,11 +120,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationDeclinedEmailSettings == null)
                 {
                     CollectionInvitationDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -133,11 +133,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ShareEmailSettings == null)
                 {
                     ShareEmailSettings = new EmailInstanceSettingsModel();
-                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings, allowEmpty);
                 }
             }
 
@@ -146,11 +146,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentCollectionEmailSettings == null)
                 {
                     CommentCollectionEmailSettings = new EmailInstanceSettingsModel();
-                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings, allowEmpty);
                 }
             }
 
@@ -159,11 +159,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentCollectionAssetEmailSettings == null)
                 {
                     CommentCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
-                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings);
+                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings);
+                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -172,11 +172,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (FlagCollectionAssetEmailSettings == null)
                 {
                     FlagCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
-                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -185,11 +185,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentShareEmailSettings == null)
                 {
                     CommentShareEmailSettings = new EmailInstanceSettingsModel();
-                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings);
+                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings);
+                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings, allowEmpty);
                 }
             }
 
@@ -198,11 +198,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentShareAssetEmailSettings == null)
                 {
                     CommentShareAssetEmailSettings = new EmailInstanceSettingsModel();
-                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -211,11 +211,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (FlagShareAssetEmailSettings == null)
                 {
                     FlagShareAssetEmailSettings = new EmailInstanceSettingsModel();
-                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -224,11 +224,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadAvailableEmailSettings == null)
                 {
                     DownloadAvailableEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings, allowEmpty);
                 }
             }
 
@@ -237,11 +237,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadFailedEmailSettings == null)
                 {
                     DownloadFailedEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings, allowEmpty);
                 }
             }
             
@@ -250,11 +250,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadDeclinedEmailSettings == null)
                 {
                     DownloadDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -263,11 +263,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (AccessRequestDoneEmailSettings == null)
                 {
                     AccessRequestDoneEmailSettings = new EmailInstanceSettingsModel();
-                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings, allowEmpty);
                 }
             }
 
@@ -276,11 +276,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (AccessRequestDeclinedEmailSettings == null)
                 {
                     AccessRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -289,11 +289,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (PermissionRequestDoneEmailSettings == null)
                 {
                     PermissionRequestDoneEmailSettings = new EmailInstanceSettingsModel();
-                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings, allowEmpty);
                 }
             }
 
@@ -302,11 +302,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (PermissionRequestDeclinedEmailSettings == null)
                 {
                     PermissionRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -325,7 +325,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             }
         }
 
-        public void MergeWith(CustomEmailSettingsModel customEmailSettingsModel)
+        public void MergeWith(CustomEmailSettingsModel customEmailSettingsModel, bool allowEmpty)
         {
             if (customEmailSettingsModel == null)
                 return;
@@ -335,11 +335,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (InvitationEmailSettings == null)
                 {
                     InvitationEmailSettings = new EmailInstanceSettingsModel();
-                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings);
+                    InvitationEmailSettings.MergeWith(customEmailSettingsModel.InvitationEmailSettings, allowEmpty);
                 }
             }
 
@@ -348,11 +348,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ConfirmAccountEmailSettings == null)
                 {
                     ConfirmAccountEmailSettings = new EmailInstanceSettingsModel();
-                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings);
+                    ConfirmAccountEmailSettings.MergeWith(customEmailSettingsModel.ConfirmAccountEmailSettings, allowEmpty);
                 }
             }
 
@@ -361,11 +361,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ForgotPasswordEmailSettings == null)
                 {
                     ForgotPasswordEmailSettings = new EmailInstanceSettingsModel();
-                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings);
+                    ForgotPasswordEmailSettings.MergeWith(customEmailSettingsModel.ForgotPasswordEmailSettings, allowEmpty);
                 }
             }
 
@@ -374,11 +374,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (NewUnreadNotificationsEmailSettings == null)
                 {
                     NewUnreadNotificationsEmailSettings = new EmailInstanceSettingsModel();
-                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings);
+                    NewUnreadNotificationsEmailSettings.MergeWith(customEmailSettingsModel.NewUnreadNotificationsEmailSettings, allowEmpty);
                 }
             }
 
@@ -387,11 +387,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationEmailSettings == null)
                 {
                     CollectionInvitationEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings);
+                    CollectionInvitationEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationEmailSettings, allowEmpty);
                 }
             }
 
@@ -400,11 +400,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationAcceptedEmailSettings == null)
                 {
                     CollectionInvitationAcceptedEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings);
+                    CollectionInvitationAcceptedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationAcceptedEmailSettings, allowEmpty);
                 }
             }
 
@@ -413,11 +413,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CollectionInvitationDeclinedEmailSettings == null)
                 {
                     CollectionInvitationDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings);
+                    CollectionInvitationDeclinedEmailSettings.MergeWith(customEmailSettingsModel.CollectionInvitationDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -426,11 +426,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (ShareEmailSettings == null)
                 {
                     ShareEmailSettings = new EmailInstanceSettingsModel();
-                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings);
+                    ShareEmailSettings.MergeWith(customEmailSettingsModel.ShareEmailSettings, allowEmpty);
                 }
             }
 
@@ -439,11 +439,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentCollectionEmailSettings == null)
                 {
                     CommentCollectionEmailSettings = new EmailInstanceSettingsModel();
-                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings);
+                    CommentCollectionEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionEmailSettings, allowEmpty);
                 }
             }
 
@@ -452,11 +452,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentCollectionAssetEmailSettings == null)
                 {
                     CommentCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
-                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings);
+                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings);
+                    CommentCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentCollectionAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -465,11 +465,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (FlagCollectionAssetEmailSettings == null)
                 {
                     FlagCollectionAssetEmailSettings = new EmailInstanceSettingsModel();
-                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings);
+                    FlagCollectionAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagCollectionAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -478,11 +478,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentShareEmailSettings == null)
                 {
                     CommentShareEmailSettings = new EmailInstanceSettingsModel();
-                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings);
+                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings);
+                    CommentShareEmailSettings.MergeWith(customEmailSettingsModel.CommentShareEmailSettings, allowEmpty);
                 }
             }
 
@@ -491,11 +491,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (CommentShareAssetEmailSettings == null)
                 {
                     CommentShareAssetEmailSettings = new EmailInstanceSettingsModel();
-                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings);
+                    CommentShareAssetEmailSettings.MergeWith(customEmailSettingsModel.CommentShareAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -504,11 +504,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (FlagShareAssetEmailSettings == null)
                 {
                     FlagShareAssetEmailSettings = new EmailInstanceSettingsModel();
-                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings);
+                    FlagShareAssetEmailSettings.MergeWith(customEmailSettingsModel.FlagShareAssetEmailSettings, allowEmpty);
                 }
             }
 
@@ -517,11 +517,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadAvailableEmailSettings == null)
                 {
                     DownloadAvailableEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings);
+                    DownloadAvailableEmailSettings.MergeWith(customEmailSettingsModel.DownloadAvailableEmailSettings, allowEmpty);
                 }
             }
 
@@ -530,11 +530,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadFailedEmailSettings == null)
                 {
                     DownloadFailedEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings);
+                    DownloadFailedEmailSettings.MergeWith(customEmailSettingsModel.DownloadFailedEmailSettings, allowEmpty);
                 }
             }
 
@@ -543,11 +543,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (DownloadDeclinedEmailSettings == null)
                 {
                     DownloadDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings);
+                    DownloadDeclinedEmailSettings.MergeWith(customEmailSettingsModel.DownloadDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -556,11 +556,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (AccessRequestDoneEmailSettings == null)
                 {
                     AccessRequestDoneEmailSettings = new EmailInstanceSettingsModel();
-                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings);
+                    AccessRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDoneEmailSettings, allowEmpty);
                 }
             }
 
@@ -569,11 +569,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (AccessRequestDeclinedEmailSettings == null)
                 {
                     AccessRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings);
+                    AccessRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.AccessRequestDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -582,11 +582,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (PermissionRequestDoneEmailSettings == null)
                 {
                     PermissionRequestDoneEmailSettings = new EmailInstanceSettingsModel();
-                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings);
+                    PermissionRequestDoneEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDoneEmailSettings, allowEmpty);
                 }
             }
 
@@ -595,11 +595,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 if (PermissionRequestDeclinedEmailSettings == null)
                 {
                     PermissionRequestDeclinedEmailSettings = new EmailInstanceSettingsModel();
-                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings, allowEmpty);
                 }
                 else
                 {
-                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings);
+                    PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings, allowEmpty);
                 }
             }
 
@@ -618,27 +618,27 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             }
         }
 
-        public void Validate()
+        public void Validate(bool allowEmpty)
         {
             if (InvitationEmailSettings == null)
                 throw new Exception("Invitation email settings are missing");
 
-            InvitationEmailSettings.Validate();
+            InvitationEmailSettings.Validate(allowEmpty);
 
             if (ConfirmAccountEmailSettings == null)
                 throw new Exception("Confirm account email settings are missing");
 
-            ConfirmAccountEmailSettings.Validate();
+            ConfirmAccountEmailSettings.Validate(allowEmpty);
 
             if (ForgotPasswordEmailSettings == null)
                 throw new Exception("Forgot password email settings are missing");
 
-            ForgotPasswordEmailSettings.Validate();
+            ForgotPasswordEmailSettings.Validate(allowEmpty);
 
             if (NewUnreadNotificationsEmailSettings == null)
                 throw new Exception("New unread notifications email settings are missing");
 
-            NewUnreadNotificationsEmailSettings.Validate();
+            NewUnreadNotificationsEmailSettings.Validate(allowEmpty);
         }
     }
 
@@ -713,7 +713,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             return translations.First().Value;
         }
 
-        public void Validate()
+        public void Validate(bool allowEmpty)
         {
             if (Subject == null || Subject.Count == 0)
                 throw new Exception("Subject is missing");
@@ -721,8 +721,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             if (Title == null || Title.Count == 0)
                 throw new Exception("Title is missing");
 
-            if (PreHeader == null || PreHeader.Count == 0)
-                throw new Exception("Preheader is missing");
+            if (!allowEmpty)
+            {
+                if (PreHeader == null || PreHeader.Count == 0)
+                    throw new Exception("Preheader is missing");
+            }
 
             if (Button == null || Button.Count == 0)
                 throw new Exception("Button is missing");
@@ -731,7 +734,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 throw new Exception("Footer is missing");
         }
 
-        public void MergeWith(EmailInstanceSettingsModel emailInstanceSettingsModel)
+        public void MergeWith(EmailInstanceSettingsModel emailInstanceSettingsModel, bool allowEmpty)
         {
             if (emailInstanceSettingsModel.Subject != null &&
                 emailInstanceSettingsModel.Subject.Count > 0)
@@ -750,17 +753,29 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
             {
                 PreHeader = emailInstanceSettingsModel.PreHeader;
             }
+            else if (allowEmpty)
+            {
+                PreHeader = null;
+            }
 
             if (emailInstanceSettingsModel.TextPrefix != null &&
                 emailInstanceSettingsModel.TextPrefix.Count > 0)
             {
                 TextPrefix = emailInstanceSettingsModel.TextPrefix;
             }
+            else if (allowEmpty)
+            {
+                TextPrefix = null;
+            }
 
             if (emailInstanceSettingsModel.TextSuffix != null &&
                 emailInstanceSettingsModel.TextSuffix.Count > 0)
             {
                 TextSuffix = emailInstanceSettingsModel.TextSuffix;
+            }
+            else if (allowEmpty)
+            {
+                TextSuffix = null;
             }
 
             if (emailInstanceSettingsModel.Button != null &&
