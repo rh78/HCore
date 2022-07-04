@@ -114,9 +114,7 @@ namespace HCore.Identity.Providers.Impl
 
                 var resources = await _resourceStore.GetAllEnabledResourcesAsync().ConfigureAwait(false);
 
-                tokenCreationRequest.ValidatedResources = new ResourceValidationResult();
-
-                tokenCreationRequest.ValidatedResources.Resources = resources;
+                tokenCreationRequest.ValidatedResources = new ResourceValidationResult(resources);
 
                 tokenCreationRequest.ValidatedRequest.Options = _options;
 

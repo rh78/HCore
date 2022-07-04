@@ -49,6 +49,12 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddSqlDatabase<TStartup, TContext>(this IServiceCollection services, string configurationKey, IConfiguration configuration)
             where TContext : DbContext
         {
+            // see https://www.npgsql.org/doc/types/datetime.html
+            // our current DateTimeOffset handling is not supported by newest npgsql versions
+            // TODO: fix this
+
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             string implementation = configuration[$"Database:{configurationKey}:Implementation"];
 
             if (string.IsNullOrEmpty(implementation))
