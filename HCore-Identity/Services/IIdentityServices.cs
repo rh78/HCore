@@ -2,9 +2,8 @@
 using HCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using reCAPTCHA.AspNetCore;
-using System;
 using System.Threading.Tasks;
+using reCAPTCHA.AspNetCore;
 
 namespace HCore.Identity.Services
 {

@@ -8,6 +8,9 @@ using RestSharp;
 
 namespace HCore.Rest.Client.Impl
 {
+    // TODO: upgrade to newest RestSharp client (breaking)
+    // see https://restsharp.dev/v107/#restsharp-v107
+
     internal class RestSharpClientImpl : IRestSharpClient
     {
         public RestClient Client { get; private set; }

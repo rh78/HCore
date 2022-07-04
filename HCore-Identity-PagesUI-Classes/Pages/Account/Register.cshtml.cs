@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using IdentityServer4.Events;
-using IdentityServer4.Services;
+using Duende.IdentityServer.Events;
+using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Attributes;
 using HCore.Identity.Models;
@@ -16,14 +16,13 @@ using HCore.Segment.Providers;
 using Segment.Model;
 using System.Collections.Generic;
 using HCore.Translations.Providers;
-using System.Text.RegularExpressions;
 using System.Net;
 using System.Globalization;
-using reCAPTCHA.AspNetCore;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using HCore.Web.API.Impl;
+using reCAPTCHA.AspNetCore;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {

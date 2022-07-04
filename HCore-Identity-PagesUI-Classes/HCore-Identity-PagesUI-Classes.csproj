@@ -1,15 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>HCore.Identity.PagesUI.Classes</RootNamespace>
     <AssemblyName>HCore.Identity.PagesUI.Classes</AssemblyName>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="reCAPTCHA.AspNetCore" Version="2.2.3" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
+    <PackageReference Include="reCAPTCHA.AspNetCore" Version="3.0.10" />
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
   
   <ItemGroup>

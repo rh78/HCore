@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
 		<AssemblyName>HCore.Web</AssemblyName>
 		<RootNamespace>HCore.Web</RootNamespace>
 	</PropertyGroup>
@@ -11,13 +11,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.12.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.1" />
-		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.6" />
+		<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.6" />
+		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-		<PackageReference Include="Sentry.AspNetCore" Version="2.1.1" />
+		<PackageReference Include="Sentry.AspNetCore" Version="3.19.0" />
 	</ItemGroup>
 
 	<ItemGroup>

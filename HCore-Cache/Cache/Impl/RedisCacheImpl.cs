@@ -72,7 +72,9 @@ namespace HCore.Cache.Impl
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             using (MemoryStream memoryStream = new MemoryStream())
             {
+#pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
                 binaryFormatter.Serialize(memoryStream, value);
+#pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
                 return memoryStream.ToArray();
             }
         }
@@ -88,7 +90,9 @@ namespace HCore.Cache.Impl
 
             using (MemoryStream memoryStream = new MemoryStream(byteArray))
             {
+#pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
                 return binaryFormatter.Deserialize(memoryStream) as T;
+#pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
             }
         }
     }

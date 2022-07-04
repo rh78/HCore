@@ -63,7 +63,7 @@ namespace HCore.Emailing.Sender.Impl
             {
                 _logger.LogError($"Error sending e-mail: {e}");
 
-                throw e;
+                throw;
             }
         }
         

@@ -5,8 +5,8 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Models;
 using HCore.Identity.Services;
 using HCore.Translations.Providers;
-using IdentityServer4.Services;
-using IdentityServer4.Events;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nager.Country;
+using Nager.Country.Translation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,6 +15,7 @@ namespace HCore.Metadata.Impl
         private readonly ILogger<CountryMetadataProviderImpl> _logger;
 
         private readonly ICountryProvider _countryProvider;
+        private readonly ITranslationProvider _translationProvider;
         private readonly IGeoIP2DatabaseReader _geoIP2DatabaseReader;
 
         private readonly Dictionary<string, List<CountryCodeNameMapping>> _localizedCountryNameMappings = new Dictionary<string, List<CountryCodeNameMapping>>()
@@ -35,6 +37,7 @@ namespace HCore.Metadata.Impl
             _logger = logger;
 
             _countryProvider = new CountryProvider();
+            _translationProvider = new TranslationProvider();
 
             var countries = _countryProvider.GetCountries();
 
@@ -44,12 +47,12 @@ namespace HCore.Metadata.Impl
 
                 var countryCode = Enum.GetName(typeof(Alpha2Code), alpha2Code).ToLower();
 
-                var countryNameEn = _countryProvider.GetCountryTranslatedName(alpha2Code, LanguageCode.EN);
+                var countryNameEn = _translationProvider.GetCountryTranslatedName(alpha2Code, LanguageCode.EN);
 
                 if (string.IsNullOrEmpty(countryNameEn))
                     throw new Exception($"Country name for {alpha2Code} is missing (EN)");
 
-                var countryNameDe = _countryProvider.GetCountryTranslatedName(alpha2Code, LanguageCode.DE);
+                var countryNameDe = _translationProvider.GetCountryTranslatedName(alpha2Code, LanguageCode.DE);
 
                 if (string.IsNullOrEmpty(countryNameDe))
                     throw new Exception($"Country name for {alpha2Code} is missing (DE)");

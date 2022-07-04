@@ -1,23 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>HCore.Identity</RootNamespace>
     <AssemblyName>HCore.Identity</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="4.1.1" />
-    <PackageReference Include="IdentityServer4" Version="3.1.0" />
-    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.1.0" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="3.1.0" />
+    <PackageReference Include="IdentityModel" Version="6.0.0" />
+    <PackageReference Include="Duende.IdentityServer" Version="6.1.1" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.1.1" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.1.1" />
     <PackageReference Include="Kickbox.Net" Version="1.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
-    <PackageReference Include="reCAPTCHA.AspNetCore" Version="2.2.3" />
-    <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.6.0" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
+    <PackageReference Include="reCAPTCHA.AspNetCore" Version="3.0.10" />
+    <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.0" />
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>    

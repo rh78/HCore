@@ -27,15 +27,14 @@ using HCore.Identity.Services;
 using HCore.Identity.Validators.Impl;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using HCore.Tenants;
-using IdentityServer4;
+using Duende.IdentityServer;
 using Microsoft.AspNetCore.Authentication;
 using Sustainsys.Saml2.AspNetCore2;
 using Sustainsys.Saml2;
 using Sustainsys.Saml2.Metadata;
 using Microsoft.AspNetCore.Http;
-using reCAPTCHA.AspNetCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using IdentityServer4.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.DbContexts;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Xml;
 using HCore.Identity.Internal;
@@ -46,6 +45,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json;
+using reCAPTCHA.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

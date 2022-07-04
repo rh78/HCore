@@ -12,7 +12,7 @@ namespace HCore.Identity.Internal
         public RSAPKCS1SHA1SignatureDescription()
         {
             KeyAlgorithm = typeof(RSACryptoServiceProvider).FullName;
-            DigestAlgorithm = typeof(SHA1Managed).FullName;
+            DigestAlgorithm = typeof(SHA1).FullName;
             FormatterAlgorithm = typeof(RSAPKCS1SignatureFormatter).FullName;
             DeformatterAlgorithm = typeof(RSAPKCS1SignatureDeformatter).FullName;
             _hashAlgorithm = "SHA1";

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>HCore.Templating</RootNamespace>
     <AssemblyName>HCore.Templating</AssemblyName>
   </PropertyGroup>
@@ -12,7 +12,10 @@
     <PackageReference Include="jsreport.Binary.OSX" Version="2.11.0" />
     <PackageReference Include="jsreport.Binary.Linux" Version="2.11.0" />
     <PackageReference Include="jsreport.Local" Version="2.3.1" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="16.4.43" />
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
   </ItemGroup>
 
   <ItemGroup>

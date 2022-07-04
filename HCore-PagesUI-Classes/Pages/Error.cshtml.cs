@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using IdentityServer4.Services;
+using Duende.IdentityServer.Services;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.DependencyInjection;

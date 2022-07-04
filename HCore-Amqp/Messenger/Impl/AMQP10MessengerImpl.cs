@@ -83,7 +83,11 @@ namespace HCore.Amqp.Messenger.Impl
                 _cancellationTokenSource.Cancel();
 
                 if (_messageProcessorTasks.Count > 0)
+                {
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                     Task.WaitAll(_messageProcessorTasks.ToArray());
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+                }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 foreach (ReceiverLinkHost receiverLinkHost in _receiverLinks)
