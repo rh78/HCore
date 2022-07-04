@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.202
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Amqp", "HCore-Amqp\HCore-Amqp.csproj", "{76169CC5-D1A7-4A0B-B219-5647F2C0B69D}"
 EndProject
@@ -39,7 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Segment", "HCore-Segm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Directory", "HCore-Directory\HCore-Directory.csproj", "{9E7C0A14-122C-496D-9BD8-9DB6C3184D99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore-Pusher", "HCore-Pusher\HCore-Pusher.csproj", "{05512797-C580-4FB3-AEA1-7A1C122AA4CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Pusher", "HCore-Pusher\HCore-Pusher.csproj", "{05512797-C580-4FB3-AEA1-7A1C122AA4CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Metadata", "HCore-Metadata\HCore-Metadata.csproj", "{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,10 @@ Global
 		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05512797-C580-4FB3-AEA1-7A1C122AA4CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
