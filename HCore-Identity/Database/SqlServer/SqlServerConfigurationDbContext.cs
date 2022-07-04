@@ -9,6 +9,7 @@ namespace HCore.Identity.Database.SqlServer
         public SqlServerConfigurationDbContext(DbContextOptions<ConfigurationDbContext> options, ConfigurationStoreOptions storeOptions) 
             : base(options)
         {
+            this.StoreOptions = storeOptions;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

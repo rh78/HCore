@@ -9,6 +9,7 @@ namespace HCore.Identity.Database.SqlServer
         public SqlServerPersistedGrantDbContext(DbContextOptions<PersistedGrantDbContext> options, OperationalStoreOptions storeOptions) 
             : base(options)
         {
+            this.StoreOptions = storeOptions;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
