@@ -234,6 +234,8 @@ namespace HCore.Amqp.Processor.Hosts
                     if (queueClient == null || queueClient.IsClosedOrClosing)
                     {
                         await InitializeAsync().ConfigureAwait(false);
+
+                        queueClient = _queueClient;
                     }
 
                     var message = new Microsoft.Azure.ServiceBus.Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))

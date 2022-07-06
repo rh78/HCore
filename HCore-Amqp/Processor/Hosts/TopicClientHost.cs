@@ -242,6 +242,8 @@ namespace HCore.Amqp.Processor.Hosts
                     if (topicClient == null || topicClient.IsClosedOrClosing)
                     {
                         await InitializeAsync().ConfigureAwait(false);
+
+                        topicClient = _topicClient;
                     }
 
                     var message = new BusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
