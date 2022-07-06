@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Options;
+using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.Options;
 
 namespace HCore.Identity.Database.SqlServer
 {
     public class SqlServerConfigurationDbContext : ConfigurationDbContext
     {
         public SqlServerConfigurationDbContext(DbContextOptions<ConfigurationDbContext> options, ConfigurationStoreOptions storeOptions) 
-            : base(options, storeOptions)
+            : base(options)
         {
+            this.StoreOptions = storeOptions;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

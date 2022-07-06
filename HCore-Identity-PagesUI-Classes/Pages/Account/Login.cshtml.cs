@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
 using HCore.Identity.Attributes;
-using IdentityServer4.Models;
-using IdentityServer4.Events;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Providers;
@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Providers;
 using HCore.Tenants;
-using IdentityServer4;
+using Duende.IdentityServer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 
@@ -253,7 +253,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     // denied the consent (even if this client does not require consent).
                     // this will send back an access denied external error response to the client.
 
-                    await _interaction.GrantConsentAsync(context, ConsentResponse.Denied).ConfigureAwait(false);
+                    await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied).ConfigureAwait(false);
 
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
 
@@ -343,9 +343,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 return;
             }
 
-            if (context?.ClientId != null)
+            if (context?.Client?.ClientId != null)
             {
-                var client = await _clientStore.FindEnabledClientByIdAsync(context.ClientId).ConfigureAwait(false);
+                var client = await _clientStore.FindEnabledClientByIdAsync(context.Client?.ClientId).ConfigureAwait(false);
 
                 if (client != null)               
                     EnableLocalLogin = client.EnableLocalLogin;                                    

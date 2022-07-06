@@ -2,12 +2,12 @@
 using HCore.Web.API.Impl;
 using HCore.Web.Exceptions;
 using IdentityModel;
-using IdentityServer4;
-using IdentityServer4.Configuration;
-using IdentityServer4.Models;
-using IdentityServer4.Services;
-using IdentityServer4.Stores;
-using IdentityServer4.Validation;
+using Duende.IdentityServer;
+using Duende.IdentityServer.Configuration;
+using Duende.IdentityServer.Models;
+using Duende.IdentityServer.Services;
+using Duende.IdentityServer.Stores;
+using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
@@ -114,7 +114,7 @@ namespace HCore.Identity.Providers.Impl
 
                 var resources = await _resourceStore.GetAllEnabledResourcesAsync().ConfigureAwait(false);
 
-                tokenCreationRequest.Resources = resources;
+                tokenCreationRequest.ValidatedResources = new ResourceValidationResult(resources);
 
                 tokenCreationRequest.ValidatedRequest.Options = _options;
 
@@ -157,7 +157,7 @@ namespace HCore.Identity.Providers.Impl
             var claims = new List<Claim>();
             claims.AddRange(await _claimsService.GetAccessTokenClaimsAsync(
                 request.Subject,
-                request.Resources,
+                request.ValidatedResources,
                 request.ValidatedRequest).ConfigureAwait(false));
 
             if (request.ValidatedRequest.Client.IncludeJwtId)
@@ -177,7 +177,7 @@ namespace HCore.Identity.Providers.Impl
                 AccessTokenType = request.ValidatedRequest.AccessTokenType
             };
 
-            foreach (var api in request.Resources.ApiResources)
+            foreach (var api in request.ValidatedResources.Resources.ApiResources)
             {
                 if (!string.IsNullOrEmpty(api.Name))
                 {

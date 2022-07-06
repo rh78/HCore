@@ -47,11 +47,11 @@ namespace HCore.Scheduling.Factories.Impl
                 try
                 {
                     await _job.Execute(context).ConfigureAwait(false);
-                } catch (Exception e)
+                } catch (Exception)
                 {
                     _scope.Dispose();
 
-                    throw e;
+                    throw;
                 }
 
                 _scope.Dispose();

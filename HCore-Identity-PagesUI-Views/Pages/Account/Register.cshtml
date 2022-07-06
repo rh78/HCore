@@ -1,6 +1,7 @@
 ﻿@page
 @using reCAPTCHA.AspNetCore
 @using System.Threading;
+@using reCAPTCHA.AspNetCore.Versions
 @model RegisterModel
 @{
     ViewData["Title"] = Messages.register_title;
@@ -80,7 +81,9 @@
 
             @if (Model.Recaptcha != null)
             {
-                @Html.Recaptcha(Model.Recaptcha, language: Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName);
+                @Html.Recaptcha(Model.Recaptcha, new RecaptchaV2Checkbox {
+                    Language = Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName
+                });
             }
 
             <input type="hidden" asp-for="Input.SegmentAnonymousUserUuid" id="segmentAnonmyousUserUuid" />
