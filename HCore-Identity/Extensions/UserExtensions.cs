@@ -15,18 +15,29 @@ namespace System.Security.Claims
                 return null;
 
             return emailAddress;
-        }    
+        }
 
         public static string GetUserUuid(this ClaimsPrincipal user)
-        {            
+        {
             var userUuidClaim = user.Claims.FirstOrDefault(claim => claim.Type == JwtClaimTypes.Subject || claim.Type == ClaimTypes.NameIdentifier);
 
             string userUuid = userUuidClaim?.Value;
 
-            if (string.IsNullOrEmpty(userUuid))
-                return null;
+            if (!string.IsNullOrEmpty(userUuid))
+            {
+                return userUuid;
+            }
 
-            return userUuid;
+            var clientUserUuidClaim = user.Claims.FirstOrDefault(claim => claim.Type == "client_sub");
+
+            userUuid = clientUserUuidClaim?.Value;
+
+            if (!string.IsNullOrEmpty(userUuid))
+            { 
+                return userUuid;
+            }
+
+            return null;
         }
     }
 }

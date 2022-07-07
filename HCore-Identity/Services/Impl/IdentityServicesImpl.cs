@@ -833,6 +833,18 @@ namespace HCore.Identity.Services.Impl
 
                 claims.Remove(userIdClaim);
 
+                var clientSubClaims = externalUser.FindAll("client_sub");
+
+                if (clientSubClaims != null && clientSubClaims.Any())
+                {
+                    // security-wise it is better to make sure nobody adds these to our DB
+
+                    foreach (var clientSubClaim in clientSubClaims)
+                    {
+                        claims.Remove(clientSubClaim);
+                    }
+                }
+
                 string unscopedEmail = ProcessEmail(externalUser);
 
                 string normalizedEmailAddress = unscopedEmail.Trim().ToUpper();
