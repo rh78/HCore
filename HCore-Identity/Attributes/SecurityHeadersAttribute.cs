@@ -36,13 +36,13 @@ namespace HCore.Identity.Attributes
                 var csp = "default-src 'self' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net; " +
                           "object-src 'none'; " +
                           "frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.sharepoint.com https://*.officeapps.live.com https://*.veevavault.com; " +
-                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:8000 https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com https://snap.licdn.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://npmcdn.com https://maps.googleapis.com;" +
+                          "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: http://127.0.0.1:8000 https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com https://snap.licdn.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://npmcdn.com https://maps.googleapis.com;" +
                           "connect-src 'self' *; " +
                           "style-src 'self' 'unsafe-inline' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
                           "font-src 'self' 'unsafe-inline' data: https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
                           "frame-src data: 'self' *; " +
                           "img-src * data:; " +
-                          "media-src *; " +
+                          "media-src blob: *; " +
                           // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
                           // we turn it off until more is known
                           // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
