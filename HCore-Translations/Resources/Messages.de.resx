@@ -414,6 +414,9 @@
   <data name="please_accept_privacy_policy" xml:space="preserve">
     <value>Bitte akzeptieren Sie unsere Datenschutzerklärung</value>
   </data>
+  <data name="please_confirm_email_external" xml:space="preserve">
+    <value>Das externe Anmeldesystem hat gemeldet, dass Ihre E-Mail-Adresse noch nicht bestätigt ist. Bitte bestätigen Sie in Ihrem externen Anmeldesystem Ihre E-Mail-Adresse, bevor Sie diesen Service nutzen</value>
+  </data>
   <data name="password_does_not_match" xml:space="preserve">
     <value>Das Passwort stimmt nicht mit unseren Aufzeichnungen überein</value>
   </data>
