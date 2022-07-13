@@ -1510,7 +1510,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The external login system has indicated, that your email address is not yet confirmed. Please confirm your email address in your external login system before using this service ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The external login system has indicated that your email address is not yet confirmed. Please confirm your email address in your external login system before using this service ähnelt.
         /// </summary>
         public static string please_confirm_email_external {
             get {
