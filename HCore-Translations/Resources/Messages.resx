@@ -414,6 +414,9 @@
   <data name="please_accept_privacy_policy" xml:space="preserve">
     <value>Please accept our Privacy Policy</value>
   </data>
+  <data name="please_confirm_email_external" xml:space="preserve">
+    <value>The external login system has indicated, that your email address is not yet confirmed. Please confirm your email address in your external login system before using this service</value>
+  </data>
   <data name="password_does_not_match" xml:space="preserve">
     <value>The password does not match our records</value>
   </data>

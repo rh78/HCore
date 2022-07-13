@@ -148,6 +148,7 @@ namespace HCore.Web.Exceptions
         public const string FilterValueInvalid = "filter_value_invalid";
         public const string PleaseAcceptPrivacyPolicy = "please_accept_privacy_policy";
         public const string PleaseAcceptTermsAndConditions = "please_accept_terms_and_conditions";
+        public const string PleaseConfirmEmailExternal = "please_confirm_email_external";
         public const string NotificationCultureInvalid = "notification_culture_invalid";
         public const string DefaultCultureInvalid = "default_culture_invalid";
         public const string DefaultCultureMissing = "default_culture_missing";
