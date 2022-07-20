@@ -7,7 +7,8 @@ namespace HCore.Tenants.Database.SqlServer
     {
         public DbSet<DeveloperModel> Developers { get; set; }
         public DbSet<TenantModel> Tenants { get; set; }
-        
+        public DbSet<SubscriptionModel> Subscriptions { get; set; }
+
         public SqlServerTenantDbContext(DbContextOptions<SqlServerTenantDbContext> options)
             : base(options)
         {
@@ -27,6 +28,11 @@ namespace HCore.Tenants.Database.SqlServer
             modelBuilder.Entity<TenantModel>()
                 .HasIndex(entity => new { entity.DeveloperUuid, entity.SubdomainPatterns })
                 .IsUnique();
+
+            modelBuilder.Entity<TenantModel>()
+                .HasMany(entity => entity.Subscriptions)
+                .WithOne(entity => entity.Tenant)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);            
         }
