@@ -5,6 +5,7 @@ using HCore.Web.API.Impl;
 
 namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
+    [Serializable]
     public class SubscriptionModel
     {
         [Key]
@@ -18,7 +19,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string[] ExtraFeatureKeys { get; set; }
 
         public string Scope { get; set; }
-        public string ScopeUuid { get; set; }
+        public long[] ScopeUuids { get; set; }
 
         [StringLength(ApiImpl.MaxNameLength)]
         public string Name { get; set; }
@@ -69,6 +70,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string ContactPersonEmailAddress { get; set; }
 
         public long TenantUuid { get; set; }
+
+        [field: NonSerialized]
         public TenantModel Tenant { get; set; }
 
         [ConcurrencyCheck]

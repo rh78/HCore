@@ -34,6 +34,9 @@ namespace HCore.Tenants.Database.SqlServer
                 .WithOne(entity => entity.Tenant)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<SubscriptionModel>()
+                .HasIndex(entity => entity.ExternalSubscriptionUuid);
+
             base.OnModelCreating(modelBuilder);            
         }
     }
