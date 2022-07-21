@@ -51,6 +51,7 @@ namespace HCore.Web.API.Impl
         public const int MaxCodeLength = 2048;
 
         public const int MaxNameLength = 50;
+        public const int MaxLongNameLength = 255;
         public const int MaxShortDescriptionLength = 50;
         public const int MaxLabelLength = 50;
         public const int MaxSubmissionMessageLength = 512;

@@ -21,7 +21,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string Scope { get; set; }
         public long[] ScopeUuids { get; set; }
 
-        [StringLength(ApiImpl.MaxNameLength)]
+        [StringLength(ApiImpl.MaxLongNameLength)]
         public string Name { get; set; }
 
         [StringLength(ApiImpl.MaxCommentLength)]
