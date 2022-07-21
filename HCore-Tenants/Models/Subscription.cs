@@ -94,16 +94,16 @@ namespace HCore.Tenants.Models
 		
 		public bool ScopeSet = false;		
 
-		private string _ScopeUuid;
+		private List<string> _ScopeUuids;
 		
 		/// <summary>
-        /// The record UUID
+        /// The extra feature keys
         /// </summary>
-        /// <value>The record UUID</value>
-        [DataMember(Name="scope_uuid")]
-		public string ScopeUuid { get => _ScopeUuid; set { _ScopeUuid = value; ScopeUuidSet = true; } }
+        /// <value>The extra feature keys</value>
+        [DataMember(Name="scope_uuids")]
+		public List<string> ScopeUuids { get => _ScopeUuids; set { _ScopeUuids = value; ScopeUuidsSet = true; } }
 		
-		public bool ScopeUuidSet = false;		
+		public bool ScopeUuidsSet = false;		
 
 		private string _Name;
 		
@@ -414,7 +414,7 @@ namespace HCore.Tenants.Models
             sb.Append("  ExtraSubscriptionKeys: ").Append(ExtraSubscriptionKeys).Append("\n");
             sb.Append("  ExtraFeatureKeys: ").Append(ExtraFeatureKeys).Append("\n");
             sb.Append("  Scope: ").Append(Scope).Append("\n");
-            sb.Append("  ScopeUuid: ").Append(ScopeUuid).Append("\n");
+            sb.Append("  ScopeUuids: ").Append(ScopeUuids).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Comment: ").Append(Comment).Append("\n");
             sb.Append("  IsActive: ").Append(IsActive).Append("\n");
@@ -506,9 +506,9 @@ namespace HCore.Tenants.Models
                     Scope.Equals(other.Scope)
                 ) && 
                 (
-                    ScopeUuid == other.ScopeUuid ||
-                    ScopeUuid != null &&
-                    ScopeUuid.Equals(other.ScopeUuid)
+                    ScopeUuids == other.ScopeUuids ||
+                    ScopeUuids != null &&
+                    ScopeUuids.SequenceEqual(other.ScopeUuids)
                 ) && 
                 (
                     Name == other.Name ||
@@ -654,8 +654,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + ExtraFeatureKeys.GetHashCode();
                     if (Scope != null)
                     hashCode = hashCode * 59 + Scope.GetHashCode();
-                    if (ScopeUuid != null)
-                    hashCode = hashCode * 59 + ScopeUuid.GetHashCode();
+                    if (ScopeUuids != null)
+                    hashCode = hashCode * 59 + ScopeUuids.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Comment != null)
