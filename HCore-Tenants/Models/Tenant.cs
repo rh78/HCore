@@ -267,7 +267,28 @@ namespace HCore.Tenants.Models
         [DataMember(Name="default_currency")]
 		public string DefaultCurrency { get => _DefaultCurrency; set { _DefaultCurrency = value; DefaultCurrencySet = true; } }
 		
-		public bool DefaultCurrencySet = false;		
+		public bool DefaultCurrencySet = false;	
+        
+        private List<Subscription> _Subscriptions;
+		
+		/// <summary>
+        /// Gets or Sets Subscriptions
+        /// </summary>
+        [DataMember(Name="subscriptions")]
+		public List<Subscription> Subscriptions { get => _Subscriptions; set { _Subscriptions = value; SubscriptionsSet = true; } }
+		
+		public bool SubscriptionsSet = false;		
+
+		private List<string> _FeatureKeys;
+		
+		/// <summary>
+        /// The feature keys for this portal
+        /// </summary>
+        /// <value>The feature keys for this portal</value>
+        [DataMember(Name="feature_keys")]
+		public List<string> FeatureKeys { get => _FeatureKeys; set { _FeatureKeys = value; FeatureKeysSet = true; } }
+		
+		public bool FeatureKeysSet = false;		
 
 		private string _CustomTenantSettingsJson;
 		
@@ -376,6 +397,8 @@ namespace HCore.Tenants.Models
             sb.Append("  ProductName: ").Append(ProductName).Append("\n");
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
+            sb.Append("  Subscriptions: ").Append(Subscriptions).Append("\n");
+            sb.Append("  FeatureKeys: ").Append(FeatureKeys).Append("\n");
             sb.Append("  CustomTenantSettingsJson: ").Append(CustomTenantSettingsJson).Append("\n");
             sb.Append("  UsersAreExternallyManaged: ").Append(UsersAreExternallyManaged).Append("\n");
             sb.Append("  ExternalUsersAreManuallyManaged: ").Append(ExternalUsersAreManuallyManaged).Append("\n");
@@ -530,6 +553,16 @@ namespace HCore.Tenants.Models
                     DefaultCurrency.Equals(other.DefaultCurrency)
                 ) && 
                 (
+                    Subscriptions == other.Subscriptions ||
+                    Subscriptions != null &&
+                    Subscriptions.SequenceEqual(other.Subscriptions)
+                ) && 
+                (
+                    FeatureKeys == other.FeatureKeys ||
+                    FeatureKeys != null &&
+                    FeatureKeys.SequenceEqual(other.FeatureKeys)
+                ) && 
+                (
                     CustomTenantSettingsJson == other.CustomTenantSettingsJson ||
                     CustomTenantSettingsJson != null &&
                     CustomTenantSettingsJson.Equals(other.CustomTenantSettingsJson)
@@ -620,15 +653,19 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + DefaultCulture.GetHashCode();
                     if (DefaultCurrency != null)
                     hashCode = hashCode * 59 + DefaultCurrency.GetHashCode();
+                    if (Subscriptions != null)
+                    hashCode = hashCode * 59 + Subscriptions.GetHashCode();
+                    if (FeatureKeys != null)
+                    hashCode = hashCode * 59 + FeatureKeys.GetHashCode();
                     if (CustomTenantSettingsJson != null)
                     hashCode = hashCode * 59 + CustomTenantSettingsJson.GetHashCode();
                     if (UsersAreExternallyManaged != null)
                     hashCode = hashCode * 59 + UsersAreExternallyManaged.GetHashCode();
                     if (ExternalUsersAreManuallyManaged != null)
                     hashCode = hashCode * 59 + ExternalUsersAreManuallyManaged.GetHashCode();
-                if (CreatedByUserUuid != null)
+                    if (CreatedByUserUuid != null)
                     hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
-                if (Version != null)
+                    if (Version != null)
                     hashCode = hashCode * 59 + Version.GetHashCode();
                     if (CreatedAt != null)
                     hashCode = hashCode * 59 + CreatedAt.GetHashCode();

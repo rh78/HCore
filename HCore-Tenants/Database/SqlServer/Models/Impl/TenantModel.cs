@@ -146,6 +146,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public long? MapCustomUuid { get; set; }
 
+        public List<SubscriptionModel> Subscriptions { get; set; }
+
         [ConcurrencyCheck]
         public int Version { get; set; }
 

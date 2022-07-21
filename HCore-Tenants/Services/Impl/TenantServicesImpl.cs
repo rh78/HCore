@@ -227,7 +227,7 @@ namespace HCore.Tenants.Services.Impl
             return tenantInfo;
         }
 
-        private async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync, int? version = null)
+        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync, int? version = null)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
             {
