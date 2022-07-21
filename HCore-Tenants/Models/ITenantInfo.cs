@@ -59,6 +59,9 @@ namespace HCore.Tenants.Models
         string DefaultCulture { get; }
         string DefaultCurrency { get; }
 
+        List<SubscriptionModel> Subscriptions { get; }
+        List<string> FeatureKeys { get; }
+
         string EcbBackendApiUrl { get; }
         string PortalsBackendApiUrl { get; }
 

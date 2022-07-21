@@ -63,6 +63,9 @@ namespace HCore.Tenants.Models.Impl
         public string DefaultCulture { get; internal set; }
         public string DefaultCurrency { get; internal set; }
 
+        public List<SubscriptionModel> Subscriptions { get; internal set; }
+        public List<string> FeatureKeys { get; internal set; }
+
         public string EcbBackendApiUrl { get; set; }
         public string PortalsBackendApiUrl { get; set; }
 
@@ -195,6 +198,8 @@ namespace HCore.Tenants.Models.Impl
                 PortalsProductName = PortalsProductName,
                 DefaultCulture = DefaultCulture,
                 DefaultCurrency = DefaultCurrency,
+                Subscriptions = Subscriptions,
+                FeatureKeys = FeatureKeys,
                 HttpsCertificateBytes = HttpsCertificateBytes,
                 HttpsCertificatePassword = HttpsCertificatePassword,
                 HttpsCertificateThumbprint = HttpsCertificateThumbprint,

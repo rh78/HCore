@@ -301,6 +301,8 @@ namespace HCore.Tenants.Providers.Impl
 
                     query = query.Include(tenant => tenant.Developer);
 
+                    query = query.Include(tenant => tenant.Subscriptions);
+
                     var tenantModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (tenantModel == null)
@@ -347,6 +349,8 @@ namespace HCore.Tenants.Providers.Impl
                     query = query.Where(tenant => tenant.Uuid == tenantUuid);
 
                     query = query.Include(tenant => tenant.Developer);
+
+                    query = query.Include(tenant => tenant.Subscriptions);
 
                     var tenantModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -742,6 +746,7 @@ namespace HCore.Tenants.Providers.Impl
                 WebUrl = tenantModel.WebUrl,
                 DefaultCulture = defaultCulture,
                 DefaultCurrency = defaultCurrency,
+                Subscriptions = tenantModel.Subscriptions,
                 UsersAreExternallyManaged = usersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = externalAuthorizationMethod,
