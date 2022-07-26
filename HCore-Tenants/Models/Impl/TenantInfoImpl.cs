@@ -94,6 +94,8 @@ namespace HCore.Tenants.Models.Impl
         public string OidcAcrValuesAppendix { get; set; }
         public bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
 
+        public bool OidcQueryUserInfoEndpoint { get; set; }
+
         public string SamlEntityId { get; set; }
 
         public string SamlPeerEntityId { get; set; }
@@ -219,6 +221,7 @@ namespace HCore.Tenants.Models.Impl
                 OidcAcrValues = OidcAcrValues,
                 OidcAcrValuesAppendix = OidcAcrValuesAppendix,
                 OidcTriggerAcrValuesAppendixByUrlParameter = OidcTriggerAcrValuesAppendixByUrlParameter,
+                OidcQueryUserInfoEndpoint = OidcQueryUserInfoEndpoint,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,

@@ -308,6 +308,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcAcrValues = tenantInfo.OidcAcrValues;
                         var oidcAcrValuesAppendix = tenantInfo.OidcAcrValuesAppendix;
                         var oidcTriggerAcrValuesAppendixByUrlParameter = tenantInfo.OidcTriggerAcrValuesAppendixByUrlParameter;
+                        var oidcQueryUserInfoEndpoint = tenantInfo.OidcQueryUserInfoEndpoint;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -354,9 +355,12 @@ namespace Microsoft.Extensions.DependencyInjection
                             return Task.CompletedTask;
                         };
 
-                        // make sure we get user group membership information
+                        if (oidcQueryUserInfoEndpoint)
+                        {
+                            // make sure we get user group membership information
 
-                        openIdConnect.GetClaimsFromUserInfoEndpoint = true;
+                            openIdConnect.GetClaimsFromUserInfoEndpoint = true;
+                        }
 
                         var scopes = new HashSet<string>();
 
