@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Enyim.Caching;
 using Microsoft.Extensions.Logging;
@@ -129,6 +130,20 @@ namespace HCore.Cache.Impl
                 var encodedKey = Convert.ToBase64String(challengeBytes);
 
                 return encodedKey;
+            }
+        }
+
+        public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var stats = await _memcachedClient.StatsAsync(cancellationToken).ConfigureAwait(false);
+
+                return stats != null;
+            }
+            catch (NullReferenceException)
+            {
+                return false;
             }
         }
     }
