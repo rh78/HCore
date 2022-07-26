@@ -30,6 +30,10 @@ namespace HCore.Tenants.Database.SqlServer
                 .IsUnique();
 
             modelBuilder.Entity<TenantModel>()
+                .Property(entity => entity.OidcQueryUserInfoEndpoint)
+                .HasDefaultValue(true);
+
+            modelBuilder.Entity<TenantModel>()
                 .HasMany(entity => entity.Subscriptions)
                 .WithOne(entity => entity.Tenant)
                 .OnDelete(DeleteBehavior.Restrict);

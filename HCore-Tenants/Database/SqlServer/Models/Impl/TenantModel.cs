@@ -93,7 +93,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string OidcAcrValuesAppendix { get; set; }
         public bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
 
-        [DefaultValue(true)]
         public bool OidcQueryUserInfoEndpoint { get; set; }
 
         [Column(TypeName = "jsonb")]
