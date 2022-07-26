@@ -78,13 +78,15 @@ namespace HCore.Database.ElasticSearch.Impl
             {
                 settings = new ConnectionSettings(connectionPool, sourceSerializer: JsonNetSerializer.Default)
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions();
+                    .ThrowExceptions()
+                    .EnableApiVersioningHeader();
             }
             else
             {
                 settings = new ConnectionSettings(connectionPool)
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions();
+                    .ThrowExceptions()
+                    .EnableApiVersioningHeader();
             }
 
             ElasticClient = new ElasticClient(settings);
