@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -91,6 +92,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string OidcAcrValuesAppendix { get; set; }
         public bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
+
+        public bool OidcQueryUserInfoEndpoint { get; set; }
 
         [Column(TypeName = "jsonb")]
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }

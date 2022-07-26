@@ -524,6 +524,7 @@ namespace HCore.Tenants.Providers.Impl
             string oidcAcrValues = null;
             string oidcAcrValuesAppendix = null;
             bool oidcTriggerAcrValuesAppendixByUrlParameter = false;
+            bool oidcQueryUserInfoEndpoint = true;
 
             string samlEntityId = null;
 
@@ -594,6 +595,8 @@ namespace HCore.Tenants.Providers.Impl
 
                     oidcAcrValuesAppendix = tenantModel.OidcAcrValuesAppendix;
                     oidcTriggerAcrValuesAppendixByUrlParameter = tenantModel.OidcTriggerAcrValuesAppendixByUrlParameter;
+
+                    oidcQueryUserInfoEndpoint = tenantModel.OidcQueryUserInfoEndpoint;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
@@ -759,6 +762,7 @@ namespace HCore.Tenants.Providers.Impl
                 OidcAcrValues = oidcAcrValues,
                 OidcAcrValuesAppendix = oidcAcrValuesAppendix,
                 OidcTriggerAcrValuesAppendixByUrlParameter = oidcTriggerAcrValuesAppendixByUrlParameter,
+                OidcQueryUserInfoEndpoint = oidcQueryUserInfoEndpoint,
                 SamlEntityId = samlEntityId,
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
