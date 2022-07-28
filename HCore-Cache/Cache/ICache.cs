@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HCore.Cache
@@ -17,5 +18,7 @@ namespace HCore.Cache
         void Store(string key, object value, TimeSpan expiresIn);
 
         T Get<T>(string key) where T : class;
+
+        Task<bool> IsAvailableAsync(CancellationToken cancellationToken);
     }
 }

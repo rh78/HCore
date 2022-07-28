@@ -1,4 +1,5 @@
 ﻿using HCore.Amqp.Message;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HCore.Amqp.Messenger
@@ -8,6 +9,9 @@ namespace HCore.Amqp.Messenger
         Task InitializeAsync();
 
         Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null);
+
         Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null);
+
+        Task<bool> IsAvailableAsync(CancellationToken cancellationToken);
     }
 }
