@@ -12,6 +12,6 @@ namespace HCore.Amqp.Messenger
 
         Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null);
 
-        Task<bool> IsAvailableAsync(CancellationToken cancellationToken);
+        Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default);
     }
 }
