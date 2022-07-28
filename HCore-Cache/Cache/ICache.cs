@@ -19,6 +19,6 @@ namespace HCore.Cache
 
         T Get<T>(string key) where T : class;
 
-        Task<bool> IsAvailableAsync(CancellationToken cancellationToken);
+        Task<bool> IsAvailableAsync(CancellationToken cancellationToken = default);
     }
 }
