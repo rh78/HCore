@@ -20,7 +20,7 @@ namespace HCore.Amqp.Messenger.Impl
         private readonly HashSet<Task> _messageProcessorTasks = new HashSet<Task>();
 
         private readonly string _connectionString;
-        
+
         private readonly ConnectionFactory _connectionFactory;
 
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -60,18 +60,18 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 string address = _addresses[i];
 
-                for (int y = 0; y < _addressListenerCounts[i]; y++)                    
-                    await AddReceiverLinkAsync(address).ConfigureAwait(false);                    
+                for (int y = 0; y < _addressListenerCounts[i]; y++)
+                    await AddReceiverLinkAsync(address).ConfigureAwait(false);
             }
 
-            Console.WriteLine($"AMQP receiver initialized successfully");            
+            Console.WriteLine($"AMQP receiver initialized successfully");
 
             Console.WriteLine("Initializing AMQP sender...");
 
             foreach (string address in _addresses)
                 await AddSenderLinkAsync(address).ConfigureAwait(false);
 
-            Console.WriteLine("AMQP sender initialized successfully");            
+            Console.WriteLine("AMQP sender initialized successfully");
         }
 
         private void OnShutdown()
@@ -108,7 +108,7 @@ namespace HCore.Amqp.Messenger.Impl
         private async Task AddSenderLinkAsync(string address)
         {
             var senderLinkHost = new SenderLinkHost(_connectionFactory, _connectionString, address, _cancellationToken, _logger);
-            
+
             _senderLinks.Add(address, senderLinkHost);
 
             await senderLinkHost.InitializeAsync().ConfigureAwait(false);
@@ -156,6 +156,11 @@ namespace HCore.Amqp.Messenger.Impl
         public async Task ProcessMessageAsync(string address, string messageBodyJson)
         {
             await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
-        }        
+        }
+
+        public Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(true);
+        }
     }
 }

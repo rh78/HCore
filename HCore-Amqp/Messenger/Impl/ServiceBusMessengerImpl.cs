@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus.Management;
-using HCore.Amqp.Processor.Hosts;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
-using Newtonsoft.Json;
+using HCore.Amqp.Processor.Hosts;
+using Microsoft.Azure.ServiceBus;
+using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace HCore.Amqp.Messenger.Impl
 {
@@ -235,6 +237,34 @@ namespace HCore.Amqp.Messenger.Impl
         public async Task ProcessMessagesAsync(string address, List<string> messageBodyJsons)
         {
             await _messageProcessor.ProcessMessagesAsync(address, messageBodyJsons).ConfigureAwait(false);
+        }
+
+        public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var managementClient = new ManagementClient(_connectionString);
+
+                var address = _addresses.FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(address))
+                {
+                    return await managementClient.QueueExistsAsync(address, cancellationToken).ConfigureAwait(false);
+                }
+
+                var topicAddress = _topicAddresses.FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(topicAddress))
+                {
+                    return await managementClient.TopicExistsAsync(address, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (ServiceBusTimeoutException)
+            {
+                // Nothing to do here
+            }
+
+            return false;
         }
     }
 }
