@@ -133,7 +133,7 @@ namespace HCore.Cache.Impl
             }
         }
 
-        public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        public async Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -144,6 +144,10 @@ namespace HCore.Cache.Impl
             catch (NullReferenceException)
             {
                 return false;
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
             }
         }
     }

@@ -97,9 +97,9 @@ namespace HCore.Cache.Impl
             }
         }
 
-        public Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(true);
+            return Task.FromResult<bool?>(true);
         }
     }
 }

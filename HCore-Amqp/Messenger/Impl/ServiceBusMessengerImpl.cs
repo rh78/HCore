@@ -239,7 +239,7 @@ namespace HCore.Amqp.Messenger.Impl
             await _messageProcessor.ProcessMessagesAsync(address, messageBodyJsons).ConfigureAwait(false);
         }
 
-        public async Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        public async Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -259,9 +259,13 @@ namespace HCore.Amqp.Messenger.Impl
                     return await managementClient.TopicExistsAsync(address, cancellationToken).ConfigureAwait(false);
                 }
             }
-            catch (ServiceBusTimeoutException)
+            catch (ServiceBusException)
             {
                 // Nothing to do here
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
             }
 
             return false;
