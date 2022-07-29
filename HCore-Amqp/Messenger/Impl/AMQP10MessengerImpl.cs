@@ -158,9 +158,9 @@ namespace HCore.Amqp.Messenger.Impl
             await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
         }
 
-        public Task<bool> IsAvailableAsync(CancellationToken cancellationToken)
+        public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(true);
+            return Task.FromResult<bool?>(true);
         }
     }
 }
