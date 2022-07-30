@@ -95,6 +95,10 @@ namespace HCore.PagesUI.Classes.Pages
                 {
                     errorDescription = $"{Messages.ie11_and_lower_not_supported}.";
                 }
+                else if (string.Equals(errorCode, "maintenance_mode"))
+                {
+                    errorDescription = $"{Messages.maintenance_mode}.";
+                }
                 else if (!string.IsNullOrEmpty(errorDescription))
                 {
                     try

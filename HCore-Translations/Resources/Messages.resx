@@ -441,6 +441,9 @@
   <data name="ie11_and_lower_not_supported" xml:space="preserve">
     <value>Microsoft has ended official support for Internet Explorer 11 and older generations of Internet Explorer. For security reasons, this page therefore only works with the Microsoft Edge browser</value>
   </data>
+  <data name="maintenance_mode" xml:space="preserve">
+    <value>We are currently conducting a scheduled system maintenance. Please try again in a few hours</value>
+  </data>
   <data name="organization_invalid" xml:space="preserve">
     <value>The company name is invalid</value>
   </data>

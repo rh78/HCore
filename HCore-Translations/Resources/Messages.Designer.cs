@@ -1114,6 +1114,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die We are currently conducting a scheduled system maintenance. Please try again in a few hours ähnelt.
+        /// </summary>
+        public static string maintenance_mode {
+            get {
+                return ResourceManager.GetString("maintenance_mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The paging limit must not exceed 50 records ähnelt.
         /// </summary>
         public static string max_paging_limit_exceeded {
