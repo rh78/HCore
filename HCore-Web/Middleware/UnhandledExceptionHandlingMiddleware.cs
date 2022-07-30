@@ -1,4 +1,4 @@
-﻿#define MAINTENANCE_MODE
+﻿// #define MAINTENANCE_MODE
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using HCore.Web.Exceptions;
