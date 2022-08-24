@@ -48,7 +48,7 @@ namespace HCore.Web.Exceptions
         public abstract int GetStatusCode();
         public abstract string GetErrorCode();
         
-        public async Task WriteResponseAsync(HttpContext context, string redirectUrl = null)
+        public async virtual Task WriteResponseAsync(HttpContext context, string redirectUrl = null)
         {
             context.Response.StatusCode = GetStatusCode();
             context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Json;
