@@ -405,6 +405,17 @@ namespace HCore.Web.API.Impl
             }
         }
 
+        public static string ProcessIdentityExternalUuid(string identityExternalUuid)
+        {
+            if (string.IsNullOrEmpty(identityExternalUuid))
+                return null;
+
+            if (identityExternalUuid.Length > ApiImpl.MaxExternalUuidLength)
+                throw new RequestFailedApiException(RequestFailedApiException.ExternalUuidTooLong, "The external UUID is too long");
+
+            return identityExternalUuid;
+        }
+
         public static string ProcessUserName(string userName)
         {
             userName = userName?.Trim();

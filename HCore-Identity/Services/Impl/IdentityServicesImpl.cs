@@ -827,9 +827,9 @@ namespace HCore.Identity.Services.Impl
                 var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                     externalUser.FindFirst(ClaimTypes.NameIdentifier);
 
-                if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+                if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value) || userIdClaim.Value.Length > ApiImpl.MaxExternalUuidLength)
                 {
-                    throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing");
+                    throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing or invalid");
                 }
 
                 var userIdClaimValue = userIdClaim.Value;
