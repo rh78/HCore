@@ -750,6 +750,9 @@
   <data name="scoped_tenant_uuid_invalid" xml:space="preserve">
     <value>Die eingeschränkte Mandanten-UUID ist ungültig</value>
   </data>
+  <data name="external_uuid_too_long" xml:space="preserve">
+    <value>Die externe UUID ist zu lang</value>
+  </data>
   <data name="description_too_long" xml:space="preserve">
     <value>Die Beschreibung ist zu lang</value>
   </data>

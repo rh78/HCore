@@ -494,7 +494,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, DateTimeOffset? expiryDate, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, string userIdClaimValue, DateTimeOffset? expiryDate, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
 
@@ -588,6 +588,11 @@ namespace HCore.Identity.Services.Impl
                         NormalizedEmailWithoutScope = normalizedEmailAddress,
                         ExpiryDate = expiryDate
                     };
+
+                    if (!string.IsNullOrEmpty(userIdClaimValue))
+                    {
+                        user.ExternalUuid = userIdClaimValue;
+                    }
 
                     if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
                     {
@@ -822,10 +827,12 @@ namespace HCore.Identity.Services.Impl
                 var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                     externalUser.FindFirst(ClaimTypes.NameIdentifier);
 
-                if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
+                if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value) || userIdClaim.Value.Length > ApiImpl.MaxExternalUuidLength)
                 {
-                    throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing");
+                    throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing or invalid");
                 }
+
+                var userIdClaimValue = userIdClaim.Value;
 
                 // remove the user id claim so we don't include it as an extra claim if/when we provision the user
 
@@ -877,7 +884,7 @@ namespace HCore.Identity.Services.Impl
                 var providerUserUuid = reservedEmailAddressModel?.Uuid;
 
                 if (string.IsNullOrEmpty(providerUserUuid))
-                    providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaim.Value}";
+                    providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaimValue}";
 
                 bool dynamicRegistration = string.Equals(tenantInfo.ExternalDirectoryType, DirectoryConstants.DirectoryTypeDynamic);
 
@@ -889,7 +896,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, reservedEmailAddressModel?.ExpiryDate, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, userIdClaimValue, reservedEmailAddressModel?.ExpiryDate, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
 
                         return (user, true);
                     }
@@ -980,6 +987,13 @@ namespace HCore.Identity.Services.Impl
                         if (!EqualsMemberOf(user.MemberOf, memberOf))
                         {
                             user.MemberOf = memberOf?.ToList();
+
+                            changed = true;
+                        }
+
+                        if (!string.Equals(user.ExternalUuid, userIdClaimValue))
+                        {
+                            user.ExternalUuid = userIdClaimValue;
 
                             changed = true;
                         }

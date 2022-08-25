@@ -61,6 +61,9 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 
         public DateTimeOffset? ExpiryDate { get; set; }
 
+        [MaxLength(Web.API.Impl.ApiImpl.MaxExternalUuidLength)]
+        public string ExternalUuid { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))

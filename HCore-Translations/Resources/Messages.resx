@@ -750,6 +750,9 @@
   <data name="scoped_tenant_uuid_invalid" xml:space="preserve">
     <value>The scoped tenant UUID is invalid</value>
   </data>
+  <data name="external_uuid_too_long" xml:space="preserve">
+    <value>The external UUID is too long</value>
+  </data>
   <data name="description_too_long" xml:space="preserve">
     <value>The description is too long</value>
   </data>

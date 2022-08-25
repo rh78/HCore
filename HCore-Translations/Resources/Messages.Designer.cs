@@ -763,6 +763,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The external UUID is too long ähnelt.
+        /// </summary>
+        public static string external_uuid_too_long {
+            get {
+                return ResourceManager.GetString("external_uuid_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The filter value is invalid ähnelt.
         /// </summary>
         public static string filter_value_invalid {
