@@ -88,6 +88,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately, your user account is disabled ähnelt.
+        /// </summary>
+        public static string account_disabled {
+            get {
+                return ResourceManager.GetString("account_disabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately, your user account has expired. Please contact us if you want to extend the validity of your user account ähnelt.
         /// </summary>
         public static string account_expired {
