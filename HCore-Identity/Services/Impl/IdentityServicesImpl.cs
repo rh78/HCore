@@ -351,8 +351,7 @@ namespace HCore.Identity.Services.Impl
                         Email = userSpec.Email, 
                         NormalizedEmailWithoutScope = userSpec.Email.Trim().ToUpper(),
                         ExpiryDate = reservedEmailAddressModel.ExpiryDate,
-                        Disabled = reservedEmailAddressModel.Disabled,
-                        Deleted = reservedEmailAddressModel.Deleted
+                        Disabled = reservedEmailAddressModel.Disabled
                     };
 
                     if (_configurationProvider.SelfManagement)
@@ -496,7 +495,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, string userIdClaimValue, DateTimeOffset? expiryDate, bool? disabled, bool? deleted, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, string userIdClaimValue, DateTimeOffset? expiryDate, bool? disabled, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
         {
             string unscopedEmail = ProcessEmail(externalUser);
 
@@ -589,8 +588,7 @@ namespace HCore.Identity.Services.Impl
                         MemberOf = memberOf?.ToList(), 
                         NormalizedEmailWithoutScope = normalizedEmailAddress,
                         ExpiryDate = expiryDate,
-                        Disabled = disabled,
-                        Deleted = deleted
+                        Disabled = disabled
                     };
 
                     if (!string.IsNullOrEmpty(userIdClaimValue))
@@ -900,7 +898,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user == null)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, userIdClaimValue, reservedEmailAddressModel?.ExpiryDate, reservedEmailAddressModel?.Disabled, reservedEmailAddressModel?.Deleted, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, userIdClaimValue, reservedEmailAddressModel?.ExpiryDate, reservedEmailAddressModel?.Disabled, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
 
                         return (user, true);
                     }

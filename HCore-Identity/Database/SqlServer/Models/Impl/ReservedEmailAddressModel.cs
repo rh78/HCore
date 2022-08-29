@@ -13,7 +13,6 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         public DateTimeOffset? ExpiryDate { get; set; }
 
         public bool? Disabled { get; set; }
-        public bool? Deleted { get; set; }
 
         public long? AuthScopeConfigurationUuid { get; set; }
     }
