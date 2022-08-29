@@ -114,6 +114,45 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
             return Email;
         }
 
+        public string GetUnscopedId()
+        {
+            if (string.IsNullOrEmpty(Id))
+                return Id;
+
+            // we have scoped ID prefix
+
+            if (AuthScopeConfigurationUuid == null)
+            {
+                if (ScopedEmail3Parts.IsMatch(Id))
+                {
+                    string[] idParts = Id.Split(":");
+
+                    string unscopedId = string.Join(":", idParts.Skip(2));
+
+                    if (string.IsNullOrEmpty(unscopedId))
+                        return null;
+
+                    return unscopedId;
+                }
+            }
+            else
+            {
+                if (ScopedEmail4Parts.IsMatch(Id))
+                {
+                    string[] idParts = Id.Split(":");
+
+                    string unscopedId = string.Join(":", idParts.Skip(3));
+
+                    if (string.IsNullOrEmpty(unscopedId))
+                        return null;
+
+                    return unscopedId;
+                }
+            }
+
+            return Id;
+        }
+
         public long? GetScopedTenantUuid()
         {
             if (string.IsNullOrEmpty(Email))
