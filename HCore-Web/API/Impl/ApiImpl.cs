@@ -834,6 +834,11 @@ namespace HCore.Web.API.Impl
             return disabled ?? false;
         }
 
+        public static bool ProcessDeleted(bool? deleted)
+        {
+            return deleted ?? false;
+        }
+
         public static bool ProcessIsDefault(bool? isDefault)
         {
             return isDefault ?? true;

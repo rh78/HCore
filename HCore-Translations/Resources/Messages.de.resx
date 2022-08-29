@@ -126,6 +126,9 @@
   <data name="account_expired" xml:space="preserve">
     <value>Ihr Benutzerkonto ist leider abgelaufen. Bitte kontaktieren Sie uns, wenn Sie die Gültigkeit Ihres Benutzerkontos verlängern möchten</value>
   </data>
+  <data name="account_disabled" xml:space="preserve">
+    <value>Ihr Benutzerkonto ist leider deaktiviert. Bitte kontaktieren Sie uns, falls Sie weitere Informationen benötigen</value>
+  </data>
   <data name="api_credentials_missing" xml:space="preserve">
     <value>Die API-Anmeldeinformationen fehlen</value>
   </data>

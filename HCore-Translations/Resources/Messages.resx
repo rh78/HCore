@@ -126,6 +126,9 @@
   <data name="account_expired" xml:space="preserve">
     <value>Unfortunately, your user account has expired. Please contact us if you want to extend the validity of your user account</value>
   </data>
+  <data name="account_disabled" xml:space="preserve">
+    <value>Unfortunately, your user account is disabled. Please contact us for further information</value>
+  </data>
   <data name="api_credentials_missing" xml:space="preserve">
     <value>The API credentials are missing</value>
   </data>
