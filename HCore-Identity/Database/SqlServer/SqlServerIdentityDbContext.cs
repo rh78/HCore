@@ -8,6 +8,7 @@ namespace HCore.Identity.Database.SqlServer
     {
         public DbSet<ReservedEmailAddressModel> ReservedEmailAddresses { get; set; }
         public DbSet<DataProtectionKeyModel> DataProtectionKeys { get; set; }
+        public DbSet<UserDeletedModel> UsersDeleted { get; set; }
 
         public SqlServerIdentityDbContext(DbContextOptions<SqlServerIdentityDbContext> options)
             : base(options)
