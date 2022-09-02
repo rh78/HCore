@@ -131,27 +131,19 @@ namespace HCore.Identity.Services.Impl
             _blockLowQuality = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:BlockLowQuality") ?? false;
         }
 
-        public async Task<ReservedEmailAddressModel> ReserveUserUuidAsync(string emailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
+        public async Task<ReservedEmailAddressModel> ReserveUserUuidAsync(long? developerUuid, long? tenantUuid, string unscopedEmailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
         {
             if (processEmailAddress)
-                emailAddress = ProcessEmail(emailAddress);
+                unscopedEmailAddress = ProcessEmail(unscopedEmailAddress);
 
             ITenantInfo tenantInfo = null;
 
             if (_tenantInfoAccessor != null)
                 tenantInfo = _tenantInfoAccessor.TenantInfo;
 
-            string prefix = "";
+            var scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
 
-            if (tenantInfo != null &&
-                tenantInfo.UsersAreExternallyManaged)
-            {
-                prefix = $"{tenantInfo.DeveloperUuid}{IdentityCoreConstants.UuidSeparator}{tenantInfo.TenantUuid}{IdentityCoreConstants.UuidSeparator}";
-            }
-
-            emailAddress = $"{prefix}{emailAddress}";
-
-            string normalizedEmailAddress = emailAddress.Trim().ToUpper();
+            string normalizedScopedEmailAddress = Normalize(scopedEmailAddress);
 
             try
             {
@@ -161,16 +153,16 @@ namespace HCore.Identity.Services.Impl
 
                     if (_identityDbContext.Database.ProviderName != null && _identityDbContext.Database.ProviderName.StartsWith("Npgsql"))
                     {
-                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT \"Uuid\" FROM public.\"ReservedEmailAddresses\" WHERE \"NormalizedEmailAddress\" = {0} FOR UPDATE", normalizedEmailAddress).ConfigureAwait(false);
+                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT \"Uuid\" FROM public.\"ReservedEmailAddresses\" WHERE \"NormalizedEmailAddress\" = {0} FOR UPDATE", normalizedScopedEmailAddress).ConfigureAwait(false);
                     }
                     else
                     {
-                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE NormalizedEmailAddress = {0}", normalizedEmailAddress).ConfigureAwait(false);
+                        await _identityDbContext.Database.ExecuteSqlRawAsync("SELECT Uuid FROM ReservedEmailAddresses WITH (ROWLOCK, XLOCK, HOLDLOCK) WHERE NormalizedEmailAddress = {0}", normalizedScopedEmailAddress).ConfigureAwait(false);
                     }
 
                     IQueryable<ReservedEmailAddressModel> query = _identityDbContext.ReservedEmailAddresses;
-                    
-                    query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.NormalizedEmailAddress == normalizedEmailAddress);
+
+                    query = query.Where(reservedEmailAddressQuery => reservedEmailAddressQuery.NormalizedEmailAddress == normalizedScopedEmailAddress);
 
                     var reservedEmailAddressModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
 
@@ -180,14 +172,12 @@ namespace HCore.Identity.Services.Impl
                     if (!createReservationIfNotPresent)
                         return null;
 
-                    string newUserUuid = Guid.NewGuid().ToString();
-
-                    newUserUuid = $"{prefix}{newUserUuid}";
+                    string newScopedUserUuid = GetNewScopedUuid(developerUuid, tenantUuid);
 
                     reservedEmailAddressModel = new ReservedEmailAddressModel()
                     {
-                        Uuid = newUserUuid,
-                        NormalizedEmailAddress = normalizedEmailAddress
+                        Uuid = newScopedUserUuid,
+                        NormalizedEmailAddress = normalizedScopedEmailAddress
                     };
 
                     _identityDbContext.ReservedEmailAddresses.Add(reservedEmailAddressModel);
@@ -336,7 +326,7 @@ namespace HCore.Identity.Services.Impl
 
             try
             {
-                var reservedEmailAddressModel = await ReserveUserUuidAsync(userSpec.Email).ConfigureAwait(false);
+                var reservedEmailAddressModel = await ReserveUserUuidAsync(developerUuid: null, tenantUuid: null, userSpec.Email, createReservationIfNotPresent: true).ConfigureAwait(false);
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
@@ -345,14 +335,31 @@ namespace HCore.Identity.Services.Impl
                     if (existingUser != null)
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
+                    var userDeletedModel = await GetUserDeletedAsync(reservedEmailAddressModel.Uuid).ConfigureAwait(false);
+
+                    if (userDeletedModel != null)
+                    {
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "It is not possible to reuse a user ID that belongs to a deleted user");
+                    }
+
                     var user = new UserModel { 
                         Id = reservedEmailAddressModel.Uuid, 
                         UserName = userSpec.Email, 
                         Email = userSpec.Email, 
-                        NormalizedEmailWithoutScope = userSpec.Email.Trim().ToUpper(),
+                        NormalizedEmailWithoutScope = Normalize(userSpec.Email),
                         ExpiryDate = reservedEmailAddressModel.ExpiryDate,
                         Disabled = reservedEmailAddressModel.Disabled
                     };
+
+                    if (user.Disabled == true)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountDisabled, "The user account is disabled");
+                    }
+
+                    if (user.ExpiryDate != null && user.ExpiryDate < DateTimeOffset.Now)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountExpired, "The user account is expired");
+                    }
 
                     if (_configurationProvider.SelfManagement)
                     {
@@ -495,9 +502,9 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, string providerUserUuid, string userIdClaimValue, DateTimeOffset? expiryDate, bool? disabled, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, List<Claim> claims)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, string userIdClaimValue)
         {
-            string unscopedEmail = ProcessEmail(externalUser);
+            string unscopedEmailAddress = ProcessEmail(externalUser);
 
             string firstName = null;
             string lastName = null;
@@ -535,9 +542,9 @@ namespace HCore.Identity.Services.Impl
             if (!userSpec.AcceptPrivacyPolicy && !userSpec.AcceptTermsAndConditionsAndPrivacyPolicy)
                 throw new RequestFailedApiException(RequestFailedApiException.PleaseAcceptPrivacyPolicy, "Please accept the privacy policy"); */
 
-            string normalizedEmailAddress = unscopedEmail.Trim().ToUpper();
+            string normalizedUnscopedEmailAddress = Normalize(unscopedEmailAddress);
 
-            if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedEmailAddress))
+            if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedUnscopedEmailAddress))
             {
                 string issuer = ProcessIssuer(externalUser);
 
@@ -545,51 +552,45 @@ namespace HCore.Identity.Services.Impl
                     throw new Exception("The external authentication failed");
             }
 
-            string scopedEmail = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{unscopedEmail}";
-
-            ITenantInfo tenantInfo = null;
-
-            if (_tenantInfoAccessor != null)
-                tenantInfo = _tenantInfoAccessor.TenantInfo;
+            var scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
 
             try
             {
+                var reservedEmailAddressModel = await ReserveUserUuidAsync(developerUuid, tenantUuid, unscopedEmailAddress, createReservationIfNotPresent: true).ConfigureAwait(false);
+
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var existingUser = await _userManager.FindByEmailAsync(scopedEmail).ConfigureAwait(false);
+                    var existingUser = await _userManager.FindByEmailAsync(scopedEmailAddress).ConfigureAwait(false);
 
                     if (existingUser != null)
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "A user account with that email address already exists");
 
-                    string preferredUserName = ProcessPreferredUserName(externalUser);
+                    var userDeletedModel = await GetUserDeletedAsync(reservedEmailAddressModel.Uuid).ConfigureAwait(false);
 
-                    if (!string.IsNullOrEmpty(preferredUserName))
+                    if (userDeletedModel != null)
                     {
-                        preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
-                    }
-
-                    if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
-                    {
-                        preferredUserName = providerUserUuid;
-                    }
-
-                    if (string.IsNullOrEmpty(preferredUserName) || preferredUserName.Any(c => !AllowedUserNameCharacters.Contains(c)))
-                    {
-                        // preferred user name and provider user ID contains invalid character, generate new ID
-
-                        preferredUserName = Guid.NewGuid().ToString();
-                        preferredUserName = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{preferredUserName}";
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "It is not possible to reuse a user ID that belongs to a deleted user");
                     }
 
                     var user = new UserModel { 
-                        Id = providerUserUuid, 
-                        UserName = preferredUserName, 
-                        Email = scopedEmail, 
+                        Id = reservedEmailAddressModel.Uuid, 
+                        UserName = reservedEmailAddressModel.Uuid, 
+                        Email = scopedEmailAddress, 
                         MemberOf = memberOf?.ToList(), 
-                        NormalizedEmailWithoutScope = normalizedEmailAddress,
-                        ExpiryDate = expiryDate,
-                        Disabled = disabled
+                        NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
+                        ExpiryDate = reservedEmailAddressModel.ExpiryDate,
+                        Disabled = reservedEmailAddressModel.Disabled
                     };
+
+                    if (user.Disabled == true)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountDisabled, "The user account is disabled");
+                    }
+
+                    if (user.ExpiryDate != null && user.ExpiryDate < DateTimeOffset.Now)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountExpired, "The user account is expired");
+                    }
 
                     if (!string.IsNullOrEmpty(userIdClaimValue))
                     {
@@ -635,6 +636,11 @@ namespace HCore.Identity.Services.Impl
                         user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
                         user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
                     } */
+
+                    ITenantInfo tenantInfo = null;
+
+                    if (_tenantInfoAccessor != null)
+                        tenantInfo = _tenantInfoAccessor.TenantInfo;
 
                     if (tenantInfo != null)
                     {
@@ -726,9 +732,31 @@ namespace HCore.Identity.Services.Impl
                         throw new UnauthorizedApiException(UnauthorizedApiException.InvalidCredentials, "The user credentials are not valid");
                     }
 
+                    Microsoft.AspNetCore.Identity.SignInResult result;
+
+                    if (user.Disabled == true)
+                    {
+                        result = await _signInManager.CheckPasswordSignInAsync(user, userSignInSpec.Password, lockoutOnFailure: true).ConfigureAwait(false);
+
+                        if (result.Succeeded)
+                        {
+                            throw new UnauthorizedApiException(UnauthorizedApiException.AccountDisabled, "The user account is disabled");
+                        }
+                    }
+
+                    if (user.ExpiryDate != null && user.ExpiryDate < DateTimeOffset.Now)
+                    {
+                        result = await _signInManager.CheckPasswordSignInAsync(user, userSignInSpec.Password, lockoutOnFailure: true).ConfigureAwait(false);
+
+                        if (result.Succeeded)
+                        {
+                            throw new UnauthorizedApiException(UnauthorizedApiException.AccountExpired, "The user account is expired");
+                        }
+                    }
+
                     bool remember = userSignInSpec.RememberSet && userSignInSpec.Remember;
 
-                    var result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, isPersistent: remember, lockoutOnFailure: true).ConfigureAwait(false);
+                    result = await _signInManager.PasswordSignInAsync(userSignInSpec.Email, userSignInSpec.Password, isPersistent: remember, lockoutOnFailure: true).ConfigureAwait(false);
 
                     if (result.Succeeded)
                     {
@@ -854,11 +882,11 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
 
-                string unscopedEmail = ProcessEmail(externalUser);
+                string unscopedEmailAddress = ProcessEmail(externalUser);
 
-                string normalizedEmailAddress = unscopedEmail.Trim().ToUpper();
+                string normalizedUnscopedEmailAddress = Normalize(unscopedEmailAddress);
 
-                if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedEmailAddress))
+                if (_devAdminSsoProtectedUserAccountEmailAddresses.Contains(normalizedUnscopedEmailAddress))
                 {
                     // debug information to the console, without logging it to Sentry
 
@@ -875,38 +903,39 @@ namespace HCore.Identity.Services.Impl
 
                     if (!_devAdminSsoAuthorizedIssuers.Contains(issuer))
                     {
-                        _logger.LogError($"Dev admin authorized issuers check failed for email address {normalizedEmailAddress} and issuer {issuer}");
+                        _logger.LogError($"Dev admin authorized issuers check failed for email address {normalizedUnscopedEmailAddress} and issuer {issuer}");
 
                         throw new Exception("The external authentication failed");
                     }
                 }
 
-                var reservedEmailAddressModel = await ReserveUserUuidAsync(unscopedEmail, createReservationIfNotPresent: false).ConfigureAwait(false);
+                var scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
 
-                var providerUserUuid = reservedEmailAddressModel?.Uuid;
-
-                if (string.IsNullOrEmpty(providerUserUuid))
-                    providerUserUuid = $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}{userIdClaimValue}";
+                var user = await _userManager.FindByEmailAsync(scopedEmailAddress).ConfigureAwait(false);
 
                 bool dynamicRegistration = string.Equals(tenantInfo.ExternalDirectoryType, DirectoryConstants.DirectoryTypeDynamic);
 
-                if (dynamicRegistration)
+                // stay outside of transaction
+
+                if (user == null)
                 {
-                    var user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
-
-                    // stay outside of transaction
-
-                    if (user == null)
+                    if (dynamicRegistration)
                     {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, providerUserUuid, userIdClaimValue, reservedEmailAddressModel?.ExpiryDate, reservedEmailAddressModel?.Disabled, authenticateResult.Ticket, externalUser, claims).ConfigureAwait(false);
+                        user = await CreateUserAsync(developerUuid, tenantUuid, authenticateResult.Ticket, externalUser, userIdClaimValue).ConfigureAwait(false);
 
                         return (user, true);
                     }
+                    else
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserNotFound, "The external user was not found");
+                    }
                 }
+
+                var scopedUserUuid = user.Id;
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
-                    var user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
+                    user = await _userManager.FindByIdAsync(scopedUserUuid).ConfigureAwait(false);
 
                     if (user == null)
                     {
@@ -920,6 +949,16 @@ namespace HCore.Identity.Services.Impl
                         _logger.LogWarning("User account is locked out");
 
                         throw new UnauthorizedApiException(UnauthorizedApiException.AccountLockedOut, "The user account is locked out");
+                    }
+
+                    if (user.Disabled == true)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountDisabled, "The user account is disabled");
+                    }
+
+                    if (user.ExpiryDate != null && user.ExpiryDate < DateTimeOffset.Now)
+                    {
+                        throw new UnauthorizedApiException(UnauthorizedApiException.AccountExpired, "The user account is expired");
                     }
 
                     if (_configurationProvider.RequireEmailConfirmed && !user.EmailConfirmed)
@@ -1011,7 +1050,7 @@ namespace HCore.Identity.Services.Impl
 
                             await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
 
-                            user = await _userManager.FindByIdAsync(providerUserUuid).ConfigureAwait(false);
+                            user = await _userManager.FindByIdAsync(scopedUserUuid).ConfigureAwait(false);
                         }
                     }
 
@@ -2007,6 +2046,42 @@ namespace HCore.Identity.Services.Impl
                 else
                     await amqpMessenger.SendMessageTrySynchronousFirstAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
             }
+        }
+
+        private async Task<UserDeletedModel> GetUserDeletedAsync(string externalUuid)
+        {
+            IQueryable<UserDeletedModel> query = _identityDbContext.UsersDeleted;
+
+            query = query.Where(userDeleted => userDeleted.ExternalUuid == externalUuid);
+
+            var userDeletedModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+
+            return userDeletedModel;
+        }
+
+        private string GetScopePrefix(long? developerUuid, long? tenantUuid)
+        {
+            if (developerUuid == null && tenantUuid == null)
+            {
+                return "";
+            }
+
+            return $"{developerUuid}{IdentityCoreConstants.UuidSeparator}{tenantUuid}{IdentityCoreConstants.UuidSeparator}";
+        }
+
+        private string GetScopedEmail(long? developerUuid, long? tenantUuid, string unscopedEmail)
+        {
+            return $"{GetScopePrefix(developerUuid, tenantUuid)}{unscopedEmail}";
+        }
+
+        private string GetNewScopedUuid(long? developerUuid, long? tenantUuid)
+        {
+            return $"{GetScopePrefix(developerUuid, tenantUuid)}{Guid.NewGuid()}";
+        }
+
+        private string Normalize(string input)
+        {
+            return input?.Trim().ToUpper();
         }
     }
 }
