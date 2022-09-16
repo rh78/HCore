@@ -9,10 +9,12 @@ namespace HCore.Web.Providers.Impl
     public class CookieModifyingQueryStringRequestCultureProvider : QueryStringRequestCultureProvider
     {
         private readonly string _cookieName;
+        private readonly bool _httpOnly;
 
-        public CookieModifyingQueryStringRequestCultureProvider(string cookieName)
+        public CookieModifyingQueryStringRequestCultureProvider(string cookieName, bool httpOnly = false)
         {
             _cookieName = cookieName;
+            _httpOnly = httpOnly;
         }
 
         public override Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext)
@@ -84,7 +86,8 @@ namespace HCore.Web.Providers.Impl
                     Expires = DateTime.Now.AddYears(1),
                     Secure = true,
                     // was LAX
-                    SameSite = SameSiteMode.None
+                    SameSite = SameSiteMode.None,
+                    HttpOnly = _httpOnly
                 });
             }
 
