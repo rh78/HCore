@@ -35,6 +35,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [StringLength(MaxUrlLength)]
         public string WebUrl { get; set; }
 
+        [StringLength(MaxUrlLength)]
+        public string AllowIFrameUrl { get; set; }
+
         [StringLength(DeveloperModel.MaxNameLength)]
         public string Name { get; set; }
 
