@@ -31,5 +31,7 @@
         public const string UuidSeparator = ":";
 
         public const string HttpContextItemsIdTokenHint = "SmintIo:IdTokenHint";
+
+        public const string AllowIFrameUrlContextKey = "SmintIo:AllowIFrameUrl";
     }
 }
