@@ -319,6 +319,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         if (!oidcUsePkce)
                         {
+                            openIdConnect.UsePkce = false;
+
                             openIdConnect.ClientSecret = oidcClientSecret;
                         }
                         else
