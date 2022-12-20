@@ -24,7 +24,7 @@ namespace HCore.Tenants.Services.Impl
         public static readonly Regex SafeString = new Regex(@"^[\w\s\.@_\-\+\=\(\):/&,]+$");
         private static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");
 
-        public const int MaxEmailAddressLength = 50;
+        public const int MaxEmailAddressLength = 255;
         public const int MaxEmailDisplayNameLength = 50;
 
         private readonly ITenantDataProvider _tenantDataProvider;

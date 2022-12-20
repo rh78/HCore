@@ -24,7 +24,7 @@ namespace HCore.Web.API.Impl
 
         public const int MaxExternalUserGroupUuidLength = 100;
 
-        public const int MaxEmailAddressLength = 50;
+        public const int MaxEmailAddressLength = 255;
         
         public const int MaxOrganizationLength = 255;
 
