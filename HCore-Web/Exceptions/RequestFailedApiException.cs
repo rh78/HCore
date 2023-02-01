@@ -98,6 +98,8 @@ namespace HCore.Web.Exceptions
         public const string UserGroupUuidInvalid = "user_group_uuid_invalid";
         public const string TenantUuidMissing = "tenant_uuid_missing";
         public const string TenantUuidInvalid = "tenant_uuid_invalid";
+        public const string TenantDeletionFailed = "tenant_deletion_failed";
+        public const string ConfirmationCodeRequired = "confirmation_code_required";
         public const string UserUuidMissing = "user_uuid_missing";
         public const string UserUuidInvalid = "user_uuid_invalid";
         public const string UserUuidTooLong = "user_uuid_too_long";
