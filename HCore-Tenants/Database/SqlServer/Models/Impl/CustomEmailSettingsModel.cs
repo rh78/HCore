@@ -10,6 +10,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ForgotPasswordEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewUnreadNotificationsEmailSettings { get; set; }
         public EmailInstanceSettingsModel HttpsCertificateExpiresEmailSettings { get; set; }
+        public EmailInstanceSettingsModel NewAdminUserRegisteredEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }

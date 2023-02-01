@@ -13,6 +13,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ForgotPasswordEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewUnreadNotificationsEmailSettings { get; set; }
         public EmailInstanceSettingsModel HttpsCertificateExpiresEmailSettings { get; set; }
+        public EmailInstanceSettingsModel NewAdminUserRegisteredEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationDeclinedEmailSettings { get; set; }
@@ -100,6 +101,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     HttpsCertificateExpiresEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateExpiresEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.NewAdminUserRegisteredEmailSettings != null)
+            {
+                if (NewAdminUserRegisteredEmailSettings == null)
+                {
+                    NewAdminUserRegisteredEmailSettings = new EmailInstanceSettingsModel();
+                    NewAdminUserRegisteredEmailSettings.MergeWith(customEmailSettingsModel.NewAdminUserRegisteredEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    NewAdminUserRegisteredEmailSettings.MergeWith(customEmailSettingsModel.NewAdminUserRegisteredEmailSettings, allowEmpty);
                 }
             }
 
@@ -406,6 +420,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     HttpsCertificateExpiresEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateExpiresEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.NewAdminUserRegisteredEmailSettings != null)
+            {
+                if (NewAdminUserRegisteredEmailSettings == null)
+                {
+                    NewAdminUserRegisteredEmailSettings = new EmailInstanceSettingsModel();
+                    NewAdminUserRegisteredEmailSettings.MergeWith(customEmailSettingsModel.NewAdminUserRegisteredEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    NewAdminUserRegisteredEmailSettings.MergeWith(customEmailSettingsModel.NewAdminUserRegisteredEmailSettings, allowEmpty);
                 }
             }
 
