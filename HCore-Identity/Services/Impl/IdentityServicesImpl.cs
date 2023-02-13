@@ -859,6 +859,8 @@ namespace HCore.Identity.Services.Impl
 
                 if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value) || userIdClaim.Value.Length > ApiImpl.MaxExternalUuidLength)
                 {
+                    PrintClaimsPrincipalDebug(externalUser);
+
                     throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing or invalid");
                 }
 
