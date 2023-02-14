@@ -1,4 +1,6 @@
 ﻿using HCore.Database;
+using HCore.Database.RetryStrategies;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using System;
 
@@ -26,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!string.IsNullOrEmpty(migrationsAssembly))
                         options.MigrationsAssembly(migrationsAssembly);
-
-                    options.EnableRetryOnFailure();
                 });
             }
             else
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
                     if (!string.IsNullOrEmpty(migrationsAssembly))
                         options.MigrationsAssembly(migrationsAssembly);
 
-                    options.EnableRetryOnFailure();
+                    options.ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c));
                 });
             }
 
