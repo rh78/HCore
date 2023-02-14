@@ -50,7 +50,7 @@ namespace HCore.Database.RetryStrategies
                     return false;
                 }
 
-                return true;
+                return base.RetriesOnFailure;
             }
         }
     }
