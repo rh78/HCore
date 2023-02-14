@@ -6,6 +6,8 @@ using System;
 using System.Reflection;
 using HCore.Database;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using HCore.Database.RetryStrategies;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -75,8 +77,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     options.UseSqlServer(connectionString,
                         sqlServerOptions => sqlServerOptions
-                            .MigrationsAssembly(migrationsAssembly)
-                            .EnableRetryOnFailure());
+                            .MigrationsAssembly(migrationsAssembly));
                 });
             } 
             else
@@ -86,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.UseNpgsql(connectionString,
                         postgresOptions => postgresOptions
                             .MigrationsAssembly(migrationsAssembly)
-                            .EnableRetryOnFailure());
+                            .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
                 });
             }
 
