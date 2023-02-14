@@ -9,6 +9,8 @@ namespace HCore.Database.RetryStrategies
 {
     public class HCoreRetryStrategy : NpgsqlRetryingExecutionStrategy
     {
+        private bool _enableRetry = true;
+
         public HCoreRetryStrategy(DbContext context) : base(context)
         {
         }
@@ -47,11 +49,30 @@ namespace HCore.Database.RetryStrategies
                     || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies
                        .TransactionManager as ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
                 {
+                    _enableRetry = false;
+
+                    return false;
+                }
+
+                if (!_enableRetry)
+                {
+                    // once disabled, never enable again
+
                     return false;
                 }
 
                 return base.RetriesOnFailure;
             }
+        }
+
+        protected override bool ShouldRetryOn(Exception? exception)
+        {
+            if (!_enableRetry)
+            {
+                return false;
+            }
+
+            return base.ShouldRetryOn(exception);
         }
     }
 }
