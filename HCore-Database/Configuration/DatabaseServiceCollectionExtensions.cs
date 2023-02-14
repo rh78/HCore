@@ -74,7 +74,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddDbContext<TContext>(options =>
                 {
                     options.UseSqlServer(connectionString,
-                        sqlServerOptions => sqlServerOptions.MigrationsAssembly(migrationsAssembly));
+                        sqlServerOptions => sqlServerOptions
+                            .MigrationsAssembly(migrationsAssembly)
+                            .EnableRetryOnFailure());
                 });
             } 
             else
@@ -82,7 +84,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddDbContext<TContext>(options =>
                 {
                     options.UseNpgsql(connectionString,
-                        postgresOptions => postgresOptions.MigrationsAssembly(migrationsAssembly));
+                        postgresOptions => postgresOptions
+                            .MigrationsAssembly(migrationsAssembly)
+                            .EnableRetryOnFailure());
                 });
             }
 

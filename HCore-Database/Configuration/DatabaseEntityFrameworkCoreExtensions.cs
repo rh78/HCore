@@ -26,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!string.IsNullOrEmpty(migrationsAssembly))
                         options.MigrationsAssembly(migrationsAssembly);
+
+                    options.EnableRetryOnFailure();
                 });
             }
             else
@@ -34,6 +36,8 @@ namespace Microsoft.EntityFrameworkCore
                 {                   
                     if (!string.IsNullOrEmpty(migrationsAssembly))
                         options.MigrationsAssembly(migrationsAssembly);
+
+                    options.EnableRetryOnFailure();
                 });
             }
 
