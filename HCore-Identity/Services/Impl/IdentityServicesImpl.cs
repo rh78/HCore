@@ -855,7 +855,8 @@ namespace HCore.Identity.Services.Impl
                 }
 
                 var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
-                    externalUser.FindFirst(ClaimTypes.NameIdentifier);
+                    externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
+                    externalUser.FindFirst("nameidentifier");
 
                 if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value) || userIdClaim.Value.Length > ApiImpl.MaxExternalUuidLength)
                 {
