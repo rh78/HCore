@@ -674,6 +674,8 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
+
+            identityServerBuilder.AddConfigurationStoreCache();
         }
 
         private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
