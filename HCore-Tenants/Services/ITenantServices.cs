@@ -8,10 +8,10 @@ namespace HCore.Tenants.Services
 {
     public interface ITenantServices
     {
-        Task<ITenantInfo> CreateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction)
+        Task<ITenantInfo> CreateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync)
             where TCustomTenantSettingsDataType : new();
 
-        Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction, int? version = null)
+        Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync, int? version = null)
             where TCustomTenantSettingsDataType : new();
 
         Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync, int? version = null);
