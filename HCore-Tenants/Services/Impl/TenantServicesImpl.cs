@@ -46,7 +46,7 @@ namespace HCore.Tenants.Services.Impl
             _nowProvider = nowProvider;
         }
 
-        public async Task<ITenantInfo> CreateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction)
+        public async Task<ITenantInfo> CreateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync)
             where TCustomTenantSettingsDataType: new()
         {
             var tenantModel = new TenantModel();
@@ -191,7 +191,7 @@ namespace HCore.Tenants.Services.Impl
 
             var customTenantSettings = new TCustomTenantSettingsDataType();
 
-            var apply = applyCustomTenantSettingsAction.Invoke(customTenantSettings);
+            var apply = await applyCustomTenantSettingsActionAsync(customTenantSettings).ConfigureAwait(false);
 
             if (apply)
             {
@@ -289,7 +289,7 @@ namespace HCore.Tenants.Services.Impl
             return tenantInfo;
         }
 
-        public async Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, bool> applyCustomTenantSettingsAction, int? version = null)
+        public async Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync, int? version = null)
             where TCustomTenantSettingsDataType : new()
         {
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
@@ -535,8 +535,8 @@ namespace HCore.Tenants.Services.Impl
                 if (customTenantSettings == null)
                     customTenantSettings = new TCustomTenantSettingsDataType();
 
-                bool locallyChanged = applyCustomTenantSettingsAction.Invoke(customTenantSettings);
-
+                bool locallyChanged = await applyCustomTenantSettingsActionAsync(customTenantSettings).ConfigureAwait(false);
+                
                 if (locallyChanged)
                 {
                     tenantModelForUpdate.SetCustomTenantSettings(customTenantSettings);
