@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using HCore.Amqp.Processor.Hosts;
-using Microsoft.Azure.ServiceBus;
-using Microsoft.Azure.ServiceBus.Management;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -77,7 +77,7 @@ namespace HCore.Amqp.Messenger.Impl
         {
             Console.WriteLine("Initializing AMQP...");
 
-            var managementClient = new ManagementClient(_connectionString);
+            var serviceBusAdministrationClient = new ServiceBusAdministrationClient(_connectionString);
 
             for (int i = 0; i < _addresses.Length; i++)
             {
@@ -85,21 +85,21 @@ namespace HCore.Amqp.Messenger.Impl
                 var listenerCount = _addressListenerCounts[i];
                 var isSession = _isSessions[i];
 
-                if (await managementClient.TopicExistsAsync(address).ConfigureAwait(false))
+                if (await serviceBusAdministrationClient.TopicExistsAsync(address).ConfigureAwait(false))
                 {
                     throw new Exception($"Address {address} already exists as a topic");
                 }
 
-                if (!await managementClient.QueueExistsAsync(address).ConfigureAwait(false))
+                if (!await serviceBusAdministrationClient.QueueExistsAsync(address).ConfigureAwait(false))
                 {
                     Console.WriteLine($"Creating AMQP queue {address}...");
 
-                    await managementClient.CreateQueueAsync(new QueueDescription(address)
+                    await serviceBusAdministrationClient.CreateQueueAsync(new CreateQueueOptions(address)
                     {
                         LockDuration = TimeSpan.FromMinutes(1),
                         MaxDeliveryCount = int.MaxValue,
                         EnablePartitioning = true,
-                        MaxSizeInMB = 2048,
+                        MaxSizeInMegabytes = 2048,
                         RequiresSession = isSession
                     }).ConfigureAwait(false);
 
@@ -115,20 +115,20 @@ namespace HCore.Amqp.Messenger.Impl
                 var listenerCount = _topicAddressListenerCounts[i];
                 var isTopicSession = _isTopicSessions[i];
 
-                if (await managementClient.QueueExistsAsync(topicAddress).ConfigureAwait(false))
+                if (await serviceBusAdministrationClient.QueueExistsAsync(topicAddress).ConfigureAwait(false))
                 {
                     throw new Exception($"Address {topicAddress} already exists as a queue");
                 }
 
-                if (!await managementClient.TopicExistsAsync(topicAddress).ConfigureAwait(false))
+                if (!await serviceBusAdministrationClient.TopicExistsAsync(topicAddress).ConfigureAwait(false))
                 {
                     Console.WriteLine($"Creating AMQP topic {topicAddress}...");
 
-                    await managementClient.CreateTopicAsync(new TopicDescription(topicAddress)
+                    await serviceBusAdministrationClient.CreateTopicAsync(new CreateTopicOptions(topicAddress)
                     {
                         DefaultMessageTimeToLive = TimeSpan.FromMinutes(1),
                         EnablePartitioning = true,
-                        MaxSizeInMB = 2048
+                        MaxSizeInMegabytes = 2048
                     }).ConfigureAwait(false);
 
                     Console.WriteLine($"Created AMQP topic {topicAddress}");
@@ -136,9 +136,9 @@ namespace HCore.Amqp.Messenger.Impl
 
                 var subscriptionName = $"subscription_{Environment.MachineName}";
 
-                if (!await managementClient.SubscriptionExistsAsync(topicAddress, subscriptionName).ConfigureAwait(false))
+                if (!await serviceBusAdministrationClient.SubscriptionExistsAsync(topicAddress, subscriptionName).ConfigureAwait(false))
                 {
-                    await managementClient.CreateSubscriptionAsync(new SubscriptionDescription(topicAddress, subscriptionName)
+                    await serviceBusAdministrationClient.CreateSubscriptionAsync(new CreateSubscriptionOptions(topicAddress, subscriptionName)
                     {
                         RequiresSession = isTopicSession,
                         AutoDeleteOnIdle = TimeSpan.FromDays(1)
@@ -147,8 +147,6 @@ namespace HCore.Amqp.Messenger.Impl
 
                 await AddTopicClientAsync(listenerCount, topicAddress, subscriptionName, isTopicSession).ConfigureAwait(false);
             }
-
-            await managementClient.CloseAsync().ConfigureAwait(false);
 
             Console.WriteLine($"AMQP initialized successfully");
         }
@@ -243,20 +241,20 @@ namespace HCore.Amqp.Messenger.Impl
         {
             try
             {
-                var managementClient = new ManagementClient(_connectionString);
+                var serviceBusAdministrationClient = new ServiceBusAdministrationClient(_connectionString);
 
                 var address = _addresses.FirstOrDefault();
 
                 if (!string.IsNullOrEmpty(address))
                 {
-                    return await managementClient.QueueExistsAsync(address, cancellationToken).ConfigureAwait(false);
+                    return await serviceBusAdministrationClient.QueueExistsAsync(address, cancellationToken).ConfigureAwait(false);
                 }
 
                 var topicAddress = _topicAddresses.FirstOrDefault();
 
                 if (!string.IsNullOrEmpty(topicAddress))
                 {
-                    return await managementClient.TopicExistsAsync(address, cancellationToken).ConfigureAwait(false);
+                    return await serviceBusAdministrationClient.TopicExistsAsync(address, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (ServiceBusException)

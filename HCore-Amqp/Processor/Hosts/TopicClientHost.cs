@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using HCore.Amqp.Exceptions;
 using HCore.Amqp.Message;
 using HCore.Amqp.Messenger.Impl;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using BusMessage = Microsoft.Azure.ServiceBus.Message;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -26,8 +25,11 @@ namespace HCore.Amqp.Processor.Hosts
 
         protected string SubscriptionName { get; set; }
 
-        private TopicClient _topicClient;
-        private SubscriptionClient _subscriptionClient;
+        private ServiceBusClient _serviceBusClient;
+
+        private ServiceBusSender _serviceBusSender;
+        private ServiceBusProcessor _serviceBusProcessor;
+        private ServiceBusSessionProcessor _serviceBusSessionProcessor;
 
         private readonly ServiceBusMessengerImpl _messenger;
         
@@ -58,37 +60,47 @@ namespace HCore.Amqp.Processor.Hosts
         {
             await CloseAsync().ConfigureAwait(false);
 
-            _topicClient = new TopicClient(_connectionString, _lowLevelAddress);
+            _serviceBusClient = new ServiceBusClient(_connectionString);
 
-            _subscriptionClient = new SubscriptionClient(_connectionString, _lowLevelAddress, SubscriptionName);
+            _serviceBusSender = _serviceBusClient.CreateSender(_lowLevelAddress);
 
             if (_amqpListenerCount > 0)
             {
                 if (!_isTopicSession)
                 {
-                    _subscriptionClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                    _serviceBusProcessor = _serviceBusClient.CreateProcessor(_lowLevelAddress, SubscriptionName, new ServiceBusProcessorOptions()
                     {
                         MaxConcurrentCalls = _amqpListenerCount,
-                        AutoComplete = false,
-                        MaxAutoRenewDuration = TimeSpan.FromHours(2)
+                        AutoCompleteMessages = false,
+                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2)
                     });
+
+                    _serviceBusProcessor.ProcessMessageAsync += ProcessMessageAsync;
+                    _serviceBusProcessor.ProcessErrorAsync += ExceptionReceivedHandlerAsync;
+
+                    await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    _subscriptionClient.RegisterSessionHandler(ProcessSessionAsync, new SessionHandlerOptions(ExceptionReceivedHandlerAsync)
+                    _serviceBusSessionProcessor = _serviceBusClient.CreateSessionProcessor(_lowLevelAddress, SubscriptionName, new ServiceBusSessionProcessorOptions()
                     {
                         MaxConcurrentSessions = _amqpListenerCount,
-                        AutoComplete = false,
-                        MaxAutoRenewDuration = TimeSpan.FromHours(2),
-                        MessageWaitTimeout = TimeSpan.FromSeconds(1)
+                        AutoCompleteMessages = false,
+                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2),
+                        SessionIdleTimeout = TimeSpan.FromSeconds(1)
                     });
+
+                    _serviceBusSessionProcessor.ProcessMessageAsync += ProcessSessionAsync;
+                    _serviceBusSessionProcessor.ProcessErrorAsync += ExceptionReceivedHandlerAsync;
+
+                    await _serviceBusSessionProcessor.StartProcessingAsync().ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task ProcessMessageAsync(BusMessage message, CancellationToken token)
+        private async Task ProcessMessageAsync(ProcessMessageEventArgs args)
         {
-            SubscriptionClient subscriptionClient = _subscriptionClient;
+            var message = args.Message;
 
             try
             {
@@ -106,13 +118,13 @@ namespace HCore.Amqp.Processor.Hosts
                     await _messenger.ProcessMessageAsync(Address, null).ConfigureAwait(false);
                 }
 
-                await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await args.CompleteMessageAsync(message).ConfigureAwait(false);
             }
             catch (RescheduleException)
             {
                 // no log, this is "wanted"
 
-                await subscriptionClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await args.AbandonMessageAsync(message).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -120,12 +132,14 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        private async Task ProcessSessionAsync(IMessageSession session, BusMessage firstMessage, CancellationToken token)
+        private async Task ProcessSessionAsync(ProcessSessionMessageEventArgs args)
         {
-            IList<BusMessage> messages;
+            IList<ServiceBusReceivedMessage> messages;
 
             try
             {
+                var firstMessage = args.Message;
+
                 if (!string.Equals(firstMessage.ContentType, "application/json"))
                 {
                     throw new Exception($"Invalid content type for AMQP message: {firstMessage.ContentType}");
@@ -133,12 +147,14 @@ namespace HCore.Amqp.Processor.Hosts
 
                 // try to receive as many messages as possible
 
-                messages = new List<BusMessage>()
+                messages = new List<ServiceBusReceivedMessage>()
                 {
                     firstMessage
                 };
 
-                var otherMessages = await session.ReceiveAsync(int.MaxValue, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                var receiveActions = args.GetReceiveActions();
+
+                var otherMessages = await receiveActions.ReceiveMessagesAsync(int.MaxValue, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
 
                 if (otherMessages != null && otherMessages.Count > 0)
                 {
@@ -162,17 +178,23 @@ namespace HCore.Amqp.Processor.Hosts
 
             try
             {
-                var bodies = messages
-                    .Select(message => message.Body != null
-                        ? Encoding.UTF8.GetString(message.Body)
-                        : null)
-                    .ToList();
+                var bodies = messages.Select(message =>
+                {
+                    if (message.Body != null)
+                    {
+                        return Encoding.UTF8.GetString(message.Body);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }).ToList();
 
                 await _messenger.ProcessMessagesAsync(Address, bodies).ConfigureAwait(false);
 
                 foreach (var message in messages)
                 {
-                    await session.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                    await args.CompleteMessageAsync(message).ConfigureAwait(false);
                 }
             }
             catch (RescheduleException)
@@ -181,7 +203,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                 foreach (var message in messages)
                 {
-                    await session.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                    await args.AbandonMessageAsync(message).ConfigureAwait(false);
                 }
             }
             catch (Exception exception)
@@ -190,46 +212,58 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        private Task ExceptionReceivedHandlerAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private Task ExceptionReceivedHandlerAsync(ProcessErrorEventArgs processErrorEventArgs)
         {
-            _logger.LogError($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
+            _logger.LogError($"AMQP message handler encountered an exception: {processErrorEventArgs.Exception}");
 
-            var context = exceptionReceivedEventArgs.ExceptionReceivedContext;
+            var entityPath = processErrorEventArgs.EntityPath;
 
             Console.WriteLine("Exception context for troubleshooting:");
 
-            Console.WriteLine($"- Endpoint: {context.Endpoint}");
-            Console.WriteLine($"- Entity Path: {context.EntityPath}");
-            Console.WriteLine($"- Executing Action: {context.Action}");
+            Console.WriteLine($"- Entity Path: {entityPath}");
 
             return Task.CompletedTask;
         }
 
         public virtual async Task CloseAsync()
         {
-            if (_subscriptionClient != null)
+            if (_serviceBusProcessor != null)
             {
-                await _subscriptionClient.CloseAsync().ConfigureAwait(false);
+                await _serviceBusProcessor.DisposeAsync().ConfigureAwait(false);
 
-                _subscriptionClient = null;
+                _serviceBusProcessor = null;
             }
 
-            if (_topicClient != null)
+            if (_serviceBusSessionProcessor != null)
             {
-                await _topicClient.CloseAsync().ConfigureAwait(false);
+                await _serviceBusSessionProcessor.DisposeAsync().ConfigureAwait(false);
 
-                _topicClient = null;
+                _serviceBusSessionProcessor = null;
+            }
+
+            if (_serviceBusSender != null)
+            {
+                await _serviceBusSender.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusSender = null;
+            }
+
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusClient = null;
             }
         }
 
         public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null)
         {
-            TopicClient topicClient;
+            ServiceBusSender serviceBusSender;
             bool error;
 
             do
             {
-                topicClient = _topicClient;
+                serviceBusSender = _serviceBusSender;
                 error = false;
 
                 if (CancellationToken.IsCancellationRequested)
@@ -239,14 +273,14 @@ namespace HCore.Amqp.Processor.Hosts
 
                 try
                 {
-                    if (topicClient == null || topicClient.IsClosedOrClosing)
+                    if (serviceBusSender == null || serviceBusSender.IsClosed)
                     {
                         await InitializeAsync().ConfigureAwait(false);
 
-                        topicClient = _topicClient;
+                        serviceBusSender = _serviceBusSender;
                     }
 
-                    var message = new BusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
+                    var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
                     {
                         ContentType = "application/json",
                         MessageId = Guid.NewGuid().ToString()
@@ -254,11 +288,11 @@ namespace HCore.Amqp.Processor.Hosts
 
                     if (timeOffsetSeconds == null)
                     {
-                        await topicClient.SendAsync(message).ConfigureAwait(false);
+                        await serviceBusSender.SendMessageAsync(message).ConfigureAwait(false);
                     }
                     else
                     {
-                        await topicClient.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
+                        await serviceBusSender.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
@@ -269,7 +303,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                     try
                     {
-                        if (topicClient == _topicClient)
+                        if (serviceBusSender == _serviceBusSender)
                         {
                             // nobody else handled this before
 

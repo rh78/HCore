@@ -1,8 +1,9 @@
-﻿using HCore.Storage.Exceptions;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
+using HCore.Storage.Exceptions;
 using HCore.Web.Exceptions;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.Storage.Blob;
-using Microsoft.Azure.Storage.Core.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,40 +15,33 @@ namespace HCore.Storage.Client.Impl
 {
     public class AzureStorageClientImpl : IStorageClient
     {
-        private readonly CloudBlobClient _cloudBlobClient;
+        private readonly BlobServiceClient _blobServiceClient;
 
         public AzureStorageClientImpl(string connectionString)
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
-
-            _cloudBlobClient = storageAccount.CreateCloudBlobClient();            
+            _blobServiceClient = new BlobServiceClient(connectionString);
         }
 
         public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
         {
             try
             {
-                var container = _cloudBlobClient.GetContainerReference(containerName);
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-                var blockBlob = container.GetBlockBlobReference(fileName);
+                var blobClient = containerClient.GetBlobClient(fileName);
 
-                await blockBlob.DownloadToStreamAsync(stream).ConfigureAwait(false);
+                await blobClient.DownloadToAsync(stream).ConfigureAwait(false);
             }
-            catch (StorageException storageException)
+            catch (RequestFailedException requestFailedException)
             {
-                var requestInformation = storageException.RequestInformation;
+                var statusCode = requestFailedException.Status;
 
-                if (requestInformation == null)
-                    throw;
-
-                var httpStatusCode = requestInformation.HttpStatusCode;
-
-                if (httpStatusCode == (int)HttpStatusCode.NotFound)
+                if (statusCode == (int)HttpStatusCode.NotFound)
                 {
                     throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
                 }
-                else if (httpStatusCode == (int)HttpStatusCode.Forbidden ||
-                    httpStatusCode == (int)HttpStatusCode.Unauthorized)
+                else if (statusCode == (int)HttpStatusCode.Forbidden ||
+                    statusCode == (int)HttpStatusCode.Unauthorized)
                 {
                     throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
                 }
@@ -60,19 +54,19 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            var container = _cloudBlobClient.GetContainerReference(containerName);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
 
-            var blockBlob = container.GetBlockBlobReference(fileName);
+            var blobClient = containerClient.GetBlobClient(fileName);
 
             if (overwriteIfExists)
             {
-                await blockBlob.DeleteIfExistsAsync().ConfigureAwait(false);
+                await blobClient.DeleteIfExistsAsync().ConfigureAwait(false);
             }
             else
             {
-                bool alreadyExists = await blockBlob.ExistsAsync().ConfigureAwait(false);
+                bool alreadyExists = await blobClient.ExistsAsync().ConfigureAwait(false);
 
                 if (alreadyExists)
                 {
@@ -83,123 +77,148 @@ namespace HCore.Storage.Client.Impl
                 }
             }
 
-            blockBlob.Properties.ContentType = mimeType;
+            var blobHttpHeaders = new BlobHttpHeaders();
+
+            blobHttpHeaders.ContentType = mimeType;
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                blockBlob.Properties.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                blobHttpHeaders.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
             }
+
+            var metadata = new Dictionary<string, string>();
 
             if (additionalHeaders != null) {
                 foreach (var key in additionalHeaders.Keys)
                 {
-                    blockBlob.Metadata[key] = additionalHeaders[key];
+                    metadata[key] = additionalHeaders[key];
                 }
             }
 
-            Progress<StorageProgress> progress = null;
+            Progress<long> innerProgressHandler = null;
 
             if (progressHandler != null)
             {
-                progress = new Progress<StorageProgress>();
+                innerProgressHandler = new Progress<long>();
 
-                progress.ProgressChanged += (s, e) =>
+                innerProgressHandler.ProgressChanged += (sender, bytesTransferred) =>
                 {
-                    progressHandler.Report(e.BytesTransferred);
+                    progressHandler.Report(bytesTransferred);
                 };
             }
-            
-            await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
 
-            return blockBlob.Uri.AbsoluteUri;
+            var blobUploadOptions = new BlobUploadOptions()
+            {
+                ProgressHandler = innerProgressHandler,
+                HttpHeaders = blobHttpHeaders,
+                Metadata = metadata
+            };
+
+            if (!overwriteIfExists)
+            {
+                blobUploadOptions.Conditions = new BlobRequestConditions
+                {
+                    IfNoneMatch = new ETag("*")
+                };
+            }
+
+            await blobClient.UploadAsync(stream, blobUploadOptions).ConfigureAwait(false);
+
+            return blobClient.Uri.AbsoluteUri;
         }
 
         public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            var container = _cloudBlobClient.GetContainerReference(containerName);
-            
-            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            if (containerIsPublic && container.Properties.PublicAccess != BlobContainerPublicAccessType.Blob)
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            if (containerIsPublic)
             {
-                await container.SetPermissionsAsync(new BlobContainerPermissions()
+                var containerProperties = await containerClient.GetPropertiesAsync().ConfigureAwait(false);
+
+                if (containerProperties.Value.PublicAccess != PublicAccessType.Blob)
                 {
-                    PublicAccess = BlobContainerPublicAccessType.Blob
-                }).ConfigureAwait(false);
+                    await containerClient.SetAccessPolicyAsync(accessType: PublicAccessType.Blob).ConfigureAwait(false);
+                }
             }
 
-            var blockBlob = container.GetBlockBlobReference(fileName);
+            var blobClient = containerClient.GetBlobClient(fileName);
 
-            blockBlob.Properties.ContentType = mimeType;
+            var blobHttpHeaders = new BlobHttpHeaders();
+
+            blobHttpHeaders.ContentType = mimeType;
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                blockBlob.Properties.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                blobHttpHeaders.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
             }
+
+            var metadata = new Dictionary<string, string>();
 
             if (additionalHeaders != null)
             {
                 foreach (var key in additionalHeaders.Keys)
                 {
-                    blockBlob.Metadata[key] = additionalHeaders[key];
+                    metadata[key] = additionalHeaders[key];
                 }
             }
 
-            Progress<StorageProgress> progress = null;
+            Progress<long> innerProgressHandler = null;
 
             if (progressHandler != null)
             {
-                progress = new Progress<StorageProgress>();
+                innerProgressHandler = new Progress<long>();
 
-                progress.ProgressChanged += (s, e) =>
+                innerProgressHandler.ProgressChanged += (sender, bytesTransferred) =>
                 {
-                    progressHandler.Report(e.BytesTransferred);
+                    progressHandler.Report(bytesTransferred);
                 };
             }
 
-            await blockBlob.UploadFromStreamAsync(stream, accessCondition: null, options: null, operationContext: null, progress, default(CancellationToken)).ConfigureAwait(false);
+            var blobUploadOptions = new BlobUploadOptions()
+            {
+                ProgressHandler = innerProgressHandler,
+                HttpHeaders = blobHttpHeaders,
+                Metadata = metadata,
+                Conditions = new BlobRequestConditions
+                {
+                    IfNoneMatch = new ETag("*")
+                }
+            };
 
-            return blockBlob.Uri.AbsoluteUri;
+            await blobClient.UploadAsync(stream, blobUploadOptions).ConfigureAwait(false);
+
+            return blobClient.Uri.AbsoluteUri;
         }
 
         public async Task DeleteContainerAsync(string containerName)
         {
-            var container = _cloudBlobClient.GetContainerReference(containerName);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            await container.DeleteIfExistsAsync().ConfigureAwait(false);
+            await containerClient.DeleteIfExistsAsync().ConfigureAwait(false);
         }
 
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
 #pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
         {
-            var container = _cloudBlobClient.GetContainerReference(containerName);
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            var blockBlob = container.GetBlockBlobReference(fileName);
+            var blobClient = containerClient.GetBlobClient(fileName);
 
-            SharedAccessBlobPolicy sasBlobPolicy = new SharedAccessBlobPolicy();
-
-            sasBlobPolicy.SharedAccessExpiryTime = DateTimeOffset.Now.Add(validityTimeSpan);
-
-            sasBlobPolicy.Permissions = SharedAccessBlobPermissions.Read;
+            BlobSasBuilder blobSasBuilder = new BlobSasBuilder(BlobContainerSasPermissions.Read, DateTimeOffset.Now.Add(validityTimeSpan));
 
             string token;
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                var sasBlobHeaders = new SharedAccessBlobHeaders()
-                {
-                    ContentDisposition = $"attachment; filename=\"{downloadFileName}\""
-                };
-
-                token = blockBlob.GetSharedAccessSignature(sasBlobPolicy, sasBlobHeaders);
-            }
-            else
-            {
-                token = blockBlob.GetSharedAccessSignature(sasBlobPolicy);
+                blobSasBuilder.ContentDisposition = $"attachment; filename=\"{downloadFileName}\"";
             }
 
-            return $"{blockBlob.Uri}{token}";
+            var uri = blobClient.GenerateSasUri(blobSasBuilder);
+
+            return uri.AbsoluteUri;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.ServiceBus;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading;
@@ -10,6 +9,7 @@ using HCore.Amqp.Exceptions;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Messaging.ServiceBus;
 
 namespace HCore.Amqp.Processor.Hosts
 {
@@ -23,7 +23,11 @@ namespace HCore.Amqp.Processor.Hosts
 
         protected string Address { get; set; }
 
-        private QueueClient _queueClient;
+        private ServiceBusClient _serviceBusClient;
+
+        private ServiceBusSender _serviceBusSender;
+        private ServiceBusProcessor _serviceBusProcessor;
+        private ServiceBusSessionProcessor _serviceBusSessionProcessor;
 
         private readonly ServiceBusMessengerImpl _messenger;
 
@@ -53,35 +57,47 @@ namespace HCore.Amqp.Processor.Hosts
         {
             await CloseAsync().ConfigureAwait(false);
 
-            _queueClient = new QueueClient(_connectionString, _lowLevelAddress);
+            _serviceBusClient = new ServiceBusClient(_connectionString);
+
+            _serviceBusSender = _serviceBusClient.CreateSender(_lowLevelAddress);
 
             if (_amqpListenerCount > 0)
             {
                 if (!_isSession)
                 {
-                    _queueClient.RegisterMessageHandler(ProcessMessageAsync, new MessageHandlerOptions(ExceptionReceivedHandlerAsync)
+                    _serviceBusProcessor = _serviceBusClient.CreateProcessor(_lowLevelAddress, new ServiceBusProcessorOptions()
                     {
                         MaxConcurrentCalls = _amqpListenerCount,
-                        AutoComplete = false,
-                        MaxAutoRenewDuration = TimeSpan.FromHours(2)
+                        AutoCompleteMessages = false,
+                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2)
                     });
+
+                    _serviceBusProcessor.ProcessMessageAsync += ProcessMessageAsync;
+                    _serviceBusProcessor.ProcessErrorAsync += ExceptionReceivedHandlerAsync;
+
+                    await _serviceBusProcessor.StartProcessingAsync().ConfigureAwait(false);
                 }
                 else
                 {
-                    _queueClient.RegisterSessionHandler(ProcessSessionAsync, new SessionHandlerOptions(ExceptionReceivedHandlerAsync)
+                    _serviceBusSessionProcessor = _serviceBusClient.CreateSessionProcessor(_lowLevelAddress, new ServiceBusSessionProcessorOptions()
                     {
                         MaxConcurrentSessions = _amqpListenerCount,
-                        AutoComplete = false,
-                        MaxAutoRenewDuration = TimeSpan.FromHours(2),
-                        MessageWaitTimeout = TimeSpan.FromSeconds(1)
+                        AutoCompleteMessages = false,
+                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2),
+                        SessionIdleTimeout = TimeSpan.FromSeconds(1)
                     });
+
+                    _serviceBusSessionProcessor.ProcessMessageAsync += ProcessSessionAsync;
+                    _serviceBusSessionProcessor.ProcessErrorAsync += ExceptionReceivedHandlerAsync;
+
+                    await _serviceBusSessionProcessor.StartProcessingAsync().ConfigureAwait(false);
                 }
             }
         }
 
-        private async Task ProcessMessageAsync(Microsoft.Azure.ServiceBus.Message message, CancellationToken token)
+        private async Task ProcessMessageAsync(ProcessMessageEventArgs args)
         {
-            QueueClient queueClient = _queueClient;
+            var message = args.Message;
 
             try
             {
@@ -99,13 +115,13 @@ namespace HCore.Amqp.Processor.Hosts
                     await _messenger.ProcessMessageAsync(Address, null).ConfigureAwait(false);
                 }
 
-                await queueClient.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await args.CompleteMessageAsync(message).ConfigureAwait(false);
             }
             catch (RescheduleException)
             {
                 // no log, this is "wanted"
 
-                await queueClient.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                await args.AbandonMessageAsync(message).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -113,12 +129,14 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        private async Task ProcessSessionAsync(IMessageSession session, Microsoft.Azure.ServiceBus.Message firstMessage, CancellationToken token)
+        private async Task ProcessSessionAsync(ProcessSessionMessageEventArgs args)
         {
-            IList<Microsoft.Azure.ServiceBus.Message> messages;
+            IList<ServiceBusReceivedMessage> messages;
 
             try
             {
+                var firstMessage = args.Message;
+
                 if (!string.Equals(firstMessage.ContentType, "application/json"))
                 {
                     throw new Exception($"Invalid content type for AMQP message: {firstMessage.ContentType}");
@@ -126,12 +144,14 @@ namespace HCore.Amqp.Processor.Hosts
 
                 // try to receive as many messages as possible
 
-                messages = new List<Microsoft.Azure.ServiceBus.Message>()
+                messages = new List<ServiceBusReceivedMessage>()
                 {
                     firstMessage
                 };
 
-                var otherMessages = await session.ReceiveAsync(int.MaxValue, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                var receiveActions = args.GetReceiveActions();
+
+                var otherMessages = await receiveActions.ReceiveMessagesAsync(int.MaxValue, TimeSpan.FromSeconds(1)).ConfigureAwait(false);
 
                 if (otherMessages != null && otherMessages.Count > 0)
                 {
@@ -171,7 +191,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                 foreach (var message in messages)
                 {
-                    await session.CompleteAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                    await args.CompleteMessageAsync(message).ConfigureAwait(false);
                 }
             }
             catch (RescheduleException)
@@ -180,7 +200,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                 foreach (var message in messages)
                 {
-                    await session.AbandonAsync(message.SystemProperties.LockToken).ConfigureAwait(false);
+                    await args.AbandonMessageAsync(message).ConfigureAwait(false);
                 }
             }
             catch (Exception exception)
@@ -189,39 +209,58 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        private Task ExceptionReceivedHandlerAsync(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private Task ExceptionReceivedHandlerAsync(ProcessErrorEventArgs processErrorEventArgs)
         {
-            _logger.LogError($"AMQP message handler encountered an exception: {exceptionReceivedEventArgs.Exception}");
+            _logger.LogError($"AMQP message handler encountered an exception: {processErrorEventArgs.Exception}");
 
-            var context = exceptionReceivedEventArgs.ExceptionReceivedContext;
+            var entityPath = processErrorEventArgs.EntityPath;
 
             Console.WriteLine("Exception context for troubleshooting:");
 
-            Console.WriteLine($"- Endpoint: {context.Endpoint}");
-            Console.WriteLine($"- Entity Path: {context.EntityPath}");
-            Console.WriteLine($"- Executing Action: {context.Action}");
+            Console.WriteLine($"- Entity Path: {entityPath}");
 
             return Task.CompletedTask;
         }
 
         public virtual async Task CloseAsync()
         {
-            if (_queueClient != null)
+            if (_serviceBusProcessor != null)
             {
-                await _queueClient.CloseAsync().ConfigureAwait(false);
+                await _serviceBusProcessor.DisposeAsync().ConfigureAwait(false);
 
-                _queueClient = null;
+                _serviceBusProcessor = null;
+            }
+
+            if (_serviceBusSessionProcessor != null)
+            {
+                await _serviceBusSessionProcessor.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusSessionProcessor = null;
+            }
+
+            if (_serviceBusSender != null)
+            {
+                await _serviceBusSender.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusSender = null;
+            }
+
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusClient = null;
             }
         }
 
         public async Task SendMessageAsync(AMQPMessage messageBody, double? timeOffsetSeconds = null, string sessionId = null)
         {
-            QueueClient queueClient;
+            ServiceBusSender serviceBusSender;
             bool error;
 
             do
             {
-                queueClient = _queueClient;
+                serviceBusSender = _serviceBusSender;
                 error = false;
 
                 if (CancellationToken.IsCancellationRequested)
@@ -231,14 +270,14 @@ namespace HCore.Amqp.Processor.Hosts
 
                 try
                 {
-                    if (queueClient == null || queueClient.IsClosedOrClosing)
+                    if (serviceBusSender == null || serviceBusSender.IsClosed)
                     {
                         await InitializeAsync().ConfigureAwait(false);
 
-                        queueClient = _queueClient;
+                        serviceBusSender = _serviceBusSender;
                     }
 
-                    var message = new Microsoft.Azure.ServiceBus.Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
+                    var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageBody)))
                     {
                         ContentType = "application/json",
                         MessageId = Guid.NewGuid().ToString()
@@ -261,11 +300,11 @@ namespace HCore.Amqp.Processor.Hosts
 
                     if (timeOffsetSeconds == null)
                     {
-                        await queueClient.SendAsync(message).ConfigureAwait(false);
+                        await serviceBusSender.SendMessageAsync(message).ConfigureAwait(false);
                     }
                     else
                     {
-                        await queueClient.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
+                        await serviceBusSender.ScheduleMessageAsync(message, DateTimeOffset.UtcNow.AddSeconds((double)timeOffsetSeconds)).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
@@ -274,8 +313,9 @@ namespace HCore.Amqp.Processor.Hosts
 
                     await _semaphore.WaitAsync().ConfigureAwait(false);
 
-                    try { 
-                        if (queueClient == _queueClient)
+                    try 
+                    { 
+                        if (serviceBusSender == _serviceBusSender)
                         {
                             // nobody else handled this before
 
