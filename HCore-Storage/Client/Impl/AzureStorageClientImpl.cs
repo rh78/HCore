@@ -52,6 +52,38 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public async Task<long> GetFileSizeAsync(string containerName, string fileName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                var blobProperties = await blobClient.GetPropertiesAsync().ConfigureAwait(false);
+
+                return blobProperties.Value.ContentLength;
+            }
+            catch (RequestFailedException requestFailedException)
+            {
+                var statusCode = requestFailedException.Status;
+
+                if (statusCode == (int)HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (statusCode == (int)HttpStatusCode.Forbidden ||
+                    statusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
@@ -122,7 +154,7 @@ namespace HCore.Storage.Client.Impl
                 };
             }
 
-            await blobClient.UploadAsync(stream, blobUploadOptions).ConfigureAwait(false);
+            var blobContentInfo = await blobClient.UploadAsync(stream, blobUploadOptions).ConfigureAwait(false);
 
             return blobClient.Uri.AbsoluteUri;
         }

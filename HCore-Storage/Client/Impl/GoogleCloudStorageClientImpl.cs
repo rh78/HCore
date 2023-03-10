@@ -72,6 +72,42 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public async Task<long> GetFileSizeAsync(string containerName, string fileName)
+        {
+            var credential = GoogleCredential.FromJson(_credentialsJson);
+
+            try
+            {
+                using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+                {
+                    var blockBlob = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+
+                    if (blockBlob.Size == null)
+                    {
+                        throw new Exception("Block blob size not found");
+                    }
+
+                    return Convert.ToInt64(blockBlob.Size.Value);
+                }
+            }
+            catch (GoogleApiException e)
+            {
+                if (e.HttpStatusCode == HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (e.HttpStatusCode == HttpStatusCode.Forbidden ||
+                    e.HttpStatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+        }
+
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
