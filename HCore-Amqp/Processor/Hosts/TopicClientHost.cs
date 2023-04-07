@@ -126,6 +126,10 @@ namespace HCore.Amqp.Processor.Hosts
 
                 await args.AbandonMessageAsync(message).ConfigureAwait(false);
             }
+            catch (PostponeException)
+            {
+                // intentionally locking a message. By default, the lock duration is 1 minute
+            }
             catch (Exception exception)
             {
                 _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
@@ -205,6 +209,10 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     await args.AbandonMessageAsync(message).ConfigureAwait(false);
                 }
+            }
+            catch (PostponeException)
+            {
+                // intentionally locking messages. By default, the lock duration is 1 minute
             }
             catch (Exception exception)
             {
