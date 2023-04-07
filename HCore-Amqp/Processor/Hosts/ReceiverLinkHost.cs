@@ -64,6 +64,10 @@ namespace HCore.Amqp.Processor.Hosts
 
                                 _receiverLink.Release(message);
                             }
+                            catch (PostponeException)
+                            {
+                                // intentionally locking a message. By default, the lock duration is 1 minute
+                            }
                             catch (Exception exception)
                             {
                                 _logger.LogError($"Exception during processing AMQP message, rejecting: {exception}");
