@@ -211,7 +211,8 @@ namespace HCore.Amqp.Processor.Hosts
             }
             catch (PostponeException)
             {
-                // intentionally locking messages. By default, the lock duration is 1 minute
+                // intentionally locking messages. The default lock duration no longer works for sessions, so we add a delay now.
+
                 await Task.Delay(TimeSpan.FromSeconds(10));
             }
             catch (Exception exception)
