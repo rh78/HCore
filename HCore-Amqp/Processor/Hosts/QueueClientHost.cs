@@ -173,6 +173,8 @@ namespace HCore.Amqp.Processor.Hosts
             catch (Exception exception)
             {
                 _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+                
+                await Task.Delay(TimeSpan.FromSeconds(10));
 
                 return;
             }
@@ -209,11 +211,15 @@ namespace HCore.Amqp.Processor.Hosts
             }
             catch (PostponeException)
             {
-                // intentionally locking messages. By default, the lock duration is 1 minute
+                // intentionally locking messages. The default lock duration no longer works for sessions, so we add a delay now.
+
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Exception during processing AMQP message(s), not abandoning them for timeout (this will avoid duplicates): {exception}");
+
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
         }
 
