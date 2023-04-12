@@ -290,6 +290,12 @@
   </data>
   <data name="name_too_long" xml:space="preserve">
     <value>Der Name ist zu lang</value>
+  </data>  
+  <data name="public_name_missing" xml:space="preserve">
+    <value>Der öffentliche Name fehlt</value>
+  </data>
+  <data name="public_name_too_long" xml:space="preserve">
+    <value>Der öffentliche Name ist zu lang</value>
   </data>
   <data name="culture_missing" xml:space="preserve">
     <value>Die Sprache fehlt</value>
@@ -758,6 +764,9 @@
   </data>
   <data name="description_too_long" xml:space="preserve">
     <value>Die Beschreibung ist zu lang</value>
+  </data>
+  <data name="public_description_too_long" xml:space="preserve">
+    <value>Die öffentliche Beschreibung ist zu lang</value>
   </data>
   <data name="comment_too_long" xml:space="preserve">
     <value>Der Kommentar ist zu lang</value>

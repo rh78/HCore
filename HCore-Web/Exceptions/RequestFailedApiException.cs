@@ -77,6 +77,8 @@ namespace HCore.Web.Exceptions
         public const string NameMissing= "name_missing";
         public const string NameInvalid = "name_invalid";
         public const string NameTooLong = "name_too_long";
+        public const string PublicNameMissing = "public_name_missing";
+        public const string PublicNameTooLong = "public_name_too_long";
         public const string CultureMissing = "culture_missing";
         public const string CulturesMissing = "cultures_missing";
         public const string CultureInvalid = "culture_invalid";
@@ -190,6 +192,7 @@ namespace HCore.Web.Exceptions
         public const string ScopedTenantUuidInvalid = "scoped_tenant_uuid_invalid";
         public const string ExternalUuidTooLong = "external_uuid_too_long";
         public const string DescriptionTooLong = "description_too_long";
+        public const string PublicDescriptionTooLong = "public_description_too_long";
         public const string CommentTooLong = "comment_too_long";
         public const string JobIdMissing = "job_id_missing";
         public const string JobIdTooLong = "job_id_too_long";
