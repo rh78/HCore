@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -167,7 +168,9 @@ namespace HCore.Storage.Client.Impl
 
                 if (!string.IsNullOrEmpty(downloadFileName))
                 {
-                    blockBlob.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                    var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+
+                    blockBlob.ContentDisposition = contentDispositionHeader.ToString();
                 }
 
                 if (additionalHeaders != null)
@@ -244,7 +247,9 @@ namespace HCore.Storage.Client.Impl
 
                 if (!string.IsNullOrEmpty(downloadFileName))
                 {
-                    blockBlob.ContentDisposition = "attachment; filename=\"" + downloadFileName + "\"";
+                    var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+
+                    blockBlob.ContentDisposition = contentDispositionHeader.ToString();
                 }
 
                 if (additionalHeaders != null)
@@ -290,7 +295,9 @@ namespace HCore.Storage.Client.Impl
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                signedUrl = $"{signedUrl}&response-content-disposition={HttpUtility.UrlEncode($"attachment; filename=\"{downloadFileName}\"")}";
+                var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+
+                signedUrl = $"{signedUrl}&response-content-disposition={HttpUtility.UrlEncode(contentDispositionHeader.ToString())}";
             }
 
             return signedUrl;
