@@ -5,7 +5,6 @@ using HCore.Database.ElasticSearch.Impl;
 using System;
 using System.Reflection;
 using HCore.Database;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using HCore.Database.RetryStrategies;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -73,16 +72,35 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (implementation.Equals(DatabaseConstants.DatabaseImplementationSqlServer))
             {
-                services.AddDbContext<TContext>(options =>
+                services.AddDbContext<TContext>(
+                    options =>
+                    {
+                        options.UseSqlServer(connectionString,
+                            sqlServerOptions => sqlServerOptions
+                                .MigrationsAssembly(migrationsAssembly));
+                    },
+                    optionsLifetime: ServiceLifetime.Singleton);
+
+                services.AddPooledDbContextFactory<TContext>(options =>
                 {
                     options.UseSqlServer(connectionString,
                         sqlServerOptions => sqlServerOptions
                             .MigrationsAssembly(migrationsAssembly));
                 });
-            } 
+            }
             else
             {
-                services.AddDbContext<TContext>(options =>
+                services.AddDbContext<TContext>(
+                    options =>
+                    {
+                        options.UseNpgsql(connectionString,
+                            postgresOptions => postgresOptions
+                                .MigrationsAssembly(migrationsAssembly)
+                                .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
+                    }, 
+                    optionsLifetime: ServiceLifetime.Singleton);
+
+                services.AddPooledDbContextFactory<TContext>(options =>
                 {
                     options.UseNpgsql(connectionString,
                         postgresOptions => postgresOptions
