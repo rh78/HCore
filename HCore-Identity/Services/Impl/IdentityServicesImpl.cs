@@ -105,7 +105,7 @@ namespace HCore.Identity.Services.Impl
             {
                 if (!string.IsNullOrEmpty(devAdminSsoProtectedUserAccountEmailAddress))
                 {
-                    _devAdminSsoProtectedUserAccountEmailAddresses.Add(devAdminSsoProtectedUserAccountEmailAddress.Trim().ToUpper());
+                    _devAdminSsoProtectedUserAccountEmailAddresses.Add(devAdminSsoProtectedUserAccountEmailAddress.Trim().ToUpperInvariant());
                 }
             });
 
@@ -2084,7 +2084,7 @@ namespace HCore.Identity.Services.Impl
 
         private string Normalize(string input)
         {
-            return input?.Trim().ToUpper();
+            return input?.Trim().ToUpperInvariant();
         }
     }
 }
