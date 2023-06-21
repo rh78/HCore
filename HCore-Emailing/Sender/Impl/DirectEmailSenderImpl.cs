@@ -89,7 +89,7 @@ namespace HCore.Emailing.Sender.Impl
                 }
 
                 client.Port = emailSenderConfiguration.SmtpPort;
-                client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl;
+                client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl || emailSenderConfiguration.SmtpStartTls == true;
 
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.SmtpEmailAddress,
