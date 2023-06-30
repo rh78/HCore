@@ -283,6 +283,11 @@ namespace HCore.Storage.Client.Impl
             throw new NotImplementedException();
         }
 
+        public Task DeleteFileAsync(string containerName, string fileName)
+        {
+            throw new NotImplementedException();
+        }
+        
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson)
