@@ -236,6 +236,33 @@ namespace HCore.Storage.Client.Impl
             await containerClient.DeleteIfExistsAsync().ConfigureAwait(false);
         }
 
+        public async Task DeleteFileAsync(string containerName, string fileName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                await containerClient.DeleteBlobAsync(fileName).ConfigureAwait(false);
+            }
+            catch (RequestFailedException requestFailedException)
+            {
+                var statusCode = requestFailedException.Status;
+
+                if (statusCode == (int)HttpStatusCode.NotFound)
+                {
+                    return;
+                }
+                else if (statusCode == (int)HttpStatusCode.Forbidden || statusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
 #pragma warning restore CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
