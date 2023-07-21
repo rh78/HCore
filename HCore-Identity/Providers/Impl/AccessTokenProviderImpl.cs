@@ -120,8 +120,14 @@ namespace HCore.Identity.Providers.Impl
 
                 if (additionalClientClaims != null)
                 {
-                    foreach (Claim additionalClientClaim in additionalClientClaims) {
-                        tokenCreationRequest.ValidatedRequest.ClientClaims.Add(additionalClientClaim);
+                    var clientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims;
+
+                    foreach (Claim additionalClientClaim in additionalClientClaims) 
+                    {
+                        if (!clientClaims.Any(clientClaim => string.Equals(clientClaim.Type, additionalClientClaim.Type)))
+                        {
+                            clientClaims.Add(additionalClientClaim);
+                        }
                     }
                 }
 
