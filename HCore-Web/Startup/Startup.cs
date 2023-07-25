@@ -438,7 +438,13 @@ namespace HCore.Web.Startup
 
                 IsShuttingDown = true;
 
+                // make sure LB recognizes that we are shutting down (should happen after 5 secs)
+
+                await Task.Delay(10000);
+
                 // make sure AMQP does not start to process new things anymore
+
+                var shutdownReceiversTasks = new List<Task>();
 
                 if (_serviceProvider != null)
                 {
@@ -446,8 +452,15 @@ namespace HCore.Web.Startup
 
                     foreach (var amqpMessenger in amqpMessengers)
                     {
-                        await amqpMessenger.ShutdownReceiversAsync().ConfigureAwait(false);
+                        var shutdownReceiverTask = amqpMessenger.ShutdownReceiversAsync();
+
+                        shutdownReceiversTasks.Add(shutdownReceiverTask);
                     }
+                }
+
+                if (shutdownReceiversTasks.Any())
+                {
+                    await Task.WhenAll(shutdownReceiversTasks);
                 }
 
                 // now wait until all requests are processed
@@ -476,14 +489,23 @@ namespace HCore.Web.Startup
 
                 // now finalize
 
+                var shutdownTasks = new List<Task>();
+
                 if (_serviceProvider != null)
                 {
                     var amqpMessengers = _serviceProvider.GetServices<IAMQPMessenger>();
 
                     foreach (var amqpMessenger in amqpMessengers)
                     {
-                        await amqpMessenger.ShutdownAsync().ConfigureAwait(false);
+                        var shutdownTask = amqpMessenger.ShutdownAsync();
+
+                        shutdownTasks.Add(shutdownTask);
                     }
+                }
+
+                if (shutdownTasks.Any())
+                {
+                    await Task.WhenAll(shutdownTasks);
                 }
             }
             catch (Exception)
