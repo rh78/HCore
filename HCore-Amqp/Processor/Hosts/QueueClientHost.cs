@@ -236,6 +236,23 @@ namespace HCore.Amqp.Processor.Hosts
             return Task.CompletedTask;
         }
 
+        public async Task CloseReceiverAsync()
+        {
+            if (_serviceBusProcessor != null)
+            {
+                await _serviceBusProcessor.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusProcessor = null;
+            }
+
+            if (_serviceBusSessionProcessor != null)
+            {
+                await _serviceBusSessionProcessor.DisposeAsync().ConfigureAwait(false);
+
+                _serviceBusSessionProcessor = null;
+            }
+        }
+
         public virtual async Task CloseAsync()
         {
             if (_serviceBusProcessor != null)

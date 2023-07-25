@@ -8,7 +8,6 @@ using Azure.Messaging.ServiceBus.Administration;
 using HCore.Amqp.Message;
 using HCore.Amqp.Processor;
 using HCore.Amqp.Processor.Hosts;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -37,8 +36,10 @@ namespace HCore.Amqp.Messenger.Impl
 
         private readonly ILogger<ServiceBusMessengerImpl> _logger;
 
-        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IHostApplicationLifetime applicationLifetime, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
-            : this(connectionString, addresses, topicAddresses: new string[0], addressListenerCount, topicAddressListenerCount: new int[0], isSessions, new bool[0], applicationLifetime, messageProcessor, logger)
+        private int _openTasks = 0;
+
+        public ServiceBusMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IAMQPMessageProcessor messageProcessor, ILogger<ServiceBusMessengerImpl> logger)
+            : this(connectionString, addresses, topicAddresses: new string[0], addressListenerCount, topicAddressListenerCount: new int[0], isSessions, new bool[0], messageProcessor, logger)
         {
         }
 
@@ -50,7 +51,6 @@ namespace HCore.Amqp.Messenger.Impl
             int[] topicAddressListenerCount,
             bool[] isSessions,
             bool[] isTopicSessions,
-            IHostApplicationLifetime applicationLifetime,
             IAMQPMessageProcessor messageProcessor,
             ILogger<ServiceBusMessengerImpl> logger)
         {
@@ -69,8 +69,6 @@ namespace HCore.Amqp.Messenger.Impl
             _messageProcessor = messageProcessor;
 
             _logger = logger;
-
-            applicationLifetime.ApplicationStopping.Register(OnShutdown);
         }
 
         public async Task InitializeAsync()
@@ -169,7 +167,41 @@ namespace HCore.Amqp.Messenger.Impl
             await topicClientHost.InitializeAsync().ConfigureAwait(false);
         }
 
-        private void OnShutdown()
+        public async Task ShutdownReceiversAsync()
+        {
+            Console.WriteLine("Shutting down AMQP receivers...");
+
+            try
+            {
+                _cancellationTokenSource.Cancel();
+
+                foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
+                {
+                    await queueClientHost.CloseReceiverAsync().ConfigureAwait(false);
+                }
+
+                foreach (TopicClientHost topicClientHost in _topicClientHosts.Values)
+                {
+                    await topicClientHost.CloseReceiverAsync().ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                // ignore all shutdown faults
+            }
+
+            Console.WriteLine("AMQP receivers shut down successfully");
+        }
+
+        public async Task WaitForTaskCompletionAsync()
+        {
+            while (_openTasks > 0)
+            {
+                await Task.Delay(5000).ConfigureAwait(false);
+            }
+        }
+
+        public async Task ShutdownAsync()
         {
             Console.WriteLine("Shutting down AMQP...");
 
@@ -177,13 +209,15 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 _cancellationTokenSource.Cancel();
 
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
-                    queueClientHost.CloseAsync().Wait();
+                {
+                    await queueClientHost.CloseAsync().ConfigureAwait(false);
+                }
 
                 foreach (TopicClientHost topicClientHost in _topicClientHosts.Values)
-                    topicClientHost.CloseAsync().Wait();
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+                {
+                    await topicClientHost.CloseAsync().ConfigureAwait(false);
+                }
             }
             catch (Exception)
             {
@@ -195,23 +229,38 @@ namespace HCore.Amqp.Messenger.Impl
 
         public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
-            if (_topicClientHosts.TryGetValue(address, out var topicClientHost))
+            Interlocked.Increment(ref _openTasks);
+
+            try
             {
-                await topicClientHost.SendMessageAsync(body, timeOffsetSeconds);
+                if (_topicClientHosts.TryGetValue(address, out var topicClientHost))
+                {
+                    await topicClientHost.SendMessageAsync(body, timeOffsetSeconds);
 
-                return;
+                    return;
+                }
+
+                if (!_queueClientHosts.TryGetValue(address, out var queueClientHost))
+                {
+                    throw new Exception($"Address {address} is not available for AMQP sending");
+                }
+
+                await queueClientHost.SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
             }
-
-            if (!_queueClientHosts.TryGetValue(address, out var queueClientHost))
+            catch (Exception)
             {
-                throw new Exception($"Address {address} is not available for AMQP sending");
+                throw;
             }
-
-            await queueClientHost.SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+            finally
+            {
+                Interlocked.Decrement(ref _openTasks);
+            }
         }
 
         public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
+            Interlocked.Increment(ref _openTasks);
+
             try
             {
                 await ProcessMessageAsync(address, JsonConvert.SerializeObject(body)).ConfigureAwait(false);
@@ -225,16 +274,46 @@ namespace HCore.Amqp.Messenger.Impl
                     await SendMessageAsync(address, body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
                 }
             }
+            finally
+            {
+                Interlocked.Decrement(ref _openTasks);
+            }
         }
 
         public async Task ProcessMessageAsync(string address, string messageBodyJson)
         {
-            await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
+            Interlocked.Increment(ref _openTasks);
+
+            try
+            {
+                await _messageProcessor.ProcessMessageAsync(address, messageBodyJson).ConfigureAwait(false);
+            }
+            catch(Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _openTasks);
+            }
         }
 
         public async Task ProcessMessagesAsync(string address, List<string> messageBodyJsons)
         {
-            await _messageProcessor.ProcessMessagesAsync(address, messageBodyJsons).ConfigureAwait(false);
+            Interlocked.Increment(ref _openTasks);
+
+            try
+            {
+                await _messageProcessor.ProcessMessagesAsync(address, messageBodyJsons).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _openTasks);
+            }
         }
 
         public async Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)

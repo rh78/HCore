@@ -17,6 +17,10 @@ using HCore.Web.Json;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using HCore.Amqp.Processor;
+using HCore.Amqp.Messenger;
 
 namespace HCore.Web.Startup
 {
@@ -24,7 +28,11 @@ namespace HCore.Web.Startup
     {
         private bool _useHttps;
         private int _port;
-        
+
+        public static bool IsShuttingDown = false;
+
+        private IServiceProvider _serviceProvider;
+
         public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
@@ -240,6 +248,10 @@ namespace HCore.Web.Startup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            _serviceProvider = app.ApplicationServices;
+
+            ConfigureOpenRequestCounting(app, env);
+
             ConfigureExceptionHandling(app, env);
 
             ConfigureCore(app);
@@ -260,6 +272,10 @@ namespace HCore.Web.Startup
                 // at the startup.
                 app.ApplicationServices.GetService<IHtmlIncludesDetectorProvider>();
             }
+
+            var applicationLifecycle = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
+
+            applicationLifecycle.ApplicationStopping.Register(OnShutdown);
         }
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IWebHostEnvironment env)
@@ -349,6 +365,11 @@ namespace HCore.Web.Startup
             app.UseRequestLocalization();
         }
 
+        protected virtual void ConfigureOpenRequestCounting(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            app.UseMiddleware<OpenRequestsMiddleware>();
+        }
+
         protected virtual void ConfigureExceptionHandling(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<UnhandledExceptionHandlingMiddleware>();
@@ -388,6 +409,94 @@ namespace HCore.Web.Startup
                     var contextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
                     return detector.HtmlIncludesProviderForRequest(contextAccessor?.HttpContext);
                 });
+            }
+        }
+
+        private void OnShutdown()
+        {
+            Console.WriteLine("Shutting down...");
+
+            // make sure we block shutdown processes
+
+            var task = Task.Run(() => OnShutdownInternalAsync());
+
+            // now block shutdown as long as possible
+
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            task.Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+
+            Console.WriteLine("Shut down successfully");
+        }
+
+        private async Task OnShutdownInternalAsync()
+        {
+            try
+            {
+                // set health check shutting down flag
+                // from this point on this VM will get out of LB rotation, thus receive no new HTTP connections
+
+                IsShuttingDown = true;
+
+                // make sure AMQP does not start to process new things anymore
+
+                if (_serviceProvider != null)
+                {
+                    var amqpMessengers = _serviceProvider.GetServices<IAMQPMessenger>();
+
+                    foreach (var amqpMessenger in amqpMessengers)
+                    {
+                        await amqpMessenger.ShutdownReceiversAsync().ConfigureAwait(false);
+                    }
+                }
+
+                // now wait until all requests are processed
+
+                var waitForTaskCompletionTasks = new List<Task>();
+
+                if (_serviceProvider != null)
+                {
+                    var amqpMessengers = _serviceProvider.GetServices<IAMQPMessenger>();
+
+                    foreach (var amqpMessenger in amqpMessengers)
+                    {
+                        var waitForTaskCompletionTask = amqpMessenger.WaitForTaskCompletionAsync();
+
+                        waitForTaskCompletionTasks.Add(waitForTaskCompletionTask);
+                    }
+
+                    var waitForOpenRequestsTask = WaitForOpenRequestsAsync();
+                    waitForTaskCompletionTasks.Add(waitForOpenRequestsTask);
+                }
+
+                if (waitForTaskCompletionTasks.Any())
+                {
+                    await Task.WhenAll(waitForTaskCompletionTasks);
+                }
+
+                // now finalize
+
+                if (_serviceProvider != null)
+                {
+                    var amqpMessengers = _serviceProvider.GetServices<IAMQPMessenger>();
+
+                    foreach (var amqpMessenger in amqpMessengers)
+                    {
+                        await amqpMessenger.ShutdownAsync().ConfigureAwait(false);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // ignore all shutdown faults
+            }
+        }
+
+        private async Task WaitForOpenRequestsAsync()
+        {
+            while (OpenRequestsMiddleware.OpenRequests > 0)
+            {
+                await Task.Delay(5000).ConfigureAwait(false);
             }
         }
     }

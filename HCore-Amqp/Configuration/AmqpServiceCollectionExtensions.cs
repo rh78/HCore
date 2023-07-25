@@ -3,7 +3,6 @@ using HCore.Amqp.Processor;
 using System;
 using HCore.Amqp.Messenger;
 using HCore.Amqp.Messenger.Impl;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -62,13 +61,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     // Service Bus
 
-                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
+                    amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
                 }
                 else
                 {
                     // AMQP 1.0
 
-                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, serviceProvider.GetRequiredService<IHostApplicationLifetime>(), messageProcessor, serviceProvider.GetRequiredService<ILogger<AMQP10MessengerImpl>>());
+                    amqpMessenger = new AMQP10MessengerImpl(connectionString, addressesSplit, amqpListenerCounts, messageProcessor, serviceProvider.GetRequiredService<ILogger<AMQP10MessengerImpl>>());
                 }
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
