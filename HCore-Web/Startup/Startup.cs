@@ -19,7 +19,6 @@ using Microsoft.Extensions.Hosting;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using HCore.Amqp.Processor;
 using HCore.Amqp.Messenger;
 
 namespace HCore.Web.Startup
@@ -276,6 +275,7 @@ namespace HCore.Web.Startup
             var applicationLifecycle = app.ApplicationServices.GetRequiredService<IHostApplicationLifetime>();
 
             applicationLifecycle.ApplicationStopping.Register(OnShutdown);
+            applicationLifecycle.ApplicationStopped.Register(OnShutdownCompleted);
         }
 
         protected virtual void ConfigureLogging(IApplicationBuilder app, IWebHostEnvironment env)
@@ -414,7 +414,7 @@ namespace HCore.Web.Startup
 
         private void OnShutdown()
         {
-            Console.WriteLine("Shutting down...");
+            Console.WriteLine("Preparing shutdown...");
 
             // make sure we block shutdown processes
 
@@ -426,7 +426,7 @@ namespace HCore.Web.Startup
             task.Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
-            Console.WriteLine("Shut down successfully");
+            Console.WriteLine("Shutdown preparation completed successfully");
         }
 
         private async Task OnShutdownInternalAsync()
@@ -436,9 +436,15 @@ namespace HCore.Web.Startup
                 // set health check shutting down flag
                 // from this point on this VM will get out of LB rotation, thus receive no new HTTP connections
 
+                Console.WriteLine("Erroring health check service...");
+
                 IsShuttingDown = true;
 
+                Console.WriteLine("Health check service errored successfully, machine will be out of LB rotation in 5 secs");
+
                 // make sure AMQP does not start to process new things anymore
+
+                Console.WriteLine("Shutting down receivers, and waiting for LB rotation end (10 secs)...");
 
                 IAMQPMessenger amqpMessenger = null;
 
@@ -465,7 +471,45 @@ namespace HCore.Web.Startup
 
                 await Task.WhenAll(preShutdownTasks);
 
+                Console.WriteLine("Receivers shut down successfully, machine is now out of LB rotation");
+            }
+            catch (Exception)
+            {
+                // ignore all shutdown faults
+            }
+        }
+
+        private void OnShutdownCompleted()
+        {
+            Console.WriteLine("Completing shutdown...");
+
+            // make sure we block shutdown processes
+
+            var task = Task.Run(() => OnShutdownCompletedInternalAsync());
+
+            // now block shutdown as long as possible
+
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            task.Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+
+            Console.WriteLine("Shutdown completed successfully");
+        }
+
+        private async Task OnShutdownCompletedInternalAsync()
+        {
+            try
+            {
+                IAMQPMessenger amqpMessenger = null;
+
+                if (_serviceProvider != null)
+                {
+                    amqpMessenger = _serviceProvider.GetService<IAMQPMessenger>();
+                }
+
                 // now wait until all requests are processed
+
+                Console.WriteLine("Waiting until all AMQP tasks are being completed, and no open requests are left...");
 
                 var waitForTaskCompletionTasks = new List<Task>();
 
@@ -483,20 +527,26 @@ namespace HCore.Web.Startup
                     await Task.WhenAll(waitForTaskCompletionTasks);
                 }
 
+                Console.WriteLine("AMQP tasks are completed successfully, no open requests are left");
+
                 // now finalize
+
+                Console.WriteLine("Shutting down AMQP senders...");
 
                 var shutdownTasks = new List<Task>();
 
                 if (amqpMessenger != null)
                 {
                     var shutdownTask = amqpMessenger.ShutdownAsync();
-                    shutdownTasks.Add(shutdownTask);                    
+                    shutdownTasks.Add(shutdownTask);
                 }
 
                 if (shutdownTasks.Any())
                 {
                     await Task.WhenAll(shutdownTasks);
                 }
+
+                Console.WriteLine("AMQP senders shut down successfully");
             }
             catch (Exception)
             {
