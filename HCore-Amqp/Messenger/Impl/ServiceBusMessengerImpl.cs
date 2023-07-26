@@ -173,8 +173,6 @@ namespace HCore.Amqp.Messenger.Impl
 
             try
             {
-                _cancellationTokenSource.Cancel();
-
                 foreach (QueueClientHost queueClientHost in _queueClientHosts.Values)
                 {
                     await queueClientHost.CloseReceiverAsync().ConfigureAwait(false);

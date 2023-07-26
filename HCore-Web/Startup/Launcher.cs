@@ -94,7 +94,9 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
-            _hostBuilder.Build().Run();
+            var host = _hostBuilder.Build();
+
+            host.Run();
         }
 
         private void CreateWebHostBuilder()
@@ -218,6 +220,8 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Available threads: {availableWorkerThreads}/{availableWorkerThreads}");
 
+            webHostBuilder.UseShutdownTimeout(TimeSpan.FromMinutes(10));
+            
             webHostBuilder.UseKestrel((builderContext, options) =>
             {
                 X509Certificate2 defaultWebCertificate = null;
