@@ -192,7 +192,7 @@ namespace HCore.Web.Middleware
             if (context == null)
                 return false;
 
-            if (!_blockIE)
+            if (_blockIE != true)
                 return false;
 
             if (_webPort == null || context.Connection.LocalPort != _webPort)
