@@ -16,19 +16,23 @@ namespace HCore.Web.Middleware
 {
     internal class UnhandledExceptionHandlingMiddleware
     {
+        private static bool? _useWeb;
+        private static bool? _useApi;
+
+        private static int? _webPort;
+        private static int? _apiPort;
+
+        private static string _criticalFallbackUrl;
+        private static bool _tenantSelectorFallbackUrlSetup;
+        private static string _tenantSelectorFallbackUrl;
+
+        private static bool? _blockIE;
+
         private readonly RequestDelegate _next;
 
         private readonly ITranslationsProvider _translationsProvider;
 
         private readonly ILogger<UnhandledExceptionHandlingMiddleware> _logger;
-
-        private int? _webPort;
-        private int? _apiPort;
-
-        private string _criticalFallbackUrl;
-        private string _tenantSelectorFallbackUrl;
-
-        private readonly bool _blockIE;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
@@ -42,33 +46,50 @@ namespace HCore.Web.Middleware
             _next = next;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            bool useWeb = configuration.GetValue<bool>("WebServer:UseWeb");
-            bool useApi = configuration.GetValue<bool>("WebServer:UseApi");
+            _translationsProvider = serviceProvider.GetService<ITranslationsProvider>();
 
-            _blockIE = configuration.GetValue<bool>("WebServer:BlockIE");
+            _dataProtectionProvider = dataProtectionProvider;
 
-            _criticalFallbackUrl = configuration["WebServer:CriticalFallbackUrl"];
-            _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
+            if (_useWeb == null)
+            {
+                _useWeb = configuration.GetValue<bool>("WebServer:UseWeb");
+            }
 
-            if (string.IsNullOrEmpty(_criticalFallbackUrl))
-                throw new Exception("The critical fallback URL is not set");
+            if (_useApi == null)
+            {
+                _useApi = configuration.GetValue<bool>("WebServer:UseApi");
+            }
 
-            if (string.IsNullOrEmpty(_tenantSelectorFallbackUrl))
-                _tenantSelectorFallbackUrl = null;
+            if (_blockIE == null)
+            {
+                _blockIE = configuration.GetValue<bool>("WebServer:BlockIE");
+            }
 
-            if (useWeb)
+            if (_criticalFallbackUrl == null)
+            {
+                _criticalFallbackUrl = configuration["WebServer:CriticalFallbackUrl"];
+                if (string.IsNullOrEmpty(_criticalFallbackUrl))
+                    throw new Exception("The critical fallback URL is not set");
+            }
+
+            if (!_tenantSelectorFallbackUrlSetup)
+            {
+                _tenantSelectorFallbackUrl = configuration["Identity:Tenants:TenantSelectorFallbackUrl"];
+                if (string.IsNullOrEmpty(_tenantSelectorFallbackUrl))
+                    _tenantSelectorFallbackUrl = null;
+
+                _tenantSelectorFallbackUrlSetup = true;
+            }
+
+            if (_useWeb == true && _webPort == null)
             {
                 _webPort = configuration.GetValue<int>("WebServer:WebPort");
             }
 
-            if (useApi)
+            if (_useApi == true && _apiPort == null)
             {
                 _apiPort = configuration.GetValue<int>("WebServer:ApiPort");
             }
-
-            _translationsProvider = serviceProvider.GetService<ITranslationsProvider>();
-
-            _dataProtectionProvider = dataProtectionProvider;
         }
 
         public async Task InvokeAsync(HttpContext context)
