@@ -293,7 +293,7 @@ namespace HCore.Web.Startup
             app.UseCoreTranslations();
         }
 
-        public void ConfigureHttps(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void ConfigureHttps(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (_useHttps)
             {
@@ -306,7 +306,12 @@ namespace HCore.Web.Startup
                 {
                     // we can not do redirects to HTTPS if we have a health check running
 
-                    app.UseHttpsRedirection();
+                    var useCustomHttpsRedirection = Configuration.GetValue<bool>("WebServer:UseCustomHttpsRedirection");
+
+                    if (!useCustomHttpsRedirection)
+                    {
+                        app.UseHttpsRedirection();
+                    }
                 }
             }
         }
