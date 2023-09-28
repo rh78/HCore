@@ -20,4 +20,9 @@
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="MessagePack" />
+    <InternalsVisibleTo Include="MessagePack.Resolvers.DynamicObjectResolver" />
+    <InternalsVisibleTo Include="MessagePack.Resolvers.DynamicUnionResolver" />
+  </ItemGroup>
 </Project>
