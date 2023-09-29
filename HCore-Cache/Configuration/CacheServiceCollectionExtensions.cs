@@ -3,8 +3,6 @@ using HCore.Cache;
 using HCore.Cache.Impl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StackExchange.Redis.Extensions.Binary;
-using StackExchange.Redis.Extensions.Core.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -24,10 +22,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (implementation.Equals(CacheConstants.CacheImplementationRedis))
             {
-                // Switch at some point to NewtonsoftSerializer or SystemTextJsonSerializer
-                // https://docs.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/binaryformatter-serialization-obsolete
-                services.AddStackExchangeRedisExtensions<BinarySerializer>(o => configuration.GetSection("Cache:Redis").Get<RedisConfiguration>());
-
                 services.AddSingleton<ICache, RedisCacheImpl>();
             }
             else

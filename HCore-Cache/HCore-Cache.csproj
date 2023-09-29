@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis.Extensions.AspNetCore" Version="6.3.6" />    
-    <PackageReference Include="StackExchange.Redis.Extensions.Binary" Version="6.3.6" />
+    <PackageReference Include="MessagePack" Version="2.5.129" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
     <PackageReference Include="VIEApps.Enyim.Caching" Version="1.8.2012.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
 	  <PrivateAssets>all</PrivateAssets>
