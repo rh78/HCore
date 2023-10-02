@@ -22,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (implementation.Equals(CacheConstants.CacheImplementationRedis))
             {
+                services.AddSingleton<IRedisConnectionPool, RedisConnectionPoolImpl>();
                 services.AddSingleton<ICache, RedisCacheImpl>();
             }
             else
