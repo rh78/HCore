@@ -14,7 +14,7 @@ namespace HCore.Cache.Impl
 
         private readonly ICollection<ConnectionMultiplexer> _connectionMultiplexers = new List<ConnectionMultiplexer>();
 
-        private long _currentIndex = -1;
+        private int _currentIndex = -1;
 
         private bool _disposed;
 
