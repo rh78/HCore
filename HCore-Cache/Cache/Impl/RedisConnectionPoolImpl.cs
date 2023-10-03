@@ -48,6 +48,10 @@ namespace HCore.Cache.Impl
 
             index %= _connectionMultiplexers.Count;
 
+            index = index < 0 
+                ? Math.Abs(index) 
+                : index;
+
             return _connectionMultiplexers.ElementAt(index);
         }
 
