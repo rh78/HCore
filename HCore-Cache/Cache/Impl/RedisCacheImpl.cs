@@ -22,9 +22,9 @@ namespace HCore.Cache.Impl
             _redisConnectionPool = redisConnectionPool;
         }
 
-        private IDatabase Database => _redisConnectionPool
-            .GetConnectionMultiplexer()
-            .GetDatabase(_db);
+        private IConnectionMultiplexer ConnectionMultiplexer => _redisConnectionPool.GetConnectionMultiplexer();
+
+        private IDatabase Database => ConnectionMultiplexer.GetDatabase(_db);
 
         public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
@@ -81,22 +81,33 @@ namespace HCore.Cache.Impl
 
         public async Task InvalidateAsync(string key)
         {
-            await Database.KeyDeleteAsync(key, flags: CommandFlags.FireAndForget).ConfigureAwait(false);
+            await Database.KeyDeleteAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
         }
 
         public void Store(string key, object value, TimeSpan expiresIn)
         {
-            throw new NotImplementedException();
+            var bytes = Serialize(value);
+
+            Database.StringSet(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None);
         }
 
         public T Get<T>(string key) where T : class
         {
-            throw new NotImplementedException();
+            var redisValue = Database.StringGet(key, flags: CommandFlags.None);
+
+            if (redisValue.HasValue)
+            {
+                var result = Deserialize<T>(redisValue);
+
+                return result;
+            }
+
+            return default;
         }
 
         public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<bool?>(true);
+            return Task.FromResult<bool?>(ConnectionMultiplexer.IsConnected);
         }
 
         private static byte[] Serialize(object value)
