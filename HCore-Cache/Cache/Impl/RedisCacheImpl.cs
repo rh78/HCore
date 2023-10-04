@@ -1,10 +1,15 @@
-﻿using System;
+﻿#define DEBUG_SERIALIZATION
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions.Json;
 using MessagePack;
 using MessagePack.Resolvers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using StackExchange.Redis;
 
 namespace HCore.Cache.Impl
@@ -28,9 +33,38 @@ namespace HCore.Cache.Impl
 
         public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
+#if DEBUG_SERIALIZATION
+            var expected = JToken.Parse(JsonConvert.SerializeObject(value));
+#endif
+
             var bytes = Serialize(value);
 
             await Database.StringSetAsync(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None).ConfigureAwait(false);
+
+#if DEBUG_SERIALIZATION
+            if (expected != null)
+            {
+                var redisValue = await Database.StringGetAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
+
+                if (!redisValue.HasValue)
+                {
+                    throw new Exception("Redis value should be there, but is not");
+                }
+
+                var deserializedValue = MessagePackSerializer.Typeless.Deserialize(bytes, options: _messagePackSerializerOptions);
+
+                var actual = JToken.Parse(JsonConvert.SerializeObject(deserializedValue));
+
+                try
+                {
+                    actual.Should().BeEquivalentTo(expected);
+                }
+                catch (Exception e)
+                { 
+                    throw new Exception($"Value cached in Redis does not reproduce original value: {e}");
+                }
+            }
+#endif
         }
 
         public async Task<T> GetAsync<T>(string key) where T : class
