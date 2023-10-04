@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<PackageReference Include="MessagePack.Annotations" Version="2.5.129" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -19,5 +20,4 @@
     <ProjectReference Include="..\HCore-Storage\HCore-Storage.csproj" />
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
   </ItemGroup>
-
 </Project>
