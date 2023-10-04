@@ -56,21 +56,42 @@ namespace HCore.Cache.Impl
             }
         }
 
-        public T Get<T>(string key) where T : class
+        public string GetString(string key)
+        {
+            key = EnsureKeyMaxLengthNotReached(key);
+
+            return _memcachedClient.Get<string>(key);
+        }
+
+        public T GetObject<T>(string key) where T : class
         {
             key = EnsureKeyMaxLengthNotReached(key);
 
             return _memcachedClient.Get<T>(key);
         }
 
-        public async Task<T> GetAsync<T>(string key) where T : class
+        public async Task<string> GetStringAsync(string key)
+        {
+            key = EnsureKeyMaxLengthNotReached(key);
+
+            return await _memcachedClient.GetAsync<string>(key).ConfigureAwait(false);
+        }
+
+        public async Task<T> GetObjectAsync<T>(string key) where T : class
         {
             key = EnsureKeyMaxLengthNotReached(key);
 
             return await _memcachedClient.GetAsync<T>(key).ConfigureAwait(false);
         }
 
-        public async Task<IDictionary<string, T>> GetAsync<T>(IEnumerable<string> keys) where T : class
+        public async Task<IDictionary<string, string>> GetStringsAsync(IEnumerable<string> keys)
+        {
+            keys = EnsureKeyMaxLengthNotReached(keys);
+
+            return await _memcachedClient.GetAsync<string>(keys).ConfigureAwait(false);
+        }
+
+        public async Task<IDictionary<string, T>> GetObjectsAsync<T>(IEnumerable<string> keys) where T : class
         {
             keys = EnsureKeyMaxLengthNotReached(keys);
 
