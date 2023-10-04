@@ -72,6 +72,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public long TenantUuid { get; set; }
 
         [field: NonSerialized]
+        [MessagePack.IgnoreMember]
+
         public TenantModel Tenant { get; set; }
 
         [ConcurrencyCheck]

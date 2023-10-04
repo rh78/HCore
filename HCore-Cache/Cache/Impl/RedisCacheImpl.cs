@@ -1,105 +1,127 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Distributed;
+using MessagePack;
+using MessagePack.Resolvers;
+using StackExchange.Redis;
 
 namespace HCore.Cache.Impl
 {
     internal class RedisCacheImpl : ICache
     {
-        private readonly IDistributedCache _distributedCache;
+        private const int _db = 0;
 
-        public RedisCacheImpl(IDistributedCache distributedCache)
+        private static readonly MessagePackSerializerOptions _messagePackSerializerOptions = MessagePackSerializerOptions.Standard.WithResolver(TypelessObjectResolver.Instance);
+
+        private readonly IRedisConnectionPool _redisConnectionPool;
+
+        public RedisCacheImpl(IRedisConnectionPool redisConnectionPool)
         {
-            _distributedCache = distributedCache;
+            _redisConnectionPool = redisConnectionPool;
         }
 
-        public void Store(string key, object value, TimeSpan expiresIn)
-        {
-            _distributedCache.Set(key, ToByteArray(value), new DistributedCacheEntryOptions()
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.Add(expiresIn)
-            });
-        }
+        private IConnectionMultiplexer ConnectionMultiplexer => _redisConnectionPool.GetConnectionMultiplexer();
+
+        private IDatabase Database => ConnectionMultiplexer.GetDatabase(_db);
 
         public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
         {
-            await _distributedCache.SetAsync(key, ToByteArray(value), new DistributedCacheEntryOptions()
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.Add(expiresIn)
-            }).ConfigureAwait(false);
-        }
+            var bytes = Serialize(value);
 
-        public T Get<T>(string key) where T : class
-        {
-            byte[] value = _distributedCache.Get(key);
-
-            if (value == null)
-                return null;
-
-            return FromByteArray<T>(value);
+            await Database.StringSetAsync(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None).ConfigureAwait(false);
         }
 
         public async Task<T> GetAsync<T>(string key) where T : class
         {
-            byte[] value = await _distributedCache.GetAsync(key).ConfigureAwait(false);
+            var redisValue = await Database.StringGetAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
 
-            if (value == null)
-                return null;
+            if (redisValue.HasValue)
+            {
+                var result = Deserialize<T>(redisValue);
 
-            return FromByteArray<T>(value);
+                return result;
+            }
+
+            return default;
         }
 
-        public Task<IDictionary<string, T>> GetAsync<T>(IEnumerable<string> keys) where T : class
+        public async Task<IDictionary<string, T>> GetAsync<T>(IEnumerable<string> keys) where T : class
         {
-            throw new NotImplementedException();
+            if (keys == null)
+            {
+                return default;
+            }
+
+            var redisKeys = keys
+                .Where(k => !string.IsNullOrEmpty(k))
+                .Select(k => (RedisKey)k)
+                .ToArray();
+
+            var redisValues = await Database.StringGetAsync(redisKeys, flags: CommandFlags.None).ConfigureAwait(false);
+
+            var valuesById = new Dictionary<string, T>(redisKeys.Length);
+
+            for (int i = 0; i < redisValues.Length; i++)
+            {
+                RedisValue redisValue = redisValues[i];
+
+                var key = redisKeys[i];
+
+                var value = redisValue != RedisValue.Null
+                    ? Deserialize<T>(redisValue)
+                    : default;
+
+                valuesById.Add(key, value);
+            }
+
+            return valuesById;
         }
 
         public async Task InvalidateAsync(string key)
         {
-            await _distributedCache.RemoveAsync(key).ConfigureAwait(false);
+            await Database.KeyDeleteAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
         }
 
-        private byte[] ToByteArray<T>(T value)
+        public void Store(string key, object value, TimeSpan expiresIn)
         {
-            if (value == null)
-            {
-                return null;
-            }
+            var bytes = Serialize(value);
 
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-#pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
-                binaryFormatter.Serialize(memoryStream, value);
-#pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
-                return memoryStream.ToArray();
-            }
+            Database.StringSet(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None);
         }
 
-        private T FromByteArray<T>(byte[] byteArray) where T : class
+        public T Get<T>(string key) where T : class
         {
-            if (byteArray == null)
+            var redisValue = Database.StringGet(key, flags: CommandFlags.None);
+
+            if (redisValue.HasValue)
             {
-                return default(T);
+                var result = Deserialize<T>(redisValue);
+
+                return result;
             }
 
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-
-            using (MemoryStream memoryStream = new MemoryStream(byteArray))
-            {
-#pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
-                return binaryFormatter.Deserialize(memoryStream) as T;
-#pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
-            }
+            return default;
         }
 
         public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult<bool?>(true);
+            return Task.FromResult<bool?>(ConnectionMultiplexer.IsConnected);
+        }
+
+        private static byte[] Serialize(object value)
+        {
+            var bytes = MessagePackSerializer.Typeless.Serialize(value, options: _messagePackSerializerOptions);
+
+            return bytes;
+        }
+
+        private static T Deserialize<T>(byte[] bytes)
+        {
+            var value = MessagePackSerializer.Typeless.Deserialize(bytes, options: _messagePackSerializerOptions);
+
+            return (T)value;
         }
     }
 }
