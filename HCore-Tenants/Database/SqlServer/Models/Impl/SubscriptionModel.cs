@@ -73,7 +73,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         [field: NonSerialized]
         [MessagePack.IgnoreMember]
-
         public TenantModel Tenant { get; set; }
 
         [ConcurrencyCheck]
