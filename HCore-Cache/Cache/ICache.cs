@@ -7,7 +7,7 @@ namespace HCore.Cache
 {
     public interface ICache
     {
-        Task StoreAsync(string key, object value, TimeSpan expiresIn);
+        Task StoreAsync<T>(string key, T value, TimeSpan expiresIn);
 
         Task<string> GetStringAsync(string key);
         Task<T> GetObjectAsync<T>(string key) where T : class;
