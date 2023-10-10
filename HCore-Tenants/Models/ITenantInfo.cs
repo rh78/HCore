@@ -1,13 +1,10 @@
 ﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
-using HCore.Tenants.Models.Impl;
-using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
 namespace HCore.Tenants.Models
 {
-    [Union(0, typeof(TenantInfoImpl))]
     public interface ITenantInfo
     {
         long DeveloperUuid { get; }

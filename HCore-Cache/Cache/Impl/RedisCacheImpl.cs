@@ -8,7 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagePack;
+using MessagePack.Formatters;
 using MessagePack.Resolvers;
+using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
 #if DEBUG_SERIALIZATION
@@ -26,19 +28,26 @@ namespace HCore.Cache.Impl
 {
     internal class RedisCacheImpl : ICache
     {
-        private static readonly MessagePackSerializerOptions _messagePackSerializerOptions = ContractlessStandardResolverAllowPrivate.Options
-            .WithResolver(CompositeResolver.Create(resolvers: new IFormatterResolver[]
-            {
-                ContractlessStandardResolverAllowPrivate.Instance
-            }));
+        private readonly MessagePackSerializerOptions _messagePackSerializerOptions;
 
         private const int _db = 0;
 
         private readonly IRedisConnectionPool _redisConnectionPool;
 
-        public RedisCacheImpl(IRedisConnectionPool redisConnectionPool)
+        public RedisCacheImpl(IRedisConnectionPool redisConnectionPool, IServiceProvider serviceProvider)
         {
             _redisConnectionPool = redisConnectionPool;
+
+            var messagePackFormatters = serviceProvider.GetServices<IMessagePackFormatter>()?.ToArray();
+
+            var compositeResolver = CompositeResolver.Create(
+                formatters: messagePackFormatters,
+                resolvers: new IFormatterResolver[]
+                {
+                    ContractlessStandardResolverAllowPrivate.Instance
+                });
+
+            _messagePackSerializerOptions = ContractlessStandardResolverAllowPrivate.Options.WithResolver(compositeResolver);
         }
 
         private IConnectionMultiplexer ConnectionMultiplexer => _redisConnectionPool.GetConnectionMultiplexer();
@@ -236,7 +245,7 @@ namespace HCore.Cache.Impl
             return Task.FromResult<bool?>(ConnectionMultiplexer.IsConnected);
         }
 
-        private static byte[] Serialize<T>(T value)
+        private byte[] Serialize<T>(T value)
         {
             byte[] bytes = null;
 
@@ -295,7 +304,7 @@ namespace HCore.Cache.Impl
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        private static T DeserializeObject<T>(byte[] bytes)
+        private T DeserializeObject<T>(byte[] bytes)
         {
             if (bytes == null)
             {

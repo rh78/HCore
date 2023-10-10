@@ -3,6 +3,7 @@ using HCore.Tenants.Providers;
 using HCore.Tenants.Providers.Impl;
 using HCore.Tenants.Services;
 using HCore.Tenants.Services.Impl;
+using MessagePack.Formatters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddSqlDatabase<TStartup, SqlServerTenantDbContext>("Tenant", configuration);
 
+            services.AddSingleton<IMessagePackFormatter, TenantInfoMessagePackFormatterImpl>();
             services.AddSingleton<ITenantDataProvider, TenantDataProviderImpl>();
            
             services.TryAddScoped(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.GetTenantInfo());
