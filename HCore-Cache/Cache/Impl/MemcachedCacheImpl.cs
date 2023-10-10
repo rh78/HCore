@@ -28,21 +28,7 @@ namespace HCore.Cache.Impl
             _logger = logger;
         }
 
-        public void Store(string key, object value, TimeSpan expiresIn)
-        {
-            key = EnsureKeyMaxLengthNotReached(key);
-
-            int cacheMinutes = (int)expiresIn.TotalMinutes;
-
-            bool successfullyWritten = _memcachedClient.Set(key, value, cacheMinutes);
-
-            if (!successfullyWritten)
-            {
-                _logger.LogWarning($"Value for key {key} could not be written to Memcached cache");
-            }
-        }
-
-        public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
+        public async Task StoreAsync<T>(string key, T value, TimeSpan expiresIn)
         {
             key = EnsureKeyMaxLengthNotReached(key);
 
@@ -54,20 +40,6 @@ namespace HCore.Cache.Impl
             {
                 _logger.LogWarning($"Value for key {key} could not be written to Memcached cache");
             }
-        }
-
-        public string GetString(string key)
-        {
-            key = EnsureKeyMaxLengthNotReached(key);
-
-            return _memcachedClient.Get<string>(key);
-        }
-
-        public T GetObject<T>(string key) where T : class
-        {
-            key = EnsureKeyMaxLengthNotReached(key);
-
-            return _memcachedClient.Get<T>(key);
         }
 
         public async Task<string> GetStringAsync(string key)
