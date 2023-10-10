@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HCore.Web.API.Impl;
+using Newtonsoft.Json;
 
 namespace HCore.Tenants.Database.SqlServer.Models.Impl
 {
@@ -71,6 +72,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public long TenantUuid { get; set; }
 
+        [JsonIgnore]
         [field: NonSerialized]
         [MessagePack.IgnoreMember]
         public TenantModel Tenant { get; set; }

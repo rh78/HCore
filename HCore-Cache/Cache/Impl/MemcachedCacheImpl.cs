@@ -28,7 +28,7 @@ namespace HCore.Cache.Impl
             _logger = logger;
         }
 
-        public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
+        public async Task StoreAsync<T>(string key, T value, TimeSpan expiresIn)
         {
             key = EnsureKeyMaxLengthNotReached(key);
 

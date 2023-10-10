@@ -1,41 +1,60 @@
 ﻿// #define DEBUG_SERIALIZATION
-#define BINARY_FORMATTER
+// #define BINARY_FORMATTER
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CacheUtils;
-using FluentAssertions.Json;
 using MessagePack;
+using MessagePack.Formatters;
 using MessagePack.Resolvers;
+using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
+
+#if DEBUG_SERIALIZATION
+using FluentAssertions.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using StackExchange.Redis;
+#endif
+
+#if BINARY_FORMATTER
+using System.Runtime.Serialization.Formatters.Binary;
+using CacheUtils;
+#endif
 
 namespace HCore.Cache.Impl
 {
     internal class RedisCacheImpl : ICache
     {
-        private const int _db = 0;
+        private readonly MessagePackSerializerOptions _messagePackSerializerOptions;
 
-        private static readonly MessagePackSerializerOptions _messagePackSerializerOptions = MessagePackSerializerOptions.Standard.WithResolver(TypelessObjectResolver.Instance);
+        private const int _db = 0;
 
         private readonly IRedisConnectionPool _redisConnectionPool;
 
-        public RedisCacheImpl(IRedisConnectionPool redisConnectionPool)
+        public RedisCacheImpl(IRedisConnectionPool redisConnectionPool, IServiceProvider serviceProvider)
         {
             _redisConnectionPool = redisConnectionPool;
+
+            var messagePackFormatters = serviceProvider.GetServices<IMessagePackFormatter>()?.ToArray();
+
+            var compositeResolver = CompositeResolver.Create(
+                formatters: messagePackFormatters,
+                resolvers: new IFormatterResolver[]
+                {
+                    ContractlessStandardResolverAllowPrivate.Instance
+                });
+
+            _messagePackSerializerOptions = ContractlessStandardResolverAllowPrivate.Options.WithResolver(compositeResolver);
         }
 
         private IConnectionMultiplexer ConnectionMultiplexer => _redisConnectionPool.GetConnectionMultiplexer();
 
         private IDatabase Database => ConnectionMultiplexer.GetDatabase(_db);
 
-        public async Task StoreAsync(string key, object value, TimeSpan expiresIn)
+        public async Task StoreAsync<T>(string key, T value, TimeSpan expiresIn)
         {
 #if DEBUG_SERIALIZATION
             JToken expected = null;
@@ -49,7 +68,6 @@ namespace HCore.Cache.Impl
                 // ignore
             }
 #endif
-
             var bytes = Serialize(value);
 
             if (bytes == null)
@@ -69,9 +87,13 @@ namespace HCore.Cache.Impl
                     throw new Exception("Redis value should be there, but is not");
                 }
 
-                var typeCode = value == null ? TypeCode.DBNull : Type.GetTypeCode(value.GetType());
+                var typeCode = value == null
+                    ? TypeCode.DBNull
+                    : Type.GetTypeCode(value.GetType());
 
-                var deserializedValue = typeCode == TypeCode.String ? DeserializeString(bytes) : DeserializeObject(bytes);
+                object deserializedValue = typeCode == TypeCode.String
+                    ? DeserializeString(bytes)
+                    : DeserializeObject<T>(bytes);
 
                 var actual = JToken.Parse(JsonConvert.SerializeObject(deserializedValue));
 
@@ -80,7 +102,7 @@ namespace HCore.Cache.Impl
                     actual.Should().BeEquivalentTo(expected);
                 }
                 catch (Exception e)
-                { 
+                {
                     throw new Exception($"Value cached in Redis does not reproduce original value: {e}");
                 }
             }
@@ -107,7 +129,7 @@ namespace HCore.Cache.Impl
 
             if (redisValue.HasValue)
             {
-                var result = (T)DeserializeObject(redisValue);
+                var result = DeserializeObject<T>(redisValue);
 
                 return result;
             }
@@ -170,7 +192,7 @@ namespace HCore.Cache.Impl
                 var key = redisKeys[i];
 
                 var value = redisValue != RedisValue.Null
-                    ? (T)DeserializeObject(redisValue)
+                    ? DeserializeObject<T>(redisValue)
                     : default;
 
                 valuesById.Add(key, value);
@@ -217,7 +239,7 @@ namespace HCore.Cache.Impl
             while (true);
         }
 
-        private static byte[] Serialize(object value)
+        private byte[] Serialize<T>(T value)
         {
             byte[] bytes = null;
 
@@ -231,7 +253,7 @@ namespace HCore.Cache.Impl
                     return null;
 
                 case TypeCode.String:
-                    bytes = Encoding.UTF8.GetBytes((string)value);
+                    bytes = Encoding.UTF8.GetBytes(value as string);
                     break;
 
                 default:
@@ -253,7 +275,14 @@ namespace HCore.Cache.Impl
                     break;
             }
 #else
-            bytes = MessagePackSerializer.Typeless.Serialize(value, options: _messagePackSerializerOptions);
+            if (value is string stringValue)
+            {
+                bytes = Encoding.UTF8.GetBytes(stringValue);
+            }
+            else
+            {
+                bytes = MessagePackSerializer.Serialize(value, _messagePackSerializerOptions);
+            }
 #endif
 
             return bytes;
@@ -268,25 +297,25 @@ namespace HCore.Cache.Impl
 
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
-        
-        private static object DeserializeObject(byte[] bytes)
+
+        private T DeserializeObject<T>(byte[] bytes)
         {
             if (bytes == null)
             {
-                return null;
+                return default;
             }
 
-            object value;
+            T value;
 
 #if BINARY_FORMATTER
             using (var stream = Helper.CreateMemoryStream(bytes, 0, bytes.Length))
             {
 #pragma warning disable SYSLIB0011 // Typ oder Element ist veraltet
-                value = new BinaryFormatter().Deserialize(stream);
+                value = (T)new BinaryFormatter().Deserialize(stream);
 #pragma warning restore SYSLIB0011 // Typ oder Element ist veraltet
             }
 #else
-            value = MessagePackSerializer.Typeless.Deserialize(bytes, options: _messagePackSerializerOptions);
+            value = MessagePackSerializer.Deserialize<T>(bytes, _messagePackSerializerOptions);
 #endif
 
             return value;
