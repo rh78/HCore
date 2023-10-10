@@ -18,12 +18,6 @@ namespace HCore.Cache
 
         Task InvalidateAsync(string key);
         
-        void Store(string key, object value, TimeSpan expiresIn);
-
-        string GetString(string key);
-
-        T GetObject<T>(string key) where T : class;
-
         Task<bool?> IsAvailableAsync(CancellationToken cancellationToken = default);
     }
 }
