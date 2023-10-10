@@ -75,11 +75,12 @@ namespace HCore.Cache.Impl
                 return;
             }
 
-            await Database.StringSetAsync(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None).ConfigureAwait(false);
+            await ExecuteWithFallbackAsync(() => Database.StringSetAsync(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None)).ConfigureAwait(false);
+
 #if DEBUG_SERIALIZATION
             if (expected != null)
             {
-                var redisValue = await Database.StringGetAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
+                var redisValue = await ExecuteWithFallbackAsync(() => Database.StringGetAsync(key, flags: CommandFlags.None)).ConfigureAwait(false);
 
                 if (!redisValue.HasValue)
                 {
@@ -110,7 +111,7 @@ namespace HCore.Cache.Impl
 
         public async Task<string> GetStringAsync(string key)
         {
-            var redisValue = await Database.StringGetAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
+            var redisValue = await ExecuteWithFallbackAsync(() => Database.StringGetAsync(key, flags: CommandFlags.None)).ConfigureAwait(false);
 
             if (redisValue.HasValue)
             {
@@ -124,7 +125,7 @@ namespace HCore.Cache.Impl
 
         public async Task<T> GetObjectAsync<T>(string key) where T : class
         {
-            var redisValue = await Database.StringGetAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
+            var redisValue = await ExecuteWithFallbackAsync(() => Database.StringGetAsync(key, flags: CommandFlags.None)).ConfigureAwait(false);
 
             if (redisValue.HasValue)
             {
@@ -148,7 +149,7 @@ namespace HCore.Cache.Impl
                 .Select(k => (RedisKey)k)
                 .ToArray();
 
-            var redisValues = await Database.StringGetAsync(redisKeys, flags: CommandFlags.None).ConfigureAwait(false);
+            var redisValues = await ExecuteWithFallbackAsync(() => Database.StringGetAsync(redisKeys, flags: CommandFlags.None)).ConfigureAwait(false);
 
             var valuesById = new Dictionary<string, string>(redisKeys.Length);
 
@@ -180,7 +181,7 @@ namespace HCore.Cache.Impl
                 .Select(k => (RedisKey)k)
                 .ToArray();
 
-            var redisValues = await Database.StringGetAsync(redisKeys, flags: CommandFlags.None).ConfigureAwait(false);
+            var redisValues = await ExecuteWithFallbackAsync(() => Database.StringGetAsync(redisKeys, flags: CommandFlags.None)).ConfigureAwait(false);
 
             var valuesById = new Dictionary<string, T>(redisKeys.Length);
 
@@ -202,47 +203,40 @@ namespace HCore.Cache.Impl
 
         public async Task InvalidateAsync(string key)
         {
-            await Database.KeyDeleteAsync(key, flags: CommandFlags.None).ConfigureAwait(false);
-        }
-
-        public void Store(string key, object value, TimeSpan expiresIn)
-        {
-            var bytes = Serialize(value);
-
-            Database.StringSet(key, value: bytes, expiresIn, when: When.Always, flags: CommandFlags.None);
-        }
-
-        public string GetString(string key)
-        {
-            var redisValue = Database.StringGet(key, flags: CommandFlags.None);
-
-            if (redisValue.HasValue)
-            {
-                var result = DeserializeString(redisValue);
-
-                return result;
-            }
-
-            return default;
-        }
-
-        public T GetObject<T>(string key) where T : class
-        {
-            var redisValue = Database.StringGet(key, flags: CommandFlags.None);
-
-            if (redisValue.HasValue)
-            {
-                var result = DeserializeObject<T>(redisValue);
-
-                return result;
-            }
-
-            return default;
+            await ExecuteWithFallbackAsync(() => Database.KeyDeleteAsync(key, flags: CommandFlags.None)).ConfigureAwait(false);
         }
 
         public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult<bool?>(ConnectionMultiplexer.IsConnected);
+        }
+
+        private async Task<TOut> ExecuteWithFallbackAsync<TOut>(Func<Task<TOut>> func)
+        {
+            var tryCount = 1;
+
+            do
+            {
+                try
+                {
+                    return await func().ConfigureAwait(false);
+                }
+                catch (RedisConnectionException)
+                {
+                    // timeout, or something?
+
+
+                    if (tryCount >= 3)
+                    {
+                        throw;
+                    }
+                    
+                    tryCount++;
+
+                    await Task.Delay(1000).ConfigureAwait(false);
+                }
+            }
+            while (true);
         }
 
         private byte[] Serialize<T>(T value)
