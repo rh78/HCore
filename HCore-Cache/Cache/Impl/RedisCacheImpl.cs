@@ -30,7 +30,7 @@ namespace HCore.Cache.Impl
     {
         private readonly MessagePackSerializerOptions _messagePackSerializerOptions;
 
-        private const int _db = -1;
+        private const int _db = 0;
 
         private readonly IRedisConnectionPool _redisConnectionPool;
 
