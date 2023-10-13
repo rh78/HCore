@@ -93,16 +93,63 @@ namespace HCore.Emailing.Sender.Impl
 
                 MailMessage mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.SmtpEmailAddress,
-                                                   !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.SmtpFromDisplayName);                    
+                                                   !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.SmtpFromDisplayName);
 
                 if (to != null)
-                    to.ForEach(toString => mailMessage.To.Add(toString));
+                {
+                    to.ForEach(toString =>
+                    {
+                        try
+                        {
+                            mailMessage.To.Add(toString);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning($"Parsing error occured in email address {toString}: {e}");
+                        }
+                    });
+                }
 
                 if (cc != null)
-                    cc.ForEach(ccString => mailMessage.CC.Add(ccString));
+                {
+                    cc.ForEach(ccString =>
+                    {
+                        try
+                        {
+                            mailMessage.CC.Add(ccString);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning($"Parsing error occured in email address {ccString}: {e}");
+                        }
+                    });
+                }
 
                 if (bcc != null)
-                    bcc.ForEach(bccString => mailMessage.Bcc.Add(bccString));
+                {
+                    bcc.ForEach(bccString =>
+                    {
+                        try
+                        {
+                            mailMessage.Bcc.Add(bccString);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning($"Parsing error occured in email address {bccString}: {e}");
+                        }
+                    });
+                }
+
+                if ((mailMessage.To == null || !mailMessage.To.Any()) &&
+                    (mailMessage.CC == null || !mailMessage.CC.Any()) &&
+                    (mailMessage.Bcc == null || !mailMessage.Bcc.Any()))
+                {
+                    // no recipient
+
+                    _logger.LogWarning($"No recipient found for mail message");
+
+                    return;
+                }
 
                 mailMessage.IsBodyHtml = true;
 
