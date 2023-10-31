@@ -464,8 +464,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             saml.IdentityProviders.Add(
                                 new IdentityProvider(new EntityId(samlPeerEntityId), saml.SPOptions)
                                 {
-                                    LoadMetadata = true,
                                     MetadataLocation = samlPeerIdpMetadataLocation,
+                                    LoadMetadata = true,
                                     AllowUnsolicitedAuthnResponse = true
                                 }
                             );
