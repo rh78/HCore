@@ -221,16 +221,28 @@ namespace HCore.Cache.Impl
                 {
                     return await func().ConfigureAwait(false);
                 }
-                catch (RedisConnectionException)
+                catch (RedisConnectionException)                
                 {
                     // timeout, or something?
-
 
                     if (tryCount >= 3)
                     {
                         throw;
                     }
                     
+                    tryCount++;
+
+                    await Task.Delay(1000).ConfigureAwait(false);
+                }
+                catch (RedisTimeoutException)
+                {
+                    // timeout
+
+                    if (tryCount >= 3)
+                    {
+                        throw;
+                    }
+
                     tryCount++;
 
                     await Task.Delay(1000).ConfigureAwait(false);
