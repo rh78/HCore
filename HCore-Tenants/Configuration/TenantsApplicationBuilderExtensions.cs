@@ -30,35 +30,7 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (useCors)
                 {
-                    HashSet<string> originUrls = new HashSet<string>();
-
-                    List<string> developerWildcardSubdomains = tenantDataProvider.DeveloperWildcardSubdomains;
-
-                    developerWildcardSubdomains.Add("http://localhost");
-                    developerWildcardSubdomains.Add("http://127.0.0.1:8080");
-                    developerWildcardSubdomains.Add("https://localhost");
-                    developerWildcardSubdomains.Add("https://127.0.0.1:8080");
-
-                    List<Regex> developerWildcardSubdomainRegexes = developerWildcardSubdomains.Select(developerWildcardSubdomain =>
-                        new Regex("^" + Regex.Escape(developerWildcardSubdomain).Replace("\\*", ".*") + "$")).ToList();
-
-                    app.UseCors(builder =>
-                    {
-                        builder.AllowAnyHeader();
-                        builder.AllowAnyMethod();
-                        builder.AllowCredentials();
-
-                        builder.SetIsOriginAllowed((origin) =>
-                        {
-                            // For Portals we need this open
-                            // TODO: make this safer
-
-                            return true;
-                            
-                            /* return developerWildcardSubdomainRegexes.Any(developerWildcardSubdomainRegex =>
-                                developerWildcardSubdomainRegex.IsMatch(origin)); */
-                        });
-                    });
+                    app.UseCors();
                 }
             }
 

@@ -4,6 +4,7 @@ using HCore.Tenants.Providers.Impl;
 using HCore.Tenants.Services;
 using HCore.Tenants.Services.Impl;
 using MessagePack.Formatters;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -42,6 +43,8 @@ namespace Microsoft.Extensions.DependencyInjection
             if (useCors)
             {
                 services.AddCors();
+
+                services.Replace(ServiceDescriptor.Transient<ICorsPolicyProvider, CorsPolicyProviderImpl>());
             }
 
             services.AddScoped<ITenantServices, TenantServicesImpl>();
