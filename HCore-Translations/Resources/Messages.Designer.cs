@@ -88,7 +88,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately, your user account is disabled ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately, your user account is disabled. Please contact us for further information ähnelt.
         /// </summary>
         public static string account_disabled {
             get {
@@ -1447,7 +1447,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The password requires at least one digit ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt; ähnelt.
         /// </summary>
         public static string password_requires_digit {
             get {
@@ -1456,11 +1456,29 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The password requires non alphanumeric characters ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt; ähnelt.
+        /// </summary>
+        public static string password_requires_lower {
+            get {
+                return ResourceManager.GetString("password_requires_lower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt; ähnelt.
         /// </summary>
         public static string password_requires_non_alphanumeric {
             get {
                 return ResourceManager.GetString("password_requires_non_alphanumeric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt; ähnelt.
+        /// </summary>
+        public static string password_requires_upper {
+            get {
+                return ResourceManager.GetString("password_requires_upper", resourceCulture);
             }
         }
         
@@ -1474,7 +1492,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The password is too short ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt; ähnelt.
         /// </summary>
         public static string password_too_short {
             get {

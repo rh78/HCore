@@ -2012,6 +2012,10 @@ namespace HCore.Identity.Services.Impl
                     throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresNonAlphanumeric, "The password requires non alphanumeric characters");
                 else if (string.Equals(error.Code, "PasswordRequiresDigit"))
                     throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresDigit, "The password requires digits");
+                else if (string.Equals(error.Code, "PasswordRequiresLower"))
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresLower, "The password requires lower case characters");
+                else if (string.Equals(error.Code, "PasswordRequiresUpper"))
+                    throw new RequestFailedApiException(RequestFailedApiException.PasswordRequiresUpper, "The password requires upper case characters");
                 else if (string.Equals(error.Code, "PasswordTooShort"))
                     throw new RequestFailedApiException(RequestFailedApiException.PasswordTooShort, "The password is too short");
                 else if (string.Equals(error.Code, "InvalidToken"))

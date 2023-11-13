@@ -160,8 +160,8 @@ namespace HCore.Web.Startup
                 services.AddAntiforgery(options =>
                 {
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    // was STRICT
-                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
                     options.SuppressXFrameOptionsHeader = true;
                 });
 
