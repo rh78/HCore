@@ -1,12 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using HCore.Database.ElasticSearch;
-using HCore.Database.ElasticSearch.Impl;
-using System;
+﻿using System;
 using System.Reflection;
 using HCore.Database;
+using HCore.Database.ElasticSearch;
+using HCore.Database.ElasticSearch.Impl;
 using HCore.Database.RetryStrategies;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Npgsql;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -90,23 +92,58 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else
             {
-                services.AddDbContext<TContext>(
-                    options =>
+                var serviceKey = configurationKey;
+
+                // TODO: Use AddNpgsqlDataSource when available instead of manual dataSourceServiceDescriptor registration
+
+                //services.AddNpgsqlDataSource(
+                //    serviceKey: configurationKey,
+                //    connectionString,
+                //    (npgsqlDataSourceBuilder) =>
+                //    {
+                //        npgsqlDataSourceBuilder.EnableDynamicJsonMappings();
+                //    },
+                //    dataSourceLifetime: ServiceLifetime.Singleton);
+
+                var dataSourceServiceDescriptor = new ServiceDescriptor(
+                    typeof(NpgsqlDataSource),
+                    serviceKey,
+                    (sp, key) =>
                     {
-                        options.UseNpgsql(connectionString,
+                        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+
+                        dataSourceBuilder.EnableDynamicJsonMappings();
+
+                        return dataSourceBuilder.Build();
+                    },
+                    ServiceLifetime.Singleton);
+
+                services.TryAdd(dataSourceServiceDescriptor);
+
+                services.AddDbContext<TContext>(
+                    (serviceProvider, options) =>
+                    {
+                        var dataSource = serviceProvider.GetRequiredKeyedService<NpgsqlDataSource>(serviceKey);
+
+                        options.UseNpgsql(
+                            dataSource,
                             postgresOptions => postgresOptions
                                 .MigrationsAssembly(migrationsAssembly)
                                 .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
-                    }, 
+                    },
                     optionsLifetime: ServiceLifetime.Singleton);
 
-                services.AddPooledDbContextFactory<TContext>(options =>
-                {
-                    options.UseNpgsql(connectionString,
-                        postgresOptions => postgresOptions
-                            .MigrationsAssembly(migrationsAssembly)
-                            .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
-                });
+                services.AddPooledDbContextFactory<TContext>(
+                    (serviceProvider, options) =>
+                    {
+                        var dataSource = serviceProvider.GetRequiredKeyedService<NpgsqlDataSource>(serviceKey);
+
+                        options.UseNpgsql(
+                            dataSource,
+                            postgresOptions => postgresOptions
+                                .MigrationsAssembly(migrationsAssembly)
+                                .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
+                    });
             }
 
             return services;
