@@ -427,16 +427,22 @@
     <value>The password is missing</value>
   </data>
   <data name="password_requires_non_alphanumeric" xml:space="preserve">
-    <value>The password requires non alphanumeric characters</value>
+    <value>Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="password_requires_digit" xml:space="preserve">
-    <value>The password requires at least one digit</value>
+    <value>Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="password_requires_lower" xml:space="preserve">
+    <value>Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="password_requires_upper" xml:space="preserve">
+    <value>Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="password_too_long" xml:space="preserve">
     <value>The password is too long</value>
   </data>
   <data name="password_too_short" xml:space="preserve">
-    <value>The password is too short</value>
+    <value>Please give a safe password:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;minimum length of 10 characters&lt;/li&gt;&lt;li&gt;at least one lower case character&lt;/li&gt;&lt;li&gt;at least one upper case character&lt;/li&gt;&lt;li&gt;at least one digit&lt;/li&gt;&lt;li&gt;at least one special character&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="permission_denied" xml:space="preserve">
     <value>The permission to access this location was denied</value>
