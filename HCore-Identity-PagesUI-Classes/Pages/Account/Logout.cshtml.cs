@@ -164,7 +164,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                         Expires = DateTime.Now.AddDays(-1),
                         Secure = true,
                         HttpOnly = true,
-                        SameSite = SameSiteMode.Strict
+                        SameSite = SameSiteMode.Lax
                     });
                 }
             }

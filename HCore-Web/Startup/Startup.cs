@@ -161,7 +161,7 @@ namespace HCore.Web.Startup
                 {
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.HttpOnly = true;
-                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
                     options.SuppressXFrameOptionsHeader = true;
                 });
 

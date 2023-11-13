@@ -86,7 +86,7 @@ namespace HCore.Web.Providers.Impl
                     Expires = DateTime.Now.AddYears(1),
                     Secure = true,
                     HttpOnly = _httpOnly,
-                    SameSite = SameSiteMode.Strict
+                    SameSite = SameSiteMode.Lax
                 });
             }
 

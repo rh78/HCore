@@ -566,7 +566,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.Cookie.Name = "HCore.Identity.session";
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.HttpOnly = true;
-                    options.Cookie.SameSite = SameSiteMode.Strict;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
                 });
             } else
             {
@@ -585,7 +585,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.HttpOnly = true;
-                    options.Cookie.SameSite = SameSiteMode.Strict;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
                 });
             }
 
