@@ -133,6 +133,8 @@ namespace HCore.Web.Exceptions
         public const string DuplicateUserName = "duplicate_user_name";
         public const string PasswordRequiresNonAlphanumeric = "password_requires_non_alphanumeric";
         public const string PasswordRequiresDigit = "password_requires_digit";
+        public const string PasswordRequiresLower = "password_requires_lower";
+        public const string PasswordRequiresUpper = "password_requires_upper";
         public const string SecurityTokenInvalid = "security_token_invalid";
         public const string ScrollUuidInvalid = "scroll_uuid_invalid";
         public const string ScrollUuidTooLong = "scroll_uuid_too_long";

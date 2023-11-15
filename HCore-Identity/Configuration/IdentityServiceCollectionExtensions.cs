@@ -565,8 +565,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.Cookie.Domain = authCookieDomain;
                     options.Cookie.Name = "HCore.Identity.session";
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    // was LAX
-                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
                 });
             } else
             {
@@ -584,8 +584,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
 
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                    // was LAX
-                    options.Cookie.SameSite = SameSiteMode.None;
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SameSite = SameSiteMode.Lax;
                 });
             }
 
@@ -597,10 +597,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.User.AllowedUserNameCharacters = IdentityServicesImpl.AllowedUserNameCharacters;
 
                 options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequiredLength = 8;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 10;
             });
         }
 

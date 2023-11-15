@@ -427,16 +427,22 @@
     <value>Das Passwort fehlt</value>
   </data>
   <data name="password_requires_non_alphanumeric" xml:space="preserve">
-    <value>Das Passwort erfordert nicht alphanumerische Zeichen</value>
+    <value>Bitte geben Sie ein sicheres Passwort an:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;mindestens 10 Zeichen Länge&lt;/li&gt;&lt;li&gt;mindestens 1 Kleinbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Großbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Zahl&lt;/li&gt;&lt;li&gt;mindestens 1 Sonderzeichen&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="password_requires_digit" xml:space="preserve">
-    <value>Das Passwort muss mindestens eine Ziffer enthalten</value>
+    <value>Bitte geben Sie ein sicheres Passwort an:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;mindestens 10 Zeichen Länge&lt;/li&gt;&lt;li&gt;mindestens 1 Kleinbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Großbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Zahl&lt;/li&gt;&lt;li&gt;mindestens 1 Sonderzeichen&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="password_requires_lower" xml:space="preserve">
+    <value>Bitte geben Sie ein sicheres Passwort an:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;mindestens 10 Zeichen Länge&lt;/li&gt;&lt;li&gt;mindestens 1 Kleinbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Großbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Zahl&lt;/li&gt;&lt;li&gt;mindestens 1 Sonderzeichen&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="password_requires_upper" xml:space="preserve">
+    <value>Bitte geben Sie ein sicheres Passwort an:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;mindestens 10 Zeichen Länge&lt;/li&gt;&lt;li&gt;mindestens 1 Kleinbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Großbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Zahl&lt;/li&gt;&lt;li&gt;mindestens 1 Sonderzeichen&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="password_too_long" xml:space="preserve">
     <value>Das Passwort ist zu lang</value>
   </data>
   <data name="password_too_short" xml:space="preserve">
-    <value>Das Passwort ist zu kurz</value>
+    <value>Bitte geben Sie ein sicheres Passwort an:&lt;br&gt;&lt;br&gt;&lt;ul&gt;&lt;li&gt;mindestens 10 Zeichen Länge&lt;/li&gt;&lt;li&gt;mindestens 1 Kleinbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Großbuchstabe&lt;/li&gt;&lt;li&gt;mindestens 1 Zahl&lt;/li&gt;&lt;li&gt;mindestens 1 Sonderzeichen&lt;/li&gt;&lt;/ul&gt;</value>
   </data>
   <data name="permission_denied" xml:space="preserve">
     <value>Der Zugang wurde verweigert</value>

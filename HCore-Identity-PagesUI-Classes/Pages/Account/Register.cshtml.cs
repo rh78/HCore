@@ -197,7 +197,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             try
             {
-                UserModel user = await _identityServices.CreateUserAsync(Input, isSelfRegistration: true, request: Request, requiresRecaptcha: false).ConfigureAwait(false);
+                UserModel user = await _identityServices.CreateUserAsync(Input, isSelfRegistration: true, request: Request).ConfigureAwait(false);
 
                 PerformTracking(user);
 
