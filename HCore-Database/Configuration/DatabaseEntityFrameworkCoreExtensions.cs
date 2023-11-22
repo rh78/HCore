@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 
-                        dataSourceBuilder.EnableDynamicJsonMappings();
+                        dataSourceBuilder.EnableDynamicJson();
 
                         return dataSourceBuilder.Build();
                     });

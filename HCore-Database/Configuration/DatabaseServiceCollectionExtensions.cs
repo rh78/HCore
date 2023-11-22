@@ -112,7 +112,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 
-                        dataSourceBuilder.EnableDynamicJsonMappings();
+                        dataSourceBuilder.EnableDynamicJson();
 
                         return dataSourceBuilder.Build();
                     },
