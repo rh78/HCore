@@ -94,31 +94,14 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 var serviceKey = configurationKey;
 
-                // TODO: Use AddNpgsqlDataSource when available instead of manual dataSourceServiceDescriptor registration
-
-                //services.AddNpgsqlDataSource(
-                //    serviceKey: configurationKey,
-                //    connectionString,
-                //    (npgsqlDataSourceBuilder) =>
-                //    {
-                //        npgsqlDataSourceBuilder.EnableDynamicJsonMappings();
-                //    },
-                //    dataSourceLifetime: ServiceLifetime.Singleton);
-
-                var dataSourceServiceDescriptor = new ServiceDescriptor(
-                    typeof(NpgsqlDataSource),
-                    serviceKey,
-                    (sp, key) =>
+                services.AddNpgsqlDataSource(
+                    connectionString,
+                    (npgsqlDataSourceBuilder) =>
                     {
-                        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-
-                        dataSourceBuilder.EnableDynamicJson();
-
-                        return dataSourceBuilder.Build();
+                        npgsqlDataSourceBuilder.EnableDynamicJson();
                     },
-                    ServiceLifetime.Singleton);
-
-                services.TryAdd(dataSourceServiceDescriptor);
+                    dataSourceLifetime: ServiceLifetime.Singleton,
+                    serviceKey: serviceKey);
 
                 services.AddDbContext<TContext>(
                     (serviceProvider, options) =>
