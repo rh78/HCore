@@ -104,7 +104,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 var tenantInfo = _tenantInfoAccessor.TenantInfo;
 
-                if (!string.IsNullOrEmpty(tenantInfo.ExternalAuthenticationMethod))
+                if (!string.IsNullOrEmpty(tenantInfo.ExternalAuthenticationMethod) &&
+                    !tenantInfo.ExternalAuthenticationAllowLocalLogin)
                 {
                     // do not allow local registration, if users are externally managed
 

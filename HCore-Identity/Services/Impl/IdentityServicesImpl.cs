@@ -552,11 +552,36 @@ namespace HCore.Identity.Services.Impl
                     throw new Exception("The external authentication failed");
             }
 
-            var scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
+            ITenantInfo tenantInfo = null;
+
+            if (_tenantInfoAccessor != null)
+                tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+            var externalAuthenticationAllowUserMerge = tenantInfo?.ExternalAuthenticationAllowUserMerge ?? false;
+
+            string scopedEmailAddress;
+
+            if (externalAuthenticationAllowUserMerge)
+            {
+                scopedEmailAddress = unscopedEmailAddress;
+            }
+            else
+            {
+                scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
+            }
 
             try
             {
-                var reservedEmailAddressModel = await ReserveUserUuidAsync(developerUuid, tenantUuid, unscopedEmailAddress, createReservationIfNotPresent: true).ConfigureAwait(false);
+                ReservedEmailAddressModel reservedEmailAddressModel;
+
+                if (externalAuthenticationAllowUserMerge)
+                {
+                    reservedEmailAddressModel = await ReserveUserUuidAsync(developerUuid: null, tenantUuid: null, unscopedEmailAddress, createReservationIfNotPresent: true).ConfigureAwait(false);
+                }
+                else
+                {
+                    reservedEmailAddressModel = await ReserveUserUuidAsync(developerUuid, tenantUuid, unscopedEmailAddress, createReservationIfNotPresent: true).ConfigureAwait(false);
+                }
 
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
@@ -572,15 +597,34 @@ namespace HCore.Identity.Services.Impl
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyExists, "It is not possible to reuse a user ID that belongs to a deleted user");
                     }
 
-                    var user = new UserModel { 
-                        Id = reservedEmailAddressModel.Uuid, 
-                        UserName = reservedEmailAddressModel.Uuid, 
-                        Email = scopedEmailAddress, 
-                        MemberOf = memberOf?.ToList(), 
-                        NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
-                        ExpiryDate = reservedEmailAddressModel.ExpiryDate,
-                        Disabled = reservedEmailAddressModel.Disabled
-                    };
+                    UserModel user;
+
+                    if (externalAuthenticationAllowUserMerge)
+                    {
+                        user = new UserModel
+                        {
+                            Id = reservedEmailAddressModel.Uuid,
+                            UserName = scopedEmailAddress,
+                            Email = scopedEmailAddress,
+                            MemberOf = memberOf?.ToList(),
+                            NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
+                            ExpiryDate = reservedEmailAddressModel.ExpiryDate,
+                            Disabled = reservedEmailAddressModel.Disabled
+                        };
+                    }
+                    else
+                    {
+                        user = new UserModel
+                        {
+                            Id = reservedEmailAddressModel.Uuid,
+                            UserName = reservedEmailAddressModel.Uuid,
+                            Email = scopedEmailAddress,
+                            MemberOf = memberOf?.ToList(),
+                            NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
+                            ExpiryDate = reservedEmailAddressModel.ExpiryDate,
+                            Disabled = reservedEmailAddressModel.Disabled
+                        };
+                    }
 
                     if (user.Disabled == true)
                     {
@@ -636,11 +680,6 @@ namespace HCore.Identity.Services.Impl
                         user.TermsAndConditionsUrl = _configurationProvider.TermsAndConditionsUrl;
                         user.TermsAndConditionsVersionAccepted = _configurationProvider.TermsAndConditionsVersion;
                     } */
-
-                    ITenantInfo tenantInfo = null;
-
-                    if (_tenantInfoAccessor != null)
-                        tenantInfo = _tenantInfoAccessor.TenantInfo;
 
                     if (tenantInfo != null)
                     {
@@ -912,7 +951,16 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
 
-                var scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
+                string scopedEmailAddress;
+
+                if (tenantInfo.ExternalAuthenticationAllowUserMerge)
+                {
+                    scopedEmailAddress = unscopedEmailAddress;
+                }
+                else
+                {
+                    scopedEmailAddress = GetScopedEmail(developerUuid, tenantUuid, unscopedEmailAddress);
+                }
 
                 var user = await _userManager.FindByEmailAsync(scopedEmailAddress).ConfigureAwait(false);
 
