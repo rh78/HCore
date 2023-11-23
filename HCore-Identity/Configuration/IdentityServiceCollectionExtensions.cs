@@ -330,7 +330,39 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         if (oidcUsePkce)
                         {
-                            openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
+                            if (oidcQueryUserInfoEndpoint)
+                            {
+                                openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
+
+                                // nonce is required for hybrid and implicit flows
+                                // we use non of those, so we do not have to enforce it
+
+                                openIdConnect.ProtocolValidator.RequireNonce = false;
+                            }
+                            else
+                            {
+                                // we have to get ID token from token endpoint
+
+                                openIdConnect.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                            }
+                        }
+                        else
+                        {
+                            if (oidcQueryUserInfoEndpoint)
+                            {
+                                openIdConnect.ResponseType = OpenIdConnectResponseType.Code;
+
+                                // nonce is required for hybrid and implicit flows
+                                // we use non of those, so we do not have to enforce it
+
+                                openIdConnect.ProtocolValidator.RequireNonce = false;
+                            }
+                            else
+                            {
+                                // we have to get ID token from token endpoint
+
+                                openIdConnect.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+                            }
                         }
 
                         openIdConnect.SaveTokens = true;
