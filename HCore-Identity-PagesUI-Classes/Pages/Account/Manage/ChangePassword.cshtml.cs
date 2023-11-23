@@ -11,9 +11,6 @@ using HCore.Identity.Resources;
 using HCore.Translations.Providers;
 using Newtonsoft.Json;
 using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Tenants.Providers;
-using System;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
@@ -24,17 +21,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
 
-        private readonly ITenantInfoAccessor _tenantInfoAccessor;
-
         public ChangePasswordModel(
             IIdentityServices identityServices,
-            ITranslationsProvider translationsProvider,
-            IServiceProvider serviceProvider)
+            ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
             _translationsProvider = translationsProvider;
-
-            _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
 
         public override string ModelAsJson { get =>
@@ -64,7 +56,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
             var userModel = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
 
-            UpdatePasswordChangePossible(userModel);
+            PasswordChangePossible = userModel.PasswordHash != null;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -79,7 +71,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 
                 userModel = await _identityServices.GetUserAsync(userUuid).ConfigureAwait(false);
 
-                UpdatePasswordChangePossible(userModel);
+                PasswordChangePossible = userModel.PasswordHash != null;
 
                 await _identityServices.SetUserPasswordAsync(userUuid, Input).ConfigureAwait(false);
 
@@ -91,36 +83,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
             {
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
 
-                UpdatePasswordChangePossible(userModel);
+                if (userModel != null)
+                {
+                    PasswordChangePossible = userModel.PasswordHash != null;
+                }
             }
 
             return Page();
-        }
-
-        private void UpdatePasswordChangePossible(UserModel userModel)
-        {
-            if (userModel == null)
-            {
-                PasswordChangePossible = false;
-
-                return;
-            }
-
-            PasswordChangePossible = userModel.PasswordHash != null;
-
-            if (_tenantInfoAccessor == null)
-            {
-                return;
-            }
-
-            var tenantInfo = _tenantInfoAccessor.TenantInfo;
-
-            if (tenantInfo == null)
-            {
-                return;
-            }
-                    
-            PasswordChangePossible = PasswordChangePossible || tenantInfo.ExternalAuthenticationAllowLocalLogin;
         }
     }
 }
