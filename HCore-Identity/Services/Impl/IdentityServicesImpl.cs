@@ -1322,45 +1322,73 @@ namespace HCore.Identity.Services.Impl
             {
                 var tenantInfo = _tenantInfoAccessor.TenantInfo;
 
-                if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                var externalAuthenticationAllowLocalLogin = tenantInfo.ExternalAuthenticationAllowLocalLogin;
+
+                var isRemoteUser = true;
+
+                if (externalAuthenticationAllowLocalLogin)
                 {
                     UserModel userModel = null;
+
+                    isRemoteUser = false;
 
                     var userUuid = httpContext.User.GetUserUuid();
 
                     if (!string.IsNullOrEmpty(userUuid))
                     {
                         userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
-                    }
 
-                    string idTokenHint = null;
-
-                    if (userModel != null)
-                    {
-                        idTokenHint = userModel.IdentityTokenCache;
-                    }
-
-                    if (!string.IsNullOrEmpty(idTokenHint))
-                    {
-                        httpContext.Items[IdentityCoreConstants.HttpContextItemsIdTokenHint] = idTokenHint;
-                    }
-
-                    await httpContext.SignOutAsync(IdentityCoreConstants.ExternalOidcScheme).ConfigureAwait(false);
-                }
-                else if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
-                {
-                    var webUrl = tenantInfo.WebUrl;
-
-                    var props = new AuthenticationProperties
-                    {
-                        RedirectUri = webUrl,
-                        Items =
+                        if (userModel != null && userModel.PasswordHash == null)
                         {
-                            { "returnUrl", webUrl }
-                        }
-                    };
+                            // this is a remote user for sure
 
-                    await httpContext.SignOutAsync(IdentityCoreConstants.ExternalSamlScheme, props).ConfigureAwait(false);
+                            isRemoteUser = true;
+                        }
+                    }
+                }
+
+                if (isRemoteUser)
+                {
+                    if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
+                    {
+                        UserModel userModel = null;
+
+                        var userUuid = httpContext.User.GetUserUuid();
+
+                        if (!string.IsNullOrEmpty(userUuid))
+                        {
+                            userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                        }
+
+                        string idTokenHint = null;
+
+                        if (userModel != null)
+                        {
+                            idTokenHint = userModel.IdentityTokenCache;
+                        }
+
+                        if (!string.IsNullOrEmpty(idTokenHint))
+                        {
+                            httpContext.Items[IdentityCoreConstants.HttpContextItemsIdTokenHint] = idTokenHint;
+                        }
+
+                        await httpContext.SignOutAsync(IdentityCoreConstants.ExternalOidcScheme).ConfigureAwait(false);
+                    }
+                    else if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                    {
+                        var webUrl = tenantInfo.WebUrl;
+
+                        var props = new AuthenticationProperties
+                        {
+                            RedirectUri = webUrl,
+                            Items =
+                            {
+                                { "returnUrl", webUrl }
+                            }
+                        };
+
+                        await httpContext.SignOutAsync(IdentityCoreConstants.ExternalSamlScheme, props).ConfigureAwait(false);
+                    }
                 }
             }
 

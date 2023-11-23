@@ -512,6 +512,9 @@ namespace HCore.Tenants.Providers.Impl
 
             string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
 
+            bool externalAuthenticationAllowLocalLogin = tenantModel.ExternalAuthenticationAllowLocalLogin;
+            bool externalAuthenticationAllowUserMerge = tenantModel.ExternalAuthenticationAllowUserMerge;
+
             Dictionary<string, string> externalAuthenticationClaimMappings = null;
 
             // external authorization is optional
@@ -753,6 +756,8 @@ namespace HCore.Tenants.Providers.Impl
                 UsersAreExternallyManaged = usersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = externalAuthorizationMethod,
+                ExternalAuthenticationAllowLocalLogin = externalAuthenticationAllowLocalLogin,
+                ExternalAuthenticationAllowUserMerge = externalAuthenticationAllowUserMerge,
                 ExternalAuthenticationClaimMappings = externalAuthenticationClaimMappings,
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,

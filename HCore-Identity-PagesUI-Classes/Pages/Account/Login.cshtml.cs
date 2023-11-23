@@ -76,6 +76,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public string UserName { get; set; }
         public bool EnableLocalLogin { get; set; } 
         public bool IsLocalAuthorization { get; set; }
+        public bool ShowSsoLink { get; set; }
 
         [BindProperty]
         public string ReturnUrl { get; set; }
@@ -85,18 +86,39 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null, string challenge = null)
         {            
             await PrepareModelAsync(returnUrl).ConfigureAwait(false);
 
-            if (_tenantInfoAccessor != null)
+            if (ShowSsoLink && string.Equals(challenge, "true"))
             {
-                string externalAuthenticationMethod = _tenantInfoAccessor.TenantInfo?.ExternalAuthenticationMethod;
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
 
-                if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
-                    string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                if (tenantInfo != null)
                 {
-                    return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
+                    string externalAuthenticationMethod = tenantInfo.ExternalAuthenticationMethod;
+
+                    if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
+                        string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                    {
+                        return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
+                    }
+                }
+            }
+
+            if (!ShowSsoLink && _tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                {
+                    string externalAuthenticationMethod = tenantInfo.ExternalAuthenticationMethod;
+
+                    if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
+                        string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                    {
+                        return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -320,6 +342,16 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         private async Task PrepareModelAsync(string returnUrl)
         {
+            if (_tenantInfoAccessor != null)
+            {
+                var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+                if (tenantInfo != null)
+                {
+                    ShowSsoLink = tenantInfo.ExternalAuthenticationAllowLocalLogin;
+                }
+            }
+
             if (_segmentProvider != null)
             {
                 SubmitSegmentAnonymousUserUuid = true;
