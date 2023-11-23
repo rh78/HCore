@@ -8,6 +8,11 @@ using System.Diagnostics;
 using HCore.Identity.Attributes;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
+using HCore.Tenants.Providers;
+using System.Web;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace HCore.PagesUI.Classes.Pages
 {
@@ -22,15 +27,21 @@ namespace HCore.PagesUI.Classes.Pages
         public string RequestId { get; set; }
         public string Error { get; set; }
         public string Description { get; set; }
+        public bool ShowDescriptionOnly { get; set; }
+        public bool AllowDescriptionHtml { get; set; }
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
         public override string ModelAsJson { get =>
             JsonConvert.SerializeObject(
                 new
                 {
                     Error,
-                    Description
+                    Description,
+                    ShowDescriptionOnly,
+                    AllowDescriptionHtml
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
@@ -45,6 +56,8 @@ namespace HCore.PagesUI.Classes.Pages
             _dataProtectionProvider = dataProtectionProvider;
 
             _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
+
+            _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
         
         public async Task OnGetAsync(string errorId, string errorCode, string errorDescription)
@@ -52,6 +65,10 @@ namespace HCore.PagesUI.Classes.Pages
             // check if we have identity error
 
             ShowRequestId = false;
+
+            Description = null;
+            ShowDescriptionOnly = false;
+            AllowDescriptionHtml = false;
 
             if (_interaction != null && !string.IsNullOrEmpty(errorId))
             {
@@ -90,6 +107,30 @@ namespace HCore.PagesUI.Classes.Pages
                 else if (string.Equals(errorCode, "permission_denied"))
                 {
                     errorDescription = $"{Messages.permission_denied}.";
+
+                    var tenantInfo = _tenantInfoAccessor?.TenantInfo;
+
+                    if (tenantInfo != null && !string.IsNullOrEmpty(tenantInfo.SupportEmail))
+                    {
+                        var htmlEncodedSupportEmailAddress = HttpUtility.HtmlEncode(tenantInfo.SupportEmail);
+                        var permissionDeniedSupportMessage = tenantInfo.PermissionDeniedSupportMessage;
+
+                        var localizedPermissionDeniedSupportMessage = ResolveLocalizedString(permissionDeniedSupportMessage);
+
+                        if (!string.IsNullOrEmpty(localizedPermissionDeniedSupportMessage))
+                        {
+                            localizedPermissionDeniedSupportMessage = localizedPermissionDeniedSupportMessage.Replace("[SUPPORT EMAIL]", $"<a href='mailto:{htmlEncodedSupportEmailAddress}' class='support_email_link'>{htmlEncodedSupportEmailAddress}</a>", StringComparison.OrdinalIgnoreCase);
+                            localizedPermissionDeniedSupportMessage = localizedPermissionDeniedSupportMessage.Replace("{supportEmailLink}", $"<a href='mailto:{htmlEncodedSupportEmailAddress}' class='support_email_link'>{htmlEncodedSupportEmailAddress}</a>", StringComparison.OrdinalIgnoreCase);
+
+                            localizedPermissionDeniedSupportMessage = localizedPermissionDeniedSupportMessage.Replace("[KUNDENDIENST EMAIL]", $"<a href='mailto:{htmlEncodedSupportEmailAddress}' class='support_email_link'>{htmlEncodedSupportEmailAddress}</a>", StringComparison.OrdinalIgnoreCase);
+                            localizedPermissionDeniedSupportMessage = localizedPermissionDeniedSupportMessage.Replace("{kundendienstEmailLink}", $"<a href='mailto:{htmlEncodedSupportEmailAddress}' class='support_email_link'>{htmlEncodedSupportEmailAddress}</a>", StringComparison.OrdinalIgnoreCase);
+
+                            Description = localizedPermissionDeniedSupportMessage;
+
+                            ShowDescriptionOnly = true;
+                            AllowDescriptionHtml = true;
+                        }
+                    }
                 }
                 else if (string.Equals(errorCode, "ie11_and_lower_not_supported"))
                 {
@@ -125,6 +166,42 @@ namespace HCore.PagesUI.Classes.Pages
             Error = $"{Messages.internal_server_error}.";
 
             ShowRequestId = true;
+        }
+
+        private string ResolveLocalizedString(Dictionary<string, string> localizedStrings)
+        {
+            if (localizedStrings == null || localizedStrings.Count == 0)
+                return null;
+
+            string culture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
+            var localizedString = localizedStrings
+                .Where(localizedString => string.Equals(localizedString.Key, culture))
+                .Select(localizedString => localizedString.Value)
+                .FirstOrDefault();
+
+            if (localizedString != null)
+                return localizedString;
+
+            localizedString = localizedStrings
+                .Where(localizedString => string.Equals(localizedString.Key, "x-default"))
+                .Select(localizedString => localizedString.Value)
+                .FirstOrDefault();
+
+            if (localizedString != null)
+                return localizedString;
+
+            localizedString = localizedStrings
+                .Where(localizedString => string.Equals(localizedString.Key, "en"))
+                .Select(localizedString => localizedString.Value)
+                .FirstOrDefault();
+
+            if (localizedString != null)
+                return localizedString;
+
+            return localizedStrings
+                .Select(localizedString => localizedString.Value)
+                .First();
         }
     }
 }

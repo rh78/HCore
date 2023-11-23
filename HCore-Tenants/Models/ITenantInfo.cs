@@ -48,6 +48,8 @@ namespace HCore.Tenants.Models
         string SupportEmail { get; }
         string SupportEmailDisplayName { get; }
 
+        Dictionary<string, string> PermissionDeniedSupportMessage { get; }
+
         string NoreplyEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
