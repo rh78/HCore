@@ -1386,7 +1386,7 @@ namespace HCore.Identity.Services.Impl
                     {
                         userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
 
-                        if (userModel != null && userModel.PasswordHash == null)
+                        if (userModel != null && (userModel.PasswordHash == null || !string.IsNullOrEmpty(userModel.IdentityTokenCache)))
                         {
                             // this is a remote user for sure
 
