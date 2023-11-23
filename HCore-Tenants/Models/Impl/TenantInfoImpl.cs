@@ -77,6 +77,10 @@ namespace HCore.Tenants.Models.Impl
         public bool ExternalUsersAreManuallyManaged { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
+        
+        public bool ExternalAuthenticationAllowLocalLogin { get; set; }
+
+        public bool ExternalAuthenticationAllowUserMerge { get; set; }
 
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
@@ -212,6 +216,8 @@ namespace HCore.Tenants.Models.Impl
                 UsersAreExternallyManaged = UsersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = ExternalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = ExternalAuthenticationMethod,
+                ExternalAuthenticationAllowLocalLogin = ExternalAuthenticationAllowLocalLogin,
+                ExternalAuthenticationAllowUserMerge = ExternalAuthenticationAllowUserMerge,
                 ExternalAuthenticationClaimMappings = ExternalAuthenticationClaimMappings,
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,

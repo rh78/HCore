@@ -74,6 +74,10 @@ namespace HCore.Tenants.Models
 
         string ExternalAuthenticationMethod { get; }
 
+        bool ExternalAuthenticationAllowLocalLogin { get; }
+
+        bool ExternalAuthenticationAllowUserMerge { get; }
+
         Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
         string OidcClientId { get; }

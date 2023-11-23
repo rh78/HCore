@@ -82,6 +82,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string ExternalAuthenticationMethod { get; set; }
 
+        public bool ExternalAuthenticationAllowLocalLogin { get; set; }
+
+        public bool ExternalAuthenticationAllowUserMerge { get; set; }
+
         public string OidcClientId { get; set; }
         public string OidcClientSecret { get; set; }
 
