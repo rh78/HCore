@@ -66,6 +66,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SupportEmail { get; set; }
         public string SupportEmailDisplayName { get; set; }
 
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> PermissionDeniedSupportMessage { get; set; }
+
         public string NoreplyEmail { get; set; }
         public string NoreplyEmailDisplayName { get; set; }
 

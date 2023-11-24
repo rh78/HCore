@@ -458,6 +458,8 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(supportEmailDisplayName))
                 supportEmailDisplayName = developerModel.SupportEmailDisplayName;
 
+            var permissionDeniedSupportMessage = tenantModel.PermissionDeniedSupportMessage;
+
             string noreplyEmail = tenantModel.NoreplyEmail;
             if (string.IsNullOrEmpty(noreplyEmail))
                 noreplyEmail = developerModel.NoreplyEmail;
@@ -741,6 +743,7 @@ namespace HCore.Tenants.Providers.Impl
                 TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
                 SupportEmail = supportEmail,
                 SupportEmailDisplayName = supportEmailDisplayName,
+                PermissionDeniedSupportMessage = permissionDeniedSupportMessage,
                 NoreplyEmail = noreplyEmail,
                 NoreplyEmailDisplayName = noreplyEmailDisplayName,
                 EmailSettings = emailSettingsModel,

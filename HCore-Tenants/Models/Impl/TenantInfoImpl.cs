@@ -52,6 +52,8 @@ namespace HCore.Tenants.Models.Impl
         public string SupportEmail { get; internal set; }
         public string SupportEmailDisplayName { get; internal set; }
 
+        public Dictionary<string, string> PermissionDeniedSupportMessage { get; internal set; }
+
         public string NoreplyEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
 
@@ -197,6 +199,7 @@ namespace HCore.Tenants.Models.Impl
                 TextOnSecondaryColorHex = TextOnSecondaryColorHex,
                 SupportEmail = SupportEmail,
                 SupportEmailDisplayName = SupportEmailDisplayName,
+                PermissionDeniedSupportMessage = PermissionDeniedSupportMessage,
                 NoreplyEmail = NoreplyEmail,
                 NoreplyEmailDisplayName = NoreplyEmailDisplayName,
                 EmailSettings = EmailSettings,
