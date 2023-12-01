@@ -17,8 +17,15 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddPdfRendering(this IServiceCollection services)
+        public static IServiceCollection AddPdfRendering(this IServiceCollection services, string temporaryFolder)
         {
+            if (string.IsNullOrEmpty(temporaryFolder))
+            {
+                throw new System.Exception("Temporary folder is missing");
+            }
+
+            temporaryFolder = $"{temporaryFolder}/jsreport";
+
             IReportingBinary binary = null;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -33,6 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             services.AddJsReport(new LocalReporting()
+                .TempDirectory(temporaryFolder)
                 .UseBinary(binary)
                 .KillRunningJsReportProcesses()
                 .AsUtility()
