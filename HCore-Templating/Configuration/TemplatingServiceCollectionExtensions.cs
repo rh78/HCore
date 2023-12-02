@@ -1,10 +1,12 @@
 ﻿using System.Runtime.InteropServices;
+using HCore.Templating.Configuration;
 using HCore.Templating.Renderer;
 using HCore.Templating.Renderer.Impl;
 using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
 using jsreport.Shared;
+using jsreport.Types;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -42,9 +44,29 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddJsReport(new LocalReporting()
                 .TempDirectory(temporaryFolder)
                 .UseBinary(binary)
+                .Configure(configuration =>
+                {
+                    if (configuration.Chrome == null)
+                    {
+                        configuration.Chrome = new ChromeConfiguration();
+                    }
+
+                    configuration.Chrome = new HackedChromeConfiguration()
+                    {
+                        NumberOfWorkers = configuration.Chrome.NumberOfWorkers,
+                        Strategy = configuration.Chrome.Strategy,
+                        Timeout = configuration.Chrome.Timeout,
+                        LaunchOptions = new HackedChromeConfiguration.ChromeLaunchOptionsConfiguration()
+                        {
+                            Args = "--no-sandbox"
+                        }
+                    };
+
+                    return configuration;
+                })
                 .KillRunningJsReportProcesses()
                 .AsUtility()
-                .Create());
+                .Create()); ;
 
             return services;
         }
