@@ -7,6 +7,7 @@ using jsreport.Binary;
 using jsreport.Local;
 using jsreport.Shared;
 using jsreport.Types;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -19,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IServiceCollection AddPdfRendering(this IServiceCollection services, string temporaryFolder)
+        public static IServiceCollection AddPdfRendering(this IServiceCollection services, IConfiguration configuration, string temporaryFolder)
         {
             if (string.IsNullOrEmpty(temporaryFolder))
             {
@@ -27,6 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             temporaryFolder = $"{temporaryFolder}/jsreport";
+
+            var execFolder = configuration["PdfRendering:ExecFolder"];
+
+            if (string.IsNullOrEmpty(execFolder))
+            {
+                throw new System.Exception("PDF rendering exec folder is empty");
+            }
 
             IReportingBinary binary = null;
 
@@ -43,6 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddJsReport(new LocalReporting()
                 .TempDirectory(temporaryFolder)
+                .RunInDirectory(execFolder)
                 .UseBinary(binary)
                 .Configure(configuration =>
                 {
