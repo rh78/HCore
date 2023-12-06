@@ -52,6 +52,8 @@ namespace HCore.Tenants.Models.Impl
         public string SupportEmail { get; internal set; }
         public string SupportEmailDisplayName { get; internal set; }
 
+        public Dictionary<string, string> PermissionDeniedSupportMessage { get; internal set; }
+
         public string NoreplyEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
 
@@ -77,6 +79,10 @@ namespace HCore.Tenants.Models.Impl
         public bool ExternalUsersAreManuallyManaged { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
+        
+        public bool ExternalAuthenticationAllowLocalLogin { get; set; }
+
+        public bool ExternalAuthenticationAllowUserMerge { get; set; }
 
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
@@ -193,6 +199,7 @@ namespace HCore.Tenants.Models.Impl
                 TextOnSecondaryColorHex = TextOnSecondaryColorHex,
                 SupportEmail = SupportEmail,
                 SupportEmailDisplayName = SupportEmailDisplayName,
+                PermissionDeniedSupportMessage = PermissionDeniedSupportMessage,
                 NoreplyEmail = NoreplyEmail,
                 NoreplyEmailDisplayName = NoreplyEmailDisplayName,
                 EmailSettings = EmailSettings,
@@ -212,6 +219,8 @@ namespace HCore.Tenants.Models.Impl
                 UsersAreExternallyManaged = UsersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = ExternalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = ExternalAuthenticationMethod,
+                ExternalAuthenticationAllowLocalLogin = ExternalAuthenticationAllowLocalLogin,
+                ExternalAuthenticationAllowUserMerge = ExternalAuthenticationAllowUserMerge,
                 ExternalAuthenticationClaimMappings = ExternalAuthenticationClaimMappings,
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,

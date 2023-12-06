@@ -66,6 +66,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SupportEmail { get; set; }
         public string SupportEmailDisplayName { get; set; }
 
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> PermissionDeniedSupportMessage { get; set; }
+
         public string NoreplyEmail { get; set; }
         public string NoreplyEmailDisplayName { get; set; }
 
@@ -81,6 +84,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string HttpsCertificatePassword { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
+
+        public bool ExternalAuthenticationAllowLocalLogin { get; set; }
+
+        public bool ExternalAuthenticationAllowUserMerge { get; set; }
 
         public string OidcClientId { get; set; }
         public string OidcClientSecret { get; set; }

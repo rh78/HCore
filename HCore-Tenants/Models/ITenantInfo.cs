@@ -48,6 +48,8 @@ namespace HCore.Tenants.Models
         string SupportEmail { get; }
         string SupportEmailDisplayName { get; }
 
+        Dictionary<string, string> PermissionDeniedSupportMessage { get; }
+
         string NoreplyEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
@@ -73,6 +75,10 @@ namespace HCore.Tenants.Models
         bool ExternalUsersAreManuallyManaged { get; }
 
         string ExternalAuthenticationMethod { get; }
+
+        bool ExternalAuthenticationAllowLocalLogin { get; }
+
+        bool ExternalAuthenticationAllowUserMerge { get; }
 
         Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 

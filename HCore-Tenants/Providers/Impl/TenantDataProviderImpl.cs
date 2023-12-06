@@ -458,6 +458,8 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(supportEmailDisplayName))
                 supportEmailDisplayName = developerModel.SupportEmailDisplayName;
 
+            var permissionDeniedSupportMessage = tenantModel.PermissionDeniedSupportMessage;
+
             string noreplyEmail = tenantModel.NoreplyEmail;
             if (string.IsNullOrEmpty(noreplyEmail))
                 noreplyEmail = developerModel.NoreplyEmail;
@@ -511,6 +513,9 @@ namespace HCore.Tenants.Providers.Impl
             bool externalUsersAreManuallyManaged = false;
 
             string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
+
+            bool externalAuthenticationAllowLocalLogin = tenantModel.ExternalAuthenticationAllowLocalLogin;
+            bool externalAuthenticationAllowUserMerge = tenantModel.ExternalAuthenticationAllowUserMerge;
 
             Dictionary<string, string> externalAuthenticationClaimMappings = null;
 
@@ -738,6 +743,7 @@ namespace HCore.Tenants.Providers.Impl
                 TextOnSecondaryColorHex = ConvertToHexColor(textOnSecondaryColor),
                 SupportEmail = supportEmail,
                 SupportEmailDisplayName = supportEmailDisplayName,
+                PermissionDeniedSupportMessage = permissionDeniedSupportMessage,
                 NoreplyEmail = noreplyEmail,
                 NoreplyEmailDisplayName = noreplyEmailDisplayName,
                 EmailSettings = emailSettingsModel,
@@ -753,6 +759,8 @@ namespace HCore.Tenants.Providers.Impl
                 UsersAreExternallyManaged = usersAreExternallyManaged,
                 ExternalUsersAreManuallyManaged = externalUsersAreManuallyManaged,
                 ExternalAuthenticationMethod = externalAuthorizationMethod,
+                ExternalAuthenticationAllowLocalLogin = externalAuthenticationAllowLocalLogin,
+                ExternalAuthenticationAllowUserMerge = externalAuthenticationAllowUserMerge,
                 ExternalAuthenticationClaimMappings = externalAuthenticationClaimMappings,
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,
