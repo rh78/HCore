@@ -34,6 +34,13 @@ namespace HCore.Translations.Providers.Impl
             if (string.IsNullOrEmpty(key))
                 return null;
 
+            foreach(var stringLocalizer in _stringLocalizers)
+            {
+                string text = stringLocalizer.GetString(key);
+                if (text != null && !string.Equals(text, key))
+                    return text;
+            }
+
             if (_translationsProviderExtension != null)
             {
                 var providerExtensionText = _translationsProviderExtension.GetString(key);
@@ -42,13 +49,6 @@ namespace HCore.Translations.Providers.Impl
                 {
                     return providerExtensionText;
                 }
-            }
-
-            foreach(var stringLocalizer in _stringLocalizers)
-            {
-                string text = stringLocalizer.GetString(key);
-                if (text != null && !string.Equals(text, key))
-                    return text;
             }
 
             return key;
