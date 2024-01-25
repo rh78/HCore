@@ -15,6 +15,8 @@ namespace HCore.Translations.Providers.Impl
 
         private List<IStringLocalizer> _stringLocalizers;
 
+        private readonly ITranslationsProviderExtension _translationsProviderExtension;
+
         private Dictionary<string, string> _cachedJson = new Dictionary<string, string>();
 
         public TranslationsProviderImpl(IServiceProvider serviceProvider)
@@ -23,7 +25,9 @@ namespace HCore.Translations.Providers.Impl
 
             var stringLocalizerProviderServices = _serviceProvider.GetServices<IStringLocalizerProvider>();
 
-            _stringLocalizers = stringLocalizerProviderServices.Select(stringLocalizerProvider => stringLocalizerProvider.StringLocalizer).ToList();            
+            _stringLocalizers = stringLocalizerProviderServices.Select(stringLocalizerProvider => stringLocalizerProvider.StringLocalizer).ToList();
+
+            _translationsProviderExtension = _serviceProvider.GetService<ITranslationsProviderExtension>();
         }
 
         public string GetString(string key) {
@@ -37,11 +41,31 @@ namespace HCore.Translations.Providers.Impl
                     return text;
             }
 
+            if (_translationsProviderExtension != null)
+            {
+                var providerExtensionText = _translationsProviderExtension.GetString(key);
+
+                if (!string.IsNullOrEmpty(providerExtensionText))
+                {
+                    return providerExtensionText;
+                }
+            }
+
             return key;
         }   
         
         public string GetJson()
         {
+            if (_translationsProviderExtension != null)
+            {
+                var providerExtensionJson = _translationsProviderExtension.GetJson();
+
+                if (!string.IsNullOrEmpty(providerExtensionJson))
+                {
+                    return providerExtensionJson;
+                }
+            }
+
             string currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
             if (_cachedJson.ContainsKey(currentCulture))
