@@ -273,8 +273,6 @@ namespace HCore.Storage.Client.Impl
 
             BlobSasBuilder blobSasBuilder = new BlobSasBuilder(BlobContainerSasPermissions.Read, DateTimeOffset.Now.Add(validityTimeSpan));
 
-            string token;
-
             if (!string.IsNullOrEmpty(downloadFileName))
             {
                 var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
