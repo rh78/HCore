@@ -108,7 +108,7 @@ namespace HCore.Amqp.Messenger.Impl
 
             try
             {
-                _cancellationTokenSource.Cancel();
+                await _cancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
                 if (_messageProcessorTasks.Count > 0)
                 {
