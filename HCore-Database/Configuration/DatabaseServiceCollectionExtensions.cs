@@ -7,7 +7,6 @@ using HCore.Database.RetryStrategies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 
 namespace Microsoft.Extensions.DependencyInjection
