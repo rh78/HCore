@@ -58,28 +58,30 @@
             <summary>
             Gets or sets a value indicating whether a route name associated with an action is used to generate its operationId.
             </summary>
-            <remarks>If <see cref="!:NSwag.Annotations.SwaggerOperationAttribute"/> is present, it will be preferred over the route name irrespective of this property.</remarks>
+            <remarks>If OpenApiOperationAttribute is present, it will be preferred over the route name irrespective of this property.</remarks>
         </member>
         <member name="T:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext">
             <summary>The <see cref="T:NSwag.Generation.Processors.IOperationProcessor"/> context that use <see cref="T:Microsoft.AspNetCore.Mvc.ApiExplorer.ApiDescription"/>.</summary>
         </member>
-        <member name="M:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext.#ctor(NSwag.OpenApiDocument,NSwag.OpenApiOperationDescription,System.Type,System.Reflection.MethodInfo,NSwag.Generation.OpenApiDocumentGenerator,NJsonSchema.Generation.JsonSchemaGenerator,NJsonSchema.Generation.JsonSchemaResolver,NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Collections.Generic.IList{NSwag.OpenApiOperationDescription})">
+        <member name="M:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext.#ctor(NSwag.OpenApiDocument,NSwag.OpenApiOperationDescription,System.Type,System.Reflection.MethodInfo,NSwag.Generation.OpenApiDocumentGenerator,NJsonSchema.Generation.JsonSchemaResolver,NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Collections.Generic.IList{NSwag.OpenApiOperationDescription})">
             <summary>Initializes a new instance of the <see cref="T:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext" /> class.</summary>
             <param name="document">The document.</param>
             <param name="operationDescription">The operation description.</param>
             <param name="controllerType">Type of the controller.</param>
             <param name="methodInfo">The method information.</param>
-            <param name="swaggerGenerator">The swagger generator.</param>
+            <param name="documentGenerator">The OpenAPI generator.</param>
             <param name="schemaResolver">The schema resolver.</param>
             <param name="settings">The sett</param>
             <param name="allOperationDescriptions">All operation descriptions.</param>
-            <param name="schemaGenerator">The schema generator.</param>
         </member>
         <member name="P:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext.ApiDescription">
             <summary>The <see cref="T:Microsoft.AspNetCore.Mvc.ApiExplorer.ApiDescription"/>.</summary>
         </member>
         <member name="T:NSwag.Generation.AspNetCore.Processors.AspNetCoreOperationTagsProcessor">
             <summary>Processes the SwaggerTagsAttribute on the operation method.</summary>
+        </member>
+        <member name="M:NSwag.Generation.AspNetCore.Processors.AspNetCoreOperationTagsProcessor.Process(NSwag.Generation.Processors.Contexts.OperationProcessorContext)">
+            <inheritdocs />
         </member>
         <member name="M:NSwag.Generation.AspNetCore.Processors.AspNetCoreOperationTagsProcessor.AddControllerNameTag(NSwag.Generation.Processors.Contexts.OperationProcessorContext)">
             <summary>Adds the controller name as operation tag.</summary>

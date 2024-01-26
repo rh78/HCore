@@ -6,7 +6,7 @@
     <members>
         <member name="M:NSwag.Generation.Collections.CollectionExtensions.SingleOrNew``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean})">
             <summary>Returns the only element of a sequence that satisfies a specified condition or a creates a new object and adds it to the collection if no such element exists; this method throws an exception if more than one element satisfies the condition.</summary>
-            <returns>The single element of the input sequence that satisfies the condition, or a new(<paramref name="TSource" />) if no such element is found.</returns>
+            <returns>The single element of the input sequence that satisfies the condition, or a new TSource instance if no such element is found.</returns>
             <param name="source">An <see cref="T:System.Collections.Generic.IEnumerable`1" /> to return a single element from.</param>
             <param name="predicate">A function to test an element for a condition.</param>
             <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
@@ -29,6 +29,11 @@
             <param name="settings">The settings.</param>
             <param name="schemaResolver">The schema resolver.</param>
         </member>
+        <member name="P:NSwag.Generation.OpenApiDocumentGenerator.SchemaGenerator">
+            <summary>
+            Gets or sets the schema generator.
+            </summary>
+        </member>
         <member name="M:NSwag.Generation.OpenApiDocumentGenerator.CreateUntypedPathParameter(System.String,System.String)">
             <summary>Creates a path parameter for a given type.</summary>
             <param name="parameterName">Name of the parameter.</param>
@@ -41,11 +46,12 @@
             <param name="contextualParameter">The parameter.</param>
             <returns>The parameter.</returns>
         </member>
-        <member name="M:NSwag.Generation.OpenApiDocumentGenerator.CreatePrimitiveParameter(System.String,System.String,Namotion.Reflection.ContextualType)">
+        <member name="M:NSwag.Generation.OpenApiDocumentGenerator.CreatePrimitiveParameter(System.String,System.String,Namotion.Reflection.ContextualType,System.Boolean)">
             <summary>Creates a primitive parameter for the given parameter information reflection object.</summary>
             <param name="name">The name.</param>
             <param name="description">The description.</param>
             <param name="contextualParameter">Type of the parameter.</param>
+            <param name="enforceNotNull">Specifies whether the parameter must never be nullable.</param>
             <returns>The parameter.</returns>
         </member>
         <member name="T:NSwag.Generation.OpenApiDocumentGeneratorSettings">
@@ -54,8 +60,11 @@
         <member name="M:NSwag.Generation.OpenApiDocumentGeneratorSettings.#ctor">
             <summary>Initializes a new instance of the <see cref="T:NSwag.Generation.OpenApiDocumentGeneratorSettings"/> class.</summary>
         </member>
-        <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.SchemaGenerator">
-            <summary>Gets or sets the JSON Schema generator.</summary>
+        <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.SchemaGeneratorFactory">
+            <summary>Gets or sets the JSON Schema generator factory (default: new instance of <see cref="T:NSwag.Generation.OpenApiSchemaGenerator"/>.</summary>
+        </member>
+        <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.SchemaSettings">
+            <summary></summary>
         </member>
         <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.Title">
             <summary>Gets or sets the Swagger specification title.</summary>
@@ -73,7 +82,7 @@
             <summary>Gets or sets the default response reference type null handling when no nullability information is available (if NotNullAttribute and CanBeNullAttribute are missing, default: NotNull).</summary>
         </member>
         <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.GenerateOriginalParameterNames">
-            <summary>Gets or sets a value indicating whether to generate x-originalName properties when parameter name is differnt in .NET and HTTP (default: true).</summary>
+            <summary>Gets or sets a value indicating whether to generate x-originalName properties when parameter name is different in .NET and HTTP (default: true).</summary>
         </member>
         <member name="P:NSwag.Generation.OpenApiDocumentGeneratorSettings.OperationProcessors">
             <summary>Gets the operation processors.</summary>
@@ -96,9 +105,9 @@
             <summary>Inserts a function based operation processor at the beginning of the pipeline to be used to filter operations.</summary>
             <param name="filter">The processor filter.</param>
         </member>
-        <member name="M:NSwag.Generation.OpenApiDocumentGeneratorSettings.ApplySettings(Newtonsoft.Json.JsonSerializerSettings,System.Object)">
+        <member name="M:NSwag.Generation.OpenApiDocumentGeneratorSettings.ApplySettings(NJsonSchema.Generation.JsonSchemaGeneratorSettings,System.Object)">
             <summary>Applies the given settings to this settings object.</summary>
-            <param name="serializerSettings">The serializer settings.</param>
+            <param name="schemaSettings">The schema generator settings.</param>
             <param name="mvcOptions">The MVC options.</param>
         </member>
         <member name="T:NSwag.Generation.OpenApiSchemaGenerator">
@@ -111,13 +120,13 @@
         </member>
         <member name="M:NSwag.Generation.OpenApiSchemaGenerator.GenerateObject(NJsonSchema.JsonSchema,NJsonSchema.Generation.JsonTypeDescription,NJsonSchema.Generation.JsonSchemaResolver)">
             <summary>Generates the properties for the given type and schema.</summary>
-            <param name="typeDescription">The type desription.</param>
+            <param name="typeDescription">The type description.</param>
             <param name="schema">The properties</param>
             <param name="schemaResolver">The schema resolver.</param>
             <returns></returns>
         </member>
         <member name="M:NSwag.Generation.OpenApiSchemaGenerator.GenerateWithReferenceAndNullability``1(Namotion.Reflection.ContextualType,System.Boolean,NJsonSchema.Generation.JsonSchemaResolver,System.Action{``0,NJsonSchema.JsonSchema})">
-            <summary>Generetes a schema directly or referenced for the requested schema type; also adds nullability if required.</summary>
+            <summary>Generates a schema directly or referenced for the requested schema type; also adds nullability if required.</summary>
             <typeparam name="TSchemaType">The resulted schema type which may reference the actual schema.</typeparam>
             <param name="contextualType">The type of the schema to generate.</param>
             <param name="isNullable">Specifies whether the property, parameter or requested schema type is nullable.</param>
@@ -205,17 +214,16 @@
         <member name="T:NSwag.Generation.Processors.Contexts.OperationProcessorContext">
             <summary>The <see cref="T:NSwag.Generation.Processors.IOperationProcessor"/> context.</summary>
         </member>
-        <member name="M:NSwag.Generation.Processors.Contexts.OperationProcessorContext.#ctor(NSwag.OpenApiDocument,NSwag.OpenApiOperationDescription,System.Type,System.Reflection.MethodInfo,NSwag.Generation.OpenApiDocumentGenerator,NJsonSchema.Generation.JsonSchemaGenerator,NJsonSchema.Generation.JsonSchemaResolver,NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Collections.Generic.IList{NSwag.OpenApiOperationDescription})">
+        <member name="M:NSwag.Generation.Processors.Contexts.OperationProcessorContext.#ctor(NSwag.OpenApiDocument,NSwag.OpenApiOperationDescription,System.Type,System.Reflection.MethodInfo,NSwag.Generation.OpenApiDocumentGenerator,NJsonSchema.Generation.JsonSchemaResolver,NSwag.Generation.OpenApiDocumentGeneratorSettings,System.Collections.Generic.IList{NSwag.OpenApiOperationDescription})">
             <summary>Initializes a new instance of the <see cref="T:NSwag.Generation.Processors.Contexts.OperationProcessorContext" /> class.</summary>
             <param name="document">The document.</param>
             <param name="operationDescription">The operation description.</param>
             <param name="controllerType">Type of the controller.</param>
             <param name="methodInfo">The method information.</param>
-            <param name="openApiDocumentGenerator">The swagger generator.</param>
+            <param name="documentGenerator">The OpenAPI generator.</param>
             <param name="schemaResolver">The schema resolver.</param>
             <param name="settings">The settings.</param>
             <param name="allOperationDescriptions">All operation descriptions.</param>
-            <param name="schemaGenerator">The schema generator.</param>
         </member>
         <member name="P:NSwag.Generation.Processors.Contexts.OperationProcessorContext.Document">
             <summary>Gets the Swagger document.</summary>
@@ -371,12 +379,12 @@
             <summary>Adds the controller name as operation tag.</summary>
             <param name="context">The context.</param>
         </member>
-        <member name="M:NSwag.Generation.Processors.OperationTagsProcessor.SetDescription(NSwag.Generation.Processors.Contexts.OperationProcessorContext,System.String,System.String)">
+        <member name="M:NSwag.Generation.Processors.OperationTagsProcessor.UpdateDocumentTagDescription(NSwag.Generation.Processors.Contexts.OperationProcessorContext,System.String,System.String)">
             <summary>
             Sets the description for the given controller on the document.
             </summary>
             <param name="context">The context.</param>
-            <param name="controllerName">The controller name.</param>
+            <param name="tagName">The tag name.</param>
             <param name="description">The description.</param>
         </member>
         <member name="T:NSwag.Generation.Processors.Security.OperationSecurityScopeProcessor">

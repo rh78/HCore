@@ -40,14 +40,19 @@
         <member name="F:NSwag.Commands.CodeGeneration.OperationGenerationMode.SingleClientFromPathSegments">
             <summary>From path segments suffixed by HTTP operation name</summary>
         </member>
-        <member name="T:NSwag.Commands.Generation.AspNetCore.AspNetCoreToOpenApiCommand">
-            <summary>The generator.</summary>
+        <member name="F:NSwag.Commands.CodeGeneration.OperationGenerationMode.MultipleClientsFromFirstTagAndOperationName">
+            <summary>From the first operation tag and operation name (underscore separated from operation id)</summary>
         </member>
-        <member name="T:NSwag.Commands.Generation.AspNetCore.AspNetCoreToSwaggerCommand">
+        <member name="T:NSwag.Commands.Generation.AspNetCore.AspNetCoreToOpenApiCommand">
             <summary>The generator.</summary>
         </member>
         <member name="T:NSwag.Commands.Generation.AspNetCore.AspNetCoreToOpenApiGeneratorCommandEntryPoint">
             <summary>In-process entry point for the aspnetcore2swagger command.</summary>
+        </member>
+        <member name="M:NSwag.Commands.Generation.AspNetCore.ProjectMetadata.TryReadingUsingGetProperties(System.Collections.Generic.List{System.String},System.String,System.Boolean)">
+            <summary>
+            NET 8 and later support evaluating properties via CLI. https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8#cli-based-project-evaluation
+            </summary>
         </member>
         <member name="T:NSwag.Commands.Generation.FromDocumentCommand">
             <summary>Reads a Swagger specification from JSON or an URL.</summary>
@@ -73,41 +78,11 @@
         <member name="M:NSwag.Commands.Generation.FromDocumentCommand.OnPropertyChanged(System.String)">
             <summary>Called when property changed.</summary>
         </member>
-        <member name="T:NSwag.Commands.Generation.OpenApiGeneratorCommandBase`1">
-            <inheritdoc />
-        </member>
-        <member name="M:NSwag.Commands.Generation.OpenApiGeneratorCommandBase`1.#ctor">
-            <summary>Initializes a new instance of the <see cref="T:NSwag.Commands.Generation.OpenApiGeneratorCommandBase`1"/> class.</summary>
-        </member>
-        <member name="T:NSwag.Commands.Generation.TypesToOpenApiCommand">
-            <summary></summary>
-        </member>
-        <member name="T:NSwag.Commands.Generation.TypesToSwaggerCommand">
-            <summary></summary>
-        </member>
-        <member name="M:NSwag.Commands.Generation.TypesToSwaggerCommand.#ctor">
-            <summary>Initializes a new instance of the <see cref="T:NSwag.Commands.Generation.TypesToSwaggerCommand"/> class.</summary>
-        </member>
-        <member name="T:NSwag.Commands.Generation.WebApi.WebApiToOpenApiCommand">
-            <summary>The generator.</summary>
-        </member>
-        <member name="T:NSwag.Commands.Generation.WebApi.WebApiToSwaggerCommand">
-            <summary>The generator.</summary>
-        </member>
-        <member name="M:NSwag.Commands.Generation.WebApi.WebApiToSwaggerCommand.#ctor">
-            <summary>Initializes a new instance of the <see cref="T:NSwag.Commands.Generation.WebApi.WebApiToSwaggerCommand"/> class.</summary>
-        </member>
         <member name="M:NSwag.Commands.InputOutputCommandBase.GetInputSwaggerDocument">
             <exception cref="T:System.ArgumentException">The argument 'Input' was empty.</exception>
         </member>
         <member name="M:NSwag.Commands.InputOutputCommandBase.GetJsonSchemaAsync">
             <exception cref="T:System.ArgumentException">The argument 'Input' was empty.</exception>
-        </member>
-        <member name="T:NSwag.Commands.IsolatedCommandBase`1">
-            <summary>A command which is run in isolation.</summary>
-        </member>
-        <member name="T:NSwag.Commands.IsolatedSwaggerOutputCommandBase`1">
-            <summary>A command which is run in isolation.</summary>
         </member>
         <member name="T:NSwag.Commands.Tooling.VersionCommand">
             <summary>Prints the tool chain version.</summary>
@@ -150,6 +125,11 @@
             <param name="args">The arguments.</param>
             <returns>The result.</returns>
         </member>
+        <member name="M:NSwag.Commands.NSwagCommandProcessor.ProcessAsync(System.String[])">
+            <summary>Processes the command line arguments.</summary>
+            <param name="args">The arguments.</param>
+            <returns>The result.</returns>
+        </member>
         <member name="T:NSwag.Commands.NSwagDocument">
             <summary>The NSwagDocument implementation.</summary>
             <seealso cref="T:NSwag.Commands.NSwagDocumentBase" />
@@ -183,14 +163,6 @@
             <summary>Executes the document via command line.</summary>
             <param name="redirectOutput">Indicates whether to redirect the outputs.</param>
             <returns>The result.</returns>
-        </member>
-        <member name="M:NSwag.Commands.NSwagDocument.GetControllersFromCommandLineAsync">
-            <summary>Gets the available controller types by calling the command line.</summary>
-            <returns>The controller names.</returns>
-        </member>
-        <member name="M:NSwag.Commands.NSwagDocument.GetTypesFromCommandLineAsync">
-            <summary>Gets the available controller types by calling the command line.</summary>
-            <returns>The controller names.</returns>
         </member>
         <member name="M:NSwag.Commands.NSwagDocument.ConvertToAbsolutePath(System.String)">
             <summary>Converts to absolute path.</summary>
@@ -255,13 +227,12 @@
             <typeparam name="TDocument">The type.</typeparam>
             <returns>The document.</returns>
         </member>
-        <member name="M:NSwag.Commands.NSwagDocumentBase.LoadAsync``1(System.String,System.String,System.Boolean,System.Collections.Generic.IDictionary{System.Type,System.Type})">
+        <member name="M:NSwag.Commands.NSwagDocumentBase.LoadAsync``1(System.String,System.String,System.Boolean)">
             <summary>Loads an existing NSwagDocument.</summary>
             <typeparam name="TDocument">The type.</typeparam>
             <param name="filePath">The file path.</param>
             <param name="variables">The variables.</param>
             <param name="applyTransformations">Specifies whether to expand environment variables and convert variables.</param>
-            <param name="mappings">The mappings.</param>
             <returns>The document.</returns>
         </member>
         <member name="M:NSwag.Commands.NSwagDocumentBase.FromJson``1(System.String,System.String)">
@@ -330,17 +301,41 @@
         <member name="P:NSwag.Commands.OpenApiGeneratorCollection.JsonSchemaToOpenApiCommand">
             <summary>Gets or sets the json schema to swagger command.</summary>
         </member>
-        <member name="P:NSwag.Commands.OpenApiGeneratorCollection.WebApiToOpenApiCommand">
-            <summary>Gets or sets the Web API to swagger command.</summary>
-        </member>
         <member name="P:NSwag.Commands.OpenApiGeneratorCollection.AspNetCoreToOpenApiCommand">
             <summary>Gets or sets the ASP.NET Core to swagger command.</summary>
         </member>
-        <member name="P:NSwag.Commands.OpenApiGeneratorCollection.TypesToOpenApiCommand">
-            <summary>Gets or sets the assembly type to swagger command.</summary>
-        </member>
         <member name="P:NSwag.Commands.OpenApiGeneratorCollection.Items">
             <summary>Gets the items.</summary>
+        </member>
+        <member name="M:NSwag.Commands.PathUtilities.ExpandFileWildcards(System.String)">
+            <summary>Expands the given wildcards (** or *) in the path.</summary>
+            <param name="path">The file path with wildcards.</param>
+            <returns>All expanded file paths.</returns>
+        </member>
+        <member name="M:NSwag.Commands.PathUtilities.ExpandFileWildcards(System.Collections.Generic.IEnumerable{System.String})">
+            <summary>Expands the given wildcards (** or *) in the paths.</summary>
+            <param name="paths">The files path with wildcards.</param>
+            <returns>All expanded file paths.</returns>
+        </member>
+        <member name="M:NSwag.Commands.PathUtilities.FindWildcardMatches(System.String,System.Collections.Generic.IEnumerable{System.String},System.Char)">
+            <summary>Finds the wildcard matches.</summary>
+            <param name="selector">The selector.</param>
+            <param name="items">The items.</param>
+            <param name="delimiter">The delimiter.</param>
+            <returns>The matches.</returns>
+        </member>
+        <member name="M:NSwag.Commands.PathUtilities.MakeAbsolutePath(System.String,System.String)">
+            <summary>Converts a relative path to an absolute path.</summary>
+            <param name="relativePath">The relative path.</param>
+            <param name="relativeTo">The current directory.</param>
+            <returns>The absolute path.</returns>
+        </member>
+        <member name="M:NSwag.Commands.PathUtilities.MakeRelativePath(System.String,System.String)">
+            <summary>Converts an absolute path to a relative path if possible.</summary>
+            <param name="absolutePath">The absolute path.</param>
+            <param name="relativeTo">The current directory.</param>
+            <returns>The relative path.</returns>
+            <exception cref="T:System.ArgumentException">The path of the two files doesn't have any common base.</exception>
         </member>
         <member name="T:NSwag.Commands.Runtime">
             <summary>Enumeration of .NET runtimes where a document can be processed.</summary>
@@ -354,14 +349,14 @@
         <member name="F:NSwag.Commands.Runtime.WinX86">
             <summary>Full .NET framework, x86.</summary>
         </member>
-        <member name="F:NSwag.Commands.Runtime.NetCore21">
-            <summary>.NET Core 2.1 app.</summary>
+        <member name="F:NSwag.Commands.Runtime.Net60">
+            <summary>.NET 6 app.</summary>
         </member>
-        <member name="F:NSwag.Commands.Runtime.NetCore31">
-            <summary>.NET Core 3.1 app.</summary>
+        <member name="F:NSwag.Commands.Runtime.Net70">
+            <summary>.NET 7 app.</summary>
         </member>
-        <member name="F:NSwag.Commands.Runtime.Net50">
-            <summary>.NET 5 app.</summary>
+        <member name="F:NSwag.Commands.Runtime.Net80">
+            <summary>.NET 8 app.</summary>
         </member>
         <member name="F:NSwag.Commands.Runtime.Debug">
             <summary>Execute in the same process.</summary>
