@@ -96,7 +96,7 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Launching using server URL {_serverUrl}");
 
-            var host = _hostBuilder.Build();
+            using var host = _hostBuilder.Build();
 
             host.Run();
         }
