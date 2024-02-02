@@ -16,8 +16,12 @@ namespace HCore.Storage.Client
 
         Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null);
         
+        Task CreateContainerAsync(string containerName, bool isPublic);
         Task DeleteContainerAsync(string containerName);
 
         Task DeleteFileAsync(string containerName, string fileName);
+
+        Task<ICollection<string>> GetStorageFileNamesAsync(string containerName);
+        Task<long> GetStorageFileSizeAsync(string containerName);
     }
 }

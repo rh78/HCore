@@ -247,6 +247,19 @@ namespace HCore.Cache.Impl
 
                     await Task.Delay(1000).ConfigureAwait(false);
                 }
+                catch (RedisServerException)
+                {
+                    // cluster down?
+
+                    if (tryCount >= 3)
+                    {
+                        throw;
+                    }
+
+                    tryCount++;
+
+                    await Task.Delay(1000).ConfigureAwait(false);
+                }
             }
             while (true);
         }

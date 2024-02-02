@@ -229,6 +229,23 @@ namespace HCore.Storage.Client.Impl
             return blobClient.Uri.AbsoluteUri;
         }
 
+        public async Task CreateContainerAsync(string containerName, bool isPublic)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            if (isPublic)
+            {
+                var containerProperties = await containerClient.GetPropertiesAsync().ConfigureAwait(false);
+
+                if (containerProperties.Value.PublicAccess != PublicAccessType.Blob)
+                {
+                    await containerClient.SetAccessPolicyAsync(accessType: PublicAccessType.Blob).ConfigureAwait(false);
+                }
+            }
+        }
+
         public async Task DeleteContainerAsync(string containerName)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
@@ -285,6 +302,34 @@ namespace HCore.Storage.Client.Impl
             var uri = blobClient.GenerateSasUri(blobSasBuilder);
 
             return uri.AbsoluteUri;
+        }
+
+        public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            var result = new List<string>();
+
+            await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+            {
+                result.Add(blobItem.Name);
+            }
+
+            return result;
+        }
+
+        public async Task<long> GetStorageFileSizeAsync(string containerName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            long storageFileSize = 0;
+
+            await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+            {
+                storageFileSize += (long)blobItem.Properties.ContentLength;
+            }
+
+            return storageFileSize;
         }
     }
 }
