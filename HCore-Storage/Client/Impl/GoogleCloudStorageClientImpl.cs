@@ -278,6 +278,11 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public Task CreateContainerAsync(string containerName, bool isPublic)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task DeleteContainerAsync(string containerName)
         {
             throw new NotImplementedException();
@@ -306,6 +311,16 @@ namespace HCore.Storage.Client.Impl
             }
 
             return signedUrl;
+        }
+
+        public Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> GetStorageFileSizeAsync(string containerName)
+        {
+            throw new NotImplementedException();
         }
     }
 }
