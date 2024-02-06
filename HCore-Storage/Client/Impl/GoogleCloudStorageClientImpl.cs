@@ -68,7 +68,7 @@ namespace HCore.Storage.Client.Impl
                 }
                 else
                 {
-                    throw e;
+                    throw;
                 }
             }
         }
@@ -104,7 +104,7 @@ namespace HCore.Storage.Client.Impl
                 }
                 else
                 {
-                    throw e;
+                    throw;
                 }
             }
         }
