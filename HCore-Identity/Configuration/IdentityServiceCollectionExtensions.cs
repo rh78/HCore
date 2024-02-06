@@ -644,6 +644,8 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 identityServerBuilder = services.AddIdentityServer(options =>
                 {
+                    options.LicenseKey = configuration.GetValue<string>("Identity:LicenseKey");
+
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
@@ -660,6 +662,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 identityServerBuilder = services.AddIdentityServer(options =>
                 {
+                    options.LicenseKey = configuration.GetValue<string>("Identity:LicenseKey");
+
                     options.Events.RaiseErrorEvents = true;
                     options.Events.RaiseInformationEvents = true;
                     options.Events.RaiseFailureEvents = true;
