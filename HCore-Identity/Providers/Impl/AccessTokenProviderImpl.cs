@@ -142,9 +142,9 @@ namespace HCore.Identity.Providers.Impl
 
                 return accessTokenValue;
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {

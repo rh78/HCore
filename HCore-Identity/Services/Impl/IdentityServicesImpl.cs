@@ -191,9 +191,9 @@ namespace HCore.Identity.Services.Impl
                     return reservedEmailAddressModel;
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -488,9 +488,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -743,9 +743,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -834,9 +834,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1126,9 +1126,9 @@ namespace HCore.Identity.Services.Impl
                     return (user, false);
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1193,7 +1193,7 @@ namespace HCore.Identity.Services.Impl
             {
                 _logger.LogError($"Error when confirming user email address: {e}");
 
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1247,9 +1247,9 @@ namespace HCore.Identity.Services.Impl
                     transaction.Commit();
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1298,9 +1298,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1350,9 +1350,9 @@ namespace HCore.Identity.Services.Impl
                     transaction.Commit();
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1458,9 +1458,9 @@ namespace HCore.Identity.Services.Impl
 
                 return user;
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1626,9 +1626,9 @@ namespace HCore.Identity.Services.Impl
                     return newUser;
                 }
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
@@ -1677,7 +1677,7 @@ namespace HCore.Identity.Services.Impl
             {
                 _logger.LogError($"Error when resending email confirmation email: {e}");
 
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
