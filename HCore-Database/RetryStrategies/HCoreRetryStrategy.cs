@@ -40,20 +40,10 @@ namespace HCore.Database.RetryStrategies
 
         // See https://learn.microsoft.com/en-US/ef/core/miscellaneous/connection-resiliency - Option 1 "Do (almost) nothing" - we will retry on simple reads, but never on complex writes
 
-        public override bool RetriesOnFailure 
+        public override bool RetriesOnFailure
         {
             get
             {
-                if ((Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
-                    || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
-                    || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies
-                       .TransactionManager as ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
-                {
-                    _enableRetry = false;
-
-                    return false;
-                }
-
                 if (!_enableRetry)
                 {
                     // once disabled, never enable again
@@ -65,7 +55,19 @@ namespace HCore.Database.RetryStrategies
             }
         }
 
-        protected override bool ShouldRetryOn(Exception? exception)
+        protected override void OnFirstExecution()
+        {
+            if (RetriesOnFailure && (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null ||
+                Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null ||
+                (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
+            {
+                _enableRetry = false;
+            }
+
+            base.OnFirstExecution();
+        }
+
+        protected override bool ShouldRetryOn(Exception exception)
         {
             if (!_enableRetry)
             {

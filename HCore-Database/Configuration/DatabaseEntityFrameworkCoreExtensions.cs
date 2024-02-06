@@ -1,13 +1,17 @@
-﻿using HCore.Database;
+﻿using System;
+using System.Collections.Concurrent;
+using HCore.Database;
 using HCore.Database.RetryStrategies;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
-using System;
+using Npgsql;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public static class DatabaseEntityFrameworkCoreExtensions
     {
+        private static readonly ConcurrentDictionary<string, NpgsqlDataSource> _sqlDataSourcesByConfigurationKey = new();
+
         public static DbContextOptionsBuilder AddSqlDatabase(this DbContextOptionsBuilder builder, string configurationKey, IConfiguration configuration, string migrationsAssembly = null)
         {
             string implementation = configuration[$"Database:{configurationKey}:Implementation"];
@@ -32,13 +36,26 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                builder.UseNpgsql(connectionString, options =>
-                {                   
-                    if (!string.IsNullOrEmpty(migrationsAssembly))
-                        options.MigrationsAssembly(migrationsAssembly);
+                var dataSource = _sqlDataSourcesByConfigurationKey.GetOrAdd(
+                    configurationKey,
+                    (_) =>
+                    {
+                        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
 
-                    options.ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c));
-                });
+                        dataSourceBuilder.EnableDynamicJson();
+
+                        return dataSourceBuilder.Build();
+                    });
+
+                builder.UseNpgsql(
+                    dataSource,
+                    options =>
+                    {
+                        if (!string.IsNullOrEmpty(migrationsAssembly))
+                            options.MigrationsAssembly(migrationsAssembly);
+
+                        options.ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c));
+                    });
             }
 
             return builder;

@@ -67,9 +67,9 @@ namespace HCore.Identity.Providers.Impl
 
                 return await GetAccessTokenAsync(user, additionalClientClaims, userUuidOverride).ConfigureAwait(false);
             }
-            catch (ApiException e)
+            catch (ApiException)
             {
-                throw e;
+                throw;
             }
             catch (Exception e)
             {

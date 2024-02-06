@@ -24,12 +24,12 @@ namespace HCore.Identity.Attributes
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-Content-Type-Options"))
                 {
-                    context.HttpContext.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                    context.HttpContext.Response.Headers["X-Content-Type-Options"] = "nosniff";
                 }
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("P3P"))
                 {
-                    context.HttpContext.Response.Headers.Add("P3P", "CP=\"This is not a P3P policy!\"");
+                    context.HttpContext.Response.Headers["P3P"] = "CP=\"This is not a P3P policy!\"";
                 }
 
                 var allowIFrameUrl = "";
@@ -67,7 +67,7 @@ namespace HCore.Identity.Attributes
                 // once for standards compliant browsers
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
                 {
-                    context.HttpContext.Response.Headers.Add("Content-Security-Policy", csp);
+                    context.HttpContext.Response.Headers["Content-Security-Policy"] = csp;
                 }
 
                 // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
@@ -81,17 +81,17 @@ namespace HCore.Identity.Attributes
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
                 if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
                 {
-                    context.HttpContext.Response.Headers.Add("Referrer-Policy", "no-referrer");
+                    context.HttpContext.Response.Headers["Referrer-Policy"] = "no-referrer";
                 }
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("Feature-Policy"))
                 {
-                    context.HttpContext.Response.Headers.Add("Feature-Policy", "autoplay: *; max-downscaling-image: *; unsized-media: *; animations: *; vertical-scroll: 'self';");
+                    context.HttpContext.Response.Headers["Feature-Policy"] = "autoplay: *; max-downscaling-image: *; unsized-media: *; animations: *; vertical-scroll: 'self';";
                 }
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("X-XSS-Protection"))
                 {
-                    context.HttpContext.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+                    context.HttpContext.Response.Headers["X-XSS-Protection"] = "1; mode=block";
                 }
             }
         }

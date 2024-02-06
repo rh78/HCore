@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using HCore.Database.ElasticSearch;
-using HCore.Database.ElasticSearch.Impl;
-using System;
+﻿using System;
 using System.Reflection;
 using HCore.Database;
+using HCore.Database.ElasticSearch;
+using HCore.Database.ElasticSearch.Impl;
 using HCore.Database.RetryStrategies;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -90,23 +91,41 @@ namespace Microsoft.Extensions.DependencyInjection
             }
             else
             {
-                services.AddDbContext<TContext>(
-                    options =>
+                var serviceKey = configurationKey;
+
+                services.AddNpgsqlDataSource(
+                    connectionString,
+                    (npgsqlDataSourceBuilder) =>
                     {
-                        options.UseNpgsql(connectionString,
+                        npgsqlDataSourceBuilder.EnableDynamicJson();
+                    },
+                    dataSourceLifetime: ServiceLifetime.Singleton,
+                    serviceKey: serviceKey);
+
+                services.AddDbContext<TContext>(
+                    (serviceProvider, options) =>
+                    {
+                        var dataSource = serviceProvider.GetRequiredKeyedService<NpgsqlDataSource>(serviceKey);
+
+                        options.UseNpgsql(
+                            dataSource,
                             postgresOptions => postgresOptions
                                 .MigrationsAssembly(migrationsAssembly)
                                 .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
-                    }, 
+                    },
                     optionsLifetime: ServiceLifetime.Singleton);
 
-                services.AddPooledDbContextFactory<TContext>(options =>
-                {
-                    options.UseNpgsql(connectionString,
-                        postgresOptions => postgresOptions
-                            .MigrationsAssembly(migrationsAssembly)
-                            .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
-                });
+                services.AddPooledDbContextFactory<TContext>(
+                    (serviceProvider, options) =>
+                    {
+                        var dataSource = serviceProvider.GetRequiredKeyedService<NpgsqlDataSource>(serviceKey);
+
+                        options.UseNpgsql(
+                            dataSource,
+                            postgresOptions => postgresOptions
+                                .MigrationsAssembly(migrationsAssembly)
+                                .ExecutionStrategy((ExecutionStrategyDependencies c) => new HCoreRetryStrategy(c)));
+                    });
             }
 
             return services;

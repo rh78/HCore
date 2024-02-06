@@ -70,7 +70,7 @@ namespace {{packageName}}.Controllers
 			IActionResult response = StatusCode(result.StatusCode, result.Result);            
 			
 			foreach (var header in result.Headers)
-                Request.HttpContext.Response.Headers.Add(header.Key, header.Value.ToString());
+                Request.HttpContext.Response.Headers[header.Key] = header.Value.ToString();
 			{{/returnType}}
 			{{^returnType}}
 			await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
