@@ -13,6 +13,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel ForgotPasswordEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewUnreadNotificationsEmailSettings { get; set; }
         public EmailInstanceSettingsModel HttpsCertificateExpiresEmailSettings { get; set; }
+        public EmailInstanceSettingsModel HttpsCertificateRenewEmailSettings { get; set; }
+        public EmailInstanceSettingsModel HttpsCertificateRenewErrorEmailSettings { get; set; }
         public EmailInstanceSettingsModel NewAdminUserRegisteredEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationEmailSettings { get; set; }
         public EmailInstanceSettingsModel CollectionInvitationAcceptedEmailSettings { get; set; }
@@ -101,6 +103,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     HttpsCertificateExpiresEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateExpiresEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.HttpsCertificateRenewEmailSettings != null)
+            {
+                if (HttpsCertificateRenewEmailSettings == null)
+                {
+                    HttpsCertificateRenewEmailSettings = new EmailInstanceSettingsModel();
+                    HttpsCertificateRenewEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    HttpsCertificateRenewEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings != null)
+            {
+                if (HttpsCertificateRenewErrorEmailSettings == null)
+                {
+                    HttpsCertificateRenewErrorEmailSettings = new EmailInstanceSettingsModel();
+                    HttpsCertificateRenewErrorEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    HttpsCertificateRenewErrorEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings, allowEmpty);
                 }
             }
 
@@ -420,6 +448,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     HttpsCertificateExpiresEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateExpiresEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.HttpsCertificateRenewEmailSettings != null)
+            {
+                if (HttpsCertificateRenewEmailSettings == null)
+                {
+                    HttpsCertificateRenewEmailSettings = new EmailInstanceSettingsModel();
+                    HttpsCertificateRenewEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    HttpsCertificateRenewEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings != null)
+            {
+                if (HttpsCertificateRenewErrorEmailSettings == null)
+                {
+                    HttpsCertificateRenewErrorEmailSettings = new EmailInstanceSettingsModel();
+                    HttpsCertificateRenewErrorEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    HttpsCertificateRenewErrorEmailSettings.MergeWith(customEmailSettingsModel.HttpsCertificateRenewErrorEmailSettings, allowEmpty);
                 }
             }
 

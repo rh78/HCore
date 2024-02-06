@@ -63,6 +63,8 @@ namespace HCore.Database.RetryStrategies
             {
                 _enableRetry = false;
             }
+
+            base.OnFirstExecution();
         }
 
         protected override bool ShouldRetryOn(Exception exception)
