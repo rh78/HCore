@@ -163,6 +163,10 @@
             <param name="item">The item.</param>
             <returns></returns>
         </member>
+        <member name="M:NSwag.Collections.ObservableDictionary`2.System#Collections#Generic#IEnumerable{System#Collections#Generic#KeyValuePair{TKey,TValue}}#GetEnumerator">
+            <summary>Returns an enumerator that iterates through the collection.</summary>
+            <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
+        </member>
         <member name="M:NSwag.Collections.ObservableDictionary`2.GetEnumerator">
             <summary>Returns an enumerator that iterates through the collection.</summary>
             <returns>A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.</returns>
@@ -346,12 +350,6 @@
         </member>
         <member name="P:NSwag.OpenApiDocument.Operations">
             <summary>Gets the operations.</summary>
-        </member>
-        <member name="M:NSwag.OpenApiDocument.GetChecksum">
-            <summary>
-            Calculates checksum for this document based on JSON contents.
-            </summary>
-            <remarks>Will always return null under .NET Standard 1.0.</remarks>
         </member>
         <member name="M:NSwag.OpenApiDocument.GenerateOperationIds">
             <summary>Generates missing or non-unique operation IDs.</summary>
@@ -650,31 +648,31 @@
         <member name="T:NSwag.OpenApiOperationMethod">
             <summary>Enumeration of the available HTTP methods. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Undefined">
+        <member name="F:NSwag.OpenApiOperationMethod.Undefined">
             <summary>An undefined method.</summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Get">
+        <member name="F:NSwag.OpenApiOperationMethod.Get">
             <summary>The HTTP GET method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Post">
+        <member name="F:NSwag.OpenApiOperationMethod.Post">
             <summary>The HTTP POST method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Put">
+        <member name="F:NSwag.OpenApiOperationMethod.Put">
             <summary>The HTTP PUT method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Delete">
+        <member name="F:NSwag.OpenApiOperationMethod.Delete">
             <summary>The HTTP DELETE method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Options">
+        <member name="F:NSwag.OpenApiOperationMethod.Options">
             <summary>The HTTP OPTIONS method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Head">
+        <member name="F:NSwag.OpenApiOperationMethod.Head">
             <summary>The HTTP HEAD method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Patch">
+        <member name="F:NSwag.OpenApiOperationMethod.Patch">
             <summary>The HTTP PATCH method. </summary>
         </member>
-        <member name="P:NSwag.OpenApiOperationMethod.Trace">
+        <member name="F:NSwag.OpenApiOperationMethod.Trace">
             <summary>The HTTP TRACE method (OpenAPI only). </summary>
         </member>
         <member name="T:NSwag.OpenApiParameter">

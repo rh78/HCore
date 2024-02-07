@@ -89,8 +89,14 @@
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.GenerateClientInterfaces">
             <summary>Gets or sets a value indicating whether to generate interfaces for the client classes (default: false).</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.SuppressClientInterfacesOutput">
+            <summary>Gets or sets a value indicating whether to generate the output of interfaces for the client classes (default: false).</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.GenerateClientClasses">
             <summary>Gets or sets a value indicating whether to generate client types (default: true).</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.SuppressClientClassesOutput">
+            <summary>Gets or sets a value indicating whether to generate the output of client types (default: false).</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.OperationNameGenerator">
             <summary>Gets or sets the operation name generator.</summary>
@@ -121,10 +127,6 @@
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.ResponseClass">
             <summary>Gets or sets the name of the response class (supports the '{controller}' placeholder).</summary>
         </member>
-        <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.OutputFilePath">
-            <summary>Gets or sets the output file name, used to detect changes.</summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.ChecksumCacheEnabled" -->
         <member name="T:NSwag.CodeGeneration.ClientGeneratorOutputType">
             <summary>Specifies the output type.</summary>
         </member>
@@ -347,6 +349,12 @@
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Summary">
             <summary>Gets the summary text.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.HasDescription">
+            <summary>Gets a value indicating whether the operation has description.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Description">
+            <summary>Gets the remarks text.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.HasDocumentation">
             <summary>Gets a value indicating whether the operation has any documentation.</summary>
         </member>
@@ -358,6 +366,9 @@
         </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.HasBinaryBodyParameter">
             <summary>Gets or sets a value indicating whether this operation has an binary body parameter.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.HasPlainTextBodyParameter">
+            <summary>Gets a value indicating whether this operation has a text/plain body parameter.</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Consumes">
             <summary>Gets the mime type of the request body.</summary>
@@ -524,6 +535,9 @@
         <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.IsHeader">
             <summary>Gets a value indicating whether the parameter is supplied through the request headers.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.AllowEmptyValue">
+            <summary>Gets a value indicating whether the parameter allows empty values.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.ExtensionData">
             <summary>Gets the operation extension data.</summary>
         </member>
@@ -671,6 +685,17 @@
             <param name="operation">The operation.</param>
             <returns>The operation name.</returns>
         </member>
+        <member name="T:NSwag.CodeGeneration.OperationNameGenerators.MultipleClientsFromFirstTagAndOperationNameGenerator">
+            <summary>Generates the client name based on the first tag and operation names based on the Swagger operation ID (underscore separated).</summary>
+        </member>
+        <member name="M:NSwag.CodeGeneration.OperationNameGenerators.MultipleClientsFromFirstTagAndOperationNameGenerator.GetClientName(NSwag.OpenApiDocument,System.String,System.String,NSwag.OpenApiOperation)">
+            <summary>Gets the client name for a given operation (may be empty).</summary>
+            <param name="document">The Swagger document.</param>
+            <param name="path">The HTTP path.</param>
+            <param name="httpMethod">The HTTP method.</param>
+            <param name="operation">The operation.</param>
+            <returns>The client name.</returns>
+        </member>
         <member name="T:NSwag.CodeGeneration.OperationNameGenerators.MultipleClientsFromFirstTagAndPathSegmentsOperationNameGenerator">
             <summary>Generates the client name based on the first tag and operation name based on the path segments (operation name = last segment, client name = first tag).</summary>
         </member>
@@ -775,7 +800,7 @@
             <returns>The client name.</returns>
         </member>
         <member name="T:NSwag.CodeGeneration.OperationNameGenerators.SingleClientFromPathSegmentsOperationNameGenerator">
-            <summary>Generates the client and operation name based on the path segments (operation name = last segment, client name = second to last segment).</summary>
+            <summary>Generates the operation name from path segments (suffixed by HTTP operation name if need be)</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.OperationNameGenerators.SingleClientFromPathSegmentsOperationNameGenerator.SupportsMultipleClients">
             <summary>Gets a value indicating whether the generator supports multiple client classes.</summary>
@@ -789,12 +814,12 @@
             <returns>The client name.</returns>
         </member>
         <member name="M:NSwag.CodeGeneration.OperationNameGenerators.SingleClientFromPathSegmentsOperationNameGenerator.GetOperationName(NSwag.OpenApiDocument,System.String,System.String,NSwag.OpenApiOperation)">
-            <summary>Gets the client name for a given operation (may be empty).</summary>
+            <summary>Gets the operation name for a given operation.</summary>
             <param name="document">The Swagger document.</param>
             <param name="path">The HTTP path.</param>
             <param name="httpMethod">The HTTP method.</param>
             <param name="operation">The operation.</param>
-            <returns>The client name.</returns>
+            <returns>The operation name.</returns>
         </member>
         <member name="M:NSwag.CodeGeneration.OperationNameGenerators.SingleClientFromPathSegmentsOperationNameGenerator.ConvertPathToName(System.String)">
             <summary>Converts the path to an operation name.</summary>

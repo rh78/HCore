@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>HCore.Translations</RootNamespace>
     <AssemblyName>HCore.Translations</AssemblyName>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>

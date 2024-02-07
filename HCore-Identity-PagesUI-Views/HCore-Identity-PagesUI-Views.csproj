@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>HCore.Identity.PagesUI.Views</RootNamespace>
     <AssemblyName>HCore.Identity.PagesUI.Views</AssemblyName>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>  
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>	
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
@@ -119,7 +119,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\HCore-Identity-PagesUI-Classes\HCore-Identity-PagesUI-Classes.csproj" />
-    <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />	
+    <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />
   </ItemGroup>
 
 </Project>

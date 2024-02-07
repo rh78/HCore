@@ -29,6 +29,7 @@ namespace HCore.Web.Startup
     {
         // see https://github.com/dotnet/corefx/issues/40830
 
+#pragma warning disable CA1416 // Validate platform compatibility
         private static readonly CipherSuitesPolicy CipherSuitesPolicy = new CipherSuitesPolicy
         (
             new TlsCipherSuite[]
@@ -71,6 +72,7 @@ namespace HCore.Web.Startup
                 TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
             }
         );
+#pragma warning restore CA1416 // Validate platform compatibility
 
         private string _environment;
 

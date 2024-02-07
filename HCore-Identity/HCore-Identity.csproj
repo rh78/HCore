@@ -1,20 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>HCore.Identity</RootNamespace>
     <AssemblyName>HCore.Identity</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Duende.IdentityServer" Version="6.1.1" />
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.1.1" />
-    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.1.1" />
+    <PackageReference Include="Duende.IdentityServer" Version="7.0.0" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.0" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.0" />
     <PackageReference Include="Kickbox.Net" Version="1.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
     <PackageReference Include="reCAPTCHA.AspNetCore" Version="3.0.10" />
     <PackageReference Include="Sustainsys.Saml2.AspNetCore2" Version="2.9.0" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">

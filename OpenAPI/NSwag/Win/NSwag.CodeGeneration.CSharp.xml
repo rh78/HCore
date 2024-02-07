@@ -314,6 +314,12 @@
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.GenerateClientInterfaces">
             <summary>Gets a value indicating whether to generate client interfaces.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.SuppressClientInterfacesOutput">
+            <summary>Gets a value indicating whether to generate the output of client interfaces.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.SuppressClientClassesOutput">
+            <summary>Gets a value indicating whether to generate the output of client classes.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.ClientBaseInterface">
             <summary>Gets client base interface.</summary>
         </member>
@@ -540,11 +546,6 @@
             <param name="settings">The settings.</param>
             <param name="generator">The client generator base.</param>
             <param name="resolver">The resolver.</param>
-        </member>
-        <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpFileTemplateModel.SourceSha">
-            <summary>
-            Gets the checksum for the document that was used to produce the file.
-            </summary>
         </member>
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpFileTemplateModel.Namespace">
             <summary>Gets the namespace.</summary>
