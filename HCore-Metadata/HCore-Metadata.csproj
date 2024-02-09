@@ -9,8 +9,8 @@
   <ItemGroup>
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
-    <PackageReference Include="Nager.Country" Version="3.1.1" />
-    <PackageReference Include="Nager.Country.Translation" Version="3.0.3" />
+    <PackageReference Include="Nager.Country" Version="4.0.0" />
+    <PackageReference Include="Nager.Country.Translation" Version="3.0.5" />
     <PackageReference Include="VIEApps.Enyim.Caching" Version="1.8.2012.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.2.32">
 	  <PrivateAssets>all</PrivateAssets>
