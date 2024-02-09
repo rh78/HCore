@@ -299,7 +299,7 @@ namespace HCore.Storage.Client.Impl
                 .CreateScoped(new string[] { "https://www.googleapis.com/auth/devstorage.read_only" })
                 .UnderlyingCredential as ServiceAccountCredential;
 
-            var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
+            var urlSigner = UrlSigner.FromCredential(credential);
 
             string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
 
