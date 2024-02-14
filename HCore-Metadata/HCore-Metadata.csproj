@@ -11,7 +11,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Nager.Country" Version="4.0.0" />
     <PackageReference Include="Nager.Country.Translation" Version="3.0.5" />
-    <PackageReference Include="VIEApps.Enyim.Caching" Version="1.8.2012.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,6 +23,10 @@
   
   <ItemGroup>
     <EmbeddedResource Include="Resources\GeoLite2-Country.mmdb" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 </Project>
