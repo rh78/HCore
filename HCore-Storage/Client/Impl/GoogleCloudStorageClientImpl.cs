@@ -299,16 +299,30 @@ namespace HCore.Storage.Client.Impl
                 .CreateScoped(new string[] { "https://www.googleapis.com/auth/devstorage.read_only" })
                 .UnderlyingCredential as ServiceAccountCredential;
 
-            var urlSigner = UrlSigner.FromServiceAccountCredential(credential);
+            var urlSigner = UrlSigner.FromCredential(credential);
 
-            string signedUrl = await urlSigner.SignAsync(containerName, fileName, validityTimeSpan, HttpMethod.Get).ConfigureAwait(false);
+            var requestTemplate = UrlSigner.RequestTemplate.FromBucket(containerName)
+                .WithObjectName(fileName)
+                .WithHttpMethod(HttpMethod.Get);
+
+            var requestOptions = UrlSigner.Options.FromDuration(validityTimeSpan);
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+                var contentDispositionHeader = new ContentDisposition()
+                {
+                    FileName = downloadFileName
+                };
 
-                signedUrl = $"{signedUrl}&response-content-disposition={HttpUtility.UrlEncode(contentDispositionHeader.ToString())}";
+                var queryParameters = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "response-content-disposition", [contentDispositionHeader.ToString()] }
+                };
+
+                requestTemplate = requestTemplate.WithQueryParameters(queryParameters);
             }
+
+            string signedUrl = await urlSigner.SignAsync(requestTemplate, requestOptions).ConfigureAwait(false);
 
             return signedUrl;
         }
