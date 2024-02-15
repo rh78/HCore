@@ -37,6 +37,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 services.AddSingleton<ICache, MemcachedCacheImpl>();
             }
 
+            services.AddScoped<IMemoryScopedCache, MemoryScopedCacheImpl>();
+
             Console.WriteLine("Cache initialized successfully");
 
             return services;
