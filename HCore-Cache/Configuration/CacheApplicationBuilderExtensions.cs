@@ -1,6 +1,6 @@
-﻿using HCore.Cache;
+﻿using System;
+using HCore.Cache;
 using Microsoft.Extensions.Configuration;
-using System;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -13,13 +13,8 @@ namespace Microsoft.AspNetCore.Builder
             if (string.IsNullOrEmpty(implementation))
                 throw new Exception("Cache implementation specification is empty");
 
-            if (!implementation.Equals(CacheConstants.CacheImplementationRedis) && !implementation.Equals(CacheConstants.CacheImplementationMemcached))
+            if (!implementation.Equals(CacheConstants.CacheImplementationRedis))
                 throw new Exception("Cache implementation specification is invalid");
-
-            if (implementation.Equals(CacheConstants.CacheImplementationMemcached))
-            {
-                app.UseMemcached();
-            }
 
             return app;
         }

@@ -2,7 +2,6 @@
 using HCore.Cache;
 using HCore.Cache.Impl;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -17,24 +16,13 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(implementation))
                 throw new Exception("Cache implementation specification is empty");
 
-            if (!implementation.Equals(CacheConstants.CacheImplementationRedis) && !implementation.Equals(CacheConstants.CacheImplementationMemcached))
+            if (!implementation.Equals(CacheConstants.CacheImplementationRedis))
                 throw new Exception("Cache implementation specification is invalid");
 
             if (implementation.Equals(CacheConstants.CacheImplementationRedis))
             {
                 services.AddSingleton<IRedisConnectionPool, RedisConnectionPoolImpl>();
                 services.AddSingleton<ICache, RedisCacheImpl>();
-            }
-            else
-            {
-                services.AddMemcached(options =>
-                {
-                    configuration.GetSection("Cache:Memcached").Bind(options);
-
-                    options.Protocol = Enyim.Caching.Memcached.MemcachedProtocol.Binary;
-                });
-
-                services.AddSingleton<ICache, MemcachedCacheImpl>();
             }
 
             services.AddScoped<IMemoryScopedCache, MemoryScopedCacheImpl>();
