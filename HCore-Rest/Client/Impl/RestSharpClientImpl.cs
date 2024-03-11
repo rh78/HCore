@@ -2,43 +2,44 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using HCore.Rest.Client.Impl.Serializer;
 using Newtonsoft.Json;
 using RestSharp;
+using RestSharp.Serializers.NewtonsoftJson;
 
 namespace HCore.Rest.Client.Impl
 {
-    // TODO: upgrade to newest RestSharp client (breaking)
-    // see https://restsharp.dev/v107/#restsharp-v107
 
     internal class RestSharpClientImpl : IRestSharpClient
     {
+        private static readonly JsonSerializerSettings _defaultJsonSerializerSettings = new()
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+        };
+
         public RestClient Client { get; private set; }
 
         private const int RequestRetryCount = 5;
         private const int BackoffRate = 100; // ms
 
-        public RestSharpClientImpl()
+        public RestSharpClientImpl(RestClientOptions restClientOptions, JsonSerializerSettings jsonSerializerSettings = null)
         {
-            Client = new RestClient();
+            ArgumentNullException.ThrowIfNull(restClientOptions);
 
-            Client.AddHandler("application/json", () => { return NewtonsoftJsonSerializer.Default; });
-            Client.AddHandler("text/json", () => { return NewtonsoftJsonSerializer.Default; });
-            Client.AddHandler("text/x-json", () => { return NewtonsoftJsonSerializer.Default; });
-            Client.AddHandler("text/javascript", () => { return NewtonsoftJsonSerializer.Default; });
-            Client.AddHandler("*+json", () => { return NewtonsoftJsonSerializer.Default; });
+            jsonSerializerSettings ??= _defaultJsonSerializerSettings;
+
+            Client = new RestClient(restClientOptions, configureSerialization: sc => sc.UseNewtonsoftJson(jsonSerializerSettings));
         }
 
-        public Uri BaseUrl { get => Client.BaseUrl; set => Client.BaseUrl = value; }
+        public Uri BaseUrl { get => Client.Options.BaseUrl; }
 
-        public async Task<IRestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request)
+        public async Task<RestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request)
         {
             return await ExecuteTaskExponentialBackoffAsync<TResponse>(request).ConfigureAwait(false);
         }
 
-        private async Task<IRestResponse<TResponse>> ExecuteTaskExponentialBackoffAsync<TResponse>(RestRequest request)
+        private async Task<RestResponse<TResponse>> ExecuteTaskExponentialBackoffAsync<TResponse>(RestRequest request)
         {
-            IRestResponse<TResponse> response = null;
+            RestResponse<TResponse> response = null;
 
             int count = 0;
 
@@ -83,7 +84,7 @@ namespace HCore.Rest.Client.Impl
             return response;
         }
 
-        public string GetLogContent(IRestRequest request, IRestResponse response)
+        public string GetLogContent(RestRequest request, RestResponse response)
         {
             var requestToLog = new
             {
