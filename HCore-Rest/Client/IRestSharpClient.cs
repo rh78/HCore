@@ -6,12 +6,12 @@ namespace HCore.Rest.Client
 {
     public interface IRestSharpClient
     {
-        Uri BaseUrl { get; set; }
+        Uri BaseUrl { get; }
 
-        Task<IRestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request);
+        Task<RestResponse<TResponse>> ExecuteTaskAsync<TResponse>(RestRequest request);
 
         RestClient Client { get; }
 
-        string GetLogContent(IRestRequest request, IRestResponse response);
+        string GetLogContent(RestRequest request, RestResponse response);
     }
 }
