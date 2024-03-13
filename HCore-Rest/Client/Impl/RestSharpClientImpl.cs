@@ -8,7 +8,6 @@ using RestSharp.Serializers.NewtonsoftJson;
 
 namespace HCore.Rest.Client.Impl
 {
-
     internal class RestSharpClientImpl : IRestSharpClient
     {
         private static readonly JsonSerializerSettings _defaultJsonSerializerSettings = new()
@@ -28,6 +27,14 @@ namespace HCore.Rest.Client.Impl
             jsonSerializerSettings ??= _defaultJsonSerializerSettings;
 
             Client = new RestClient(restClientOptions, configureSerialization: sc => sc.UseNewtonsoftJson(jsonSerializerSettings));
+        }
+
+        public RestSharpClientImpl(RestClientOptions restClientOptions, ConfigureSerialization configureSerialization)
+        {
+            ArgumentNullException.ThrowIfNull(restClientOptions);
+            ArgumentNullException.ThrowIfNull(configureSerialization);
+
+            Client = new RestClient(restClientOptions, configureSerialization: configureSerialization);
         }
 
         public Uri BaseUrl { get => Client.Options.BaseUrl; }
