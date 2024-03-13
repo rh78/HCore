@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RestSharp;
@@ -20,21 +21,21 @@ namespace HCore.Rest.Client.Impl
         private const int RequestRetryCount = 5;
         private const int BackoffRate = 100; // ms
 
-        public RestSharpClientImpl(RestClientOptions restClientOptions, JsonSerializerSettings jsonSerializerSettings = null)
+        public RestSharpClientImpl(HttpClient httpClient, RestClientOptions restClientOptions, JsonSerializerSettings jsonSerializerSettings = null)
         {
             ArgumentNullException.ThrowIfNull(restClientOptions);
 
             jsonSerializerSettings ??= _defaultJsonSerializerSettings;
 
-            Client = new RestClient(restClientOptions, configureSerialization: sc => sc.UseNewtonsoftJson(jsonSerializerSettings));
+            Client = new RestClient(httpClient, restClientOptions, configureSerialization: sc => sc.UseNewtonsoftJson(jsonSerializerSettings));
         }
 
-        public RestSharpClientImpl(RestClientOptions restClientOptions, ConfigureSerialization configureSerialization)
+        public RestSharpClientImpl(HttpClient httpClient, RestClientOptions restClientOptions, ConfigureSerialization configureSerialization)
         {
             ArgumentNullException.ThrowIfNull(restClientOptions);
             ArgumentNullException.ThrowIfNull(configureSerialization);
 
-            Client = new RestClient(restClientOptions, configureSerialization: configureSerialization);
+            Client = new RestClient(httpClient, restClientOptions, configureSerialization: configureSerialization);
         }
 
         public Uri BaseUrl { get => Client.Options.BaseUrl; }

@@ -1,4 +1,5 @@
-﻿using HCore.Rest.Client;
+﻿using System.Net.Http;
+using HCore.Rest.Client;
 using HCore.Rest.Client.Impl;
 using Newtonsoft.Json;
 using RestSharp;
@@ -8,6 +9,13 @@ namespace HCore.Rest.Providers.Impl
 {
     internal class RestSharpClientProviderImpl : IRestSharpClientProvider
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public RestSharpClientProviderImpl(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         public IRestSharpClient GetRestSharpClient(string baseUrl, JsonSerializerSettings jsonSerializerSettings = null)
         {
             var restClientOptions = new RestClientOptions(baseUrl);
@@ -19,7 +27,9 @@ namespace HCore.Rest.Providers.Impl
 
         public IRestSharpClient GetRestSharpClient(RestClientOptions restClientOptions, JsonSerializerSettings jsonSerializerSettings = null)
         {
-            var restSharpClient = new RestSharpClientImpl(restClientOptions, jsonSerializerSettings);
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var restSharpClient = new RestSharpClientImpl(httpClient, restClientOptions, jsonSerializerSettings);
 
             return restSharpClient;
         }
@@ -35,7 +45,9 @@ namespace HCore.Rest.Providers.Impl
 
         public IRestSharpClient GetRestSharpClientXml(RestClientOptions restClientOptions)
         {
-            var restSharpClient = new RestSharpClientImpl(restClientOptions, configureSerialization => configureSerialization.UseXmlSerializer(useAttributeDeserializer: true));
+            var httpClient = _httpClientFactory.CreateClient();
+
+            var restSharpClient = new RestSharpClientImpl(httpClient, restClientOptions, configureSerialization => configureSerialization.UseXmlSerializer(useAttributeDeserializer: true));
 
             return restSharpClient;
         }
