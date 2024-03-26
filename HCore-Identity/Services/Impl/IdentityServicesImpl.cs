@@ -1224,6 +1224,9 @@ namespace HCore.Identity.Services.Impl
                     if (user == null)
                     {
                         // Don't reveal that the user does not exist or is not confirmed
+
+                        _logger.LogWarning($"Password reset attempted for not existing email address: {userForgotPasswordSpec.Email}");
+
                         return;
                     }
 
