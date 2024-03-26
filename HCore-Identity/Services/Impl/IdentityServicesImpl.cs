@@ -899,7 +899,7 @@ namespace HCore.Identity.Services.Impl
 
                 if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value) || userIdClaim.Value.Length > ApiImpl.MaxExternalUuidLength)
                 {
-                    PrintClaimsPrincipalDebug(externalUser);
+                    PrintClaimsPrincipalDebug("Subject", externalUser);
 
                     throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserIdIsMissing, "The external user ID is missing or invalid");
                 }
@@ -1736,7 +1736,7 @@ namespace HCore.Identity.Services.Impl
 
             if (emailClaim == null)
             {
-                PrintClaimsPrincipalDebug(claimsPrincipal);
+                PrintClaimsPrincipalDebug("Email address", claimsPrincipal);
 
                 throw new RequestFailedApiException(RequestFailedApiException.EmailMissing, "The email address is missing");
             }
@@ -1794,7 +1794,7 @@ namespace HCore.Identity.Services.Impl
 
             if (firstNameClaim == null)
             {
-                PrintClaimsPrincipalDebug(claimsPrincipal);
+                PrintClaimsPrincipalDebug("First name", claimsPrincipal);
 
                 throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
             }
@@ -1825,7 +1825,7 @@ namespace HCore.Identity.Services.Impl
 
             if (lastNameClaim == null)
             {
-                PrintClaimsPrincipalDebug(claimsPrincipal);
+                PrintClaimsPrincipalDebug("Last name", claimsPrincipal);
 
                 throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
             }
@@ -1861,7 +1861,7 @@ namespace HCore.Identity.Services.Impl
 
             if (phoneNumberClaim == null)
             {
-                PrintClaimsPrincipalDebug(claimsPrincipal);
+                PrintClaimsPrincipalDebug("Phone number", claimsPrincipal);
 
                 throw new RequestFailedApiException(RequestFailedApiException.PhoneNumberMissing, "The phone number is missing");
             }
@@ -1871,14 +1871,22 @@ namespace HCore.Identity.Services.Impl
             return ProcessPhoneNumber(phoneNumber);
         }
 
-        private void PrintClaimsPrincipalDebug(ClaimsPrincipal claimsPrincipal)
+        private void PrintClaimsPrincipalDebug(string debugHint, ClaimsPrincipal claimsPrincipal)
         {
-            /* var claims = claimsPrincipal.Claims;
+            /*
+            
+            var claims = claimsPrincipal.Claims;
 
-            foreach(var claim in claims)
+            Console.WriteLine("---");
+            Console.WriteLine($"Searching for claim {debugHint}, but not found in claim collection:");
+
+            foreach (var claim in claims)
             {
-                _logger.LogError($"Claim '{claim.Type}' with value '{claim.Value}' found, but not matching");
+                Console.WriteLine($"{claim.Type}: '{claim.Value}'");
             }
+
+            Console.WriteLine("---");
+
             */
         }
 
