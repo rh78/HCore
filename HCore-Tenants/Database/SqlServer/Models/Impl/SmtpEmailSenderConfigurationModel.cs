@@ -13,5 +13,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public int SmtpPort { get; set; }
         public bool SmtpEnableSsl { get; set; }
         public bool? SmtpStartTls { get; set; }
+        public bool? SmtpEnableExtendedLogging { get; set; }
     }
 }
