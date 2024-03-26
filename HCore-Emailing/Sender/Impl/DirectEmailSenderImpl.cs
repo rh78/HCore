@@ -80,6 +80,15 @@ namespace HCore.Emailing.Sender.Impl
                 emailSenderConfiguration = _smtpEmailSenderConfigurations[configurationKey];
             }
 
+            var enableExtendedLogging = emailSenderConfiguration?.SmtpEnableExtendedLogging ?? false;
+
+            if (enableExtendedLogging)
+            {
+                var firstTo = to?.FirstOrDefault();
+
+                _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+            }
+
             using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) {
                 client.UseDefaultCredentials = false;
 
@@ -169,7 +178,21 @@ namespace HCore.Emailing.Sender.Impl
                     }
                 }
 
+                if (enableExtendedLogging)
+                {
+                    var firstTo = to?.FirstOrDefault();
+
+                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                }
+
                 await client.SendMailAsync(mailMessage).ConfigureAwait(false);
+
+                if (enableExtendedLogging)
+                {
+                    var firstTo = to?.FirstOrDefault();
+
+                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                }
             }            
         }
 

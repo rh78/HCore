@@ -1,8 +1,10 @@
-﻿using HCore.Amqp.Messenger;
+﻿using Google.Apis.Logging;
+using HCore.Amqp.Messenger;
 using HCore.Emailing.AMQP;
 using HCore.Emailing.Models;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +18,9 @@ namespace HCore.Emailing.Sender.Impl
 
         private readonly string _emailSenderAddress;
 
-        public AMQPEmailSenderImpl(IAMQPMessenger amqpMessenger, IConfiguration configuration)            
+        private readonly ILogger<AMQPEmailSenderImpl> _logger;
+
+        public AMQPEmailSenderImpl(IAMQPMessenger amqpMessenger, IConfiguration configuration, ILogger<AMQPEmailSenderImpl> logger)            
         {
             _amqpMessenger = amqpMessenger;
 
@@ -31,6 +35,8 @@ namespace HCore.Emailing.Sender.Impl
 
             if (_emailSenderAddress == null)
                 throw new Exception($"AMQP email sender requires the AMQP address suffix {EmailSenderConstants.AddressSuffix}' to be defined");
+
+            _logger = logger;
         }
 
         public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
@@ -40,6 +46,15 @@ namespace HCore.Emailing.Sender.Impl
 
             if (string.IsNullOrEmpty(subject))
                 throw new Exception("A subject line is required!");
+
+            var enableExtendedLogging = emailSenderConfiguration?.SmtpEnableExtendedLogging ?? false;
+
+            if (enableExtendedLogging)
+            {
+                var firstTo = to?.FirstOrDefault();
+
+                _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+            }
 
             long totalApproximateSize = 0;
 
