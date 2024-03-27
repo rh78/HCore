@@ -53,7 +53,7 @@ namespace HCore.Emailing.Sender.Impl
             {
                 var firstTo = to?.FirstOrDefault();
 
-                _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                _logger.LogWarning($"AMQP email sender processing email from {fromOverride}, for {firstTo}, subject {subject}");
             }
 
             long totalApproximateSize = 0;
