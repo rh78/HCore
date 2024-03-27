@@ -190,7 +190,7 @@ namespace HCore.Emailing.Sender.Impl
 
                     var emailSenderConfigurationJson = JsonConvert.SerializeObject(emailSenderConfiguration);
 
-                    _logger.LogWarning($"SMTP email sender configuration: {emailSenderConfiguration}");
+                    _logger.LogWarning($"SMTP email sender configuration: {emailSenderConfigurationJson}");
                 }
 
                 await client.SendMailAsync(mailMessage).ConfigureAwait(false);
