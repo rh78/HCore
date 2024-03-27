@@ -2,6 +2,7 @@
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using System;
@@ -186,6 +187,10 @@ namespace HCore.Emailing.Sender.Impl
                     var firstTo = to?.FirstOrDefault();
 
                     _logger.LogWarning($"SMTP email sending imminent from {fromOverride}, for {firstTo}, subject {subject}");
+
+                    var emailSenderConfigurationJson = JsonConvert.SerializeObject(emailSenderConfiguration);
+
+                    _logger.LogWarning($"SMTP email sender configuration: {emailSenderConfiguration}");
                 }
 
                 await client.SendMailAsync(mailMessage).ConfigureAwait(false);
