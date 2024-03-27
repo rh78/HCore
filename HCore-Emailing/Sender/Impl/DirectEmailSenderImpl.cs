@@ -89,7 +89,10 @@ namespace HCore.Emailing.Sender.Impl
                 _logger.LogWarning($"SMTP email sending triggered from {fromOverride}, for {firstTo}, subject {subject}");
             }
 
-            using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) {
+            using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) 
+            {
+                client.Timeout = 30000;
+
                 client.UseDefaultCredentials = false;
 
                 if (!string.IsNullOrEmpty(emailSenderConfiguration.SmtpUserName) && !string.IsNullOrEmpty(emailSenderConfiguration.SmtpPassword))
