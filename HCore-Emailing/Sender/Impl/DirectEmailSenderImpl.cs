@@ -86,7 +86,7 @@ namespace HCore.Emailing.Sender.Impl
             {
                 var firstTo = to?.FirstOrDefault();
 
-                _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                _logger.LogWarning($"SMTP email sending triggered from {fromOverride}, for {firstTo}, subject {subject}");
             }
 
             using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) {
@@ -182,7 +182,7 @@ namespace HCore.Emailing.Sender.Impl
                 {
                     var firstTo = to?.FirstOrDefault();
 
-                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                    _logger.LogWarning($"SMTP email sending imminent from {fromOverride}, for {firstTo}, subject {subject}");
                 }
 
                 await client.SendMailAsync(mailMessage).ConfigureAwait(false);
@@ -191,7 +191,7 @@ namespace HCore.Emailing.Sender.Impl
                 {
                     var firstTo = to?.FirstOrDefault();
 
-                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                    _logger.LogWarning($"SMTP email sending completed from {fromOverride}, for {firstTo}, subject {subject}");
                 }
             }            
         }
