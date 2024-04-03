@@ -356,6 +356,8 @@ namespace HCore.Emailing.Sender.Impl
 
             bool smtpEnableSsl = configuration.GetValue<bool>($"Smtp:{configurationKey}:EnableSsl");
 
+            bool smtpStartTls = configuration.GetValue<bool>($"Smtp:{configurationKey}:StartTls");
+
             return new SmtpEmailSenderConfigurationModel()
             {
                 SmtpEmailAddress = smtpEmailAddress,
@@ -364,7 +366,8 @@ namespace HCore.Emailing.Sender.Impl
                 SmtpUserName = smtpUserName,
                 SmtpPassword = smtpPassword,
                 SmtpPort = smtpPort,
-                SmtpEnableSsl = smtpEnableSsl
+                SmtpEnableSsl = smtpEnableSsl,
+                SmtpStartTls = smtpStartTls
             };
         }        
     }
