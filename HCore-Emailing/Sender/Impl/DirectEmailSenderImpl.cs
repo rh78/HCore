@@ -127,7 +127,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.To.Add(new MailboxAddress(string.Empty, toString));
+                            mimeMessage.To.Add(new MailboxAddress(null, toString));
                         }
                         catch (Exception e)
                         {
@@ -142,7 +142,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Cc.Add(new MailboxAddress(string.Empty, ccString));
+                            mimeMessage.Cc.Add(new MailboxAddress(null, ccString));
                         }
                         catch (Exception e)
                         {
@@ -157,7 +157,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Bcc.Add(new MailboxAddress(string.Empty, bccString));
+                            mimeMessage.Bcc.Add(new MailboxAddress(null, bccString));
                         }
                         catch (Exception e)
                         {
