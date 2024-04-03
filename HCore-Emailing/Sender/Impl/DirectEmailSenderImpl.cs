@@ -93,6 +93,8 @@ namespace HCore.Emailing.Sender.Impl
 
             using (var client = new SmtpClient())
             {
+                client.Timeout = 30000;
+
                 if (emailSenderConfiguration.SmtpStartTls == true)
                 {
                     await client.ConnectAsync(host: emailSenderConfiguration.SmtpHost, port: emailSenderConfiguration.SmtpPort, options: SecureSocketOptions.StartTls).ConfigureAwait(false);
