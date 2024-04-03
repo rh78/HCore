@@ -302,18 +302,22 @@ namespace HCore.Storage.Client.Impl
             return uri.AbsoluteUri;
         }
 
-        public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
+        public async IAsyncEnumerable<string> GetStorageFileNamesAsync(string containerName, int? pageSize = null)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
-            var result = new List<string>();
-
-            await foreach (BlobItem blobItem in containerClient.GetBlobsAsync())
+            if (!await containerClient.ExistsAsync().ConfigureAwait(false))
             {
-                result.Add(blobItem.Name);
+                yield break;
             }
 
-            return result;
+            await foreach (var blobItemPage in containerClient.GetBlobsAsync().AsPages(pageSizeHint: pageSize))
+            {
+                foreach(var blobItem in blobItemPage.Values)
+                {
+                    yield return blobItem.Name;
+                }
+            }
         }
 
         public async Task<long> GetStorageFileSizeAsync(string containerName)

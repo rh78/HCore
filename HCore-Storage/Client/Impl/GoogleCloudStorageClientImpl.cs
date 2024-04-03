@@ -327,7 +327,7 @@ namespace HCore.Storage.Client.Impl
             return signedUrl;
         }
 
-        public Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
+        public IAsyncEnumerable<string> GetStorageFileNamesAsync(string containerName, int? pageSize = null)
         {
             throw new NotImplementedException();
         }

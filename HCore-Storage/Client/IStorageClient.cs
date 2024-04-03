@@ -21,7 +21,7 @@ namespace HCore.Storage.Client
 
         Task DeleteFileAsync(string containerName, string fileName);
 
-        Task<ICollection<string>> GetStorageFileNamesAsync(string containerName);
+        IAsyncEnumerable<string> GetStorageFileNamesAsync(string containerName, int? pageSize = null);
         Task<long> GetStorageFileSizeAsync(string containerName);
     }
 }
