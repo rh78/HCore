@@ -1,18 +1,19 @@
-﻿using HCore.Emailing.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using HCore.Emailing.Models;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using Newtonsoft.Json;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HCore.Emailing.Sender.Impl
 {
@@ -90,23 +91,35 @@ namespace HCore.Emailing.Sender.Impl
                 _logger.LogWarning($"SMTP email sending triggered from {fromOverride}, for {firstTo}, subject {subject}");
             }
 
-            using (SmtpClient client = new SmtpClient(emailSenderConfiguration.SmtpHost)) 
+            using (var client = new SmtpClient())
             {
                 client.Timeout = 30000;
 
-                client.UseDefaultCredentials = false;
+                if (emailSenderConfiguration.SmtpStartTls == true)
+                {
+                    await client.ConnectAsync(host: emailSenderConfiguration.SmtpHost, port: emailSenderConfiguration.SmtpPort, options: SecureSocketOptions.StartTls).ConfigureAwait(false);
+                }
+                else
+                {
+                    await client.ConnectAsync(host: emailSenderConfiguration.SmtpHost, port: emailSenderConfiguration.SmtpPort, useSsl: emailSenderConfiguration.SmtpEnableSsl).ConfigureAwait(false);
+                }
 
                 if (!string.IsNullOrEmpty(emailSenderConfiguration.SmtpUserName) && !string.IsNullOrEmpty(emailSenderConfiguration.SmtpPassword))
                 {
-                    client.Credentials = new NetworkCredential(emailSenderConfiguration.SmtpUserName, emailSenderConfiguration.SmtpPassword);
+                    await client.AuthenticateAsync(emailSenderConfiguration.SmtpUserName, emailSenderConfiguration.SmtpPassword).ConfigureAwait(false);
                 }
 
-                client.Port = emailSenderConfiguration.SmtpPort;
-                client.EnableSsl = emailSenderConfiguration.SmtpEnableSsl || emailSenderConfiguration.SmtpStartTls == true;
+                var mimeMessage = new MimeMessage();
 
-                MailMessage mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.SmtpEmailAddress,
-                                                   !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.SmtpFromDisplayName);
+                var fromName = !string.IsNullOrEmpty(fromDisplayNameOverride)
+                    ? fromDisplayNameOverride
+                    : emailSenderConfiguration.SmtpFromDisplayName;
+
+                var fromAddress = !string.IsNullOrEmpty(fromOverride)
+                    ? fromOverride
+                    : emailSenderConfiguration.SmtpEmailAddress;
+
+                mimeMessage.From.Add(new MailboxAddress(fromName, fromAddress));
 
                 if (to != null)
                 {
@@ -114,7 +127,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mailMessage.To.Add(toString);
+                            mimeMessage.To.Add(new MailboxAddress(null, toString));
                         }
                         catch (Exception e)
                         {
@@ -129,7 +142,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mailMessage.CC.Add(ccString);
+                            mimeMessage.Cc.Add(new MailboxAddress(null, ccString));
                         }
                         catch (Exception e)
                         {
@@ -144,7 +157,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mailMessage.Bcc.Add(bccString);
+                            mimeMessage.Bcc.Add(new MailboxAddress(null, bccString));
                         }
                         catch (Exception e)
                         {
@@ -153,9 +166,9 @@ namespace HCore.Emailing.Sender.Impl
                     });
                 }
 
-                if ((mailMessage.To == null || !mailMessage.To.Any()) &&
-                    (mailMessage.CC == null || !mailMessage.CC.Any()) &&
-                    (mailMessage.Bcc == null || !mailMessage.Bcc.Any()))
+                if ((mimeMessage.To == null || !mimeMessage.To.Any()) &&
+                    (mimeMessage.Cc == null || !mimeMessage.Cc.Any()) &&
+                    (mimeMessage.Bcc == null || !mimeMessage.Bcc.Any()))
                 {
                     // no recipient
 
@@ -164,23 +177,22 @@ namespace HCore.Emailing.Sender.Impl
                     return;
                 }
 
-                mailMessage.IsBodyHtml = true;
+                mimeMessage.Subject = subject;
 
-                mailMessage.Subject = subject;
-                mailMessage.SubjectEncoding = Encoding.UTF8;
-
-                mailMessage.Body = htmlMessage;
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = htmlMessage
+                };
 
                 if (emailAttachments != null)
                 {
                     foreach (var emailAttachment in emailAttachments)
                     {
-                        var memoryStream = new MemoryStream(emailAttachment.Content);
-                        System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(memoryStream, emailAttachment.FileName, emailAttachment.MimeType);
-
-                        mailMessage.Attachments.Add(attachment);
+                        bodyBuilder.Attachments.Add(emailAttachment.FileName, data: emailAttachment.Content, contentType: ContentType.Parse(emailAttachment.MimeType));
                     }
                 }
+
+                mimeMessage.Body = bodyBuilder.ToMessageBody();
 
                 if (enableExtendedLogging)
                 {
@@ -193,7 +205,7 @@ namespace HCore.Emailing.Sender.Impl
                     _logger.LogWarning($"SMTP email sender configuration: {emailSenderConfigurationJson}");
                 }
 
-                await client.SendMailAsync(mailMessage).ConfigureAwait(false);
+                await client.SendAsync(mimeMessage).ConfigureAwait(false);
 
                 if (enableExtendedLogging)
                 {
