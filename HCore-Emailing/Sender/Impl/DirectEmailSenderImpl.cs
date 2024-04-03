@@ -119,7 +119,7 @@ namespace HCore.Emailing.Sender.Impl
                     ? fromOverride
                     : emailSenderConfiguration.SmtpEmailAddress;
 
-                mimeMessage.From.Add(new MailboxAddress(Encoding.UTF8, fromName, fromAddress));
+                mimeMessage.From.Add(new MailboxAddress(fromName, fromAddress));
 
                 if (to != null)
                 {
@@ -127,7 +127,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.To.Add(new MailboxAddress(Encoding.UTF8, string.Empty, toString));
+                            mimeMessage.To.Add(new MailboxAddress(string.Empty, toString));
                         }
                         catch (Exception e)
                         {
@@ -142,7 +142,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Cc.Add(new MailboxAddress(Encoding.UTF8, string.Empty, ccString));
+                            mimeMessage.Cc.Add(new MailboxAddress(string.Empty, ccString));
                         }
                         catch (Exception e)
                         {
@@ -157,7 +157,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Bcc.Add(new MailboxAddress(Encoding.UTF8, string.Empty, bccString));
+                            mimeMessage.Bcc.Add(new MailboxAddress(string.Empty, bccString));
                         }
                         catch (Exception e)
                         {
