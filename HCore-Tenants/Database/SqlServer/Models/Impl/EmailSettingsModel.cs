@@ -378,6 +378,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 EmailSenderConfiguration.SmtpPassword = customEmailSettingsModel.EmailSenderConfiguration.SmtpPassword;
                 EmailSenderConfiguration.SmtpEnableSsl = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableSsl;
                 EmailSenderConfiguration.SmtpStartTls = customEmailSettingsModel.EmailSenderConfiguration.SmtpStartTls;
+                EmailSenderConfiguration.SmtpEnableExtendedLogging = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableExtendedLogging;
             }
         }
 
@@ -723,6 +724,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 EmailSenderConfiguration.SmtpPassword = customEmailSettingsModel.EmailSenderConfiguration.SmtpPassword;
                 EmailSenderConfiguration.SmtpEnableSsl = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableSsl;
                 EmailSenderConfiguration.SmtpStartTls = customEmailSettingsModel.EmailSenderConfiguration.SmtpStartTls;
+                EmailSenderConfiguration.SmtpEnableExtendedLogging = customEmailSettingsModel.EmailSenderConfiguration.SmtpEnableExtendedLogging;
             }
         }
 

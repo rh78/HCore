@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -12,7 +11,7 @@ using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MimeKit;
-using MimeKit.Text;
+using Newtonsoft.Json;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
@@ -89,7 +88,7 @@ namespace HCore.Emailing.Sender.Impl
             {
                 var firstTo = to?.FirstOrDefault();
 
-                _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                _logger.LogWarning($"SMTP email sending triggered from {fromOverride}, for {firstTo}, subject {subject}");
             }
 
             using (var client = new SmtpClient())
@@ -197,7 +196,11 @@ namespace HCore.Emailing.Sender.Impl
                 {
                     var firstTo = to?.FirstOrDefault();
 
-                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                    _logger.LogWarning($"SMTP email sending imminent from {fromOverride}, for {firstTo}, subject {subject}");
+
+                    var emailSenderConfigurationJson = JsonConvert.SerializeObject(emailSenderConfiguration);
+
+                    _logger.LogWarning($"SMTP email sender configuration: {emailSenderConfigurationJson}");
                 }
 
                 await client.SendAsync(mimeMessage).ConfigureAwait(false);
@@ -206,7 +209,7 @@ namespace HCore.Emailing.Sender.Impl
                 {
                     var firstTo = to?.FirstOrDefault();
 
-                    _logger.LogWarning($"AMQP email sending scheduled from {fromOverride}, for {firstTo}, subject {subject}");
+                    _logger.LogWarning($"SMTP email sending completed from {fromOverride}, for {firstTo}, subject {subject}");
                 }
             }            
         }
