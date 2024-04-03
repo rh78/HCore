@@ -176,7 +176,7 @@ namespace HCore.Emailing.Sender.Impl
                     return;
                 }
 
-                mimeMessage.Subject = subject;
+                mimeMessage.Headers.Add(HeaderId.Subject, Encoding.UTF8, subject);
 
                 var bodyBuilder = new BodyBuilder
                 {
