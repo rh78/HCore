@@ -178,34 +178,20 @@ namespace HCore.Emailing.Sender.Impl
 
                 mimeMessage.Subject = subject;
 
-                var multiPart = new Multipart("mixed");
-
-                var htmlPart = new TextPart(TextFormat.Html)
+                var bodyBuilder = new BodyBuilder
                 {
-                    Text = htmlMessage
+                    HtmlBody = htmlMessage
                 };
-
-                multiPart.Add(htmlPart);
 
                 if (emailAttachments != null)
                 {
                     foreach (var emailAttachment in emailAttachments)
                     {
-                        var memoryStream = new MemoryStream(emailAttachment.Content);
-
-                        var mimePart = new MimePart(contentType: emailAttachment.MimeType)
-                        {
-                            Content = new MimeContent(memoryStream),
-                            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
-                            ContentTransferEncoding = ContentEncoding.Base64,
-                            FileName = emailAttachment.FileName
-                        };
-
-                        multiPart.Add(mimePart);
+                        bodyBuilder.Attachments.Add(emailAttachment.FileName, data: emailAttachment.Content, contentType: ContentType.Parse(emailAttachment.MimeType));
                     }
                 }
 
-                mimeMessage.Body = multiPart;
+                mimeMessage.Body = bodyBuilder.ToMessageBody();
 
                 if (enableExtendedLogging)
                 {
