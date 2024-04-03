@@ -213,6 +213,8 @@ namespace HCore.Emailing.Sender.Impl
 
                     _logger.LogWarning($"SMTP email sending completed from {fromOverride}, for {firstTo}, subject {subject}");
                 }
+				
+				await client.DisconnectAsync(quit: true).ConfigureAwait(false);
             }            
         }
 
