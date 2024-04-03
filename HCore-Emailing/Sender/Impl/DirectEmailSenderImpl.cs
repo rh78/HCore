@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using HCore.Emailing.Models;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
@@ -113,11 +114,11 @@ namespace HCore.Emailing.Sender.Impl
                     ? fromDisplayNameOverride
                     : emailSenderConfiguration.SmtpFromDisplayName;
 
-                var formAddress = !string.IsNullOrEmpty(fromOverride)
+                var fromAddress = !string.IsNullOrEmpty(fromOverride)
                     ? fromOverride
                     : emailSenderConfiguration.SmtpEmailAddress;
 
-                mimeMessage.From.Add(new MailboxAddress(fromName, formAddress));
+                mimeMessage.From.Add(new MailboxAddress(Encoding.UTF8, fromName, fromAddress));
 
                 if (to != null)
                 {
@@ -125,7 +126,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.To.Add(new MailboxAddress(string.Empty, toString));
+                            mimeMessage.To.Add(new MailboxAddress(Encoding.UTF8, string.Empty, toString));
                         }
                         catch (Exception e)
                         {
@@ -140,7 +141,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Cc.Add(new MailboxAddress(string.Empty, ccString));
+                            mimeMessage.Cc.Add(new MailboxAddress(Encoding.UTF8, string.Empty, ccString));
                         }
                         catch (Exception e)
                         {
@@ -155,7 +156,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         try
                         {
-                            mimeMessage.Bcc.Add(new MailboxAddress(string.Empty, bccString));
+                            mimeMessage.Bcc.Add(new MailboxAddress(Encoding.UTF8, string.Empty, bccString));
                         }
                         catch (Exception e)
                         {
