@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Net;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
 using System.Collections.Generic;
@@ -545,7 +544,7 @@ namespace HCore.Web.Startup
 
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX))
             {
-                var store = new Pkcs12Store();
+                /* var store = new Pkcs12Store();
 
                 using (stream)
                     store.Load(stream, password.ToArray());
@@ -563,7 +562,9 @@ namespace HCore.Web.Startup
                 var bouncyCertificate = store.GetCertificate(keyAlias).Certificate;
 
                 x509Certificate2 = new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCertificate));
-                x509Certificate2 = RSACertificateExtensions.CopyWithPrivateKey(x509Certificate2, rsa);
+                x509Certificate2 = RSACertificateExtensions.CopyWithPrivateKey(x509Certificate2, rsa); */
+
+                throw new NotImplementedException();
             }
             else
             {
