@@ -4,6 +4,7 @@ using Google.Apis.Storage.v1.Data;
 using Google.Apis.Upload;
 using Google.Cloud.Storage.V1;
 using HCore.Storage.Exceptions;
+using HCore.Storage.Models;
 using HCore.Web.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -327,12 +328,17 @@ namespace HCore.Storage.Client.Impl
             return signedUrl;
         }
 
-        public IAsyncEnumerable<string> GetStorageFileNamesAsync(string containerName, int? pageSize = null)
+        public Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
             throw new NotImplementedException();
         }
 
         public Task<long> GetStorageFileSizeAsync(string containerName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null)
         {
             throw new NotImplementedException();
         }
