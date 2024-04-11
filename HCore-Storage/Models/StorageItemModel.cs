@@ -4,16 +4,16 @@ namespace HCore.Storage.Models
 {
     public class StorageItemModel
     {
-        public string Name { get; set; }
+        public string Name { get; internal set; }
 
-        public DateTimeOffset? CreatedOn { get; set; }
+        public DateTimeOffset? CreatedOn { get; internal set; }
 
-        public DateTimeOffset? LastModified { get; set; }
+        public DateTimeOffset? LastModified { get; internal set; }
 
-        public DateTimeOffset? LastAccessedOn { get; set; }
+        public DateTimeOffset? LastAccessedOn { get; internal set; }
 
-        public long? ContentLength { get; set; }
+        public long? ContentLength { get; internal set; }
 
-        public string ContentType { get; set; }
+        public string ContentType { get; internal set; }
     }
 }
