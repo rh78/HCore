@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using HCore.Storage.Models;
 
 namespace HCore.Storage.Client
 {
@@ -23,5 +24,7 @@ namespace HCore.Storage.Client
 
         Task<ICollection<string>> GetStorageFileNamesAsync(string containerName);
         Task<long> GetStorageFileSizeAsync(string containerName);
+
+        IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null);
     }
 }
