@@ -3,13 +3,13 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using HCore.Storage.Exceptions;
+using HCore.Storage.Models;
 using HCore.Web.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace HCore.Storage.Client.Impl
@@ -328,6 +328,32 @@ namespace HCore.Storage.Client.Impl
             }
 
             return storageFileSize;
+        }
+
+        public async IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            if (!await containerClient.ExistsAsync().ConfigureAwait(false))
+            {
+                yield break;
+            }
+
+            await foreach (var blobItemPage in containerClient.GetBlobsAsync().AsPages(pageSizeHint: pageSize))
+            {
+                foreach (var blobItem in blobItemPage.Values)
+                {
+                    yield return new StorageItemModel
+                    {
+                        Name = blobItem.Name,
+                        CreatedOn = blobItem.Properties?.CreatedOn,
+                        LastModified = blobItem.Properties?.LastModified,
+                        LastAccessedOn = blobItem.Properties?.LastAccessedOn,
+                        ContentLength = blobItem.Properties?.ContentLength,
+                        ContentType = blobItem.Properties?.ContentType
+                    };
+                }
+            }
         }
     }
 }
