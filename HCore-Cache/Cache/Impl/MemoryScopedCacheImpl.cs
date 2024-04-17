@@ -107,7 +107,26 @@ namespace HCore.Cache.Impl
 
                 if (memoryScopedCacheWrapperModel != null)
                 {
-                    return memoryScopedCacheWrapperModel.Data as TData;
+                    if (version != null)
+                    {
+                        var existingVersion = memoryScopedCacheWrapperModel.Version;
+
+                        if (existingVersion != null && existingVersion.Value >= version.Value)
+                        {
+                            // the existing version is equal or newer than the requested value
+                            // take existing record
+
+                            return memoryScopedCacheWrapperModel.Data as TData;
+                        }
+
+                        // otherwise refresh the cache
+                    }
+                    else
+                    {
+                        // no version requirement at all
+
+                        return memoryScopedCacheWrapperModel.Data as TData;
+                    }
                 }
 
                 if (setFunc == null)
