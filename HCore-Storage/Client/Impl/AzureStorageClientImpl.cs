@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -116,7 +117,7 @@ namespace HCore.Storage.Client.Impl
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+                var contentDispositionHeader = new ContentDispositionHeaderValue("attachment") { FileName = downloadFileName };
 
                 blobHttpHeaders.ContentDisposition = contentDispositionHeader.ToString();
             }
@@ -186,7 +187,7 @@ namespace HCore.Storage.Client.Impl
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+                var contentDispositionHeader = new ContentDispositionHeaderValue("attachment") { FileName = downloadFileName };
 
                 blobHttpHeaders.ContentDisposition = contentDispositionHeader.ToString();
             }
@@ -292,7 +293,7 @@ namespace HCore.Storage.Client.Impl
 
             if (!string.IsNullOrEmpty(downloadFileName))
             {
-                var contentDispositionHeader = new ContentDisposition() { FileName = downloadFileName };
+                var contentDispositionHeader = new ContentDispositionHeaderValue("attachment") { FileName = downloadFileName };
 
                 blobSasBuilder.ContentDisposition = contentDispositionHeader.ToString();
             }
