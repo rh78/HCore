@@ -16,9 +16,6 @@ using System.Threading;
 using Microsoft.Extensions.Hosting;
 using System.Net.Security;
 using HCore.Web.Providers;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Security;
 
 namespace HCore.Web.Startup
 {
