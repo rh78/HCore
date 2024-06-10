@@ -792,6 +792,7 @@ namespace HCore.Tenants.Providers.Impl
                 RequiresDevAdminSsoReplacement = tenantModel.RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = tenantModel.DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
+                EnableAudit = tenantModel.EnableAudit,
                 CreatedByUserUuid = tenantModel.CreatedByUserUuid,
                 MapDeveloperUuid = tenantModel.MapDeveloperUuid,
                 MapTenantUuid = tenantModel.MapTenantUuid,
