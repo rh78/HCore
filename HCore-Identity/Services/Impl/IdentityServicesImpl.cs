@@ -1456,7 +1456,7 @@ namespace HCore.Identity.Services.Impl
                 {
                     UserModel userModel = null;
 
-                    isRemoteUser = false;                    
+                    isRemoteUser = false;
 
                     if (!string.IsNullOrEmpty(userUuid))
                     {
@@ -1515,11 +1515,18 @@ namespace HCore.Identity.Services.Impl
             }
 
             _logger.LogInformation("User logged out");
-
+           
             if (_userNotificationProvider != null && !string.IsNullOrEmpty(userUuid))
             {
-                await _userNotificationProvider.UserLoggedOutAsync(userUuid).ConfigureAwait(false);
-            }
+                using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
+                {
+                    await _userNotificationProvider.UserLoggedOutAsync(userUuid).ConfigureAwait(false); 
+                    
+                    await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
+
+                    transaction.Commit();
+                }
+            }                
         }
 
         public async Task<UserModel> GetUserAsync(string userUuid)
