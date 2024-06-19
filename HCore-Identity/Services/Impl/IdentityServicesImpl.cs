@@ -33,6 +33,7 @@ using HCore.Tenants.Models;
 using Microsoft.Extensions.Configuration;
 using Kickbox;
 using System.Web;
+using HCore.Identity.Providers;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -52,6 +53,8 @@ namespace HCore.Identity.Services.Impl
         private readonly Providers.IConfigurationProvider _configurationProvider;       
 
         private readonly INowProvider _nowProvider;
+
+        private readonly IUserNotificationProvider _userNotificationProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
@@ -92,6 +95,8 @@ namespace HCore.Identity.Services.Impl
             _nowProvider = nowProvider;
 
             _serviceProvider = serviceProvider;
+
+            _userNotificationProvider = serviceProvider.GetService<IUserNotificationProvider>();
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
@@ -181,6 +186,11 @@ namespace HCore.Identity.Services.Impl
                     };
 
                     _identityDbContext.ReservedEmailAddresses.Add(reservedEmailAddressModel);
+
+                    if (_userNotificationProvider != null)
+                    {
+                        await _userNotificationProvider.UserReserveUuidAsync(newScopedUserUuid, normalizedScopedEmailAddress).ConfigureAwait(false);
+                    }
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -461,7 +471,12 @@ namespace HCore.Identity.Services.Impl
                                 new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                             await _emailSender.SendEmailAsync(userSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
-                        } 
+                        }
+
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -474,6 +489,11 @@ namespace HCore.Identity.Services.Impl
                             if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
                             {
                                 await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+
+                                if (_userNotificationProvider != null)
+                                {
+                                    await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                                }
                             }
                         }
 
@@ -719,6 +739,11 @@ namespace HCore.Identity.Services.Impl
                     {
                         _logger.LogInformation("External user created without password");
 
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+                        }
+
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         transaction.Commit();
@@ -730,6 +755,11 @@ namespace HCore.Identity.Services.Impl
                             _signInManager.ClaimsFactory = new Saml2SupportClaimsFactory(_signInManager.ClaimsFactory, externalUser);
 
                             await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
+
+                            if (_userNotificationProvider != null)
+                            {
+                                await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                            }
                         }
 
                         return user;
@@ -800,6 +830,11 @@ namespace HCore.Identity.Services.Impl
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User signed in");
+
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -1111,6 +1146,11 @@ namespace HCore.Identity.Services.Impl
                     
                     _logger.LogInformation("External user signed in");
 
+                    if (_userNotificationProvider != null)
+                    {
+                        await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                    }
+
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                     transaction.Commit();
@@ -1166,11 +1206,21 @@ namespace HCore.Identity.Services.Impl
 
                     if (result.Succeeded)
                     {
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserConfirmedEmailAsync(user.Id).ConfigureAwait(false);
+                        }
+
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         await _signInManager.SignInAsync(user, isPersistent: true).ConfigureAwait(false);
 
                         _logger.LogInformation("User signed in");
+
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -1245,6 +1295,11 @@ namespace HCore.Identity.Services.Impl
 
                     await _emailSender.SendEmailAsync(userForgotPasswordSpec.Email, emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
+                    if (_userNotificationProvider != null)
+                    {
+                        await _userNotificationProvider.UserForgotPasswordAsync(user.Id).ConfigureAwait(false);
+                    }
+
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                     transaction.Commit();
@@ -1291,6 +1346,11 @@ namespace HCore.Identity.Services.Impl
 
                     if (result.Succeeded)
                     {
+                        if (_userNotificationProvider != null)
+                        {
+                            await _userNotificationProvider.UserResetPasswordAsync(user.Id).ConfigureAwait(false);
+                        }
+
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                         transaction.Commit();
@@ -1348,6 +1408,11 @@ namespace HCore.Identity.Services.Impl
 
                     await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
 
+                    if (_userNotificationProvider != null)
+                    {
+                        await _userNotificationProvider.UserSetPasswordAsync(user.Id).ConfigureAwait(false);
+                    }
+
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
                     transaction.Commit();
@@ -1369,6 +1434,13 @@ namespace HCore.Identity.Services.Impl
         {
             await _signInManager.SignOutAsync().ConfigureAwait(false);
 
+            string userUuid = null;
+
+            if (httpContext.User != null)
+            {
+                userUuid = httpContext.User.GetUserUuid();
+            }
+
             if (_tenantInfoAccessor != null)
             {
                 var tenantInfo = _tenantInfoAccessor.TenantInfo;
@@ -1381,9 +1453,7 @@ namespace HCore.Identity.Services.Impl
                 {
                     UserModel userModel = null;
 
-                    isRemoteUser = false;
-
-                    var userUuid = httpContext.User.GetUserUuid();
+                    isRemoteUser = false;                    
 
                     if (!string.IsNullOrEmpty(userUuid))
                     {
@@ -1403,8 +1473,6 @@ namespace HCore.Identity.Services.Impl
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
                         UserModel userModel = null;
-
-                        var userUuid = httpContext.User.GetUserUuid();
 
                         if (!string.IsNullOrEmpty(userUuid))
                         {
@@ -1444,6 +1512,11 @@ namespace HCore.Identity.Services.Impl
             }
 
             _logger.LogInformation("User logged out");
+
+            if (_userNotificationProvider != null && !string.IsNullOrEmpty(userUuid))
+            {
+                await _userNotificationProvider.UserLoggedOutAsync(userUuid).ConfigureAwait(false);
+            }
         }
 
         public async Task<UserModel> GetUserAsync(string userUuid)
@@ -1525,6 +1598,20 @@ namespace HCore.Identity.Services.Impl
 
                     bool changed = false;
 
+                    string oldFirstName = null;
+                    string oldLastName = null;
+                    string oldPhoneNumber = null;
+                    string oldNotificationCulture = null;
+                    bool? oldGroupNotifications = null;
+                    string oldCurrency = null;
+
+                    string newFirstName = null;
+                    string newLastName = null;
+                    string newPhoneNumber = null;
+                    string newNotificationCulture = null;
+                    bool? newGroupNotifications = null;
+                    string newCurrency = null;
+
                     if (_configurationProvider.ManageName)
                     {
                         if (!string.IsNullOrEmpty(userSpec.FirstName))
@@ -1533,7 +1620,11 @@ namespace HCore.Identity.Services.Impl
 
                             if (!string.Equals(oldUser.FirstName, userSpec.FirstName))
                             {
+                                oldFirstName = oldUser.FirstName;
+
                                 oldUser.FirstName = userSpec.FirstName;
+
+                                newFirstName = oldUser.FirstName;
 
                                 changed = true;
                             }
@@ -1545,7 +1636,11 @@ namespace HCore.Identity.Services.Impl
 
                             if (!string.Equals(oldUser.LastName, userSpec.LastName))
                             {
+                                oldLastName = oldUser.LastName;
+
                                 oldUser.LastName = userSpec.LastName;
+
+                                newLastName = oldUser.LastName;
 
                                 changed = true;
                             }
@@ -1560,7 +1655,11 @@ namespace HCore.Identity.Services.Impl
 
                             if (!string.Equals(oldUser.PhoneNumber, userSpec.PhoneNumber))
                             {
+                                oldPhoneNumber = oldUser.PhoneNumber;
+
                                 oldUser.PhoneNumber = userSpec.PhoneNumber;
+
+                                newPhoneNumber = oldUser.PhoneNumber;
 
                                 changed = true;
                             }
@@ -1573,7 +1672,11 @@ namespace HCore.Identity.Services.Impl
 
                         if (!string.Equals(oldUser.NotificationCulture, userSpec.NotificationCulture))
                         {
+                            oldNotificationCulture = oldUser.NotificationCulture;
+
                             oldUser.NotificationCulture = userSpec.NotificationCulture;
+
+                            newNotificationCulture = oldUser.NotificationCulture;
 
                             changed = true;
                         }
@@ -1585,7 +1688,11 @@ namespace HCore.Identity.Services.Impl
 
                         if (oldUser.GroupNotifications != userSpec.GroupNotifications)
                         {
+                            oldGroupNotifications = oldUser.GroupNotifications;
+
                             oldUser.GroupNotifications = (bool)userSpec.GroupNotifications;
+
+                            newGroupNotifications = oldUser.GroupNotifications;
 
                             changed = true;
                         }
@@ -1597,7 +1704,11 @@ namespace HCore.Identity.Services.Impl
 
                         if (!string.Equals(oldUser.Currency, userSpec.Currency))
                         {
+                            oldCurrency = oldUser.Currency;
+
                             oldUser.Currency = userSpec.Currency;
+
+                            newCurrency = oldUser.Currency;
 
                             changed = true;
                         }
@@ -1613,6 +1724,35 @@ namespace HCore.Identity.Services.Impl
                         }
 
                         await _signInManager.RefreshSignInAsync(oldUser).ConfigureAwait(false);
+
+                        if (_userNotificationProvider != null)
+                        {
+                            var userOldValues = new UserModel
+                            {
+                                FirstName = oldFirstName,
+                                LastName = oldLastName,
+                                PhoneNumber = oldPhoneNumber,
+                                NotificationCulture = oldNotificationCulture,
+                                GroupNotifications = oldGroupNotifications != null 
+                                    ? oldGroupNotifications.Value 
+                                    : oldUser.GroupNotifications,
+                                Currency = oldCurrency
+                            };
+
+                            var userNewValues = new UserModel
+                            {
+                                FirstName = newFirstName,
+                                LastName = newLastName,
+                                PhoneNumber = newPhoneNumber,
+                                NotificationCulture = newNotificationCulture,
+                                GroupNotifications = newGroupNotifications != null
+                                    ? newGroupNotifications.Value
+                                    : oldUser.GroupNotifications,
+                                Currency = newCurrency
+
+                            };
+                            await _userNotificationProvider.UserUpdateAsync(oldUser.Id, userOldValues, userNewValues).ConfigureAwait(false);
+                        }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
@@ -1670,6 +1810,11 @@ namespace HCore.Identity.Services.Impl
                         new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+
+                    if (_userNotificationProvider != null)
+                    {
+                        await _userNotificationProvider.UserResendEmailConfirmationEmailAsync(user.Id).ConfigureAwait(false);
+                    }
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
