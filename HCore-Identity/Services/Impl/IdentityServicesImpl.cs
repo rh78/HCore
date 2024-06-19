@@ -476,6 +476,14 @@ namespace HCore.Identity.Services.Impl
                         if (_userNotificationProvider != null)
                         {
                             await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+
+                            if (isSelfRegistration)
+                            {
+                                if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                                {
+                                    await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                                }
+                            }
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -489,11 +497,6 @@ namespace HCore.Identity.Services.Impl
                             if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
                             {
                                 await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
-
-                                if (_userNotificationProvider != null)
-                                {
-                                    await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
-                                }
                             }
                         }
 
@@ -742,6 +745,11 @@ namespace HCore.Identity.Services.Impl
                         if (_userNotificationProvider != null)
                         {
                             await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+
+                            if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
+                            {
+                                await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                            }
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -755,11 +763,6 @@ namespace HCore.Identity.Services.Impl
                             _signInManager.ClaimsFactory = new Saml2SupportClaimsFactory(_signInManager.ClaimsFactory, externalUser);
 
                             await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
-
-                            if (_userNotificationProvider != null)
-                            {
-                                await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
-                            }
                         }
 
                         return user;
