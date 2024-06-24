@@ -1781,7 +1781,6 @@ namespace HCore.Identity.Services.Impl
                                 NotificationCulture = newNotificationCulture,
                                 GroupNotifications = newGroupNotifications,
                                 Currency = newCurrency
-
                             };
 
                             await _userNotificationProvider.UserUpdatedAsync(oldUser.Id, oldUserNotificationModel, newUserNotificationModel).ConfigureAwait(false);
