@@ -1761,7 +1761,7 @@ namespace HCore.Identity.Services.Impl
                                 Currency = newCurrency
 
                             };
-                            await _userNotificationProvider.UserUpdateAsync(oldUser.Id, userOldValues, userNewValues).ConfigureAwait(false);
+                            await _userNotificationProvider.UserUpdatedAsync(oldUser.Id, userOldValues, userNewValues).ConfigureAwait(false);
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -1823,7 +1823,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (_userNotificationProvider != null)
                     {
-                        await _userNotificationProvider.UserResendEmailConfirmationEmailAsync(user.Id).ConfigureAwait(false);
+                        await _userNotificationProvider.UserResentEmailConfirmationEmailAsync(user.Id).ConfigureAwait(false);
                     }
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);

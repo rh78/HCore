@@ -8,7 +8,7 @@ namespace HCore.Identity.Providers
         Task UserReserveUuidAsync(string userUuid, string emailAddress);
 
         Task UserCreatedAsync(UserModel user);
-        Task UserUpdateAsync(string userUuid, UserModel oldUser, UserModel newUser);
+        Task UserUpdatedAsync(string userUuid, UserModel oldUser, UserModel newUser);
 
         Task UserLoggedInAsync(string userUuid);
         Task UserLoggedOutAsync(string userUuid);
@@ -18,6 +18,6 @@ namespace HCore.Identity.Providers
         Task UserSetPasswordAsync(string userUuid);
 
         Task UserConfirmedEmailAsync(string userUuid);
-        Task UserResendEmailConfirmationEmailAsync(string userUuid);
+        Task UserResentEmailConfirmationEmailAsync(string userUuid);
     }
 }
