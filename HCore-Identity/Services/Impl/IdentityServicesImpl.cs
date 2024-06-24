@@ -475,7 +475,20 @@ namespace HCore.Identity.Services.Impl
 
                         if (_userNotificationProvider != null)
                         {
-                            await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+                            var userNotificationModel = new UserNotificationModel
+                            {
+                                Id = user.Id,
+                                Email = user.Email,
+                                FirstName = user.FirstName,
+                                LastName = user.LastName,
+                                PhoneNumber = user.PhoneNumber,
+                                NotificationCulture = user.NotificationCulture,
+                                GroupNotifications = user.GroupNotifications,
+                                Currency = user.Currency,
+                                ExternalUuid = user.ExternalUuid
+                            };
+
+                            await _userNotificationProvider.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
 
                             if (isSelfRegistration)
                             {
@@ -744,7 +757,20 @@ namespace HCore.Identity.Services.Impl
 
                         if (_userNotificationProvider != null)
                         {
-                            await _userNotificationProvider.UserCreatedAsync(user).ConfigureAwait(false);
+                            var userNotificationModel = new UserNotificationModel
+                            {
+                                Id = user.Id,
+                                Email = user.Email,
+                                FirstName = user.FirstName,
+                                LastName = user.LastName,
+                                PhoneNumber = user.PhoneNumber,
+                                NotificationCulture = user.NotificationCulture,
+                                GroupNotifications = user.GroupNotifications,
+                                Currency = user.Currency,
+                                ExternalUuid = user.ExternalUuid
+                            };
+
+                            await _userNotificationProvider.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
 
                             if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
                             {
@@ -1737,31 +1763,28 @@ namespace HCore.Identity.Services.Impl
 
                         if (_userNotificationProvider != null)
                         {
-                            var userOldValues = new UserModel
+                            var oldUserNotificationModel = new UserNotificationModel
                             {
                                 FirstName = oldFirstName,
                                 LastName = oldLastName,
                                 PhoneNumber = oldPhoneNumber,
                                 NotificationCulture = oldNotificationCulture,
-                                GroupNotifications = oldGroupNotifications != null 
-                                    ? oldGroupNotifications.Value 
-                                    : oldUser.GroupNotifications,
+                                GroupNotifications = oldGroupNotifications,
                                 Currency = oldCurrency
                             };
 
-                            var userNewValues = new UserModel
+                            var newUserNotificationModel = new UserNotificationModel
                             {
                                 FirstName = newFirstName,
                                 LastName = newLastName,
                                 PhoneNumber = newPhoneNumber,
                                 NotificationCulture = newNotificationCulture,
-                                GroupNotifications = newGroupNotifications != null
-                                    ? newGroupNotifications.Value
-                                    : oldUser.GroupNotifications,
+                                GroupNotifications = newGroupNotifications,
                                 Currency = newCurrency
 
                             };
-                            await _userNotificationProvider.UserUpdatedAsync(oldUser.Id, userOldValues, userNewValues).ConfigureAwait(false);
+
+                            await _userNotificationProvider.UserUpdatedAsync(oldUser.Id, oldUserNotificationModel, newUserNotificationModel).ConfigureAwait(false);
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);

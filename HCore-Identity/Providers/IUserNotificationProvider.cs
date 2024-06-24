@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Models;
 
 namespace HCore.Identity.Providers
 {
@@ -7,8 +7,8 @@ namespace HCore.Identity.Providers
     {
         Task UserReserveUuidAsync(string userUuid, string emailAddress);
 
-        Task UserCreatedAsync(UserModel user);
-        Task UserUpdatedAsync(string userUuid, UserModel oldUser, UserModel newUser);
+        Task UserCreatedAsync(UserNotificationModel userNotificationModel);
+        Task UserUpdatedAsync(string userUuid, UserNotificationModel oldUserNotificationModel, UserNotificationModel newUserNotificationModel);
 
         Task UserLoggedInAsync(string userUuid);
         Task UserLoggedOutAsync(string userUuid);
