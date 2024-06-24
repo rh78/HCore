@@ -152,6 +152,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 
+        public bool EnableAudit { get; set; }
+
         public string CreatedByUserUuid { get; set; }
 
         public long? MapDeveloperUuid { get; set; }

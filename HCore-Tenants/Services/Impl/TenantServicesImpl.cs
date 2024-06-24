@@ -187,6 +187,13 @@ namespace HCore.Tenants.Services.Impl
                 tenantModel.DefaultCurrency = defaultCurrency;
             }
 
+            if (tenantSpec.EnableAuditSet)
+            {
+                bool enableAudit = ProcessEnableAudit(tenantSpec.EnableAudit);
+
+                tenantModel.EnableAudit = enableAudit;
+            }
+
             tenantModel.CreatedByUserUuid = ApiImpl.ProcessUserUuid(tenantSpec.CreatedByUserUuid);
 
             var customTenantSettings = new TCustomTenantSettingsDataType();
@@ -525,6 +532,18 @@ namespace HCore.Tenants.Services.Impl
                     if (!string.Equals(tenantModelForUpdate.DefaultCurrency, defaultCurrency))
                     {
                         tenantModelForUpdate.DefaultCurrency = defaultCurrency;
+
+                        changed = true;
+                    }
+                }
+
+                if (tenantSpec.EnableAuditSet)
+                {
+                    bool enableAudit = ProcessEnableAudit(tenantSpec.EnableAudit);
+
+                    if (tenantModelForUpdate.EnableAudit != enableAudit)
+                    {
+                        tenantModelForUpdate.EnableAudit = enableAudit;
 
                         changed = true;
                     }
@@ -996,6 +1015,11 @@ namespace HCore.Tenants.Services.Impl
                 return defaultCurrency;
             
             throw new RequestFailedApiException(RequestFailedApiException.DefaultCurrencyInvalid, "The default currency is invalid");
+        }
+
+        private static bool ProcessEnableAudit(bool? enableAudit)
+        {
+            return enableAudit ?? false;
         }
 
         private enum SortByTenant

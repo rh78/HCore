@@ -155,6 +155,8 @@ namespace HCore.Tenants.Models.Impl
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset? LastUpdatedAt { get; set; }
 
+        public bool EnableAudit { get; set; }
+
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
             if (CustomTenantSettingsJson == null)
@@ -259,6 +261,7 @@ namespace HCore.Tenants.Models.Impl
                 RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
+                EnableAudit = EnableAudit,
                 CreatedByUserUuid = CreatedByUserUuid,
                 MapDeveloperUuid = MapDeveloperUuid,
                 MapTenantUuid = MapTenantUuid,
