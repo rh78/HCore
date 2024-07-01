@@ -54,7 +54,7 @@ namespace HCore.Identity.Services.Impl
 
         private readonly INowProvider _nowProvider;
 
-        private readonly IUserNotificationProvider _userNotificationProvider;
+        private readonly IUserNotificationListener _userNotificationListener;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
@@ -96,7 +96,7 @@ namespace HCore.Identity.Services.Impl
 
             _serviceProvider = serviceProvider;
 
-            _userNotificationProvider = serviceProvider.GetService<IUserNotificationProvider>();
+            _userNotificationListener = serviceProvider.GetService<IUserNotificationListener>();
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
 
@@ -191,9 +191,9 @@ namespace HCore.Identity.Services.Impl
 
                     transaction.Commit();
 
-                    if (_userNotificationProvider != null)
+                    if (_userNotificationListener != null)
                     {
-                        await _userNotificationProvider.UserReserveUuidAsync(newScopedUserUuid, normalizedScopedEmailAddress).ConfigureAwait(false);
+                        await _userNotificationListener.UserReserveUuidAsync(newScopedUserUuid, normalizedScopedEmailAddress).ConfigureAwait(false);
                     }
 
                     // no expiry date or disabled/deleted upon reservation supported right now
@@ -477,7 +477,7 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
                             var userNotificationModel = new UserNotificationModel
                             {
@@ -492,7 +492,7 @@ namespace HCore.Identity.Services.Impl
                                 ExternalUuid = user.ExternalUuid
                             };
 
-                            await _userNotificationProvider.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
+                            await _userNotificationListener.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
                         }
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
@@ -503,9 +503,9 @@ namespace HCore.Identity.Services.Impl
                             {
                                 await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
 
-                                if (_userNotificationProvider != null)
+                                if (_userNotificationListener != null)
                                 {
-                                    await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                                    await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                                 }
                             }
                         }
@@ -756,7 +756,7 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
                             var userNotificationModel = new UserNotificationModel
                             {
@@ -771,7 +771,7 @@ namespace HCore.Identity.Services.Impl
                                 ExternalUuid = user.ExternalUuid
                             };
 
-                            await _userNotificationProvider.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
+                            await _userNotificationListener.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
                         }
 
                         await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
@@ -782,9 +782,9 @@ namespace HCore.Identity.Services.Impl
 
                             await _signInManager.SignInAsync(user, isPersistent: false).ConfigureAwait(false);
 
-                            if (_userNotificationProvider != null)
+                            if (_userNotificationListener != null)
                             {
-                                await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                                await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                             }
                         }
 
@@ -861,9 +861,9 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
-                            await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                            await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                         }
 
                         return user;
@@ -1176,9 +1176,9 @@ namespace HCore.Identity.Services.Impl
 
                     transaction.Commit();
 
-                    if (_userNotificationProvider != null)
+                    if (_userNotificationListener != null)
                     {
-                        await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                        await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                     }
 
                     if (dynamicRegistration)
@@ -1234,18 +1234,18 @@ namespace HCore.Identity.Services.Impl
                     {
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
-                            await _userNotificationProvider.UserConfirmedEmailAsync(user.Id).ConfigureAwait(false);
+                            await _userNotificationListener.UserConfirmedEmailAsync(user.Id).ConfigureAwait(false);
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: true).ConfigureAwait(false);
 
                         _logger.LogInformation("User signed in");
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
-                            await _userNotificationProvider.UserLoggedInAsync(user.Id).ConfigureAwait(false);
+                            await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                         }
 
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
@@ -1325,9 +1325,9 @@ namespace HCore.Identity.Services.Impl
 
                     transaction.Commit();
 
-                    if (_userNotificationProvider != null)
+                    if (_userNotificationListener != null)
                     {
-                        await _userNotificationProvider.UserForgotPasswordAsync(user.Id).ConfigureAwait(false);
+                        await _userNotificationListener.UserForgotPasswordAsync(user.Id).ConfigureAwait(false);
                     }
                 }
             }
@@ -1376,9 +1376,9 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
-                            await _userNotificationProvider.UserResetPasswordAsync(user.Id).ConfigureAwait(false);
+                            await _userNotificationListener.UserResetPasswordAsync(user.Id).ConfigureAwait(false);
                         }
                     }
                     else
@@ -1438,9 +1438,9 @@ namespace HCore.Identity.Services.Impl
 
                     transaction.Commit();
 
-                    if (_userNotificationProvider != null)
+                    if (_userNotificationListener != null)
                     {
-                        await _userNotificationProvider.UserSetPasswordAsync(user.Id).ConfigureAwait(false);
+                        await _userNotificationListener.UserSetPasswordAsync(user.Id).ConfigureAwait(false);
                     }
                 }
             }
@@ -1539,9 +1539,9 @@ namespace HCore.Identity.Services.Impl
 
             _logger.LogInformation("User logged out");
            
-            if (_userNotificationProvider != null && !string.IsNullOrEmpty(userUuid))
+            if (_userNotificationListener != null && !string.IsNullOrEmpty(userUuid))
             {
-                await _userNotificationProvider.UserLoggedOutAsync(userUuid).ConfigureAwait(false); 
+                await _userNotificationListener.UserLoggedOutAsync(userUuid).ConfigureAwait(false); 
             }                
         }
 
@@ -1755,7 +1755,7 @@ namespace HCore.Identity.Services.Impl
 
                         transaction.Commit();
 
-                        if (_userNotificationProvider != null)
+                        if (_userNotificationListener != null)
                         {
                             var oldUserNotificationModel = new UserNotificationModel
                             {
@@ -1777,7 +1777,7 @@ namespace HCore.Identity.Services.Impl
                                 Currency = newCurrency
                             };
 
-                            await _userNotificationProvider.UserUpdatedAsync(oldUser.Id, oldUserNotificationModel, newUserNotificationModel).ConfigureAwait(false);
+                            await _userNotificationListener.UserUpdatedAsync(oldUser.Id, oldUserNotificationModel, newUserNotificationModel).ConfigureAwait(false);
                         }
 
                         await SendUserChangeNotificationAsync(oldUser.Id).ConfigureAwait(false);                        
@@ -1837,9 +1837,9 @@ namespace HCore.Identity.Services.Impl
 
                     transaction.Commit();
 
-                    if (_userNotificationProvider != null)
+                    if (_userNotificationListener != null)
                     {
-                        await _userNotificationProvider.UserResentEmailConfirmationEmailAsync(user.Id).ConfigureAwait(false);
+                        await _userNotificationListener.UserResentEmailConfirmationEmailAsync(user.Id).ConfigureAwait(false);
                     }
                 }
             }

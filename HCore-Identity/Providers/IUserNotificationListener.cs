@@ -3,7 +3,7 @@ using HCore.Identity.Models;
 
 namespace HCore.Identity.Providers
 {
-    public interface IUserNotificationProvider
+    public interface IUserNotificationListener
     {
         Task UserReserveUuidAsync(string userUuid, string emailAddress);
 
