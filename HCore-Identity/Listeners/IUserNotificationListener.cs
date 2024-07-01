@@ -5,7 +5,7 @@ namespace HCore.Identity.Listeners
 {
     public interface IUserNotificationListener
     {
-        Task UserReserveUuidAsync(string userUuid, string emailAddress);
+        Task UserReservedUuidAsync(string userUuid, string emailAddress);
 
         Task UserCreatedAsync(UserNotificationModel userNotificationModel);
         Task UserUpdatedAsync(string userUuid, UserNotificationModel oldUserNotificationModel, UserNotificationModel newUserNotificationModel);
