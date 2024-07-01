@@ -139,6 +139,8 @@ namespace HCore.Tenants.Models
         string DevAdminSsoReplacementSamlPeerEntityId { get; }
         string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; }
 
+        bool EnableAudit { get; }
+
         public string CreatedByUserUuid { get; }
 
         public long? MapDeveloperUuid { get; }

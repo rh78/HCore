@@ -323,6 +323,17 @@ namespace HCore.Tenants.Models
 		
 		public bool ExternalUsersAreManuallyManagedSet = false;
 
+        private bool? _EnableAudit;
+
+        /// <summary>
+        /// Auditing is enabled for the tenant
+        /// </summary>
+        /// <value>Auditing is enabled for the tenant</value>
+        [DataMember(Name = "enable_audit")]
+        public bool? EnableAudit { get => _EnableAudit; set { _EnableAudit = value; EnableAuditSet = true; } }
+
+        public bool EnableAuditSet = false;
+
         private string _CreatedByUserUuid;
 
         /// <summary>
@@ -402,6 +413,7 @@ namespace HCore.Tenants.Models
             sb.Append("  CustomTenantSettingsJson: ").Append(CustomTenantSettingsJson).Append("\n");
             sb.Append("  UsersAreExternallyManaged: ").Append(UsersAreExternallyManaged).Append("\n");
             sb.Append("  ExternalUsersAreManuallyManaged: ").Append(ExternalUsersAreManuallyManaged).Append("\n");
+            sb.Append("  EnableAudit: ").Append(EnableAudit).Append("\n");
             sb.Append("  CreatedByUserUuid: ").Append(CreatedByUserUuid).Append("\n");
             sb.Append("  Version: ").Append(Version).Append("\n");
             sb.Append("  CreatedAt: ").Append(CreatedAt).Append("\n");
@@ -578,6 +590,11 @@ namespace HCore.Tenants.Models
                     ExternalUsersAreManuallyManaged.Equals(other.ExternalUsersAreManuallyManaged)
                 ) &&
                 (
+                    EnableAudit == other.EnableAudit ||
+                    EnableAudit != null &&
+                    EnableAudit.Equals(other.EnableAudit)
+                ) &&
+                (
                     CreatedByUserUuid == other.CreatedByUserUuid ||
                     CreatedByUserUuid != null &&
                     CreatedByUserUuid.Equals(other.CreatedByUserUuid)
@@ -663,6 +680,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + UsersAreExternallyManaged.GetHashCode();
                     if (ExternalUsersAreManuallyManaged != null)
                     hashCode = hashCode * 59 + ExternalUsersAreManuallyManaged.GetHashCode();
+                    if (EnableAudit != null)
+                    hashCode = hashCode * 59 + EnableAudit.GetHashCode();
                     if (CreatedByUserUuid != null)
                     hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
                     if (Version != null)

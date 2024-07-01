@@ -222,9 +222,20 @@ namespace HCore.Tenants.Models
         [DataMember(Name="subscriptions")]
 		public List<Subscription> Subscriptions { get => _Subscriptions; set { _Subscriptions = value; SubscriptionsSet = true; } }
 		
-		public bool SubscriptionsSet = false;		
+		public bool SubscriptionsSet = false;
 
-		private string _CreatedByUserUuid;
+        private bool? _EnableAudit;
+
+        /// <summary>
+        /// Auditing is enabled for the tenant
+        /// </summary>
+        /// <value>Auditing is enabled for the tenant</value>
+        [DataMember(Name = "enable_audit")]
+        public bool? EnableAudit { get => _EnableAudit; set { _EnableAudit = value; EnableAuditSet = true; } }
+
+        public bool EnableAuditSet = false;
+
+        private string _CreatedByUserUuid;
 		
 		/// <summary>
         /// The record UUID
@@ -261,6 +272,7 @@ namespace HCore.Tenants.Models
             sb.Append("  DefaultCulture: ").Append(DefaultCulture).Append("\n");
             sb.Append("  DefaultCurrency: ").Append(DefaultCurrency).Append("\n");
 			sb.Append("  Subscriptions: ").Append(Subscriptions).Append("\n");
+            sb.Append("  EnableAudit: ").Append(EnableAudit).Append("\n");
             sb.Append("  CreatedByUserUuid: ").Append(CreatedByUserUuid).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -387,6 +399,11 @@ namespace HCore.Tenants.Models
                     Subscriptions == other.Subscriptions ||
                     Subscriptions != null &&
                     Subscriptions.SequenceEqual(other.Subscriptions)
+                ) &&
+                (
+                    EnableAudit == other.EnableAudit ||
+                    EnableAudit != null &&
+                    EnableAudit.Equals(other.EnableAudit)
                 ) && 
                 (
                     CreatedByUserUuid == other.CreatedByUserUuid ||
@@ -440,7 +457,9 @@ namespace HCore.Tenants.Models
                     if (DefaultCurrency != null)
                     hashCode = hashCode * 59 + DefaultCurrency.GetHashCode();
 					if (Subscriptions != null)
-                    hashCode = hashCode * 59 + Subscriptions.GetHashCode();
+                    hashCode = hashCode * 59 + Subscriptions.GetHashCode(); 
+                    if (EnableAudit != null)
+                    hashCode = hashCode * 59 + EnableAudit.GetHashCode();
                     if (CreatedByUserUuid != null)
                     hashCode = hashCode * 59 + CreatedByUserUuid.GetHashCode();
                 return hashCode;
