@@ -193,7 +193,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (_userNotificationListener != null)
                     {
-                        await _userNotificationListener.UserReserveUuidAsync(newScopedUserUuid, normalizedScopedEmailAddress).ConfigureAwait(false);
+                        await _userNotificationListener.UserReservedUuidAsync(newScopedUserUuid, normalizedScopedEmailAddress).ConfigureAwait(false);
                     }
 
                     // no expiry date or disabled/deleted upon reservation supported right now
