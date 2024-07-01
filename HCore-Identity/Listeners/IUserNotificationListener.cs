@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HCore.Identity.Models;
 
-namespace HCore.Identity.Providers
+namespace HCore.Identity.Listeners
 {
     public interface IUserNotificationListener
     {

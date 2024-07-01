@@ -33,7 +33,7 @@ using HCore.Tenants.Models;
 using Microsoft.Extensions.Configuration;
 using Kickbox;
 using System.Web;
-using HCore.Identity.Providers;
+using HCore.Identity.Listeners;
 
 namespace HCore.Identity.Services.Impl
 {
