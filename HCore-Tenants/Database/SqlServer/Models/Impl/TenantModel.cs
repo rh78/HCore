@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -193,6 +192,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 return default;
 
             return JsonConvert.DeserializeObject<TCustomTenantSettingsDataType>(CustomTenantSettingsJson);
+        }
+
+        public TenantModel Clone()
+        {
+            return JsonConvert.DeserializeObject<TenantModel>(JsonConvert.SerializeObject(this));
         }
     }
 }

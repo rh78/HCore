@@ -234,7 +234,7 @@ namespace HCore.Tenants.Services.Impl
             return tenantInfo;
         }
 
-        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<bool>> updateFuncAsync, int? version = null)
+        public async Task<ITenantInfo> UpdateTenantAsync(long developerUuid, long tenantUuid, Func<TenantModel, Task<(bool changed, Func<TenantModel, TenantModel, Task> logAuditFunc)>> updateFuncAsync, int? version = null)
         {
             using (var transaction = await _dbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
             {
@@ -253,7 +253,9 @@ namespace HCore.Tenants.Services.Impl
                 if (version != null && tenantModel.Version != version)
                     throw new OptimisticLockingApiException(OptimisticLockingApiException.TenantOptimisticLockViolated, "The tenant was modified by another user, please try again");
 
-                bool changed = await updateFuncAsync(tenantModel).ConfigureAwait(false);
+                var originalTenantModel = tenantModel.Clone();
+
+                var (changed, logAuditFunc) = await updateFuncAsync(tenantModel).ConfigureAwait(false);
 
                 if (changed)
                 {
@@ -269,6 +271,11 @@ namespace HCore.Tenants.Services.Impl
                         transaction.Commit();
 
                         await _tenantCache.InvalidateTenantInfosAsync(tenantModel.DeveloperUuid, tenantModel.Uuid).ConfigureAwait(false);
+
+                        if (logAuditFunc != null)
+                        {
+                            await logAuditFunc(originalTenantModel, tenantModel).ConfigureAwait(false);
+                        }
                     }
                     catch (DbUpdateException e)
                     when (e.InnerException is SqlException sqlEx &&
@@ -296,7 +303,7 @@ namespace HCore.Tenants.Services.Impl
             return tenantInfo;
         }
 
-        public async Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync, int? version = null)
+        public async Task<ITenantInfo> UpdateTenantAsync<TCustomTenantSettingsDataType>(long developerUuid, long tenantUuid, TenantSpec tenantSpec, Func<TCustomTenantSettingsDataType, Task<bool>> applyCustomTenantSettingsActionAsync, Func<TenantModel, TenantModel, Task> logAuditFunc = null, int? version = null)
             where TCustomTenantSettingsDataType : new()
         {
 #pragma warning disable CS1998 // Bei der asynchronen Methode fehlen "await"-Operatoren. Die Methode wird synchron ausgeführt.
@@ -563,7 +570,7 @@ namespace HCore.Tenants.Services.Impl
                     changed = true;
                 }
 
-                return changed;
+                return (changed, logAuditFunc);
             }, version).ConfigureAwait(false);
         }
 
