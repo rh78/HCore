@@ -99,7 +99,7 @@ namespace HCore.Tenants.Models
         /// An optional link to the content provider apple touch icon in PNG format for favicon use
         /// </summary>
         /// <value>An optional link to the content provider apple touch icon in PNG format for favicon use</value>
-        [DataMember(Name="apple_touch_icon_url")]
+        [DataMember(Name="custom_css")]
 		public string CustomCss { get => _CustomCss; set { _CustomCss = value; CustomCssSet = true; } }
 		
 		public bool CustomCssSet = false;		
