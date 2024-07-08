@@ -1,6 +1,4 @@
-﻿using HCore.Identity.Database.SqlServer.Models.Impl;
-
-namespace HCore.Identity.Models
+﻿namespace HCore.Identity.Models
 {
     public class UserNotificationModel
     {
@@ -11,6 +9,10 @@ namespace HCore.Identity.Models
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
+
+        public string Organization { get; set; }
+
+        public string CustomIdentifier { get; set; }
 
         public string PhoneNumber { get; set; }
 
