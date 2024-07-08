@@ -32,6 +32,8 @@ namespace HCore.Tenants.Models
         string IconIcoUrl { get; }
         string AppleTouchIconUrl { get; }
 
+        string CustomCss { get; }
+
         string StorageImplementation { get; }
         string StorageConnectionString { get; }
         

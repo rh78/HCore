@@ -520,6 +520,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The custom CSS template is invalid: {uuid} ähnelt.
+        /// </summary>
+        public static string custom_css_invalid {
+            get {
+                return ResourceManager.GetString("custom_css_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The custom identifier is invalid ähnelt.
         /// </summary>
         public static string custom_identifier_invalid {

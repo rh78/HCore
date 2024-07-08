@@ -843,4 +843,7 @@
   <data name="claims_principal_has_too_many_groups" xml:space="preserve">
     <value>The user is assigned to more than 150 groups, which is not supported by Azure AD. Please either limit the amount of user groups assigned to the user, or use application roles</value>
   </data>
+  <data name="custom_css_invalid" xml:space="preserve">
+    <value>The custom CSS template is invalid: {uuid}</value>
+  </data>
 </root>

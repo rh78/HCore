@@ -148,6 +148,17 @@ namespace HCore.Tenants.Models
 
         public bool AppleTouchIconUrlSet = false;
 
+        private string _CustomCss;
+
+        /// <summary>
+        /// An optional link to the content provider apple touch icon in PNG format for favicon use
+        /// </summary>
+        /// <value>An optional link to the content provider apple touch icon in PNG format for favicon use</value>
+        [DataMember(Name = "custom_css")]
+        public string CustomCss { get => _CustomCss; set { _CustomCss = value; CustomCssSet = true; } }
+
+        public bool CustomCssSet = false;
+
         private int? _PrimaryColor;
 		
 		/// <summary>
@@ -397,6 +408,7 @@ namespace HCore.Tenants.Models
             sb.Append("  LogoPngUrl: ").Append(LogoPngUrl).Append("\n");
             sb.Append("  IconIcoUrl: ").Append(IconIcoUrl).Append("\n");
             sb.Append("  AppleTouchIconUrl: ").Append(AppleTouchIconUrl).Append("\n");
+            sb.Append("  CustomCss: ").Append(CustomCss).Append("\n");
             sb.Append("  PrimaryColor: ").Append(PrimaryColor).Append("\n");
             sb.Append("  SecondaryColor: ").Append(SecondaryColor).Append("\n");
             sb.Append("  TextOnPrimaryColor: ").Append(TextOnPrimaryColor).Append("\n");
@@ -508,6 +520,11 @@ namespace HCore.Tenants.Models
                     AppleTouchIconUrl == other.AppleTouchIconUrl ||
                     AppleTouchIconUrl != null &&
                     AppleTouchIconUrl.Equals(other.AppleTouchIconUrl)
+                ) &&
+                (
+                    CustomCss == other.CustomCss ||
+                    CustomCss != null &&
+                    CustomCss.Equals(other.CustomCss)
                 ) && 
                 (
                     PrimaryColor == other.PrimaryColor ||
@@ -648,6 +665,8 @@ namespace HCore.Tenants.Models
                     hashCode = hashCode * 59 + IconIcoUrl.GetHashCode();
                     if (AppleTouchIconUrl != null)
                     hashCode = hashCode * 59 + AppleTouchIconUrl.GetHashCode();
+                    if (CustomCss != null)
+                    hashCode = hashCode * 59 + CustomCss.GetHashCode();
                     if (PrimaryColor != null)
                     hashCode = hashCode * 59 + PrimaryColor.GetHashCode();
                     if (SecondaryColor != null)

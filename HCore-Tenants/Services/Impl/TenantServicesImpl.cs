@@ -1,4 +1,5 @@
-﻿using HCore.Database.Models;
+﻿using ExCSS;
+using HCore.Database.Models;
 using HCore.Tenants.Cache;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
@@ -13,6 +14,7 @@ using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -115,6 +117,13 @@ namespace HCore.Tenants.Services.Impl
                 string appleTouchIconUrl = ProcessAppleTouchIconUrl(tenantSpec.AppleTouchIconUrl);
 
                 tenantModel.AppleTouchIconUrl = appleTouchIconUrl;
+            }
+
+            if (tenantSpec.CustomCssSet)
+            {
+                string customCss = await ProcessCustomCssAsync(tenantSpec.CustomCss, optimizeCustomCss: true);
+
+                tenantModel.CustomCss = customCss;
             }
 
             if (tenantSpec.PrimaryColorSet)
@@ -424,6 +433,18 @@ namespace HCore.Tenants.Services.Impl
                     }
                 }
 
+                if (tenantSpec.CustomCssSet)
+                {
+                    string customCss = await ProcessCustomCssAsync(tenantSpec.CustomCss, optimizeCustomCss: true);
+
+                    if (!string.Equals(tenantModelForUpdate.CustomCss, customCss))
+                    {
+                        tenantModelForUpdate.CustomCss = customCss;
+
+                        changed = true;
+                    }
+                }
+
                 if (tenantSpec.PrimaryColorSet)
                 {
                     int? primaryColor = ProcessPrimaryColor(tenantSpec.PrimaryColor);
@@ -698,6 +719,12 @@ namespace HCore.Tenants.Services.Impl
 
                     tenant.AppleTouchIconUrl = appleTouchIconUrl;
 
+                    string customCss = tenantModel.CustomCss;
+                    if (string.IsNullOrEmpty(customCss))
+                        customCss = developerInfo.CustomCss;
+
+                    tenant.CustomCss = customCss;
+
                     int? primaryColor = tenantModel.PrimaryColor;
                     if (primaryColor == null)
                         primaryColor = developerInfo.PrimaryColor;
@@ -868,6 +895,47 @@ namespace HCore.Tenants.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.AppleTouchIconUrlTooLong, "The apple touch icon URL is too long");
 
             return appleTouchIconUrl;
+        }
+
+        public async static Task<string> ProcessCustomCssAsync(string customCss, bool optimizeCustomCss)
+        {
+            customCss = customCss?.Trim();
+
+            if (string.IsNullOrEmpty(customCss))
+                return null;
+
+            try
+            {
+                var parser = new StylesheetParser(includeUnknownRules: true, includeUnknownDeclarations: true, tolerateInvalidSelectors: true, tolerateInvalidValues: true, tolerateInvalidConstraints: true, preserveComments: true, preserveDuplicateProperties: true);
+
+                if (optimizeCustomCss)
+                {
+                    // check if custom CSS is valid
+
+                    var stylesheet = await parser.ParseAsync(customCss).ConfigureAwait(false);
+
+                    // return optimized
+
+                    var stringWriter = new StringWriter();
+                    stylesheet.ToCss(stringWriter, new CompressedStyleFormatter());
+
+                    return stringWriter.ToString();
+                }
+                else
+                {
+                    // check if custom CSS is valid
+
+                    await parser.ParseAsync(customCss).ConfigureAwait(false);
+
+                    // return non-optimized
+
+                    return customCss;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.CustomCssInvalid, $"The custom CSS is invalid: {e.Message}", e.Message, name: null);
+            }
         }
 
         private int? ProcessPrimaryColor(int? primaryColor)
