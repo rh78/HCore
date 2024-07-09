@@ -36,6 +36,8 @@ namespace HCore.Tenants.Models.Impl
         public string IconIcoUrl { get; internal set; }
         public string AppleTouchIconUrl { get; internal set; }
 
+        public string CustomCss { get; internal set; }
+
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
         
@@ -189,6 +191,7 @@ namespace HCore.Tenants.Models.Impl
                 LogoPngUrl = LogoPngUrl,
                 IconIcoUrl = IconIcoUrl,
                 AppleTouchIconUrl = AppleTouchIconUrl,
+                CustomCss = CustomCss,
                 StorageImplementation = StorageImplementation,
                 StorageConnectionString = StorageConnectionString,
                 PrimaryColor = PrimaryColor,
