@@ -1141,7 +1141,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die We are currently conducting a scheduled system maintenance. Please try again in a few hours ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die We are currently conducting a scheduled system maintenance. Please try again in an hour ähnelt.
         /// </summary>
         public static string maintenance_mode {
             get {

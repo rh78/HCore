@@ -1,5 +1,4 @@
-﻿// #define MAINTENANCE_MODE
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using HCore.Web.Exceptions;
 using System;
@@ -27,6 +26,7 @@ namespace HCore.Web.Middleware
         private static string _tenantSelectorFallbackUrl;
 
         private static bool? _blockIE;
+        private static bool? _maintenanceMode;
 
         private readonly RequestDelegate _next;
 
@@ -65,6 +65,11 @@ namespace HCore.Web.Middleware
                 _blockIE = configuration.GetValue<bool>("WebServer:BlockIE");
             }
 
+            if (_maintenanceMode == null)
+            {
+                _maintenanceMode = configuration.GetValue<bool>("WebServer:MaintenanceMode");
+            }
+
             if (_criticalFallbackUrl == null)
             {
                 _criticalFallbackUrl = configuration["WebServer:CriticalFallbackUrl"];
@@ -98,7 +103,6 @@ namespace HCore.Web.Middleware
 
             try
             {
-#if MAINTENANCE_MODE
                 var maintenanceMode = MaintenanceMode(context);
                 
                 if (!maintenanceMode)
@@ -110,14 +114,6 @@ namespace HCore.Web.Middleware
                         await _next.Invoke(context).ConfigureAwait(false);
                     }
                 }
-#else
-                var blocked = BlockIE11(context);
-
-                if (!blocked)
-                {
-                    await _next.Invoke(context).ConfigureAwait(false);
-                }
-#endif
             }
             catch (RedirectApiException e)
             {
@@ -166,11 +162,17 @@ namespace HCore.Web.Middleware
             }                           
         }
 
-#if MAINTENANCE_MODE
         private bool MaintenanceMode(HttpContext context)
         {
-            if (context == null)
+            if (_maintenanceMode != true)
+            {
                 return false;
+            }
+
+            if (context == null)
+            {
+                return false;
+            }
 
             var path = context.Request.Path.Value;
 
@@ -185,7 +187,6 @@ namespace HCore.Web.Middleware
 
             return true;
         }
-#endif
 
         private bool BlockIE11(HttpContext context)
         {
