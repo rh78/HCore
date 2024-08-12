@@ -107,6 +107,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public bool OidcQueryUserInfoEndpoint { get; set; }
 
         [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> OidcAdditionalParameters { get; set; }
+
+        [Column(TypeName = "jsonb")]
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
         public string SamlEntityId { get; set; }

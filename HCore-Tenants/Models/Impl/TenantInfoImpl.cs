@@ -104,6 +104,8 @@ namespace HCore.Tenants.Models.Impl
 
         public bool OidcQueryUserInfoEndpoint { get; set; }
 
+        public Dictionary<string, string> OidcAdditionalParameters { get; set; }
+
         public string SamlEntityId { get; set; }
 
         public string SamlPeerEntityId { get; set; }
@@ -236,6 +238,7 @@ namespace HCore.Tenants.Models.Impl
                 OidcAcrValuesAppendix = OidcAcrValuesAppendix,
                 OidcTriggerAcrValuesAppendixByUrlParameter = OidcTriggerAcrValuesAppendixByUrlParameter,
                 OidcQueryUserInfoEndpoint = OidcQueryUserInfoEndpoint,
+                OidcAdditionalParameters = OidcAdditionalParameters,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,
