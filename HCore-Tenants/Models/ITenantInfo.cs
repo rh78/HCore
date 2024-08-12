@@ -100,6 +100,8 @@ namespace HCore.Tenants.Models
 
         bool OidcQueryUserInfoEndpoint { get; set; }
 
+        Dictionary<string, string> OidcAdditionalParameters { get; set; }
+
         string SamlEntityId { get; }
 
         string SamlPeerEntityId { get; set; }

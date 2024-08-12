@@ -309,6 +309,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcAcrValuesAppendix = tenantInfo.OidcAcrValuesAppendix;
                         var oidcTriggerAcrValuesAppendixByUrlParameter = tenantInfo.OidcTriggerAcrValuesAppendixByUrlParameter;
                         var oidcQueryUserInfoEndpoint = tenantInfo.OidcQueryUserInfoEndpoint;
+                        var oidcAdditionalParameters = tenantInfo.OidcAdditionalParameters;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -369,11 +370,22 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.Events = new OpenIdConnectEvents();
 
-                        if (!string.IsNullOrEmpty(oidcAcrValues))
+                        if (!string.IsNullOrEmpty(oidcAcrValues) || (oidcAdditionalParameters != null && oidcAdditionalParameters.Any()))
                         {
                             openIdConnect.Events.OnRedirectToIdentityProvider = (context) =>
                             {
-                                context.ProtocolMessage.SetParameter("acr_values", AdjustAcrValues(oidcAcrValues, oidcAcrValuesAppendix, oidcTriggerAcrValuesAppendixByUrlParameter, context.Request));
+                                if (!string.IsNullOrEmpty(oidcAcrValues))
+                                {
+                                    context.ProtocolMessage.SetParameter("acr_values", AdjustAcrValues(oidcAcrValues, oidcAcrValuesAppendix, oidcTriggerAcrValuesAppendixByUrlParameter, context.Request));
+                                }
+
+                                if (oidcAdditionalParameters != null && oidcAdditionalParameters.Any())
+                                {
+                                    foreach (var oidcAdditionalParameterKeyValuePair in oidcAdditionalParameters)
+                                    {
+                                        context.ProtocolMessage.SetParameter(oidcAdditionalParameterKeyValuePair.Key, oidcAdditionalParameterKeyValuePair.Value);
+                                    }
+                                }
 
                                 return Task.CompletedTask;
                             };
