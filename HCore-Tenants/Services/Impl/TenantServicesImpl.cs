@@ -83,7 +83,15 @@ namespace HCore.Tenants.Services.Impl
 
             tenantModel.SubdomainPatterns = new string[] { subdomain };
 
-            tenantModel.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+            if (!string.IsNullOrEmpty(developerInfo.DefaultEcbBackendApiUrlSuffix))
+            {
+                tenantModel.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+            }
+            else
+            {
+                tenantModel.EcbBackendApiUrl = null;
+            }
+
             tenantModel.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
 
             tenantModel.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";
@@ -365,7 +373,15 @@ namespace HCore.Tenants.Services.Impl
 
                     if (subdomainChanged)
                     {
-                        tenantModelForUpdate.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+                        if (!string.IsNullOrEmpty(developerInfo.DefaultEcbBackendApiUrlSuffix))
+                        {
+                            tenantModelForUpdate.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+                        }
+                        else
+                        {
+                            tenantModelForUpdate.EcbBackendApiUrl = null;
+                        }
+
                         tenantModelForUpdate.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
 
                         tenantModelForUpdate.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";

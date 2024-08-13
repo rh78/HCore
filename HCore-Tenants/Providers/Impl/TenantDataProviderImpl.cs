@@ -98,7 +98,7 @@ namespace HCore.Tenants.Providers.Impl
                             throw new Exception("The developer auth cookie domain is empty");
 
                         if (string.IsNullOrEmpty(developerModel.DefaultEcbBackendApiUrlSuffix))
-                            throw new Exception("The developer default ECB backend API URL suffix is empty");
+                            developerModel.DefaultEcbBackendApiUrlSuffix = null;
 
                         if (string.IsNullOrEmpty(developerModel.DefaultPortalsBackendApiUrlSuffix))
                             throw new Exception("The developer default Portals backend API URL suffix is empty");
