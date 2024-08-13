@@ -37,6 +37,8 @@ namespace HCore.Tenants.Providers.Impl
         public int? HealthCheckPort { get; internal set; }
         public string HealthCheckTenantHost { get; internal set; }
 
+        private readonly int _hostPatternMinLength;
+
         private byte[] _standardSamlCertificateBytes;
         private string _standardSamlCertificatePassword;
 
@@ -59,6 +61,8 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckPort = httpHealthCheckPort;
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
+
+            _hostPatternMinLength = configuration.GetValue<int?>("WebServer:HostPatternMinLength") ?? 3;
 
             ReadStandardSamlCertificate(configuration);
 
@@ -96,6 +100,9 @@ namespace HCore.Tenants.Providers.Impl
 
                         if (string.IsNullOrEmpty(developerModel.AuthCookieDomain))
                             throw new Exception("The developer auth cookie domain is empty");
+
+                        if (string.IsNullOrEmpty(developerModel.HostPattern))
+                            throw new Exception("The developer host pattern is empty");
 
                         if (string.IsNullOrEmpty(developerModel.DefaultEcbBackendApiUrlSuffix))
                             developerModel.DefaultEcbBackendApiUrlSuffix = null;
@@ -166,6 +173,7 @@ namespace HCore.Tenants.Providers.Impl
                             Audience = developerModel.Audience,
                             Certificate = developerCertificate,
                             AuthCookieDomain = developerModel.AuthCookieDomain,
+                            HostPattern = developerModel.HostPattern,
                             DefaultEcbBackendApiUrlSuffix = developerModel.DefaultEcbBackendApiUrlSuffix,
                             DefaultPortalsBackendApiUrlSuffix = developerModel.DefaultPortalsBackendApiUrlSuffix,
                             DefaultFrontendApiUrlSuffix = developerModel.DefaultFrontendApiUrlSuffix,
@@ -233,14 +241,14 @@ namespace HCore.Tenants.Providers.Impl
 
             parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-            if (parts.Length < 3)
+            if (parts.Length < _hostPatternMinLength)
             {
                 _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
                 return (null, null);
             }
 
-            if (parts.Length > 4)
+            if (parts.Length > _hostPatternMinLength + 1)
             {
                 _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
 
@@ -251,9 +259,20 @@ namespace HCore.Tenants.Providers.Impl
 
             string subDomainLookup = parts[0];
 
-            // two last parts, without (optional) .clapi, .auth, ... subdomains
+            string hostLookup;
 
-            string hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            if (_hostPatternMinLength > 3)
+            {
+                // three last parts, without (optional) .clapi, .auth, ... subdomains
+
+                hostLookup = parts[parts.Length - 3] + "." + parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            }
+            else
+            {
+                // two last parts, without (optional) .clapi, .auth, ... subdomains
+
+                hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            }
 
             if (!_developerInfosByHostPattern.ContainsKey(hostLookup))
             {
@@ -389,7 +408,7 @@ namespace HCore.Tenants.Providers.Impl
                 throw new Exception("The tenant frontend API URL is empty");
 
             if (string.IsNullOrEmpty(tenantModel.EcbBackendApiUrl))
-                throw new Exception("The tenant ECB backend API url is empty");
+                tenantModel.EcbBackendApiUrl = null;
 
             if (string.IsNullOrEmpty(tenantModel.PortalsBackendApiUrl))
                 throw new Exception("The tenant Portals backend API url is empty");
@@ -726,6 +745,7 @@ namespace HCore.Tenants.Providers.Impl
                 DeveloperAuthority = developerModel.Authority,
                 DeveloperAudience = developerModel.Audience,
                 DeveloperAuthCookieDomain = developerModel.AuthCookieDomain,
+                DeveloperHostPattern = developerModel.HostPattern,
                 DeveloperName = developerModel.Name,
                 DeveloperPrivacyPolicyUrl = developerModel.PrivacyPolicyUrl,
                 DeveloperPrivacyPolicyVersion = developerModel.PrivacyPolicyVersion,

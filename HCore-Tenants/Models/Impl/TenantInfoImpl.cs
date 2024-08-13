@@ -15,6 +15,7 @@ namespace HCore.Tenants.Models.Impl
         public string DeveloperAuthority { get; internal set; }
         public string DeveloperAudience { get; internal set; }
         public string DeveloperAuthCookieDomain { get; internal set; }
+        public string DeveloperHostPattern { get; internal set; }
         public string DeveloperName { get; internal set; }
 
         public string DeveloperPrivacyPolicyUrl { get; internal set; }
@@ -180,6 +181,7 @@ namespace HCore.Tenants.Models.Impl
                 DeveloperCertificatePassword = DeveloperCertificatePassword,
                 DeveloperCertificateThumbprint = DeveloperCertificateThumbprint,
                 DeveloperAuthCookieDomain = DeveloperAuthCookieDomain,
+                DeveloperHostPattern = DeveloperHostPattern,
                 DeveloperName = DeveloperName,
                 DeveloperPrivacyPolicyUrl = DeveloperPrivacyPolicyUrl,
                 DeveloperPrivacyPolicyVersion = DeveloperPrivacyPolicyVersion,

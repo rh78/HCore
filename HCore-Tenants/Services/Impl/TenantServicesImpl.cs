@@ -62,7 +62,7 @@ namespace HCore.Tenants.Services.Impl
 
             string subdomain = ProcessSubdomain(tenantSpec.Subdomain);
 
-            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.{developerInfo.HostPattern}]").ConfigureAwait(false);
 
             if (tenantInfo != null)
             {

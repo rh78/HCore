@@ -10,6 +10,7 @@ namespace HCore.Tenants.Models
         string Audience { get; }
         X509Certificate2 Certificate { get; }
         string AuthCookieDomain { get; }
+        string HostPattern { get; }
 
         string DefaultEcbBackendApiUrlSuffix { get; }
         string DefaultPortalsBackendApiUrlSuffix { get; }
