@@ -37,8 +37,6 @@ namespace HCore.Tenants.Providers.Impl
         public int? HealthCheckPort { get; internal set; }
         public string HealthCheckTenantHost { get; internal set; }
 
-        private readonly int _hostPatternMinLength;
-
         private byte[] _standardSamlCertificateBytes;
         private string _standardSamlCertificatePassword;
 
@@ -61,8 +59,6 @@ namespace HCore.Tenants.Providers.Impl
                 HealthCheckPort = httpHealthCheckPort;
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
-
-            _hostPatternMinLength = configuration.GetValue<int?>("WebServer:HostPatternMinLength") ?? 3;
 
             ReadStandardSamlCertificate(configuration);
 
@@ -241,18 +237,39 @@ namespace HCore.Tenants.Providers.Impl
 
             parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-            if (parts.Length < _hostPatternMinLength)
-            {
-                _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+            var isCloudinary = host.EndsWith(".portals.cloudinary.com");
 
-                return (null, null);
+            if (isCloudinary)
+            {
+                if (parts.Length < 4)
+                {
+                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+
+                    return (null, null);
+                }
+
+                if (parts.Length > 5)
+                {
+                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+
+                    return (null, null);
+                }
             }
-
-            if (parts.Length > _hostPatternMinLength + 1)
+            else
             {
-                _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+                if (parts.Length < 3)
+                {
+                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
-                return (null, null);
+                    return (null, null);
+                }
+
+                if (parts.Length > 4)
+                {
+                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+
+                    return (null, null);
+                }
             }
 
             // first part
@@ -261,7 +278,7 @@ namespace HCore.Tenants.Providers.Impl
 
             string hostLookup;
 
-            if (_hostPatternMinLength > 3)
+            if (isCloudinary)
             {
                 // three last parts, without (optional) .clapi, .auth, ... subdomains
 
