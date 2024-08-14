@@ -342,7 +342,7 @@ namespace HCore.Tenants.Services.Impl
 
                     if (tenantModelForUpdate.SubdomainPatterns == null || tenantModelForUpdate.SubdomainPatterns.Length == 0)
                     {
-                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}{developerInfo.HostPattern}").ConfigureAwait(false);
 
                         if (tenantInfo != null)
                             throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
@@ -359,7 +359,7 @@ namespace HCore.Tenants.Services.Impl
                     }
                     else if (!string.Equals(tenantModelForUpdate.SubdomainPatterns[0], subdomain))
                     {
-                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}{developerInfo.HostPattern}").ConfigureAwait(false);
 
                         if (tenantInfo != null)
                             throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");

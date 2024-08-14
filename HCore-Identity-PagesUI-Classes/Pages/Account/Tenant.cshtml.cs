@@ -6,6 +6,7 @@ using HCore.Tenants.Providers;
 using HCore.Translations.Providers;
 using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -21,12 +22,25 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly ITranslationsProvider _translationsProvider;
         private readonly ITenantDataProvider _tenantDataProvider;
 
+        private static string _hostPattern;
+
         public override string ModelAsJson { get; } = "{}";
 
-        public TenantModel(ITranslationsProvider translationsProvider, ITenantDataProvider tenantDataProvider)
+        public TenantModel(
+            ITranslationsProvider translationsProvider, 
+            ITenantDataProvider tenantDataProvider,
+            IConfiguration configuration)
         {
             _translationsProvider = translationsProvider;
             _tenantDataProvider = tenantDataProvider;
+
+            if (_hostPattern == null)
+            {
+                _hostPattern = configuration["WebServer:HostPattern"];
+
+                if (string.IsNullOrEmpty(_hostPattern))
+                    _hostPattern = ".smint.io";
+            }
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -85,7 +99,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (!Tenant.IsMatch(domain))
                 throw new RequestFailedApiException(RequestFailedApiException.DomainInvalid, "The domain is invalid");
 
-            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{domain}.smint.io").ConfigureAwait(false);
+            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{domain}{_hostPattern}").ConfigureAwait(false);
 
             if (tenantInfo == null)
                 throw new RequestFailedApiException(RequestFailedApiException.DomainNotFound, "The domain was not found");
