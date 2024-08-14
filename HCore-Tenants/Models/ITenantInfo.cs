@@ -11,6 +11,7 @@ namespace HCore.Tenants.Models
         string DeveloperAuthority { get; }
         string DeveloperAudience { get; }
         string DeveloperAuthCookieDomain { get; }
+        string DeveloperHostPattern { get; }
         string DeveloperName { get; }
 
         string DeveloperPrivacyPolicyUrl { get; }

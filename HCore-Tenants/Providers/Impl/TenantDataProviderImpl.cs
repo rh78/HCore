@@ -97,8 +97,11 @@ namespace HCore.Tenants.Providers.Impl
                         if (string.IsNullOrEmpty(developerModel.AuthCookieDomain))
                             throw new Exception("The developer auth cookie domain is empty");
 
+                        if (string.IsNullOrEmpty(developerModel.HostPattern))
+                            throw new Exception("The developer host pattern is empty");
+
                         if (string.IsNullOrEmpty(developerModel.DefaultEcbBackendApiUrlSuffix))
-                            throw new Exception("The developer default ECB backend API URL suffix is empty");
+                            developerModel.DefaultEcbBackendApiUrlSuffix = null;
 
                         if (string.IsNullOrEmpty(developerModel.DefaultPortalsBackendApiUrlSuffix))
                             throw new Exception("The developer default Portals backend API URL suffix is empty");
@@ -166,6 +169,7 @@ namespace HCore.Tenants.Providers.Impl
                             Audience = developerModel.Audience,
                             Certificate = developerCertificate,
                             AuthCookieDomain = developerModel.AuthCookieDomain,
+                            HostPattern = developerModel.HostPattern,
                             DefaultEcbBackendApiUrlSuffix = developerModel.DefaultEcbBackendApiUrlSuffix,
                             DefaultPortalsBackendApiUrlSuffix = developerModel.DefaultPortalsBackendApiUrlSuffix,
                             DefaultFrontendApiUrlSuffix = developerModel.DefaultFrontendApiUrlSuffix,
@@ -233,27 +237,59 @@ namespace HCore.Tenants.Providers.Impl
 
             parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-            if (parts.Length < 3)
-            {
-                _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+            var isCloudinary = host.EndsWith(".portals.cloudinary.com");
 
-                return (null, null);
+            if (isCloudinary)
+            {
+                if (parts.Length < 4)
+                {
+                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+
+                    return (null, null);
+                }
+
+                if (parts.Length > 5)
+                {
+                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+
+                    return (null, null);
+                }
             }
-
-            if (parts.Length > 4)
+            else
             {
-                _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+                if (parts.Length < 3)
+                {
+                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
-                return (null, null);
+                    return (null, null);
+                }
+
+                if (parts.Length > 4)
+                {
+                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
+
+                    return (null, null);
+                }
             }
 
             // first part
 
             string subDomainLookup = parts[0];
 
-            // two last parts, without (optional) .clapi, .auth, ... subdomains
+            string hostLookup;
 
-            string hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            if (isCloudinary)
+            {
+                // three last parts, without (optional) .clapi, .auth, ... subdomains
+
+                hostLookup = parts[parts.Length - 3] + "." + parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            }
+            else
+            {
+                // two last parts, without (optional) .clapi, .auth, ... subdomains
+
+                hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
+            }
 
             if (!_developerInfosByHostPattern.ContainsKey(hostLookup))
             {
@@ -389,7 +425,7 @@ namespace HCore.Tenants.Providers.Impl
                 throw new Exception("The tenant frontend API URL is empty");
 
             if (string.IsNullOrEmpty(tenantModel.EcbBackendApiUrl))
-                throw new Exception("The tenant ECB backend API url is empty");
+                tenantModel.EcbBackendApiUrl = null;
 
             if (string.IsNullOrEmpty(tenantModel.PortalsBackendApiUrl))
                 throw new Exception("The tenant Portals backend API url is empty");
@@ -726,6 +762,7 @@ namespace HCore.Tenants.Providers.Impl
                 DeveloperAuthority = developerModel.Authority,
                 DeveloperAudience = developerModel.Audience,
                 DeveloperAuthCookieDomain = developerModel.AuthCookieDomain,
+                DeveloperHostPattern = developerModel.HostPattern,
                 DeveloperName = developerModel.Name,
                 DeveloperPrivacyPolicyUrl = developerModel.PrivacyPolicyUrl,
                 DeveloperPrivacyPolicyVersion = developerModel.PrivacyPolicyVersion,

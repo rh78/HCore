@@ -107,9 +107,9 @@ namespace HCore.Web.Startup
 
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
             ConfigureDefaultServiceProvider();
@@ -157,9 +157,9 @@ namespace HCore.Web.Startup
             {
                 var env = hostingContext.HostingEnvironment;
 
-                config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: true);
+                config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false);
 
                 if (env.IsDevelopment())
                 {
@@ -227,72 +227,42 @@ namespace HCore.Web.Startup
             webHostBuilder.UseKestrel((builderContext, options) =>
             {
                 X509Certificate2 defaultWebCertificate = null;
+                X509Certificate2 defaultSecondaryWebCertificate = null;
+
                 X509Certificate2 defaultApiCertificate = null;
+                X509Certificate2 defaultSecondaryApiCertificate = null;
+
+                string hostPattern = null;
+                string secondaryHostPattern = null;
 
                 if (useHttps)
                 {
                     if (useWeb)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Web:Assembly"];
-                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                            throw new Exception("HTTPS web certificate assembly not found");
-
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Web:Name"];
-
-                        if (string.IsNullOrEmpty(httpsCertificateName))
-                            throw new Exception("HTTPS web certificate name not found");
-
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Web:Password"];
-
-                        if (string.IsNullOrEmpty(httpsCertificatePassword))
-                            throw new Exception("HTTPS web certificate password not found");
-
-                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                        if (httpsAssembly == null)
-                            throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
-
-                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                        if (resourceStream == null)
-                            throw new Exception("HTTPS web certificate resource not found");
-
-                        defaultWebCertificate = GetX509Certificate2(resourceStream, httpsCertificatePassword);
+                        defaultWebCertificate = GetX509Certificate2("Web", isRequired: true);
+                        defaultSecondaryWebCertificate = GetX509Certificate2("SecondaryWeb", isRequired: false);
                     }
 
                     if (useApi)
                     {
-                        string httpsCertificateAssembly = _configuration["WebServer:Https:Certificates:Api:Assembly"];
-                        if (string.IsNullOrEmpty(httpsCertificateAssembly))
-                            throw new Exception("HTTPS API certificate assembly not found");
+                        defaultApiCertificate = GetX509Certificate2("Api", isRequired: true);
+                        defaultSecondaryApiCertificate = GetX509Certificate2("SecondaryApi", isRequired: false);
+                    }
 
-                        string httpsCertificateName = _configuration["WebServer:Https:Certificates:Api:Name"];
+                    if (defaultWebCertificate != null || defaultApiCertificate != null)
+                    {
+                        hostPattern = _configuration["WebServer:HostPattern"];
 
-                        if (string.IsNullOrEmpty(httpsCertificateName))
-                            throw new Exception("HTTPS API certificate name not found");
+                        if (string.IsNullOrEmpty(hostPattern))
+                            hostPattern = ".smint.io";
+                    }
 
-                        string httpsCertificatePassword = _configuration["WebServer:Https:Certificates:Api:Password"];
+                    if (defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null)
+                    {
+                        secondaryHostPattern = _configuration["WebServer:SecondaryHostPattern"];
 
-                        if (string.IsNullOrEmpty(httpsCertificatePassword))
-                            throw new Exception("HTTPS API certificate password not found");
-
-                        // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
-
-                        Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                            SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
-
-                        if (httpsAssembly == null)
-                            throw new Exception("HTTPS API certificate assembly is not present in the list of assemblies");
-
-                        var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-                        if (resourceStream == null)
-                            throw new Exception("HTTPS API certificate resource not found");
-
-                        defaultApiCertificate = GetX509Certificate2(resourceStream, httpsCertificatePassword);
+                        if (string.IsNullOrEmpty(secondaryHostPattern))
+                            throw new Exception("Secondary host pattern not found");
                     }
                 }
 
@@ -356,7 +326,7 @@ namespace HCore.Web.Startup
                             var port = ((IPEndPoint)connectionContext.LocalEndPoint).Port;
 
                             if (string.IsNullOrEmpty(hostName) ||
-                                hostName.EndsWith(".smint.io"))
+                                hostName.EndsWith(hostPattern))
                             {
                                 // this is our default certificates
 
@@ -367,6 +337,21 @@ namespace HCore.Web.Startup
                                 else if (useApi && port == apiPort && defaultApiCertificate != null)
                                 {
                                     return defaultApiCertificate;
+                                }
+                                else
+                                {
+                                    throw new Exception($"Default certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
+                                }
+                            }
+                            else if ((defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null) && hostName.EndsWith(secondaryHostPattern))
+                            {
+                                if (useWeb && port == webPort && defaultSecondaryWebCertificate != null)
+                                {
+                                    return defaultSecondaryWebCertificate;
+                                }
+                                else if (useApi && port == apiPort && defaultSecondaryApiCertificate != null)
+                                {
+                                    return defaultSecondaryApiCertificate;
                                 }
                                 else
                                 {
@@ -537,6 +522,45 @@ namespace HCore.Web.Startup
                 webHostBuilder.UseSentry();
 
             _serverUrl = string.Join(" / ", urlsArray);
+        }
+
+        private X509Certificate2 GetX509Certificate2(string key, bool isRequired)
+        {
+            string httpsCertificateAssembly = _configuration[$"WebServer:Https:Certificates:{key}:Assembly"];
+            if (string.IsNullOrEmpty(httpsCertificateAssembly))
+            {
+                if (!isRequired)
+                {
+                    return null;
+                }
+
+                throw new Exception("HTTPS web certificate assembly not found");
+            }
+
+            string httpsCertificateName = _configuration[$"WebServer:Https:Certificates:{key}:Name"];
+
+            if (string.IsNullOrEmpty(httpsCertificateName))
+                throw new Exception("HTTPS web certificate name not found");
+
+            string httpsCertificatePassword = _configuration[$"WebServer:Https:Certificates:{key}:Password"];
+
+            if (string.IsNullOrEmpty(httpsCertificatePassword))
+                throw new Exception("HTTPS web certificate password not found");
+
+            // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+
+            Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
+                SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+
+            if (httpsAssembly == null)
+                throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
+
+            var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
+
+            if (resourceStream == null)
+                throw new Exception("HTTPS web certificate resource not found");
+
+            return GetX509Certificate2(resourceStream, httpsCertificatePassword);
         }
 
         private static X509Certificate2 GetX509Certificate2(Stream stream, string password)

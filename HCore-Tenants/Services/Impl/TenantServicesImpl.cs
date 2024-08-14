@@ -62,7 +62,7 @@ namespace HCore.Tenants.Services.Impl
 
             string subdomain = ProcessSubdomain(tenantSpec.Subdomain);
 
-            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+            var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.{developerInfo.HostPattern}]").ConfigureAwait(false);
 
             if (tenantInfo != null)
             {
@@ -83,7 +83,15 @@ namespace HCore.Tenants.Services.Impl
 
             tenantModel.SubdomainPatterns = new string[] { subdomain };
 
-            tenantModel.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+            if (!string.IsNullOrEmpty(developerInfo.DefaultEcbBackendApiUrlSuffix))
+            {
+                tenantModel.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+            }
+            else
+            {
+                tenantModel.EcbBackendApiUrl = null;
+            }
+
             tenantModel.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
 
             tenantModel.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";
@@ -334,7 +342,7 @@ namespace HCore.Tenants.Services.Impl
 
                     if (tenantModelForUpdate.SubdomainPatterns == null || tenantModelForUpdate.SubdomainPatterns.Length == 0)
                     {
-                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}{developerInfo.HostPattern}").ConfigureAwait(false);
 
                         if (tenantInfo != null)
                             throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
@@ -351,7 +359,7 @@ namespace HCore.Tenants.Services.Impl
                     }
                     else if (!string.Equals(tenantModelForUpdate.SubdomainPatterns[0], subdomain))
                     {
-                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}.smint.io").ConfigureAwait(false);
+                        var (_, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync($"{subdomain}{developerInfo.HostPattern}").ConfigureAwait(false);
 
                         if (tenantInfo != null)
                             throw new RequestFailedApiException(RequestFailedApiException.TenantSubdomainAlreadyUsed, "This subdomain is already being used");
@@ -365,7 +373,15 @@ namespace HCore.Tenants.Services.Impl
 
                     if (subdomainChanged)
                     {
-                        tenantModelForUpdate.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+                        if (!string.IsNullOrEmpty(developerInfo.DefaultEcbBackendApiUrlSuffix))
+                        {
+                            tenantModelForUpdate.EcbBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultEcbBackendApiUrlSuffix}";
+                        }
+                        else
+                        {
+                            tenantModelForUpdate.EcbBackendApiUrl = null;
+                        }
+
                         tenantModelForUpdate.PortalsBackendApiUrl = $"https://{subdomain}.{developerInfo.DefaultPortalsBackendApiUrlSuffix}";
 
                         tenantModelForUpdate.FrontendApiUrl = $"https://{subdomain}.{developerInfo.DefaultFrontendApiUrlSuffix}";
