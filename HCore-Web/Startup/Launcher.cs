@@ -239,13 +239,13 @@ namespace HCore.Web.Startup
                     if (useWeb)
                     {
                         defaultWebCertificate = GetX509Certificate2("Web", isRequired: true);
-                        defaultSecondaryWebCertificate = GetX509Certificate2("SecondaryWeb", isRequired: true);
+                        defaultSecondaryWebCertificate = GetX509Certificate2("SecondaryWeb", isRequired: false);
                     }
 
                     if (useApi)
                     {
                         defaultApiCertificate = GetX509Certificate2("Api", isRequired: true);
-                        defaultSecondaryApiCertificate = GetX509Certificate2("SecondaryApi", isRequired: true);
+                        defaultSecondaryApiCertificate = GetX509Certificate2("SecondaryApi", isRequired: false);
                     }
 
                     if (defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null)
