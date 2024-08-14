@@ -109,7 +109,11 @@ namespace HCore.Web.Startup
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.{_environment}.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.{_environment}.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
             ConfigureDefaultServiceProvider();
@@ -159,7 +163,11 @@ namespace HCore.Web.Startup
 
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
                       .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false);
+                      .AddJsonFile($"appsettings.OEM.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.OEM.local.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false);
 
                 if (env.IsDevelopment())
                 {
