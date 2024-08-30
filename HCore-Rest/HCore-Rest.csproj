@@ -8,9 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.2" />
-    <PackageReference Include="RestSharp" Version="110.2.0" />
-    <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="110.2.0" />
-    <PackageReference Include="RestSharp.Serializers.Xml" Version="110.2.0" />
+    <PackageReference Include="RestSharp" Version="112.0.0" />
+    <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="112.0.0" />
+    <PackageReference Include="RestSharp.Serializers.Xml" Version="112.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
