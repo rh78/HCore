@@ -14,6 +14,7 @@ namespace HCore.Translations.Providers.Impl
         private readonly IServiceProvider _serviceProvider;
 
         private List<IStringLocalizer> _stringLocalizers;
+        private List<IStringProcessor> _stringProcessors;
 
         private readonly ITranslationsProviderExtension _translationsProviderExtension;
 
@@ -27,6 +28,13 @@ namespace HCore.Translations.Providers.Impl
 
             _stringLocalizers = stringLocalizerProviderServices.Select(stringLocalizerProvider => stringLocalizerProvider.StringLocalizer).ToList();
 
+            _stringProcessors = _serviceProvider.GetServices<IStringProcessor>().ToList();
+
+            if (!_stringProcessors.Any())
+            {
+                _stringProcessors = null;
+            }
+
             _translationsProviderExtension = _serviceProvider.GetService<ITranslationsProviderExtension>();
         }
 
@@ -38,7 +46,7 @@ namespace HCore.Translations.Providers.Impl
             {
                 string text = stringLocalizer.GetString(key);
                 if (text != null && !string.Equals(text, key))
-                    return text;
+                    return ProcessString(text);
             }
 
             if (_translationsProviderExtension != null)
@@ -47,7 +55,7 @@ namespace HCore.Translations.Providers.Impl
 
                 if (!string.IsNullOrEmpty(providerExtensionText))
                 {
-                    return providerExtensionText;
+                    return ProcessString(providerExtensionText);
                 }
             }
 
@@ -85,7 +93,7 @@ namespace HCore.Translations.Providers.Impl
                         .Append("\"")
                         .Append(translatedString.Name)
                         .Append("\": \"")
-                        .Append(HttpUtility.JavaScriptStringEncode(translatedString.Value))
+                        .Append(HttpUtility.JavaScriptStringEncode(ProcessString(translatedString.Value)))
                         .Append("\",\n");
                 });
             });
@@ -102,7 +110,7 @@ namespace HCore.Translations.Providers.Impl
         public string TranslateError(string errorCode, string errorMessage, string uuid, string name)
         {
             if (string.IsNullOrEmpty(errorCode))
-                return errorMessage;
+                return ProcessString(errorMessage);
 
             string translatedErrorMessage = GetString(errorCode);
             if (string.IsNullOrEmpty(translatedErrorMessage) ||
@@ -110,7 +118,7 @@ namespace HCore.Translations.Providers.Impl
             {
                 // not found
 
-                return errorMessage;
+                return ProcessString(errorMessage);
             }
 
             if (!string.IsNullOrEmpty(uuid) && !string.IsNullOrEmpty(translatedErrorMessage))
@@ -119,7 +127,22 @@ namespace HCore.Translations.Providers.Impl
             if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(translatedErrorMessage))
                 translatedErrorMessage = translatedErrorMessage.Replace("{name}", name);
 
-            return translatedErrorMessage;
+            return ProcessString(translatedErrorMessage);
+        }
+
+        private string ProcessString(string str)
+        {
+            if (_stringProcessors == null)
+            {
+                return str;
+            }
+
+            foreach (var stringProcessor in _stringProcessors)
+            {
+                str = stringProcessor.ProcessString(str);
+            }
+
+            return str;
         }
     }
 }
