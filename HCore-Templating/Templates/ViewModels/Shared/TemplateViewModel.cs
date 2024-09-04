@@ -16,9 +16,15 @@ namespace HCore.Templating.Templates.ViewModels.Shared
         public string TenantTextOnPrimaryColor { get; set; }
         public string TenantTextOnSecondaryColor { get; set; }
         public string TenantSupportEmail { get; set; }
+        public string TenantWebAddress { get; set; }
+        public string TenantPoweredByShort { get; set; }
         public string TenantProductName { get; set; }
         public string TenantDefaultCulture { get; set; }
         public string TenantDefaultCurrency { get; set; }
+
+        public bool TenantHidePoweredBy { get; set; }
+
+        public string TenantCustomEmailCss { get; set; }
 
         public EmailSettingsModel EmailSettings { get; set; }
     }

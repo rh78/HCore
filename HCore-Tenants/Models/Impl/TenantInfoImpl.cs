@@ -38,6 +38,7 @@ namespace HCore.Tenants.Models.Impl
         public string AppleTouchIconUrl { get; internal set; }
 
         public string CustomCss { get; internal set; }
+        public string CustomEmailCss { get; internal set; }
 
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
@@ -59,6 +60,10 @@ namespace HCore.Tenants.Models.Impl
 
         public string NoreplyEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
+
+        public string WebAddress { get; internal set; }
+        public string PoweredByShort { get; internal set; }
+        public bool HidePoweredBy { get; internal set; }
 
         public EmailSettingsModel EmailSettings { get; set; }
 
@@ -196,6 +201,7 @@ namespace HCore.Tenants.Models.Impl
                 IconIcoUrl = IconIcoUrl,
                 AppleTouchIconUrl = AppleTouchIconUrl,
                 CustomCss = CustomCss,
+                CustomEmailCss = CustomEmailCss,
                 StorageImplementation = StorageImplementation,
                 StorageConnectionString = StorageConnectionString,
                 PrimaryColor = PrimaryColor,
@@ -211,6 +217,9 @@ namespace HCore.Tenants.Models.Impl
                 PermissionDeniedSupportMessage = PermissionDeniedSupportMessage,
                 NoreplyEmail = NoreplyEmail,
                 NoreplyEmailDisplayName = NoreplyEmailDisplayName,
+                WebAddress = WebAddress,
+                PoweredByShort = PoweredByShort,
+                HidePoweredBy = HidePoweredBy,
                 EmailSettings = EmailSettings,
                 EcbProductName = EcbProductName,
                 PortalsProductName = PortalsProductName,
