@@ -4,6 +4,8 @@ namespace HCore.Templating.Templates.ViewModels.Shared
 {
     public class TemplateViewModel
     {
+        public long? DeveloperUuid { get; set; }
+
         public string TenantName { get; set; }
         public string TenantLogoSvgUrl { get; set; }
         public string TenantLogoPngUrl { get; set; }

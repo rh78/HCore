@@ -171,6 +171,8 @@ namespace HCore.Templating.Renderer.Impl
             if (tenantInfo == null)
                 return;
 
+            model.DeveloperUuid = tenantInfo.DeveloperUuid;
+
             model.TenantName = tenantInfo.Name;
             model.TenantLogoSvgUrl = tenantInfo.LogoSvgUrl;
             model.TenantLogoPngUrl = tenantInfo.LogoPngUrl;
