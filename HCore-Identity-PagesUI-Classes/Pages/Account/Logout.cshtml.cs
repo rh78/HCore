@@ -42,6 +42,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         [BindProperty]
         public string LogoutId { get; set; }
 
+        public string WebAddress { get; set; }
+        public string PoweredByShort { get; set; }
+        public bool HidePoweredBy { get; set; }
+
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
 
         public override string ModelAsJson { get =>
@@ -50,6 +54,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 {
                     LoggedOut,
                     PostLogoutRedirectUri,
+                    WebAddress,
+                    PoweredByShort,
+                    HidePoweredBy
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
@@ -92,7 +99,17 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         {
             LogoutId = logoutId;
             ShowLogoutPrompt = true;
-           
+
+            var tenantInfo = _tenantInfoAccessor?.TenantInfo;
+
+            if (tenantInfo != null)
+            {
+                WebAddress = tenantInfo.WebAddress;
+                PoweredByShort = tenantInfo.PoweredByShort;
+
+                HidePoweredBy = tenantInfo.HidePoweredBy;
+            }
+
             if (User?.Identity.IsAuthenticated != true)
             {
                 // if the user is not authenticated, then just show logged out page
