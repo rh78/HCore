@@ -171,6 +171,8 @@ namespace HCore.Templating.Renderer.Impl
             if (tenantInfo == null)
                 return;
 
+            model.DeveloperUuid = tenantInfo.DeveloperUuid;
+
             model.TenantName = tenantInfo.Name;
             model.TenantLogoSvgUrl = tenantInfo.LogoSvgUrl;
             model.TenantLogoPngUrl = tenantInfo.LogoPngUrl;
@@ -184,6 +186,12 @@ namespace HCore.Templating.Renderer.Impl
 
             model.TenantDefaultCulture = tenantInfo.DefaultCulture;
             model.TenantDefaultCurrency = tenantInfo.DefaultCurrency;
+
+            model.TenantWebAddress = tenantInfo.WebAddress;
+            model.TenantPoweredByShort = tenantInfo.PoweredByShort;
+            model.TenantHidePoweredBy = tenantInfo.HidePoweredBy;
+
+            model.TenantCustomEmailCss = tenantInfo.CustomEmailCss;
 
             model.EmailSettings = tenantInfo.EmailSettings;
         }

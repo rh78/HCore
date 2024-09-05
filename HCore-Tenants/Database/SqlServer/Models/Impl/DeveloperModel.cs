@@ -73,6 +73,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string AppleTouchIconUrl { get; set; }
 
         public string CustomCss { get; set; }
+        public string CustomEmailCss { get; set; }
 
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
@@ -91,6 +92,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string NoreplyEmailDisplayName { get; set; }
 
         public string EmailSettingsJson { get; set; }
+
+        public string WebAddress { get; set; }
+        public string PoweredByShort { get; set; }
+
+        public bool HidePoweredBy { get; set; }
 
         public string EcbProductName { get; set; }
         public string PortalsProductName { get; set; }

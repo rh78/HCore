@@ -26,6 +26,7 @@ namespace HCore.Tenants.Models.Impl
         public string AppleTouchIconUrl { get; internal set; }
 
         public string CustomCss { get; internal set; }
+        public string CustomEmailCss { get; internal set; }
 
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
@@ -41,8 +42,13 @@ namespace HCore.Tenants.Models.Impl
         public string NoreplyEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
 
-        public string PrivacyPolicyUrl { get; private set; }
-        public int? PrivacyPolicyVersion { get; private set; }
+        public string PrivacyPolicyUrl { get; internal set; }
+        public int? PrivacyPolicyVersion { get; internal set; }
+
+        public string WebAddress { get; internal set; }
+        public string PoweredByShort { get; internal set; }
+
+        public bool HidePoweredBy { get; internal set; }
 
         public EmailSettingsModel EmailSettings { get; set; }
 

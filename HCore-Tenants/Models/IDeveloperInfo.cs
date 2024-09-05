@@ -26,6 +26,7 @@ namespace HCore.Tenants.Models
         string AppleTouchIconUrl { get; }
 
         string CustomCss { get; }
+        string CustomEmailCss { get; }
 
         string StorageImplementation { get; }
         string StorageConnectionString { get; }
@@ -43,6 +44,11 @@ namespace HCore.Tenants.Models
 
         string PrivacyPolicyUrl { get; }
         int? PrivacyPolicyVersion { get; }
+
+        string WebAddress { get; }
+        string PoweredByShort { get; }
+
+        bool HidePoweredBy { get; }
 
         EmailSettingsModel EmailSettings { get; }
 
