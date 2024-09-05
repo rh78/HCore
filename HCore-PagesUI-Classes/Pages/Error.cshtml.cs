@@ -29,6 +29,9 @@ namespace HCore.PagesUI.Classes.Pages
         public string Description { get; set; }
         public bool ShowDescriptionOnly { get; set; }
         public bool AllowDescriptionHtml { get; set; }
+        public string WebAddress { get; set; }
+        public string PoweredByShort { get; set; }
+        public bool HidePoweredBy { get; set; }
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
@@ -41,7 +44,10 @@ namespace HCore.PagesUI.Classes.Pages
                     Error,
                     Description,
                     ShowDescriptionOnly,
-                    AllowDescriptionHtml
+                    AllowDescriptionHtml,
+                    WebAddress,
+                    PoweredByShort,
+                    HidePoweredBy
                 }, new JsonSerializerSettings()
                 {
                     StringEscapeHandling = StringEscapeHandling.EscapeHtml
@@ -69,6 +75,16 @@ namespace HCore.PagesUI.Classes.Pages
             Description = null;
             ShowDescriptionOnly = false;
             AllowDescriptionHtml = false;
+
+            var tenantInfo = _tenantInfoAccessor?.TenantInfo;
+
+            if (tenantInfo != null)
+            {
+                WebAddress = tenantInfo.WebAddress;
+                PoweredByShort = tenantInfo.PoweredByShort;
+                
+                HidePoweredBy = tenantInfo.HidePoweredBy;
+            }
 
             if (_interaction != null && !string.IsNullOrEmpty(errorId))
             {
@@ -106,9 +122,7 @@ namespace HCore.PagesUI.Classes.Pages
                 }
                 else if (string.Equals(errorCode, "permission_denied"))
                 {
-                    errorDescription = $"{Messages.permission_denied}.";
-
-                    var tenantInfo = _tenantInfoAccessor?.TenantInfo;
+                    errorDescription = $"{Messages.permission_denied}.";                    
 
                     if (tenantInfo != null && !string.IsNullOrEmpty(tenantInfo.SupportEmail))
                     {
