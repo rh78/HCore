@@ -241,59 +241,27 @@ namespace HCore.Tenants.Providers.Impl
 
             parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-            var isCloudinary = host.EndsWith(".portals.cloudinary.com");
-
-            if (isCloudinary)
+            if (parts.Length < 3)
             {
-                if (parts.Length < 4)
-                {
-                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+                _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
 
-                    return (null, null);
-                }
-
-                if (parts.Length > 5)
-                {
-                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
-
-                    return (null, null);
-                }
+                return (null, null);
             }
-            else
+
+            if (parts.Length > 4)
             {
-                if (parts.Length < 3)
-                {
-                    _logger.LogDebug($"Host {host} does not have enough parts for tenant parsing");
+                _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
 
-                    return (null, null);
-                }
-
-                if (parts.Length > 4)
-                {
-                    _logger.LogDebug($"Host {host} has too many parts for tenant parsing");
-
-                    return (null, null);
-                }
+                return (null, null);
             }
 
             // first part
 
             string subDomainLookup = parts[0];
 
-            string hostLookup;
+            // two last parts, without (optional) .clapi, .auth, ... subdomains
 
-            if (isCloudinary)
-            {
-                // three last parts, without (optional) .clapi, .auth, ... subdomains
-
-                hostLookup = parts[parts.Length - 3] + "." + parts[parts.Length - 2] + "." + parts[parts.Length - 1];
-            }
-            else
-            {
-                // two last parts, without (optional) .clapi, .auth, ... subdomains
-
-                hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
-            }
+            var hostLookup = parts[parts.Length - 2] + "." + parts[parts.Length - 1];
 
             if (!_developerInfosByHostPattern.ContainsKey(hostLookup))
             {
