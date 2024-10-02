@@ -109,6 +109,10 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         [Column(TypeName = "jsonb")]
         public Dictionary<string, string> OidcAdditionalParameters { get; set; }
 
+        public bool OidcUseStateRedirect { get; set; }
+        public string OidcStateRedirectUrl { get; set; }
+        public bool OidcStateRedirectNoProfile { get; set; }
+
         [Column(TypeName = "jsonb")]
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
@@ -123,29 +127,6 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string SamlCertificatePassword { get; set; }
 
         public bool? SamlAllowWeakSigningAlgorithm { get; set; }
-
-        public string ExternalDirectoryType { get; set; }
-        public string ExternalDirectoryHost { get; set; }
-        public int? ExternalDirectoryPort { get; set; }
-
-        public bool? ExternalDirectoryUsesSsl { get; set; }
-
-        public string ExternalDirectorySslCertificate { get; set; }
-
-        public string ExternalDirectoryAccountDistinguishedName { get; set; }
-
-        public string ExternalDirectoryPassword { get; set; }
-
-        public string ExternalDirectoryLoginAttribute { get; set; }
-
-        public string ExternalDirectoryBaseContexts { get; set; }
-
-        public string ExternalDirectoryUserFilter { get; set; }
-        public string ExternalDirectoryGroupFilter { get; set; }
-
-        public int? ExternalDirectorySyncIntervalSeconds { get; set; }
-
-        public string ExternalDirectoryAdministratorGroupUuid { get; set; }
 
         public bool ExternalUsersAreManuallyManaged { get; set; }
 

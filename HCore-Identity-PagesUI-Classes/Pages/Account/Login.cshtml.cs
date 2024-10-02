@@ -22,6 +22,8 @@ using HCore.Tenants;
 using Duende.IdentityServer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Nest;
+using Microsoft.Extensions.Options;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -39,6 +41,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly ISegmentProvider _segmentProvider;
 
         private readonly ITenantInfoAccessor _tenantInfoAccessor;
+        private readonly ITenantDataProvider _tenantDataProvider;
 
         private readonly ITranslationsProvider _translationsProvider;
 
@@ -67,6 +70,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
+            _tenantDataProvider = serviceProvider.GetService<ITenantDataProvider>();
 
             _translationsProvider = translationsProvider;
 
@@ -86,7 +90,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public bool SubmitSegmentAnonymousUserUuid { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(string returnUrl = null, string challenge = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null, string challenge = null, string id = null)
         {            
             await PrepareModelAsync(returnUrl).ConfigureAwait(false);
 
@@ -101,7 +105,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
                         string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
                     {
-                        return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
+                        return await ChallengeExternalAsync(externalAuthenticationMethod, tenantInfo.OidcUseStateRedirect, tenantInfo.OidcStateRedirectUrl, tenantInfo.TenantUuid, targetTenantUuidString: id).ConfigureAwait(false);
                     }
                 }
             }
@@ -117,7 +121,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc) ||
                         string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
                     {
-                        return await ChallengeExternalAsync(externalAuthenticationMethod).ConfigureAwait(false);
+                        return await ChallengeExternalAsync(externalAuthenticationMethod, tenantInfo.OidcUseStateRedirect, tenantInfo.OidcStateRedirectUrl, tenantInfo.TenantUuid, targetTenantUuidString: id).ConfigureAwait(false);
                     }
                 }
             }
@@ -126,7 +130,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         }
 
 #pragma warning disable CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
-        private async Task<IActionResult> ChallengeExternalAsync(string externalAuthenticationMethod)
+        private async Task<IActionResult> ChallengeExternalAsync(string externalAuthenticationMethod, bool oidcUseStateRedirect, string oidcStateRedirectUrl, long currentTenantUuid, string targetTenantUuidString)
 #pragma warning restore CS1998 // This async method is lacking any "await" operator on purpose, thus it is called synchronous.
         {
             // initiate roundtrip to external authentication provider
@@ -139,15 +143,39 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // start challenge and roundtrip the return URL and scheme 
 
+            var items = new Dictionary<string, string?>() {
+                { "returnUrl", ReturnUrl }
+            };
+
             if (string.Equals(externalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
             {
-                var props = new AuthenticationProperties
+                if (oidcUseStateRedirect)
+                {
+                    if (string.IsNullOrEmpty(targetTenantUuidString) || !long.TryParse(targetTenantUuidString, out long targetTenantUuid))
+                    {
+                        var url = new Uri(oidcStateRedirectUrl);
+
+                        var host = url.Host;
+                        if (url.Port != 443)
+                        {
+                            host = $"{host}:{url.Port}";
+                        }
+
+                        oidcStateRedirectUrl = Url.Page("./Login", pageHandler: null, values: new
+                        {
+                            ReturnUrl,
+                            Id = currentTenantUuid
+                        }, protocol: "https", host: host);
+
+                        return Redirect(oidcStateRedirectUrl);
+                    }
+
+                    items["targetTenantUuid"] = $"{targetTenantUuid}";
+                }
+
+                var props = new AuthenticationProperties(items)
                 {
                     RedirectUri = Url.Page("./Login", pageHandler: "ExternalCallback", values: new { ReturnUrl }),
-                    Items =
-                {
-                    { "returnUrl", ReturnUrl }
-                }
                 };
 
                 return Challenge(props, IdentityCoreConstants.ExternalOidcScheme);
@@ -215,20 +243,53 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     Response.Cookies.Delete(TenantModel.CookieName);
                 }
 
-                if (IsLocalAuthorization)
-                {
-                    if (!string.IsNullOrEmpty(ReturnUrl))
-                        return LocalRedirect(ReturnUrl);
-                    else
-                        LocalRedirect("~/");
-                }
+                var tenantInfoLocal = _tenantInfoAccessor.TenantInfo;
 
-                if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
-                {
-                    return Redirect(ReturnUrl);
-                }
+                var targetTenantUuid = GetTargetTenantUuid(authenticateResult);
 
-                return LocalRedirect("~/");
+                if (!tenantInfoLocal.OidcUseStateRedirect || targetTenantUuid == null)
+                {
+                    if (IsLocalAuthorization)
+                    {
+                        if (!string.IsNullOrEmpty(ReturnUrl))
+                            return LocalRedirect(ReturnUrl);
+                        else
+                            LocalRedirect("~/");
+                    }
+
+                    if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect(ReturnUrl);
+                    }
+
+                    return LocalRedirect("~/");
+                }
+                else
+                {
+                    var tenantInfo = await _tenantDataProvider.GetTenantByUuidThrowAsync(developerUuid: tenantInfoLocal.DeveloperUuid, targetTenantUuid.Value).ConfigureAwait(false);
+
+                    var webUrl = tenantInfo.WebUrl;
+
+                    if (!string.IsNullOrEmpty(webUrl) && webUrl.EndsWith("/"))
+                    {
+                        webUrl = webUrl[..(webUrl.Length - 1)];
+                    }
+
+                    if (IsLocalAuthorization)
+                    {
+                        if (!string.IsNullOrEmpty(ReturnUrl))
+                            return Redirect($"{webUrl}{ReturnUrl}");
+                        else
+                            Redirect(tenantInfo.WebUrl);
+                    }
+
+                    if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                    {
+                        return Redirect($"{webUrl}{ReturnUrl}");
+                    }
+
+                    return Redirect(tenantInfo.WebUrl);
+                }                
             }
             catch (UnauthorizedApiException unauthorizedApiException)
             {
@@ -249,6 +310,28 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 throw;
             }
+        }
+
+        private long? GetTargetTenantUuid(AuthenticateResult authenticateResult)
+        {
+            var items = authenticateResult?.Properties?.Items;
+            
+            if (items == null)
+            {
+                return null;
+            }
+
+            if (!authenticateResult.Properties.Items.TryGetValue("targetTenantUuid", out string targetTenantUuidString))
+            {
+                return null;
+            }
+            
+            if (string.IsNullOrEmpty(targetTenantUuidString) || !long.TryParse(targetTenantUuidString, out long targetTenantUuid))
+            {
+                return null;
+            }
+
+            return targetTenantUuid;
         }
 
         public async Task<IActionResult> OnPostAsync(string action = null)

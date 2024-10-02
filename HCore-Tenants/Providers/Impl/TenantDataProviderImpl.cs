@@ -1,5 +1,4 @@
-﻿using HCore.Directory;
-using HCore.Storage;
+﻿using HCore.Storage;
 using HCore.Tenants.Cache;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
@@ -525,10 +524,24 @@ namespace HCore.Tenants.Providers.Impl
             bool usersAreExternallyManaged = false;
             bool externalUsersAreManuallyManaged = false;
 
-            string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
+            var externalAuthorizationIsFromDeveloper = false;
 
-            bool externalAuthenticationAllowLocalLogin = tenantModel.ExternalAuthenticationAllowLocalLogin;
-            bool externalAuthenticationAllowUserMerge = tenantModel.ExternalAuthenticationAllowUserMerge;
+            string externalAuthorizationMethod = tenantModel.ExternalAuthenticationMethod;
+            if (string.IsNullOrEmpty(externalAuthorizationMethod))
+            {
+                externalAuthorizationMethod = developerModel.ExternalAuthenticationMethod;
+                externalAuthorizationIsFromDeveloper = true;
+            }
+
+            bool externalAuthenticationAllowLocalLogin =
+                externalAuthorizationIsFromDeveloper ? 
+                    developerModel.ExternalAuthenticationAllowLocalLogin :
+                    tenantModel.ExternalAuthenticationAllowLocalLogin;
+
+            bool externalAuthenticationAllowUserMerge = 
+                externalAuthorizationIsFromDeveloper ?
+                    developerModel.ExternalAuthenticationAllowUserMerge :
+                    tenantModel.ExternalAuthenticationAllowUserMerge;
 
             Dictionary<string, string> externalAuthenticationClaimMappings = null;
 
@@ -544,6 +557,9 @@ namespace HCore.Tenants.Providers.Impl
             bool oidcTriggerAcrValuesAppendixByUrlParameter = false;
             bool oidcQueryUserInfoEndpoint = true;
             Dictionary<string, string> oidcAdditionalParameters = null;
+            bool oidcUseStateRedirect = false;
+            string oidcStateRedirectUrl = null;
+            bool oidcStateRedirectNoProfile = false;
 
             string samlEntityId = null;
 
@@ -556,30 +572,6 @@ namespace HCore.Tenants.Providers.Impl
 
             bool samlAllowWeakSigningAlgorithm = false;
 
-            string externalDirectoryType = null;
-            string externalDirectoryHost = null;
-            int? externalDirectoryPort = null;
-
-            bool? externalDirectoryUsesSsl = null;
-
-            byte[] externalDirectorySslCertificateBytes = null;
-            string externalDirectorySslCertificatePassword = null;
-
-            string externalDirectoryAccountDistinguishedName = null;
-
-            string externalDirectoryPassword = null;
-
-            string externalDirectoryLoginAttribute = null;
-
-            string externalDirectoryBaseContexts = null;
-
-            string externalDirectoryUserFilter = null;
-            string externalDirectoryGroupFilter = null;
-
-            int? externalDirectorySyncIntervalSeconds = null;
-
-            string externalDirectoryAdministratorGroupUuid = null;
-
             if (!string.IsNullOrEmpty(externalAuthorizationMethod))
             {
                 if (!externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc) && !externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
@@ -587,15 +579,23 @@ namespace HCore.Tenants.Providers.Impl
 
                 if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodOidc))
                 {
-                    oidcClientId = tenantModel.OidcClientId;
+                    oidcClientId = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcClientId :
+                        tenantModel.OidcClientId;
+
                     if (string.IsNullOrEmpty(oidcClientId))
                         throw new Exception("The tenant OIDC client ID is missing");
 
-                    oidcUsePkce = tenantModel.OidcUsePkce;
+                    oidcUsePkce = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcUsePkce :
+                        tenantModel.OidcUsePkce;
 
                     if (!oidcUsePkce)
                     {
-                        oidcClientSecret = tenantModel.OidcClientSecret;
+                        oidcClientSecret = externalAuthorizationIsFromDeveloper ?
+                            developerModel.OidcClientSecret : 
+                            tenantModel.OidcClientSecret;
+
                         if (string.IsNullOrEmpty(oidcClientSecret))
                             throw new Exception("The tenant OIDC client secret is missing");
                     }
@@ -604,33 +604,78 @@ namespace HCore.Tenants.Providers.Impl
                         oidcClientSecret = null;
                     }
 
-                    oidcEndpointUrl = tenantModel.OidcEndpointUrl;
+                    oidcEndpointUrl = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.OidcEndpointUrl : 
+                        tenantModel.OidcEndpointUrl;
+
                     if (string.IsNullOrEmpty(oidcEndpointUrl))
                         throw new Exception("The tenant OIDC endpoint URL is missing");
                     
-                    oidcScopes = tenantModel.OidcScopes;
+                    oidcScopes = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcScopes : 
+                        tenantModel.OidcScopes;
 
-                    oidcAcrValues = tenantModel.OidcAcrValues;
+                    oidcAcrValues = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.OidcAcrValues :
+                        tenantModel.OidcAcrValues;
 
-                    oidcAcrValuesAppendix = tenantModel.OidcAcrValuesAppendix;
-                    oidcTriggerAcrValuesAppendixByUrlParameter = tenantModel.OidcTriggerAcrValuesAppendixByUrlParameter;
+                    oidcAcrValuesAppendix = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcAcrValuesAppendix :
+                        tenantModel.OidcAcrValuesAppendix;
 
-                    oidcQueryUserInfoEndpoint = tenantModel.OidcQueryUserInfoEndpoint;
+                    oidcTriggerAcrValuesAppendixByUrlParameter = 
+                        externalAuthorizationIsFromDeveloper ? 
+                            developerModel.OidcTriggerAcrValuesAppendixByUrlParameter : 
+                            tenantModel.OidcTriggerAcrValuesAppendixByUrlParameter;
 
-                    oidcAdditionalParameters = tenantModel.OidcAdditionalParameters;
+                    oidcQueryUserInfoEndpoint = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcQueryUserInfoEndpoint :
+                        tenantModel.OidcQueryUserInfoEndpoint;
+
+                    oidcAdditionalParameters = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.OidcAdditionalParameters : 
+                        tenantModel.OidcAdditionalParameters;
+
+                    oidcUseStateRedirect = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcUseStateRedirect :
+                        tenantModel.OidcUseStateRedirect;
+
+                    oidcStateRedirectUrl = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcStateRedirectUrl :
+                        tenantModel.OidcStateRedirectUrl;
+
+                    if (oidcUseStateRedirect && string.IsNullOrEmpty(oidcStateRedirectUrl))
+                    {
+                        throw new Exception("The tenant OIDC state redirect URL is missing");
+                    }
+
+                    oidcStateRedirectNoProfile = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcStateRedirectNoProfile :
+                        tenantModel.OidcStateRedirectNoProfile;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
-                    samlEntityId = tenantModel.SamlEntityId;
+                    samlEntityId = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.SamlEntityId :
+                        tenantModel.SamlEntityId;
+
                     if (string.IsNullOrEmpty(samlEntityId))
                         throw new Exception("The tenant SAML entity ID is missing");
 
-                    samlPeerEntityId = tenantModel.SamlPeerEntityId;
+                    samlPeerEntityId = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.SamlPeerEntityId :
+                        tenantModel.SamlPeerEntityId;
+
                     if (string.IsNullOrEmpty(samlPeerEntityId))
                         throw new Exception("The tenant SAML peer entity ID is missing");
 
-                    samlPeerIdpMetadataLocation = tenantModel.SamlPeerIdpMetadataLocation;
-                    samlPeerIdpMetadata = tenantModel.SamlPeerIdpMetadata;
+                    samlPeerIdpMetadataLocation = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.SamlPeerIdpMetadataLocation : 
+                        tenantModel.SamlPeerIdpMetadataLocation;
+
+                    samlPeerIdpMetadata = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.SamlPeerIdpMetadata : 
+                        tenantModel.SamlPeerIdpMetadata;
 
                     if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && !string.IsNullOrEmpty(samlPeerIdpMetadata))
                         throw new Exception("Please give either the SAML peer IDP metadata location or the metadata itself, not both");
@@ -638,10 +683,17 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && string.IsNullOrEmpty(samlPeerIdpMetadata))
                         throw new Exception("The tenant SAML peer IDP metadata location or the metadata itself is missing");
 
-                    if (!string.IsNullOrEmpty(tenantModel.SamlCertificate))
+                    var samlCertificate = externalAuthorizationIsFromDeveloper ?
+                        developerModel.SamlCertificate :
+                        tenantModel.SamlCertificate;
+
+                    if (!string.IsNullOrEmpty(samlCertificate))
                     {
-                        samlCertificateBytes = GetCertificateBytesFromPEM(tenantModel.SamlCertificate);
-                        samlCertificatePassword = tenantModel.SamlCertificatePassword;
+                        samlCertificateBytes = GetCertificateBytesFromPEM(samlCertificate);
+
+                        samlCertificatePassword = externalAuthorizationIsFromDeveloper ?
+                            developerModel.SamlCertificatePassword : 
+                            tenantModel.SamlCertificatePassword;
                     }
                     else
                     {
@@ -649,81 +701,20 @@ namespace HCore.Tenants.Providers.Impl
                         samlCertificatePassword = _standardSamlCertificatePassword;
                     }
 
-                    samlAllowWeakSigningAlgorithm = tenantModel.SamlAllowWeakSigningAlgorithm ?? false;
+                    samlAllowWeakSigningAlgorithm = (externalAuthorizationIsFromDeveloper ?
+                        developerModel.SamlAllowWeakSigningAlgorithm :
+                        tenantModel.SamlAllowWeakSigningAlgorithm) ?? false;
                 }
 
-                externalAuthenticationClaimMappings = tenantModel.ExternalAuthenticationClaimMappings;
+                externalAuthenticationClaimMappings = externalAuthorizationIsFromDeveloper ? 
+                    developerModel.ExternalAuthenticationClaimMappings : 
+                    tenantModel.ExternalAuthenticationClaimMappings;
 
-                externalDirectoryType = tenantModel.ExternalDirectoryType;
+                usersAreExternallyManaged = !externalAuthorizationIsFromDeveloper;
 
-                if (string.IsNullOrEmpty(externalDirectoryType))
-                    throw new Exception("The tenant external directory type is missing");
-
-                if (/* !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeAD) &&
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeADLDS) &&
-                            !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeLDAP) && */
-                    !string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
-                {
-                    throw new Exception("The tenant external directory type specification is invalid");
-                }
-
-                // TODO: LDAP etc. is not yet implemented
-
-                if (!string.Equals(externalDirectoryType, DirectoryConstants.DirectoryTypeDynamic))
-                {
-                    // dynamic directory types will create users on-demand when logging in
-
-                    externalDirectoryHost = tenantModel.ExternalDirectoryHost;
-
-                    if (string.IsNullOrEmpty(externalDirectoryHost))
-                        throw new Exception("The tenant external directory host is missing");
-
-                    externalDirectoryUsesSsl = tenantModel.ExternalDirectoryUsesSsl ?? false;
-
-                    externalDirectoryPort = tenantModel.ExternalDirectoryPort;
-
-                    if (externalDirectoryPort != null && (externalDirectoryPort <= 0 || externalDirectoryPort >= ushort.MaxValue))
-                        throw new Exception("The tenant external directory port is invalid");
-
-                    if (!string.IsNullOrEmpty(tenantModel.ExternalDirectorySslCertificate))
-                    {
-                        externalDirectorySslCertificateBytes = GetCertificateBytesFromPEM(tenantModel.ExternalDirectorySslCertificate);
-                        externalDirectorySslCertificatePassword = null;
-                    }
-
-                    if ((bool)externalDirectoryUsesSsl && externalDirectorySslCertificateBytes == null)
-                        throw new Exception("The tenant external directory SSL certificate is missing");
-
-                    externalDirectoryAccountDistinguishedName = tenantModel.ExternalDirectoryAccountDistinguishedName;
-                    if (string.IsNullOrEmpty(externalDirectoryAccountDistinguishedName))
-                        throw new Exception("The tenant external directory account distinguished name is missing");
-
-                    externalDirectoryPassword = tenantModel.ExternalDirectoryPassword;
-                    if (string.IsNullOrEmpty(externalDirectoryPassword))
-                        throw new Exception("The tenant external directory password is missing");
-
-                    externalDirectoryLoginAttribute = tenantModel.ExternalDirectoryLoginAttribute;
-
-                    externalDirectoryBaseContexts = tenantModel.ExternalDirectoryBaseContexts;
-                    if (string.IsNullOrEmpty(externalDirectoryBaseContexts))
-                        throw new Exception("The tenant external directory base contexts are missing");
-
-                    externalDirectoryUserFilter = tenantModel.ExternalDirectoryUserFilter;
-                    externalDirectoryGroupFilter = tenantModel.ExternalDirectoryGroupFilter;
-
-                    externalDirectorySyncIntervalSeconds = tenantModel.ExternalDirectorySyncIntervalSeconds;
-
-                    if (externalDirectorySyncIntervalSeconds != null && externalDirectorySyncIntervalSeconds < 1)
-                        throw new Exception("The tenant external directory sync interval is invalid");
-
-                    externalDirectoryAdministratorGroupUuid = tenantModel.ExternalDirectoryAdministratorGroupUuid;
-                    if (string.IsNullOrEmpty(externalDirectoryAdministratorGroupUuid))
-                        throw new Exception("The tenant external directory administrator group UUID is missing");
-                }
-
-                usersAreExternallyManaged = true;
-
-                externalUsersAreManuallyManaged = tenantModel.ExternalUsersAreManuallyManaged;
+                externalUsersAreManuallyManaged = externalAuthorizationIsFromDeveloper ? 
+                    developerModel.ExternalUsersAreManuallyManaged : 
+                    tenantModel.ExternalUsersAreManuallyManaged;
             }
 
             string customTenantSettingsJson = tenantModel.CustomTenantSettingsJson;
@@ -794,23 +785,14 @@ namespace HCore.Tenants.Providers.Impl
                 OidcTriggerAcrValuesAppendixByUrlParameter = oidcTriggerAcrValuesAppendixByUrlParameter,
                 OidcQueryUserInfoEndpoint = oidcQueryUserInfoEndpoint,
                 OidcAdditionalParameters = oidcAdditionalParameters,
+                OidcUseStateRedirect = oidcUseStateRedirect,
+                OidcStateRedirectUrl = oidcStateRedirectUrl,
+                OidcStateRedirectNoProfile = oidcStateRedirectNoProfile,
                 SamlEntityId = samlEntityId,
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
                 SamlPeerIdpMetadata = samlPeerIdpMetadata,
                 SamlAllowWeakSigningAlgorithm = samlAllowWeakSigningAlgorithm,
-                ExternalDirectoryType = externalDirectoryType,
-                ExternalDirectoryHost = externalDirectoryHost,
-                ExternalDirectoryPort = externalDirectoryPort,
-                ExternalDirectoryUsesSsl = externalDirectoryUsesSsl,
-                ExternalDirectoryAccountDistinguishedName = externalDirectoryAccountDistinguishedName,
-                ExternalDirectoryPassword = externalDirectoryPassword,
-                ExternalDirectoryLoginAttribute = externalDirectoryLoginAttribute,
-                ExternalDirectoryBaseContexts = externalDirectoryBaseContexts,
-                ExternalDirectoryUserFilter = externalDirectoryUserFilter,
-                ExternalDirectoryGroupFilter = externalDirectoryGroupFilter,
-                ExternalDirectorySyncIntervalSeconds = externalDirectorySyncIntervalSeconds,
-                ExternalDirectoryAdministratorGroupUuid = externalDirectoryAdministratorGroupUuid,
                 CustomTenantSettingsJson = customTenantSettingsJson,
                 RequiresDevAdminSsoReplacement = tenantModel.RequiresDevAdminSsoReplacement,
                 DevAdminSsoReplacementSamlPeerEntityId = tenantModel.DevAdminSsoReplacementSamlPeerEntityId,
@@ -828,7 +810,6 @@ namespace HCore.Tenants.Providers.Impl
             tenantInfo.SetDeveloperCertificate(developerCertificateBytes, developerCertificatePassword);
             tenantInfo.SetHttpsCertificate(httpsCertificateBytes, httpsCertificatePassword);
             tenantInfo.SetSamlCertificate(samlCertificateBytes, samlCertificatePassword);
-            tenantInfo.SetExternalDirectorySslCertificate(externalDirectorySslCertificateBytes, externalDirectorySslCertificatePassword);
 
             return tenantInfo;
         }
