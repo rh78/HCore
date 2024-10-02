@@ -22,8 +22,6 @@ using HCore.Tenants;
 using Duende.IdentityServer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Nest;
-using Microsoft.Extensions.Options;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
