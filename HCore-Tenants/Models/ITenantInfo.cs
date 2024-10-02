@@ -109,6 +109,10 @@ namespace HCore.Tenants.Models
 
         Dictionary<string, string> OidcAdditionalParameters { get; set; }
 
+        bool OidcUseStateRedirect { get; set; }
+        string OidcStateRedirectUrl { get; set; }
+        bool OidcStateRedirectNoProfile { get; set; }
+
         string SamlEntityId { get; }
 
         string SamlPeerEntityId { get; set; }
@@ -117,27 +121,6 @@ namespace HCore.Tenants.Models
         string SamlPeerIdpMetadata { get; set; }
 
         bool SamlAllowWeakSigningAlgorithm { get; }
-
-        string ExternalDirectoryType { get; }
-        string ExternalDirectoryHost { get; }
-        int? ExternalDirectoryPort { get; }
-
-        bool? ExternalDirectoryUsesSsl { get; }
-
-        string ExternalDirectoryAccountDistinguishedName { get; }
-
-        string ExternalDirectoryPassword { get; }
-
-        string ExternalDirectoryLoginAttribute { get; }
-
-        string ExternalDirectoryBaseContexts { get; }
-
-        string ExternalDirectoryUserFilter { get; }
-        string ExternalDirectoryGroupFilter { get; }
-
-        int? ExternalDirectorySyncIntervalSeconds { get; }
-
-        string ExternalDirectoryAdministratorGroupUuid { get; }
 
         string CustomTenantSettingsJson { get; }
 
@@ -169,6 +152,5 @@ namespace HCore.Tenants.Models
         public X509Certificate2 GetDeveloperCertificate();
         public X509Certificate2 GetHttpsCertificate();
         public X509Certificate2 GetSamlCertificate();
-        public X509Certificate2 GetExternalDirectorySslCertificate();
     }
 }

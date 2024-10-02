@@ -101,6 +101,52 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string EcbProductName { get; set; }
         public string PortalsProductName { get; set; }
 
+        public string ExternalAuthenticationMethod { get; set; }
+
+        public bool ExternalAuthenticationAllowLocalLogin { get; set; }
+
+        public bool ExternalAuthenticationAllowUserMerge { get; set; }
+
+        public string OidcClientId { get; set; }
+        public string OidcClientSecret { get; set; }
+
+        public string OidcEndpointUrl { get; set; }
+
+        public bool OidcUsePkce { get; set; }
+
+        public string[] OidcScopes { get; set; }
+
+        public string OidcAcrValues { get; set; }
+
+        public string OidcAcrValuesAppendix { get; set; }
+        public bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
+
+        public bool OidcQueryUserInfoEndpoint { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> OidcAdditionalParameters { get; set; }
+
+        public bool OidcUseStateRedirect { get; set; }
+        public string OidcStateRedirectUrl { get; set; }
+        public bool OidcStateRedirectNoProfile { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
+
+        public string SamlEntityId { get; set; }
+
+        public string SamlPeerEntityId { get; set; }
+
+        public string SamlPeerIdpMetadataLocation { get; set; }
+        public string SamlPeerIdpMetadata { get; set; }
+
+        public string SamlCertificate { get; set; }
+        public string SamlCertificatePassword { get; set; }
+
+        public bool? SamlAllowWeakSigningAlgorithm { get; set; }
+
+        public bool ExternalUsersAreManuallyManaged { get; set; }
+
         public List<TenantModel> Tenants { get; set; }
         
         public int Version { get; set; }

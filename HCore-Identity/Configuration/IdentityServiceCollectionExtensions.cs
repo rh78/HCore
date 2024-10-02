@@ -310,6 +310,8 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcTriggerAcrValuesAppendixByUrlParameter = tenantInfo.OidcTriggerAcrValuesAppendixByUrlParameter;
                         var oidcQueryUserInfoEndpoint = tenantInfo.OidcQueryUserInfoEndpoint;
                         var oidcAdditionalParameters = tenantInfo.OidcAdditionalParameters;
+                        var oidcUseStateRedirect = tenantInfo.OidcUseStateRedirect;
+                        var oidcStateRedirectNoProfile = tenantInfo.OidcStateRedirectNoProfile;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -411,7 +413,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         var scopes = new HashSet<string>();
 
                         scopes.Add("openid");
-                        scopes.Add("profile");
+
+                        if (!oidcUseStateRedirect || !oidcStateRedirectNoProfile)
+                        {
+                            scopes.Add("profile");
+                        }
 
                         if (oidcScopes != null)
                         {
@@ -425,6 +431,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             scopes.Add("email");
                             scopes.Add("phone");
                         }
+
+                        openIdConnect.Scope.Clear();
 
                         foreach (var scope in scopes)
                         {

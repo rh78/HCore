@@ -112,6 +112,10 @@ namespace HCore.Tenants.Models.Impl
 
         public Dictionary<string, string> OidcAdditionalParameters { get; set; }
 
+        public bool OidcUseStateRedirect { get; set; }
+        public string OidcStateRedirectUrl { get; set; }
+        public bool OidcStateRedirectNoProfile { get; set; }
+
         public string SamlEntityId { get; set; }
 
         public string SamlPeerEntityId { get; set; }
@@ -120,27 +124,6 @@ namespace HCore.Tenants.Models.Impl
         public string SamlPeerIdpMetadata { get; set; }
 
         public bool SamlAllowWeakSigningAlgorithm { get; set; }
-
-        public string ExternalDirectoryType { get; set; }
-        public string ExternalDirectoryHost { get; set; }
-        public int? ExternalDirectoryPort { get; set; }
-
-        public bool? ExternalDirectoryUsesSsl { get; set; }
-
-        public string ExternalDirectoryAccountDistinguishedName { get; set; }
-
-        public string ExternalDirectoryPassword { get; set; }
-
-        public string ExternalDirectoryLoginAttribute { get; set; }
-
-        public string ExternalDirectoryBaseContexts { get; set; }
-
-        public string ExternalDirectoryUserFilter { get; set; }
-        public string ExternalDirectoryGroupFilter { get; set; }
-
-        public int? ExternalDirectorySyncIntervalSeconds { get; set; }
-
-        public string ExternalDirectoryAdministratorGroupUuid { get; set; }
 
         public string CustomTenantSettingsJson { get; set; }
 
@@ -250,6 +233,9 @@ namespace HCore.Tenants.Models.Impl
                 OidcTriggerAcrValuesAppendixByUrlParameter = OidcTriggerAcrValuesAppendixByUrlParameter,
                 OidcQueryUserInfoEndpoint = OidcQueryUserInfoEndpoint,
                 OidcAdditionalParameters = OidcAdditionalParameters,
+                OidcUseStateRedirect = OidcUseStateRedirect,
+                OidcStateRedirectUrl = OidcStateRedirectUrl,
+                OidcStateRedirectNoProfile = OidcStateRedirectNoProfile,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,
@@ -258,21 +244,6 @@ namespace HCore.Tenants.Models.Impl
                 SamlCertificatePassword = SamlCertificatePassword,
                 SamlCertificateThumbprint = SamlCertificateThumbprint,
                 SamlAllowWeakSigningAlgorithm = SamlAllowWeakSigningAlgorithm,
-                ExternalDirectoryType = ExternalDirectoryType,
-                ExternalDirectoryHost = ExternalDirectoryHost,
-                ExternalDirectoryPort = ExternalDirectoryPort,
-                ExternalDirectoryUsesSsl = ExternalDirectoryUsesSsl,
-                ExternalDirectorySslCertificateBytes = ExternalDirectorySslCertificateBytes,
-                ExternalDirectorySslCertificatePassword = ExternalDirectorySslCertificatePassword,
-                ExternalDirectorySslCertificateThumbprint = ExternalDirectorySslCertificateThumbprint,
-                ExternalDirectoryAccountDistinguishedName = ExternalDirectoryAccountDistinguishedName,
-                ExternalDirectoryPassword = ExternalDirectoryPassword,
-                ExternalDirectoryLoginAttribute = ExternalDirectoryLoginAttribute,
-                ExternalDirectoryBaseContexts = ExternalDirectoryBaseContexts,
-                ExternalDirectoryUserFilter = ExternalDirectoryUserFilter,
-                ExternalDirectoryGroupFilter = ExternalDirectoryGroupFilter,
-                ExternalDirectorySyncIntervalSeconds = ExternalDirectorySyncIntervalSeconds,
-                ExternalDirectoryAdministratorGroupUuid = ExternalDirectoryAdministratorGroupUuid,
                 CustomTenantSettingsJson = CustomTenantSettingsJson,
                 AdditionalCacheKey = AdditionalCacheKey,
                 RequiresDevAdminSsoReplacement = RequiresDevAdminSsoReplacement,
@@ -398,43 +369,6 @@ namespace HCore.Tenants.Models.Impl
             }
 
             return StaticCertificates[SamlCertificateThumbprint];
-        }
-
-        public byte[] ExternalDirectorySslCertificateBytes { get; internal set; }
-        public string ExternalDirectorySslCertificatePassword { get; internal set; }
-        public string ExternalDirectorySslCertificateThumbprint { get; internal set; }
-
-        public void SetExternalDirectorySslCertificate(byte[] certificateBytes, string certificatePassword)
-        {
-            if (certificateBytes == null || certificateBytes.Length == 0)
-                return;
-
-            ExternalDirectorySslCertificateBytes = certificateBytes;
-            ExternalDirectorySslCertificatePassword = certificatePassword;
-
-            X509Certificate2 certificate;
-
-            if (string.IsNullOrEmpty(certificatePassword))
-                certificate = new X509Certificate2(certificateBytes);
-            else
-                certificate = new X509Certificate2(certificateBytes, certificatePassword);
-
-            ExternalDirectorySslCertificateThumbprint = certificate.Thumbprint;
-
-            StaticCertificates[certificate.Thumbprint] = certificate;
-        }
-
-        public X509Certificate2 GetExternalDirectorySslCertificate()
-        {
-            if (string.IsNullOrEmpty(ExternalDirectorySslCertificateThumbprint))
-                return null;
-
-            if (!StaticCertificates.ContainsKey(ExternalDirectorySslCertificateThumbprint))
-            {
-                SetExternalDirectorySslCertificate(ExternalDirectorySslCertificateBytes, ExternalDirectorySslCertificatePassword);
-            }
-
-            return StaticCertificates[ExternalDirectorySslCertificateThumbprint];
         }
     }
 }

@@ -26,7 +26,6 @@ using IdentityModel;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using HCore.Tenants;
-using HCore.Directory;
 using HCore.Identity.Internal;
 using reCAPTCHA.AspNetCore;
 using HCore.Tenants.Models;
@@ -1025,22 +1024,13 @@ namespace HCore.Identity.Services.Impl
 
                 var user = await _userManager.FindByEmailAsync(scopedEmailAddress).ConfigureAwait(false);
 
-                bool dynamicRegistration = string.Equals(tenantInfo.ExternalDirectoryType, DirectoryConstants.DirectoryTypeDynamic);
-
                 // stay outside of transaction
 
                 if (user == null)
                 {
-                    if (dynamicRegistration)
-                    {
-                        user = await CreateUserAsync(developerUuid, tenantUuid, authenticateResult.Ticket, externalUser, userIdClaimValue).ConfigureAwait(false);
+                    user = await CreateUserAsync(developerUuid, tenantUuid, authenticateResult.Ticket, externalUser, userIdClaimValue).ConfigureAwait(false);
 
-                        return (user, true);
-                    }
-                    else
-                    {
-                        throw new UnauthorizedApiException(UnauthorizedApiException.ExternalUserNotFound, "The external user was not found");
-                    }
+                    return (user, true);
                 }
 
                 var scopedUserUuid = user.Id;
@@ -1084,86 +1074,83 @@ namespace HCore.Identity.Services.Impl
 
                     bool changed = false;
 
-                    if (dynamicRegistration)
+                    // update the user
+
+                    string firstName = null;
+                    string lastName = null;
+                    string phoneNumber = null;
+
+                    if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
                     {
-                        // update the user
+                        firstName = ProcessFirstName(externalUser);
+                        lastName = ProcessLastName(externalUser);
+                    }
 
-                        string firstName = null;
-                        string lastName = null;
-                        string phoneNumber = null;
+                    if (_configurationProvider.ManagePhoneNumber && _configurationProvider.RegisterPhoneNumber)
+                    {
+                        phoneNumber = ProcessPhoneNumber(externalUser);
+                    }
 
-                        if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
+                    var identityToken = ProcessIdentityToken(authenticateResult.Ticket);
+                    user.IdentityTokenCache = identityToken;
+
+                    HashSet<string> memberOf = ProcessMemberOf(externalUser);
+
+                    // Console.WriteLine($"Member of count {memberOf?.Count}: {memberOf}");
+
+                    if (_configurationProvider.ManageName)
+                    {
+                        if (!string.Equals(user.FirstName, firstName))
                         {
-                            firstName = ProcessFirstName(externalUser);
-                            lastName = ProcessLastName(externalUser);
-                        }
-
-                        if (_configurationProvider.ManagePhoneNumber && _configurationProvider.RegisterPhoneNumber)
-                        {
-                            phoneNumber = ProcessPhoneNumber(externalUser);
-                        }
-
-                        var identityToken = ProcessIdentityToken(authenticateResult.Ticket);
-                        user.IdentityTokenCache = identityToken;
-
-                        HashSet<string> memberOf = ProcessMemberOf(externalUser);
-
-                        // Console.WriteLine($"Member of count {memberOf?.Count}: {memberOf}");
-
-                        if (_configurationProvider.ManageName)
-                        {
-                            if (!string.Equals(user.FirstName, firstName))
-                            {
-                                user.FirstName = firstName;
-
-                                changed = true;
-                            }
-
-                            if (!string.Equals(user.LastName, lastName))
-                            {
-                                user.LastName = lastName;
-
-                                changed = true;
-                            }
-                        }
-
-                        if (_configurationProvider.ManagePhoneNumber)
-                        {
-                            if (!string.Equals(user.PhoneNumber, phoneNumber))
-                            {
-                                user.PhoneNumber = phoneNumber;
-
-                                changed = true;
-                            }
-                        }
-
-                        if (!EqualsMemberOf(user.MemberOf, memberOf))
-                        {
-                            user.MemberOf = memberOf?.ToList();
+                            user.FirstName = firstName;
 
                             changed = true;
                         }
 
-                        if (!string.Equals(user.ExternalUuid, userIdClaimValue))
+                        if (!string.Equals(user.LastName, lastName))
                         {
-                            user.ExternalUuid = userIdClaimValue;
+                            user.LastName = lastName;
 
                             changed = true;
                         }
+                    }
 
-                        if (changed)
+                    if (_configurationProvider.ManagePhoneNumber)
+                    {
+                        if (!string.Equals(user.PhoneNumber, phoneNumber))
                         {
-                            var updateResult = await _userManager.UpdateAsync(user).ConfigureAwait(false);
+                            user.PhoneNumber = phoneNumber;
 
-                            if (!updateResult.Succeeded)
-                            {
-                                HandleIdentityError(updateResult.Errors);
-                            }
-
-                            await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
-
-                            user = await _userManager.FindByIdAsync(scopedUserUuid).ConfigureAwait(false);
+                            changed = true;
                         }
+                    }
+
+                    if (!EqualsMemberOf(user.MemberOf, memberOf))
+                    {
+                        user.MemberOf = memberOf?.ToList();
+
+                        changed = true;
+                    }
+
+                    if (!string.Equals(user.ExternalUuid, userIdClaimValue))
+                    {
+                        user.ExternalUuid = userIdClaimValue;
+
+                        changed = true;
+                    }
+
+                    if (changed)
+                    {
+                        var updateResult = await _userManager.UpdateAsync(user).ConfigureAwait(false);
+
+                        if (!updateResult.Succeeded)
+                        {
+                            HandleIdentityError(updateResult.Errors);
+                        }
+
+                        await _signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
+
+                        user = await _userManager.FindByIdAsync(scopedUserUuid).ConfigureAwait(false);
                     }
 
                     _signInManager.ClaimsFactory = new Saml2SupportClaimsFactory(_signInManager.ClaimsFactory, externalUser);
@@ -1181,13 +1168,10 @@ namespace HCore.Identity.Services.Impl
                         await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                     }
 
-                    if (dynamicRegistration)
-                    {
-                        // we need to always send the change notification, because maybe user groups
-                        // in dependent systems have changed and we then need to fix user group assignments
+                    // we need to always send the change notification, because maybe user groups
+                    // in dependent systems have changed and we then need to fix user group assignments
 
-                        await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
-                    }
+                    await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
 
                     return (user, false);
                 }
@@ -1960,7 +1944,7 @@ namespace HCore.Identity.Services.Impl
             {
                 PrintClaimsPrincipalDebug("First name", claimsPrincipal);
 
-                throw new RequestFailedApiException(RequestFailedApiException.FirstNameMissing, "The first name is missing");
+                return null;
             }
 
             string firstName = firstNameClaim.Value;
@@ -1991,7 +1975,7 @@ namespace HCore.Identity.Services.Impl
             {
                 PrintClaimsPrincipalDebug("Last name", claimsPrincipal);
 
-                throw new RequestFailedApiException(RequestFailedApiException.LastNameMissing, "The last name is missing");
+                return null;
             }
 
             string lastName = lastNameClaim.Value;
