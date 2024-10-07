@@ -13,6 +13,8 @@ namespace HCore.Identity.Services
 
         bool IsDeveloperAdmin { get; }
 
+        bool IsOemAdmin { get; }
+
         bool IsAnonymous { get; }
     }
 }

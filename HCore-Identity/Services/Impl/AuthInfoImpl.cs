@@ -14,6 +14,8 @@ namespace HCore.Identity.Services.Impl
 
         public bool IsDeveloperAdmin { get; set; }
 
+        public bool IsOemAdmin { get; set; }
+
         public bool IsAnonymous { get; set; }
     }
 }
