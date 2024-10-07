@@ -9,6 +9,9 @@ namespace HCore.Identity.Amqp
         {
         }
 
+        public long? DeveloperUuid { get; set; }
+        public long? TenantUuid { get; set; }
+
         public string UserUuid { get; set; }
 
         public string AccessTokenCache { get; set; }
