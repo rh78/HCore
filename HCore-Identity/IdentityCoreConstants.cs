@@ -19,6 +19,9 @@
         public const string DeveloperAdminClaim = "developer_admin";
         public const string DeveloperAdminClientClaim = "client_developer_admin";
 
+        public const string OemAdminClaim = "oem_admin";
+        public const string OemAdminClientClaim = "client_oem_admin";
+
         public const string AnonymousUserClaim = "anonymous_user";
         public const string AnonymousUserClientClaim = "client_anonymous_user";
 

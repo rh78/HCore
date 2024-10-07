@@ -31,12 +31,14 @@ namespace HCore.Identity.Services.Impl
 
             bool isAnonymous = IsAnonymous(httpContext, tenantInfo);
             bool isDeveloperAdmin = !isAnonymous && IsDeveloperAdmin(httpContext, tenantInfo);
+            bool isOemAdmin = !isAnonymous && IsOemAdmin(httpContext, tenantInfo);
 
             return new AuthInfoImpl()
             {
                 UserUuid = userUuid,
                 TenantInfo = tenantInfo,
                 IsDeveloperAdmin = isDeveloperAdmin,
+                IsOemAdmin = isOemAdmin,
                 IsAnonymous = isAnonymous
             };
         }
@@ -89,6 +91,29 @@ namespace HCore.Identity.Services.Impl
                     tenantInfo.DeveloperUuid == developerAdminUuid);
 
                 if (developerAdminClaim == null)
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool IsOemAdmin(HttpContext context, ITenantInfo tenantInfo)
+        {
+            var oemAdminClaim = context.User.Claims.FirstOrDefault(c =>
+                c.Type == IdentityCoreConstants.OemAdminClaim &&
+                !string.IsNullOrEmpty(c.Value) &&
+                long.TryParse(c.Value, out var oemAdminUuid) &&
+                tenantInfo.DeveloperUuid == oemAdminUuid);
+
+            if (oemAdminClaim == null)
+            {
+                oemAdminClaim = context.User.Claims.FirstOrDefault(c =>
+                    c.Type == IdentityCoreConstants.OemAdminClientClaim &&
+                    !string.IsNullOrEmpty(c.Value) &&
+                    long.TryParse(c.Value, out var oemAdminUuid) &&
+                    tenantInfo.DeveloperUuid == oemAdminUuid);
+
+                if (oemAdminClaim == null)
                     return false;
             }
 
