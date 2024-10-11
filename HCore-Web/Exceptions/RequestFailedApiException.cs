@@ -216,6 +216,7 @@ namespace HCore.Web.Exceptions
         public const string BillingTypeInvalid = "billing_type_invalid";
         public const string ClaimsPrincipalHasTooManyGroups = "claims_principal_has_too_many_groups";
         public const string CustomCssInvalid = "custom_css_invalid";
+        public const string ExternalAuthenticationRequiredForEmailDomain = "external_authentication_required_for_email_domain";
 
         // internal, not translated
 

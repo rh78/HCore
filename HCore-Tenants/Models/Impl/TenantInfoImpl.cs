@@ -92,6 +92,8 @@ namespace HCore.Tenants.Models.Impl
 
         public bool ExternalAuthenticationAllowUserMerge { get; set; }
 
+        public string[] EnforceExternalAuthenticationForEmailDomains { get; set; }
+
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
 
         public string OidcClientId { get; set; }
@@ -223,6 +225,7 @@ namespace HCore.Tenants.Models.Impl
                 ExternalAuthenticationAllowLocalLogin = ExternalAuthenticationAllowLocalLogin,
                 ExternalAuthenticationAllowUserMerge = ExternalAuthenticationAllowUserMerge,
                 ExternalAuthenticationClaimMappings = ExternalAuthenticationClaimMappings,
+                EnforceExternalAuthenticationForEmailDomains = EnforceExternalAuthenticationForEmailDomains,
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,
                 OidcEndpointUrl = OidcEndpointUrl,

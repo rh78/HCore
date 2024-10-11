@@ -62,7 +62,7 @@ namespace HCore.Tenants.Models
 
         bool HidePoweredBy { get; }
 
-        EmailSettingsModel EmailSettings { get; set; }
+        EmailSettingsModel EmailSettings { get; }
 
         string EcbProductName { get; }
         string PortalsProductName { get; }
@@ -89,7 +89,9 @@ namespace HCore.Tenants.Models
 
         bool ExternalAuthenticationAllowUserMerge { get; }
 
-        Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }
+        string[] EnforceExternalAuthenticationForEmailDomains { get; }
+
+        Dictionary<string, string> ExternalAuthenticationClaimMappings { get; }
 
         string OidcClientId { get; }
         string OidcClientSecret { get; }
@@ -98,26 +100,26 @@ namespace HCore.Tenants.Models
 
         bool OidcUsePkce { get; }
 
-        string[] OidcScopes { get; set; }
+        string[] OidcScopes { get; }
 
-        string OidcAcrValues { get; set; }
+        string OidcAcrValues { get; }
 
-        string OidcAcrValuesAppendix { get; set; }
-        bool OidcTriggerAcrValuesAppendixByUrlParameter { get; set; }
+        string OidcAcrValuesAppendix { get; }
+        bool OidcTriggerAcrValuesAppendixByUrlParameter { get; }
 
-        bool OidcQueryUserInfoEndpoint { get; set; }
+        bool OidcQueryUserInfoEndpoint { get; }
 
-        Dictionary<string, string> OidcAdditionalParameters { get; set; }
+        Dictionary<string, string> OidcAdditionalParameters { get; }
 
-        bool OidcUseStateRedirect { get; set; }
-        string OidcStateRedirectUrl { get; set; }
-        bool OidcStateRedirectNoProfile { get; set; }
+        bool OidcUseStateRedirect { get; }
+        string OidcStateRedirectUrl { get; }
+        bool OidcStateRedirectNoProfile { get; }
 
         string SamlEntityId { get; }
 
         string SamlPeerEntityId { get; set; }
 
-        string SamlPeerIdpMetadataLocation { get; set;  }
+        string SamlPeerIdpMetadataLocation { get; set; }
         string SamlPeerIdpMetadata { get; set; }
 
         bool SamlAllowWeakSigningAlgorithm { get; }
@@ -126,7 +128,7 @@ namespace HCore.Tenants.Models
 
         TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>();
 
-        string AdditionalCacheKey { get; set;  }
+        string AdditionalCacheKey { get; set; }
 
         bool RequiresDevAdminSsoReplacement { get; }
         

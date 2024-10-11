@@ -846,4 +846,7 @@
   <data name="custom_css_invalid" xml:space="preserve">
     <value>The custom CSS template is invalid: {uuid}</value>
   </data>
+  <data name="external_authentication_required_for_email_domain" xml:space="preserve">
+    <value>Please use the Single Sign On (SSO) authentication for signing in with this email address</value>
+  </data>
 </root>

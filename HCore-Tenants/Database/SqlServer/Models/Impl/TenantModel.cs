@@ -90,6 +90,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool ExternalAuthenticationAllowUserMerge { get; set; }
 
+        public string[] EnforceExternalAuthenticationForEmailDomains { get; set; }
+
         public string OidcClientId { get; set; }
         public string OidcClientSecret { get; set; }
 
