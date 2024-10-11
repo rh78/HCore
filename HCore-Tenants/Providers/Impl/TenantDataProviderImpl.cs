@@ -530,7 +530,11 @@ namespace HCore.Tenants.Providers.Impl
             if (string.IsNullOrEmpty(externalAuthorizationMethod))
             {
                 externalAuthorizationMethod = developerModel.ExternalAuthenticationMethod;
-                externalAuthorizationIsFromDeveloper = true;
+
+                if (!string.IsNullOrEmpty(externalAuthorizationMethod))
+                {
+                    externalAuthorizationIsFromDeveloper = true;
+                }
             }
 
             bool externalAuthenticationAllowLocalLogin =
@@ -542,6 +546,11 @@ namespace HCore.Tenants.Providers.Impl
                 externalAuthorizationIsFromDeveloper ?
                     developerModel.ExternalAuthenticationAllowUserMerge :
                     tenantModel.ExternalAuthenticationAllowUserMerge;
+
+            var enforceExternalAuthenticationForEmailDomains =
+                externalAuthorizationIsFromDeveloper ?
+                    null :
+                    tenantModel.EnforceExternalAuthenticationForEmailDomains;
 
             Dictionary<string, string> externalAuthenticationClaimMappings = null;
 
@@ -774,6 +783,7 @@ namespace HCore.Tenants.Providers.Impl
                 ExternalAuthenticationMethod = externalAuthorizationMethod,
                 ExternalAuthenticationAllowLocalLogin = externalAuthenticationAllowLocalLogin,
                 ExternalAuthenticationAllowUserMerge = externalAuthenticationAllowUserMerge,
+                EnforceExternalAuthenticationForEmailDomains = enforceExternalAuthenticationForEmailDomains,
                 ExternalAuthenticationClaimMappings = externalAuthenticationClaimMappings,
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,

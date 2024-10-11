@@ -846,4 +846,7 @@
   <data name="custom_css_invalid" xml:space="preserve">
     <value>Das benutzerdefinierte CSS-Template ist ungültig: {uuid}</value>
   </data>
+  <data name="external_authentication_required_for_email_domain" xml:space="preserve">
+    <value>Bitte nutzen Sie die Single-Sign-On (SSO) Anmeldung für diese E-Mail-Adresse</value>
+  </data>
 </root>

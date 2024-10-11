@@ -286,6 +286,9 @@ namespace HCore.Identity.Services.Impl
                     }
                 }
             }
+
+            HandleEnforceExternalAuthenticationForEmailDomains(userSpec.Email);
+
             if (_configurationProvider.SelfManagement)
             {
                 if (_configurationProvider.ManageName && _configurationProvider.RegisterName)
@@ -817,6 +820,8 @@ namespace HCore.Identity.Services.Impl
 
             try
             {
+                HandleEnforceExternalAuthenticationForEmailDomains(userSignInSpec.Email);
+
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
                     var user = await _userManager.FindByEmailAsync(userSignInSpec.Email).ConfigureAwait(false);
@@ -1274,6 +1279,8 @@ namespace HCore.Identity.Services.Impl
 
             try
             {
+                HandleEnforceExternalAuthenticationForEmailDomains(userForgotPasswordSpec.Email);
+
                 using (var transaction = await _identityDbContext.Database.BeginTransactionAsync().ConfigureAwait(false))
                 {
                     var user = await _userManager.FindByEmailAsync(userForgotPasswordSpec.Email).ConfigureAwait(false);
@@ -1835,6 +1842,27 @@ namespace HCore.Identity.Services.Impl
                 _logger.LogError($"Error when resending email confirmation email: {e}");
 
                 throw new InternalServerErrorApiException();
+            }
+        }
+
+        private void HandleEnforceExternalAuthenticationForEmailDomains(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return;
+            }
+
+            var tenantInfo = _tenantInfoAccessor.TenantInfo;
+
+            if (tenantInfo != null && 
+                tenantInfo.EnforceExternalAuthenticationForEmailDomains != null && 
+                tenantInfo.EnforceExternalAuthenticationForEmailDomains.Any())
+            {
+                if (tenantInfo.EnforceExternalAuthenticationForEmailDomains.Any(enforceExternalAuthenticationForEmailDomain =>
+                    email.EndsWith($"@{enforceExternalAuthenticationForEmailDomain}", StringComparison.OrdinalIgnoreCase)))
+                {
+                    throw new RequestFailedApiException(RequestFailedApiException.ExternalAuthenticationRequiredForEmailDomain, "For this email domain external authentication is required");
+                }
             }
         }
 

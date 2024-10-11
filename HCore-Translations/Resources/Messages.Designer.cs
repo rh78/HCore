@@ -745,6 +745,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Please use the Single Sign On (SSO) authentication for signing in with this email address ähnelt.
+        /// </summary>
+        public static string external_authentication_required_for_email_domain {
+            get {
+                return ResourceManager.GetString("external_authentication_required_for_email_domain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The external user group mapping contains invalid characters ähnelt.
         /// </summary>
         public static string external_user_group_identifier_invalid {
