@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="MessagePack" Version="2.5.140" />
+	<PackageReference Include="MessagePack" Version="2.5.187" />
 	<PackageReference Include="ExCSS" Version="4.2.5" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">    
 	  <PrivateAssets>all</PrivateAssets>
