@@ -28,6 +28,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     [SecurityHeaders]
     public class LoginModel : BasePageModelProvidingJsonModelData
     {
+        private readonly TimeSpan SecondTimeSpan = TimeSpan.FromSeconds(1);
+
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;
 
@@ -372,6 +374,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             ModelState.Clear();
 
+            var beforeAuthorization = DateTimeOffset.Now;
+
             try
             {
                 UserModel user = await _identityServices.SignInUserAsync(Input).ConfigureAwait(false);
@@ -414,6 +418,20 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
 
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
+            }
+
+            var afterAuthorization = DateTimeOffset.Now;
+
+            var authorizationDurationTimespan = afterAuthorization - beforeAuthorization;
+
+            if (authorizationDurationTimespan < SecondTimeSpan)
+            {
+                // make side channel attack when guessing email addresses impossible
+                // see pentest report from Slashsec, 10/28/2024
+
+                // whenever auth fails, we will always wait exactly 1 second
+
+                await Task.Delay(SecondTimeSpan - authorizationDurationTimespan).ConfigureAwait(false);
             }
 
             await PrepareModelAsync(ReturnUrl).ConfigureAwait(false);
