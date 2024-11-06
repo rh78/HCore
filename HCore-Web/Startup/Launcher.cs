@@ -241,7 +241,9 @@ namespace HCore.Web.Startup
                 X509Certificate2 defaultSecondaryApiCertificate = null;
 
                 string hostPattern = null;
+                string healthCheckHostPattern = null;
                 string secondaryHostPattern = null;
+                string secondaryHealthCheckHostPattern = null;
 
                 if (useHttps)
                 {
@@ -263,6 +265,11 @@ namespace HCore.Web.Startup
 
                         if (string.IsNullOrEmpty(hostPattern))
                             hostPattern = ".smint.io";
+
+                        healthCheckHostPattern = _configuration["WebServer:HealthCheckHostPattern"];
+
+                        if (string.IsNullOrEmpty(healthCheckHostPattern))
+                            healthCheckHostPattern = null;
                     }
 
                     if (defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null)
@@ -271,6 +278,11 @@ namespace HCore.Web.Startup
 
                         if (string.IsNullOrEmpty(secondaryHostPattern))
                             throw new Exception("Secondary host pattern not found");
+
+                        secondaryHealthCheckHostPattern = _configuration["WebServer:SecondaryHealthCheckHostPattern"];
+
+                        if (string.IsNullOrEmpty(secondaryHealthCheckHostPattern))
+                            secondaryHealthCheckHostPattern = null;
                     }
                 }
 
@@ -351,7 +363,43 @@ namespace HCore.Web.Startup
                                     throw new Exception($"Default certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
                                 }
                             }
-                            else if ((defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null) && hostName.EndsWith(secondaryHostPattern))
+                            else if (!string.IsNullOrEmpty(healthCheckHostPattern) &&
+                                hostName.Equals(healthCheckHostPattern))
+                            {
+                                // this is our default certificates
+
+                                if (useWeb && port == webPort && defaultWebCertificate != null)
+                                {
+                                    return defaultWebCertificate;
+                                }
+                                else if (useApi && port == apiPort && defaultApiCertificate != null)
+                                {
+                                    return defaultApiCertificate;
+                                }
+                                else
+                                {
+                                    throw new Exception($"Default certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
+                                }
+                            }
+                            else if ((defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null) && 
+                                hostName.EndsWith(secondaryHostPattern))
+                            {
+                                if (useWeb && port == webPort && defaultSecondaryWebCertificate != null)
+                                {
+                                    return defaultSecondaryWebCertificate;
+                                }
+                                else if (useApi && port == apiPort && defaultSecondaryApiCertificate != null)
+                                {
+                                    return defaultSecondaryApiCertificate;
+                                }
+                                else
+                                {
+                                    throw new Exception($"Default certificate not found ({hostName} / {useWeb} / {useApi} / {port} / {webPort} / {apiPort})");
+                                }
+                            }
+                            else if ((defaultSecondaryWebCertificate != null || defaultSecondaryApiCertificate != null) &&
+                                !string.IsNullOrEmpty(healthCheckHostPattern) &&
+                                hostName.Equals(secondaryHostPattern))
                             {
                                 if (useWeb && port == webPort && defaultSecondaryWebCertificate != null)
                                 {

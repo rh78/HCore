@@ -10,6 +10,7 @@ using HCore.Translations.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
 using System.Linq;
+using System.Net;
 
 namespace HCore.Web.Middleware
 {
@@ -35,6 +36,9 @@ namespace HCore.Web.Middleware
         private readonly ILogger<UnhandledExceptionHandlingMiddleware> _logger;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
+
+        private readonly string _healthCheckHostPattern;
+        private readonly string _secondaryHealthCheckHostPattern;
 
         public UnhandledExceptionHandlingMiddleware(
             RequestDelegate next,
@@ -89,6 +93,16 @@ namespace HCore.Web.Middleware
             if (_useWeb == true && _webPort == null)
             {
                 _webPort = configuration.GetValue<int>("WebServer:WebPort");
+
+                _healthCheckHostPattern = configuration["WebServer:HealthCheckHostPattern"];
+
+                if (string.IsNullOrEmpty(_healthCheckHostPattern))
+                    _healthCheckHostPattern = null;
+
+                _secondaryHealthCheckHostPattern = configuration["WebServer:SecondaryHealthCheckHostPattern"];
+
+                if (string.IsNullOrEmpty(_secondaryHealthCheckHostPattern))
+                    _secondaryHealthCheckHostPattern = null;
             }
 
             if (_useApi == true && _apiPort == null)
@@ -111,6 +125,19 @@ namespace HCore.Web.Middleware
 
                     if (!blocked)
                     {
+                        if (context.Request.Host.HasValue)
+                        {
+                            var host = context.Request.Host.Value;
+
+                            if (string.Equals(host, _healthCheckHostPattern) ||
+                                string.Equals(host, _secondaryHealthCheckHostPattern))
+                            {
+                                context.Response.StatusCode = (int)HttpStatusCode.OK;
+
+                                return;
+                            }
+                        }
+
                         await _next.Invoke(context).ConfigureAwait(false);
                     }
                 }
