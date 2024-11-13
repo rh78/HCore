@@ -68,9 +68,9 @@ namespace HCore.Tenants.Middleware
                         if (_devAdminSsoReplacementWhitelistIpAddresses != null &&
                             _devAdminSsoReplacementWhitelistIpAddresses.Count > 0)
                         {
-                            var ipAddress = context.Connection?.RemoteIpAddress?.ToString();
+                            var ipAddress = context.GetIpAddress();
 
-                            if (_devAdminSsoReplacementWhitelistIpAddresses.Contains(ipAddress))
+                            if (!string.IsNullOrEmpty(ipAddress) && _devAdminSsoReplacementWhitelistIpAddresses.Contains(ipAddress))
                             {
                                 tenantInfo = tenantInfo.Clone();
 
