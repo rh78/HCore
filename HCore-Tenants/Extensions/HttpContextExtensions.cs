@@ -33,18 +33,18 @@ namespace Microsoft.AspNetCore.Http
 
             var request = context.Request;
 
-            if (request != null)
+            if (request != null && request.Headers != null)
             {
-                if (request.Headers.TryGetValue("CF-Connecting-IP", out var cloudflareConnectingIp) &&
-                    !string.IsNullOrEmpty(cloudflareConnectingIp))
-                {
-                    return cloudflareConnectingIp;
-                }
-
                 if (request.Headers.TryGetValue("HC-Connecting-IP", out var hcoreConnectingIp) &&
                     !string.IsNullOrEmpty(hcoreConnectingIp))
                 {
                     return hcoreConnectingIp;
+                }
+
+                if (request.Headers.TryGetValue("CF-Connecting-IP", out var cloudflareConnectingIp) &&
+                    !string.IsNullOrEmpty(cloudflareConnectingIp))
+                {
+                    return cloudflareConnectingIp;
                 }
             }
 
