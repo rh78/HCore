@@ -1,4 +1,5 @@
-﻿using HCore.Tenants;
+﻿using System;
+using HCore.Tenants;
 using HCore.Tenants.Models;
 
 namespace Microsoft.AspNetCore.Http
@@ -21,6 +22,49 @@ namespace Microsoft.AspNetCore.Http
             context.Items.TryGetValue(TenantConstants.MatchedSubDomainContextKey, out matchedSubDomain);
 
             return (string)matchedSubDomain;
+        }
+
+        public static string GetIpAddress(this HttpContext context)
+        {
+            if (context == null)
+            {
+                return null;
+            }
+
+            var request = context.Request;
+
+            if (request != null)
+            {
+                if (request.Headers.TryGetValue("CF-Connecting-IP", out var cloudflareConnectingIp) &&
+                    !string.IsNullOrEmpty(cloudflareConnectingIp))
+                {
+                    return cloudflareConnectingIp;
+                }
+
+                if (request.Headers.TryGetValue("HC-Connecting-IP", out var hcoreConnectingIp) &&
+                    !string.IsNullOrEmpty(hcoreConnectingIp))
+                {
+                    return hcoreConnectingIp;
+                }
+            }
+
+            var connection = context.Connection;
+
+            if (connection != null)
+            {
+                try
+                {
+                    var ipAddress = connection.RemoteIpAddress?.ToString();
+
+                    return ipAddress;
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+
+            return null;
         }
     }
 }
