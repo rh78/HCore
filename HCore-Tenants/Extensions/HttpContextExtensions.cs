@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using HCore.Tenants;
 using HCore.Tenants.Models;
 
@@ -36,15 +37,19 @@ namespace Microsoft.AspNetCore.Http
             if (request != null && request.Headers != null)
             {
                 if (request.Headers.TryGetValue("HC-Connecting-IP", out var hcoreConnectingIp) &&
-                    !string.IsNullOrEmpty(hcoreConnectingIp))
+                    !string.IsNullOrEmpty(hcoreConnectingIp) &&
+                    IPAddress.TryParse(hcoreConnectingIp, out var hcoreIpParsed) &&
+                    hcoreIpParsed != null)
                 {
-                    return hcoreConnectingIp;
+                    return hcoreIpParsed.ToString();
                 }
 
                 if (request.Headers.TryGetValue("CF-Connecting-IP", out var cloudflareConnectingIp) &&
-                    !string.IsNullOrEmpty(cloudflareConnectingIp))
+                    !string.IsNullOrEmpty(cloudflareConnectingIp) &&
+                    IPAddress.TryParse(cloudflareConnectingIp, out var cloudflareIpParsed) &&
+                    cloudflareIpParsed != null)
                 {
-                    return cloudflareConnectingIp;
+                    return cloudflareIpParsed.ToString();
                 }
             }
 
