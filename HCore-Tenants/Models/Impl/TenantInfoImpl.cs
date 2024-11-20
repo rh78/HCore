@@ -101,6 +101,8 @@ namespace HCore.Tenants.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
+        public string OidcEndSessionEndpointUrl { get; set; }
+
         public bool OidcUsePkce { get; set; }
 
         public string[] OidcScopes { get; set; }
@@ -229,6 +231,7 @@ namespace HCore.Tenants.Models.Impl
                 OidcClientId = OidcClientId,
                 OidcClientSecret = OidcClientSecret,
                 OidcEndpointUrl = OidcEndpointUrl,
+                OidcEndSessionEndpointUrl = OidcEndSessionEndpointUrl,
                 OidcUsePkce = OidcUsePkce,
                 OidcScopes = OidcScopes,
                 OidcAcrValues = OidcAcrValues,
