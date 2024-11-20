@@ -98,6 +98,8 @@ namespace HCore.Tenants.Models
 
         string OidcEndpointUrl { get; }
 
+        string OidcEndSessionEndpointUrl { get; }
+
         bool OidcUsePkce { get; }
 
         string[] OidcScopes { get; }

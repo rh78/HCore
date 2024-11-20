@@ -559,6 +559,7 @@ namespace HCore.Tenants.Providers.Impl
             string oidcClientId = null;
             string oidcClientSecret = null;
             string oidcEndpointUrl = null;
+            string oidcEndSessionEndpointUrl = null;
             bool oidcUsePkce = false;
             string[] oidcScopes = null;
             string oidcAcrValues = null;
@@ -620,6 +621,15 @@ namespace HCore.Tenants.Providers.Impl
                     if (string.IsNullOrEmpty(oidcEndpointUrl))
                         throw new Exception("The tenant OIDC endpoint URL is missing");
                     
+                    oidcEndSessionEndpointUrl = externalAuthorizationIsFromDeveloper ? 
+                        developerModel.OidcEndSessionEndpointUrl : 
+                        tenantModel.OidcEndSessionEndpointUrl;
+
+                    if (string.IsNullOrEmpty(oidcEndSessionEndpointUrl))
+                    {
+                        oidcEndSessionEndpointUrl = null;
+                    }
+
                     oidcScopes = externalAuthorizationIsFromDeveloper ?
                         developerModel.OidcScopes : 
                         tenantModel.OidcScopes;
@@ -788,6 +798,7 @@ namespace HCore.Tenants.Providers.Impl
                 OidcClientId = oidcClientId,
                 OidcClientSecret = oidcClientSecret,
                 OidcEndpointUrl = oidcEndpointUrl,
+                OidcEndSessionEndpointUrl = oidcEndSessionEndpointUrl,
                 OidcUsePkce = oidcUsePkce,
                 OidcScopes = oidcScopes,
                 OidcAcrValues = oidcAcrValues,

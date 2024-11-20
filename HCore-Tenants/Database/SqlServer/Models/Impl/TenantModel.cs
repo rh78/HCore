@@ -97,6 +97,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public string OidcEndpointUrl { get; set; }
 
+        public string OidcEndSessionEndpointUrl { get; set; }
+
         public bool OidcUsePkce { get; set; }
 
         public string[] OidcScopes { get; set; }
