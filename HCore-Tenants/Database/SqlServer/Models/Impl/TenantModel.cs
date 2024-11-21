@@ -138,6 +138,11 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool RequiresDevAdminSsoReplacement { get; set; }
 
+        public string DevAdminSsoReplacementOidcClientId { get; set; }
+        public string DevAdminSsoReplacementOidcClientSecret { get; set; }
+
+        public string DevAdminSsoReplacementOidcEndpointUrl { get; set; }
+
         public string DevAdminSsoReplacementSamlPeerEntityId { get; set; }
         public string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; set; }
 

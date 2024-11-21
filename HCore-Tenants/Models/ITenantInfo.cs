@@ -93,14 +93,14 @@ namespace HCore.Tenants.Models
 
         Dictionary<string, string> ExternalAuthenticationClaimMappings { get; }
 
-        string OidcClientId { get; }
-        string OidcClientSecret { get; }
+        string OidcClientId { get; set; }
+        string OidcClientSecret { get; set; }
 
-        string OidcEndpointUrl { get; }
+        string OidcEndpointUrl { get; set; }
 
         string OidcEndSessionEndpointUrl { get; }
 
-        bool OidcUsePkce { get; }
+        bool OidcUsePkce { get; set; }
 
         string[] OidcScopes { get; }
 
@@ -133,7 +133,12 @@ namespace HCore.Tenants.Models
         string AdditionalCacheKey { get; set; }
 
         bool RequiresDevAdminSsoReplacement { get; }
-        
+
+        public string DevAdminSsoReplacementOidcClientId { get; }
+        public string DevAdminSsoReplacementOidcClientSecret { get; }
+
+        public string DevAdminSsoReplacementOidcEndpointUrl { get; set; }
+
         string DevAdminSsoReplacementSamlPeerEntityId { get; }
         string DevAdminSsoReplacementSamlPeerIdpMetadataLocation { get; }
 

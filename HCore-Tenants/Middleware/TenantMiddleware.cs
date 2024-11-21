@@ -74,13 +74,27 @@ namespace HCore.Tenants.Middleware
                             {
                                 tenantInfo = tenantInfo.Clone();
 
-                                if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerEntityId))
-                                    tenantInfo.SamlPeerEntityId = tenantInfo.DevAdminSsoReplacementSamlPeerEntityId;
-
-                                if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation))
+                                if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                                 {
-                                    tenantInfo.SamlPeerIdpMetadataLocation = tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation;
-                                    tenantInfo.SamlPeerIdpMetadata = null;
+                                    if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementOidcClientId))
+                                    {
+                                        tenantInfo.OidcClientId = tenantInfo.DevAdminSsoReplacementOidcClientId;
+                                        tenantInfo.OidcClientSecret = tenantInfo.DevAdminSsoReplacementOidcClientSecret;
+                                        tenantInfo.OidcEndpointUrl = tenantInfo.DevAdminSsoReplacementOidcEndpointUrl;
+
+                                        tenantInfo.OidcUsePkce = false;
+                                    }
+                                }
+                                else if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodSaml))
+                                {
+                                    if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerEntityId))
+                                        tenantInfo.SamlPeerEntityId = tenantInfo.DevAdminSsoReplacementSamlPeerEntityId;
+
+                                    if (!string.IsNullOrEmpty(tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation))
+                                    {
+                                        tenantInfo.SamlPeerIdpMetadataLocation = tenantInfo.DevAdminSsoReplacementSamlPeerIdpMetadataLocation;
+                                        tenantInfo.SamlPeerIdpMetadata = null;
+                                    }
                                 }
 
                                 tenantInfo.AdditionalCacheKey = "devAdminSsoReplacement";
