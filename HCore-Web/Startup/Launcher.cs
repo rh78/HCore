@@ -111,9 +111,13 @@ namespace HCore.Web.Startup
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.OEM.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.OEM.{_environment}.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.override.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.override.{_environment}.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.OEM.local.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.OEM.{_environment}.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.override.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.override.{_environment}.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
             ConfigureDefaultServiceProvider();
