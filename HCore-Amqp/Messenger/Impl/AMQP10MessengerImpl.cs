@@ -177,6 +177,11 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
+        public Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             Interlocked.Increment(ref _openTasks);

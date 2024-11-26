@@ -255,6 +255,34 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
+        public async Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        {
+            Interlocked.Increment(ref _openTasks);
+
+            try
+            {
+                if (_topicClientHosts.TryGetValue(address, out var topicClientHost))
+                {
+                    throw new NotImplementedException();
+                }
+
+                if (!_queueClientHosts.TryGetValue(address, out var queueClientHost))
+                {
+                    throw new Exception($"Address {address} is not available for AMQP sending");
+                }
+
+                await queueClientHost.SendMessagesAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _openTasks);
+            }
+        }
+
         public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
         {
             Interlocked.Increment(ref _openTasks);
