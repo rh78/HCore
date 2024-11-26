@@ -371,6 +371,125 @@ namespace HCore.Amqp.Processor.Hosts
                         await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                 }
             } while (error);
-        }        
+        }
+
+        public async Task SendMessagesAsync<T>(ICollection<T> messageBodies, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        {
+            ServiceBusSender serviceBusSender;
+            bool error;
+
+            do
+            {
+                serviceBusSender = _serviceBusSender;
+                error = false;
+
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    throw new Exception("AMQP cancellation is requested, can not send message");
+                }
+
+                try
+                {
+                    if (serviceBusSender == null || serviceBusSender.IsClosed)
+                    {
+                        await InitializeAsync().ConfigureAwait(false);
+
+                        serviceBusSender = _serviceBusSender;
+                    }
+
+                    if (_isSession || !string.IsNullOrEmpty(sessionId))
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    if (timeOffsetSeconds != null)
+                    {
+                        throw new NotImplementedException();
+                    }
+
+                    var messagesLeft = false;
+
+                    var messageBodyQueue = new Queue<T>();
+
+                    foreach (var messageBody in messageBodies)
+                    {
+                        messageBodyQueue.Enqueue(messageBody);
+                    }
+
+                    ServiceBusMessageBatch currentMessageBatch = null;
+
+                    while (messageBodyQueue.TryPeek(out var currentMessageBody))
+                    {
+                        if (currentMessageBatch == null)
+                        {
+                            currentMessageBatch = await serviceBusSender.CreateMessageBatchAsync().ConfigureAwait(false);
+                        }
+
+                        var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(currentMessageBody)))
+                        {
+                            ContentType = "application/json",
+                            MessageId = Guid.NewGuid().ToString()
+                        };
+
+                        if (currentMessageBatch.TryAddMessage(message))
+                        {
+                            // it worked, lets remove the message
+
+                            messageBodyQueue.Dequeue();
+                        }
+                        else
+                        {
+                            // the message batch is full
+
+                            await serviceBusSender.SendMessagesAsync(currentMessageBatch).ConfigureAwait(false);
+
+                            currentMessageBatch = null;
+                        }
+                    } 
+                    while (messagesLeft);
+
+                    if (currentMessageBatch != null)
+                    {
+                        // something is still there
+
+                        await serviceBusSender.SendMessagesAsync(currentMessageBatch).ConfigureAwait(false);
+
+                        currentMessageBatch = null;
+                    }
+                }
+                catch (Exception e)
+                {
+                    error = true;
+
+                    await _semaphore.WaitAsync().ConfigureAwait(false);
+
+                    try
+                    {
+                        if (serviceBusSender == _serviceBusSender)
+                        {
+                            // nobody else handled this before
+
+                            if (!CancellationToken.IsCancellationRequested)
+                            {
+                                _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
+                            }
+
+                            await CloseAsync().ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        _semaphore.Release();
+                    }
+
+                    if (!CancellationToken.IsCancellationRequested)
+                        await Task.Delay(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                }
+            } while (error);
+        }
     }
 }
