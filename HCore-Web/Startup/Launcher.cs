@@ -169,9 +169,13 @@ namespace HCore.Web.Startup
                       .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
                       .AddJsonFile($"appsettings.OEM.json", optional: true, reloadOnChange: false)
                       .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.override.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.override.json", optional: true, reloadOnChange: false)
                       .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
                       .AddJsonFile($"appsettings.OEM.local.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false);
+                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.override.local.json", optional: true, reloadOnChange: false)
+                      .AddJsonFile($"appsettings.{env.EnvironmentName}.override.local.json", optional: true, reloadOnChange: false);
 
                 if (env.IsDevelopment())
                 {
