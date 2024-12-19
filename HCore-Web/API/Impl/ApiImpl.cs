@@ -375,10 +375,17 @@ namespace HCore.Web.API.Impl
             }
         }
 
-        public static long? ProcessTenantUuid(string tenantUuid)
+        public static long? ProcessTenantUuid(string tenantUuid, bool required = true)
         {
             if (string.IsNullOrEmpty(tenantUuid))
-                throw new RequestFailedApiException(RequestFailedApiException.TenantUuidMissing, "The tenant UUID is missing");
+            {
+                if (required)
+                {
+                    throw new RequestFailedApiException(RequestFailedApiException.TenantUuidMissing, "The tenant UUID is missing");
+                }
+
+                return null;
+            }
 
             try
             {

@@ -312,6 +312,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcAdditionalParameters = tenantInfo.OidcAdditionalParameters;
                         var oidcUseStateRedirect = tenantInfo.OidcUseStateRedirect;
                         var oidcStateRedirectNoProfile = tenantInfo.OidcStateRedirectNoProfile;
+                        var oidcOverridePostLogoutRedirectUrl = tenantInfo.OidcOverridePostLogoutRedirectUrl;
 
                         openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
                         openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
@@ -395,6 +396,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.Events.OnRedirectToIdentityProviderForSignOut = context =>
                         {
+                            if (!string.IsNullOrEmpty(oidcOverridePostLogoutRedirectUrl))
+                            {
+                                context.ProtocolMessage.PostLogoutRedirectUri = oidcOverridePostLogoutRedirectUrl;
+                            }
+
                             if (context.HttpContext.Items.ContainsKey(IdentityCoreConstants.HttpContextItemsIdTokenHint))
                             {
                                 context.ProtocolMessage.IdTokenHint = (string)context.HttpContext.Items[IdentityCoreConstants.HttpContextItemsIdTokenHint];

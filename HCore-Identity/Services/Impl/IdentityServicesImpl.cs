@@ -537,7 +537,7 @@ namespace HCore.Identity.Services.Impl
 
         // create through external authentication provider
 
-        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, string userIdClaimValue)
+        private async Task<UserModel> CreateUserAsync(long developerUuid, long tenantUuid, AuthenticationTicket authenticationTicket, ClaimsPrincipal externalUser, string userIdClaimValue, long? targetTenantUuid)
         {
             string unscopedEmailAddress = ProcessEmail(externalUser);
 
@@ -690,6 +690,9 @@ namespace HCore.Identity.Services.Impl
                     var identityToken = ProcessIdentityToken(authenticationTicket);
                     user.IdentityTokenCache = identityToken;
 
+                    var accessToken = ProcessAccessToken(authenticationTicket);
+                    var refreshToken = ProcessRefreshToken(authenticationTicket);
+
                     // we'll have external emails always confirmed
 
                     user.EmailConfirmed = true;
@@ -776,7 +779,7 @@ namespace HCore.Identity.Services.Impl
                             await _userNotificationListener.UserCreatedAsync(userNotificationModel).ConfigureAwait(false);
                         }
 
-                        await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
+                        await SendUserChangeNotificationAsync(user.Id, accessToken, refreshToken, targetTenantUuid, trySynchronousFirst: true).ConfigureAwait(false);
 
                         if (!_configurationProvider.RequireEmailConfirmed || user.EmailConfirmed)
                         {
@@ -929,6 +932,13 @@ namespace HCore.Identity.Services.Impl
                 var developerUuid = tenantInfo.DeveloperUuid;
                 var tenantUuid = tenantInfo.TenantUuid;
 
+                var targetTenantUuid = GetTargetTenantUuid(authenticateResult);
+
+                if (!tenantInfo.OidcUseStateRedirect)
+                {
+                    targetTenantUuid = null;
+                }
+
                 var externalUser = authenticateResult.Principal;
 
                 // try to determine the unique id of the external user(issued by the provider)
@@ -1033,7 +1043,7 @@ namespace HCore.Identity.Services.Impl
 
                 if (user == null)
                 {
-                    user = await CreateUserAsync(developerUuid, tenantUuid, authenticateResult.Ticket, externalUser, userIdClaimValue).ConfigureAwait(false);
+                    user = await CreateUserAsync(developerUuid, tenantUuid, authenticateResult.Ticket, externalUser, userIdClaimValue, targetTenantUuid).ConfigureAwait(false);
 
                     return (user, true);
                 }
@@ -1098,6 +1108,9 @@ namespace HCore.Identity.Services.Impl
 
                     var identityToken = ProcessIdentityToken(authenticateResult.Ticket);
                     user.IdentityTokenCache = identityToken;
+
+                    var accessToken = ProcessAccessToken(authenticateResult.Ticket);
+                    var refreshToken = ProcessRefreshToken(authenticateResult.Ticket);
 
                     HashSet<string> memberOf = ProcessMemberOf(externalUser);
 
@@ -1176,7 +1189,7 @@ namespace HCore.Identity.Services.Impl
                     // we need to always send the change notification, because maybe user groups
                     // in dependent systems have changed and we then need to fix user group assignments
 
-                    await SendUserChangeNotificationAsync(user.Id, trySynchronousFirst: true).ConfigureAwait(false);
+                    await SendUserChangeNotificationAsync(user.Id, accessToken, refreshToken, targetTenantUuid, trySynchronousFirst: true).ConfigureAwait(false);
 
                     return (user, false);
                 }
@@ -2231,6 +2244,21 @@ namespace HCore.Identity.Services.Impl
             return code;
         }
 
+        private string ProcessAccessToken(AuthenticationTicket authenticationTicket)
+        {
+            if (authenticationTicket == null || authenticationTicket.Properties == null)
+                return null;
+
+            var accessToken = authenticationTicket.Properties.GetTokenValue("access_token");
+            if (string.IsNullOrEmpty(accessToken))
+                return null;
+
+            if (accessToken.Length > ApiImpl.MaxAccessTokenLength)
+                throw new RequestFailedApiException(RequestFailedApiException.AccessTokenTooLong, "The access token is too long");
+
+            return accessToken;
+        }
+
         private string ProcessIdentityToken(AuthenticationTicket authenticationTicket)
         {
             if (authenticationTicket == null || authenticationTicket.Properties == null)
@@ -2244,6 +2272,21 @@ namespace HCore.Identity.Services.Impl
                 throw new RequestFailedApiException(RequestFailedApiException.IdentityTokenTooLong, "The identity token is too long");
 
             return identityToken;
+        }
+
+        private string ProcessRefreshToken(AuthenticationTicket authenticationTicket)
+        {
+            if (authenticationTicket == null || authenticationTicket.Properties == null)
+                return null;
+
+            var refreshToken = authenticationTicket.Properties.GetTokenValue("refresh_token");
+            if (string.IsNullOrEmpty(refreshToken))
+                return null;
+
+            if (refreshToken.Length > ApiImpl.MaxRefreshTokenLength)
+                throw new RequestFailedApiException(RequestFailedApiException.RefreshTokenTooLong, "The refresh token is too long");
+
+            return refreshToken;
         }
 
         private string GetDefaultCurrency()
@@ -2296,7 +2339,7 @@ namespace HCore.Identity.Services.Impl
             throw new InternalServerErrorApiException();
         }
 
-        private async Task SendUserChangeNotificationAsync(string userUuid, bool trySynchronousFirst = false)
+        private async Task SendUserChangeNotificationAsync(string userUuid, string accessTokenCache = null, string refreshTokenCache = null, long? targetTenantUuid = null, bool trySynchronousFirst = false)
         {
             if (!string.IsNullOrEmpty(_configurationProvider.IdentityChangeTasksAmqpAddress))
             {
@@ -2306,7 +2349,10 @@ namespace HCore.Identity.Services.Impl
 
                 var identityChangeTask = new IdentityChangeTask()
                 {
-                    UserUuid = userUuid
+                    TenantUuid = targetTenantUuid,
+                    UserUuid = userUuid,
+                    AccessTokenCache = accessTokenCache,
+                    RefreshTokenCache = refreshTokenCache
                 };
 
                 var amqpMessenger = _serviceProvider.GetRequiredService<IAMQPMessenger>();
@@ -2316,6 +2362,28 @@ namespace HCore.Identity.Services.Impl
                 else
                     await amqpMessenger.SendMessageTrySynchronousFirstAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
             }
+        }
+
+        private long? GetTargetTenantUuid(AuthenticateResult authenticateResult)
+        {
+            var items = authenticateResult?.Properties?.Items;
+
+            if (items == null)
+            {
+                return null;
+            }
+
+            if (!authenticateResult.Properties.Items.TryGetValue("targetTenantUuid", out string targetTenantUuidString))
+            {
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(targetTenantUuidString) || !long.TryParse(targetTenantUuidString, out long targetTenantUuid))
+            {
+                return null;
+            }
+
+            return targetTenantUuid;
         }
 
         private async Task<UserDeletedModel> GetUserDeletedAsync(string externalUuid)
