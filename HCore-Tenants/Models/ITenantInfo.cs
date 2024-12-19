@@ -116,6 +116,7 @@ namespace HCore.Tenants.Models
         bool OidcUseStateRedirect { get; }
         string OidcStateRedirectUrl { get; }
         bool OidcStateRedirectNoProfile { get; }
+        string OidcOverridePostLogoutRedirectUrl { get; }
 
         string SamlEntityId { get; }
 

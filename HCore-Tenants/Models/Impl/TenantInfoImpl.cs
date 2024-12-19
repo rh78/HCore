@@ -119,6 +119,7 @@ namespace HCore.Tenants.Models.Impl
         public bool OidcUseStateRedirect { get; set; }
         public string OidcStateRedirectUrl { get; set; }
         public bool OidcStateRedirectNoProfile { get; set; }
+        public string OidcOverridePostLogoutRedirectUrl { get; set; }
 
         public string SamlEntityId { get; set; }
 
@@ -247,6 +248,7 @@ namespace HCore.Tenants.Models.Impl
                 OidcUseStateRedirect = OidcUseStateRedirect,
                 OidcStateRedirectUrl = OidcStateRedirectUrl,
                 OidcStateRedirectNoProfile = OidcStateRedirectNoProfile,
+                OidcOverridePostLogoutRedirectUrl = OidcOverridePostLogoutRedirectUrl,
                 SamlEntityId = SamlEntityId,
                 SamlPeerEntityId = SamlPeerEntityId,
                 SamlPeerIdpMetadataLocation = SamlPeerIdpMetadataLocation,

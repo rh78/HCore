@@ -131,6 +131,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public bool OidcUseStateRedirect { get; set; }
         public string OidcStateRedirectUrl { get; set; }
         public bool OidcStateRedirectNoProfile { get; set; }
+        public string OidcOverridePostLogoutRedirectUrl { get; set; }
 
         [Column(TypeName = "jsonb")]
         public Dictionary<string, string> ExternalAuthenticationClaimMappings { get; set; }

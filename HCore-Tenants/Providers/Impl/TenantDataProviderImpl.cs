@@ -570,6 +570,7 @@ namespace HCore.Tenants.Providers.Impl
             bool oidcUseStateRedirect = false;
             string oidcStateRedirectUrl = null;
             bool oidcStateRedirectNoProfile = false;
+            string oidcOverridePostLogoutRedirectUrl = null;
 
             string samlEntityId = null;
 
@@ -671,6 +672,10 @@ namespace HCore.Tenants.Providers.Impl
                     oidcStateRedirectNoProfile = externalAuthorizationIsFromDeveloper ?
                         developerModel.OidcStateRedirectNoProfile :
                         tenantModel.OidcStateRedirectNoProfile;
+
+                    oidcOverridePostLogoutRedirectUrl = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcOverridePostLogoutRedirectUrl :
+                        tenantModel.OidcOverridePostLogoutRedirectUrl;
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
@@ -809,6 +814,7 @@ namespace HCore.Tenants.Providers.Impl
                 OidcUseStateRedirect = oidcUseStateRedirect,
                 OidcStateRedirectUrl = oidcStateRedirectUrl,
                 OidcStateRedirectNoProfile = oidcStateRedirectNoProfile,
+                OidcOverridePostLogoutRedirectUrl = oidcOverridePostLogoutRedirectUrl,
                 SamlEntityId = samlEntityId,
                 SamlPeerEntityId = samlPeerEntityId,
                 SamlPeerIdpMetadataLocation = samlPeerIdpMetadataLocation,
