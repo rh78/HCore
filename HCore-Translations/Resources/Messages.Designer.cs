@@ -2230,6 +2230,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Unfortunately the validation failed ähnelt.
+        /// </summary>
+        public static string validation_failed {
+            get {
+                return ResourceManager.GetString("validation_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The VAT ID is invalid ähnelt.
         /// </summary>
         public static string vat_id_invalid {

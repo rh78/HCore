@@ -137,6 +137,18 @@ namespace HCore.Identity.Models
 
         public bool PhoneNumberConfirmedSet = false;
 
+        private string _ProprietaryData;
+
+        /// <summary>
+        /// The last name of the user
+        /// </summary>
+        /// <value>The last name of the user</value>
+        [Display(ResourceType = typeof(Messages), Name = "proprietary_data")]
+        [DataMember(Name = "proprietary_data")]
+        public string ProprietaryData { get => _ProprietaryData; set { _ProprietaryData = value; ProprietaryDataSet = true; } }
+
+        public bool ProprietaryDataSet = false;
+
         private string _NotificationCulture;
 
         [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "notification_culture_missing")]
@@ -190,6 +202,7 @@ namespace HCore.Identity.Models
             sb.Append("  PasswordConfirmation: ").Append(PasswordConfirmation).Append("\n");
             sb.Append("  PhoneNumber: ").Append(PhoneNumber).Append("\n");
             sb.Append("  PhoneNumberConfirmed: ").Append(PhoneNumberConfirmed).Append("\n");
+            sb.Append("  ProprietaryData: ").Append(ProprietaryData).Append("\n");
             sb.Append("  NotificationCulture: ").Append(NotificationCulture).Append("\n");
             sb.Append("  GroupNotifications: ").Append(GroupNotifications).Append("\n");
             sb.Append("  Currency: ").Append(Currency).Append("\n");
@@ -275,6 +288,11 @@ namespace HCore.Identity.Models
                     PhoneNumberConfirmed.Equals(other.PhoneNumberConfirmed)
                 ) &&
                 (
+                    ProprietaryData == other.ProprietaryData ||
+                    ProprietaryData != null &&
+                    ProprietaryData.Equals(other.ProprietaryData)
+                ) &&
+                (
                     NotificationCulture == other.NotificationCulture ||
                     NotificationCulture != null &&
                     NotificationCulture.Equals(other.NotificationCulture)
@@ -317,6 +335,8 @@ namespace HCore.Identity.Models
                         hashCode = hashCode * 59 + PhoneNumber.GetHashCode();
                     if (PhoneNumberConfirmed != null)
                         hashCode = hashCode * 59 + PhoneNumberConfirmed.GetHashCode();
+                    if (ProprietaryData != null)
+                        hashCode = hashCode * 59 + ProprietaryData.GetHashCode();
                     if (NotificationCulture != null)
                         hashCode = hashCode * 59 + NotificationCulture.GetHashCode();
                     if (GroupNotifications != null)

@@ -65,6 +65,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
                 Organization = user.Organization,
                 CustomIdentifier = user.CustomIdentifier,
                 PhoneNumber = user.PhoneNumber,
+                ProprietaryData = user.ProprietaryData,
                 NotificationCulture = user.NotificationCulture,
                 GroupNotifications = user.GroupNotifications,
                 Currency = user.Currency

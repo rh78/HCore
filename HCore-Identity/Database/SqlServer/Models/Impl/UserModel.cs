@@ -25,6 +25,9 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         [StringLength(Web.API.Impl.ApiImpl.MaxCustomIdentifierLength)]
         public string CustomIdentifier { get; set; }
 
+        [Column(TypeName = "text")]
+        public string ProprietaryData { get; set; }
+
         public List<string> MemberOf { get; set; }
 
         public string NotificationCulture { get; set; }
