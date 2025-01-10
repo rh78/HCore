@@ -714,6 +714,9 @@
   <data name="recaptcha_validation_failed" xml:space="preserve">
     <value>Unfortunately, Google reCAPTCHA failed to validate that you are no robot</value>
   </data>
+  <data name="validation_failed" xml:space="preserve">
+    <value>Unfortunately the validation failed</value>
+  </data>
   <data name="cloud_storage_file_access_denied" xml:space="preserve">
     <value>Access to the file was denied</value>
   </data>

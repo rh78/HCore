@@ -16,6 +16,8 @@
 
         public string PhoneNumber { get; set; }
 
+        public string ProprietaryData { get; set; }
+
         public string NotificationCulture { get; set; }
 
         public bool? GroupNotifications { get; set; }

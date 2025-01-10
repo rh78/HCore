@@ -714,6 +714,9 @@
   <data name="recaptcha_validation_failed" xml:space="preserve">
     <value>Die Google reCAPTCHA Validierung ist leider fehlgeschlagen</value>
   </data>
+  <data name="validation_failed" xml:space="preserve">
+    <value>Die Validierung ist leider fehlgeschlagen</value>
+  </data>
   <data name="cloud_storage_file_access_denied" xml:space="preserve">
     <value>Der Zugriff auf die Datei wurde verweigert</value>
   </data>
