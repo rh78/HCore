@@ -2254,7 +2254,7 @@ namespace HCore.Identity.Services.Impl
                 return null;
 
             if (accessToken.Length > ApiImpl.MaxAccessTokenLength)
-                throw new RequestFailedApiException(RequestFailedApiException.AccessTokenTooLong, "The access token is too long");
+                return null;
 
             return accessToken;
         }
@@ -2284,7 +2284,7 @@ namespace HCore.Identity.Services.Impl
                 return null;
 
             if (refreshToken.Length > ApiImpl.MaxRefreshTokenLength)
-                throw new RequestFailedApiException(RequestFailedApiException.RefreshTokenTooLong, "The refresh token is too long");
+                return null;
 
             return refreshToken;
         }
