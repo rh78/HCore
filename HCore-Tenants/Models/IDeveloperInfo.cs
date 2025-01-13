@@ -37,9 +37,11 @@ namespace HCore.Tenants.Models
         int TextOnSecondaryColor { get; }
 
         string SupportEmail { get; }
+        string SupportReplyToEmail { get; }
         string SupportEmailDisplayName { get; }
 
         string NoreplyEmail { get; }
+        string NoreplyReplyToEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
         string PrivacyPolicyUrl { get; }

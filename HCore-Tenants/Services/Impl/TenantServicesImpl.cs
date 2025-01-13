@@ -1030,6 +1030,22 @@ namespace HCore.Tenants.Services.Impl
             return supportEmail;
         }
 
+        public static string ProcessSupportReplyToEmail(string supportReplyToEmail)
+        {
+            supportReplyToEmail = supportReplyToEmail?.Trim();
+
+            if (string.IsNullOrEmpty(supportReplyToEmail))
+                return null;
+
+            if (!SafeString.IsMatch(supportReplyToEmail))
+                throw new RequestFailedApiException(RequestFailedApiException.SupportReplyToEmailInvalid, $"The support reply email address is invalid");
+
+            if (supportReplyToEmail.Length > MaxEmailAddressLength)
+                throw new RequestFailedApiException(RequestFailedApiException.SupportReplyToEmailTooLong, $"The support reply email address is too long");
+
+            return supportReplyToEmail;
+        }
+
         public static string ProcessSupportEmailDisplayName(string supportEmailDisplayName)
         {
             supportEmailDisplayName = supportEmailDisplayName?.Trim();
@@ -1054,12 +1070,28 @@ namespace HCore.Tenants.Services.Impl
                 return null;
 
             if (!SafeString.IsMatch(noreplyEmail))
-                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailInvalid, $"The no reply email address is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailInvalid, $"The generic email address is invalid");
 
             if (noreplyEmail.Length > MaxEmailAddressLength)
-                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailTooLong, $"The no reply email address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailTooLong, $"The generic email address is too long");
 
             return noreplyEmail;
+        }
+
+        public static string ProcessNoreplyReplyToEmail(string noreplyReplyToEmail)
+        {
+            noreplyReplyToEmail = noreplyReplyToEmail?.Trim();
+
+            if (string.IsNullOrEmpty(noreplyReplyToEmail))
+                return null;
+
+            if (!SafeString.IsMatch(noreplyReplyToEmail))
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailInvalid, $"The generic reply email address is invalid");
+
+            if (noreplyReplyToEmail.Length > MaxEmailAddressLength)
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailTooLong, $"The generic reply email address is too long");
+
+            return noreplyReplyToEmail;
         }
 
         public static string ProcessNoreplyEmailDisplayName(string noreplyEmailDisplayName)
@@ -1070,10 +1102,10 @@ namespace HCore.Tenants.Services.Impl
                 return null;
 
             if (!SafeString.IsMatch(noreplyEmailDisplayName))
-                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameInvalid, $"The no reply email display name is invalid");
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameInvalid, $"The generic email display name is invalid");
 
             if (noreplyEmailDisplayName.Length > MaxEmailDisplayNameLength)
-                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameTooLong, $"The no reply email display name is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.NoreplyEmailDisplayNameTooLong, $"The generic email display name is too long");
 
             return noreplyEmailDisplayName;
         }

@@ -243,6 +243,12 @@
   <data name="support_email_too_long" xml:space="preserve">
     <value>Die Support E-Mail-Adresse ist zu lang</value>
   </data>
+  <data name="support_reply_to_email_invalid" xml:space="preserve">
+    <value>Die Support Antwort-E-Mail-Adresse ist ungültig</value>
+  </data>
+  <data name="support_reply_to_email_too_long" xml:space="preserve">
+    <value>Die Support Antwort-E-Mail-Adresse ist zu lang</value>
+  </data>
   <data name="support_email_display_name_invalid" xml:space="preserve">
     <value>Der Support E-Mail Absendername ist ungültig</value>
   </data>
@@ -250,16 +256,22 @@
     <value>Der Support E-Mail Absendername ist zu lang</value>
   </data>
   <data name="noreply_email_invalid" xml:space="preserve">
-    <value>Die No Reply E-Mail-Adresse ist ungültig</value>
+    <value>Die allgemeine E-Mail-Adresse ist ungültig</value>
   </data>
   <data name="noreply_email_too_long" xml:space="preserve">
-    <value>Die No Reply E-Mail-Adresse ist zu lang</value>
+    <value>Die allgemeine E-Mail-Adresse ist zu lang</value>
+  </data>
+  <data name="noreply_reply_to_email_invalid" xml:space="preserve">
+    <value>Die allgemeine Antwort-E-Mail-Adresse ist ungültig</value>
+  </data>
+  <data name="noreply_reply_to_email_too_long" xml:space="preserve">
+    <value>Die allgemeine Antwort-E-Mail-Adresse ist zu lang</value>
   </data>
   <data name="noreply_email_display_name_invalid" xml:space="preserve">
-    <value>Der No Reply E-Mail Absendername ist ungültig</value>
+    <value>Der allgemeine E-Mail Absendername ist ungültig</value>
   </data>
   <data name="noreply_email_display_name_too_long" xml:space="preserve">
-    <value>Der No Reply E-Mail Absendername ist zu lang</value>
+    <value>Der allgemeine E-Mail Absendername ist zu lang</value>
   </data>
   <data name="internal_server_error" xml:space="preserve">
     <value>Ein unerwarteter Serverfehler ist aufgetreten</value>

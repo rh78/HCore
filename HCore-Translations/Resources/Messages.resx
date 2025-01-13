@@ -243,6 +243,12 @@
   <data name="support_email_too_long" xml:space="preserve">
     <value>The support email address is too long</value>
   </data>
+  <data name="support_reply_to_email_invalid" xml:space="preserve">
+    <value>The support reply email address is invalid</value>
+  </data>
+  <data name="support_reply_to_email_too_long" xml:space="preserve">
+    <value>The support reply email address is too long</value>
+  </data>
   <data name="support_email_display_name_invalid" xml:space="preserve">
     <value>The support email display name is invalid</value>
   </data>
@@ -250,16 +256,22 @@
     <value>The support email display name is too long</value>
   </data>
   <data name="noreply_email_invalid" xml:space="preserve">
-    <value>The no reply email address is invalid</value>
+    <value>The generic email address is invalid</value>
   </data>
   <data name="noreply_email_too_long" xml:space="preserve">
-    <value>The no reply email address is too long</value>
+    <value>The generic email address is too long</value>
+  </data>
+  <data name="noreply_email_invalid" xml:space="preserve">
+    <value>The generic reply email address is invalid</value>
+  </data>
+  <data name="noreply_email_too_long" xml:space="preserve">
+    <value>The generic reply email address is too long</value>
   </data>
   <data name="noreply_email_display_name_invalid" xml:space="preserve">
-    <value>The no reply email display name is invalid</value>
+    <value>The generic email display name is invalid</value>
   </data>
   <data name="noreply_email_display_name_too_long" xml:space="preserve">
-    <value>The no reply email display name is too long</value>
+    <value>The generic email display name is too long</value>
   </data>
   <data name="internal_server_error" xml:space="preserve">
     <value>An unexpected server error occured</value>

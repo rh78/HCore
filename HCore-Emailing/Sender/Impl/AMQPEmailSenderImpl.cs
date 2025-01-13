@@ -39,7 +39,7 @@ namespace HCore.Emailing.Sender.Impl
             _logger = logger;
         }
 
-        public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
+        public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromReplyToOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
         {
             if (to.TrueForAll(string.IsNullOrEmpty))
                 throw new Exception("At least one valid to address is required!");
@@ -63,6 +63,7 @@ namespace HCore.Emailing.Sender.Impl
                 ConfigurationKey = configurationKey,
                 EmailSenderConfiguration = emailSenderConfiguration,
                 FromOverride = fromOverride,
+                FromReplyToOverride = fromReplyToOverride,
                 FromDisplayNameOverride = fromDisplayNameOverride,
                 To = to,
                 Cc = cc,

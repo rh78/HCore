@@ -16,6 +16,7 @@ namespace HCore.Emailing.AMQP
         public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
 
         public string FromOverride { get; set; }
+        public string FromReplyToOverride { get; set; }
         public string FromDisplayNameOverride { get; set; }
 
         public List<string> To { get; set; }

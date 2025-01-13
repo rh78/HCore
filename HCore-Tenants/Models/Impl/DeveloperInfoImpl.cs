@@ -37,9 +37,11 @@ namespace HCore.Tenants.Models.Impl
         public int TextOnSecondaryColor { get; internal set; }
 
         public string SupportEmail { get; internal set; }
+        public string SupportReplyToEmail { get; internal set; }
         public string SupportEmailDisplayName { get; internal set; }
 
         public string NoreplyEmail { get; internal set; }
+        public string NoreplyReplyToEmail { get; internal set; }
         public string NoreplyEmailDisplayName { get; internal set; }
 
         public string PrivacyPolicyUrl { get; internal set; }

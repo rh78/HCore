@@ -50,11 +50,13 @@ namespace HCore.Tenants.Models
         string TextOnSecondaryColorHex { get; }
 
         string SupportEmail { get; }
+        string SupportReplyToEmail { get; }
         string SupportEmailDisplayName { get; }
 
         Dictionary<string, string> PermissionDeniedSupportMessage { get; }
 
         string NoreplyEmail { get; }
+        string NoreplyReplyToEmail { get; }
         string NoreplyEmailDisplayName { get; }
 
         string WebAddress { get; }

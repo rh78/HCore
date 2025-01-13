@@ -42,7 +42,7 @@ namespace HCore.Emailing.Sender.Impl
             _logger = logger;
         }
 
-        public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
+        public async Task SendEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromReplyToOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
         {
             _logger.LogInformation($"Sending email: {subject}");
 
@@ -50,15 +50,15 @@ namespace HCore.Emailing.Sender.Impl
             {
                 if (emailSenderConfiguration != null)
                 {
-                    await SendSmtpEmailAsync(configurationKey: null, emailSenderConfiguration, fromOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
+                    await SendSmtpEmailAsync(configurationKey: null, emailSenderConfiguration, fromOverride, fromReplyToOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
                 }
                 else if (_useSendGrid)
                 {
-                    await SendSendGridEmailAsync(configurationKey, fromOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback).ConfigureAwait(false);
+                    await SendSendGridEmailAsync(configurationKey, fromOverride, fromReplyToOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback).ConfigureAwait(false);
                 }
                 else
                 {
-                    await SendSmtpEmailAsync(configurationKey, emailSenderConfiguration: null, fromOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
+                    await SendSmtpEmailAsync(configurationKey, emailSenderConfiguration: null, fromOverride, fromReplyToOverride, fromDisplayNameOverride, to, cc, bcc, subject, htmlMessage, emailAttachments).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
@@ -69,7 +69,7 @@ namespace HCore.Emailing.Sender.Impl
             }
         }
         
-        private async Task SendSmtpEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
+        private async Task SendSmtpEmailAsync(string configurationKey, SmtpEmailSenderConfigurationModel emailSenderConfiguration, string fromOverride, string fromReplyToOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null)
         {
             if (emailSenderConfiguration == null)
             {
@@ -120,6 +120,11 @@ namespace HCore.Emailing.Sender.Impl
                     : emailSenderConfiguration.SmtpEmailAddress;
 
                 mimeMessage.From.Add(new MailboxAddress(fromName, fromAddress));
+
+                if (!string.IsNullOrEmpty(fromReplyToOverride))
+                {
+                    mimeMessage.ReplyTo.Add(new MailboxAddress(fromName, fromReplyToOverride));
+                }
 
                 if (to != null)
                 {
@@ -218,7 +223,7 @@ namespace HCore.Emailing.Sender.Impl
             }            
         }
 
-        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
+        private async Task SendSendGridEmailAsync(string configurationKey, string fromOverride, string fromReplyToOverride, string fromDisplayNameOverride, List<string> to, List<string> cc, List<string> bcc, string subject, string htmlMessage, List<EmailAttachment> emailAttachments = null, bool allowFallback = true)
         {            
             if (string.IsNullOrEmpty(configurationKey))
                 configurationKey = EmailSenderConstants.EmptyConfigurationKeyDefaultKey;
@@ -230,13 +235,19 @@ namespace HCore.Emailing.Sender.Impl
 
             var client = new SendGridClient(emailSenderConfiguration.ApiKey);
 
+            var fromDisplayName = !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.FromDisplayName;
+
             var mailMessage = new SendGridMessage()
             {
-                From = new EmailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.FromEmailAddress,
-                                        !string.IsNullOrEmpty(fromDisplayNameOverride) ? fromDisplayNameOverride : emailSenderConfiguration.FromDisplayName),
-                Subject = subject,                    
+                From = new EmailAddress(!string.IsNullOrEmpty(fromOverride) ? fromOverride : emailSenderConfiguration.FromEmailAddress, fromDisplayName),
+                Subject = subject,
                 HtmlContent = htmlMessage
             };
+
+            if (!string.IsNullOrEmpty(fromReplyToOverride))
+            {
+                mailMessage.ReplyTo = new EmailAddress(fromReplyToOverride, fromDisplayName);
+            }
                 
             if (to != null)
                 to.ForEach(toString => mailMessage.AddTo(new EmailAddress(toString)));
@@ -276,7 +287,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         // fall back to verified sender identity
 
-                        await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
+                        await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", fromReplyToOverride: null, "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
 
                         return;
                     }
