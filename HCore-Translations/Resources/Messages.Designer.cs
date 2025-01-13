@@ -1249,7 +1249,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The generic reply email address is invalid ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The generic email address is invalid ähnelt.
         /// </summary>
         public static string noreply_email_invalid {
             get {
@@ -1258,11 +1258,29 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die The generic reply email address is too long ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die The generic email address is too long ähnelt.
         /// </summary>
         public static string noreply_email_too_long {
             get {
                 return ResourceManager.GetString("noreply_email_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The generic reply email address is invalid ähnelt.
+        /// </summary>
+        public static string noreply_reply_to_email_invalid {
+            get {
+                return ResourceManager.GetString("noreply_reply_to_email_invalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The generic reply email address is too long ähnelt.
+        /// </summary>
+        public static string noreply_reply_to_email_too_long {
+            get {
+                return ResourceManager.GetString("noreply_reply_to_email_too_long", resourceCulture);
             }
         }
         

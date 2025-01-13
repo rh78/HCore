@@ -261,10 +261,10 @@
   <data name="noreply_email_too_long" xml:space="preserve">
     <value>The generic email address is too long</value>
   </data>
-  <data name="noreply_email_invalid" xml:space="preserve">
+  <data name="noreply_reply_to_email_invalid" xml:space="preserve">
     <value>The generic reply email address is invalid</value>
   </data>
-  <data name="noreply_email_too_long" xml:space="preserve">
+  <data name="noreply_reply_to_email_too_long" xml:space="preserve">
     <value>The generic reply email address is too long</value>
   </data>
   <data name="noreply_email_display_name_invalid" xml:space="preserve">
