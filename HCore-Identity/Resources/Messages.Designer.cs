@@ -673,6 +673,15 @@ namespace HCore.Identity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Notification language.
+        /// </summary>
+        public static string proprietary_data {
+            get {
+                return ResourceManager.GetString("proprietary_data", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Notifications.
         /// </summary>
         public static string notifications_title {
