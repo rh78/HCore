@@ -287,7 +287,7 @@ namespace HCore.Emailing.Sender.Impl
                     {
                         // fall back to verified sender identity
 
-                        await SendSendGridEmailAsync(configurationKey, "noreply@smint.io", fromReplyToOverride: null, "Smint.io", to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
+                        await SendSendGridEmailAsync(configurationKey, fromOverride: null, fromReplyToOverride: null, fromDisplayNameOverride: null, to, cc, bcc, subject, htmlMessage, emailAttachments, allowFallback: false).ConfigureAwait(false);
 
                         return;
                     }

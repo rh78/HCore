@@ -53,7 +53,7 @@ namespace HCore.Identity.Attributes
                           "style-src 'self' 'unsafe-inline' https://*.smint.io:40443 https://*.smint.io https://*.portalsapib.smint.io:43444 https://*.portalsapib.smint.io https://*.portalsapife.smint.io:43444 https://*.portalsapife.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://*.portalsapib.cloudinary-portals.com:43444 https://*.portalsapib.cloudinary-portals.com https://*.portalsapife.cloudinary-portals.com:43444 https://*.portalsapife.cloudinary-portals.com https://staticcdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
                           "font-src 'self' 'unsafe-inline' data: https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://smintiodevcachecdn-eqfqg2c3b4gef7gw.z02.azurefd.net https://smintiocachecdnstaging-axfmcpbkc4gsaab3.z02.azurefd.net https://cachecdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
                           "frame-src data: 'self' *; " +
-                          "img-src * data:; " +
+                          "img-src * blob: data:; " +
                           "media-src blob: *; " +
                           // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
                           // we turn it off until more is known
