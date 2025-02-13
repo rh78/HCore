@@ -33,6 +33,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel AccessRequestDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel PermissionRequestDoneEmailSettings { get; set; }
         public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel UploadAssetsDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel UploadAssetsDeclinedEmailSettings { get; set; }
 
         public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
 
@@ -363,6 +365,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     PermissionRequestDeclinedEmailSettings.MergeWith(customEmailSettingsModel.PermissionRequestDeclinedEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.UploadAssetsDoneEmailSettings != null)
+            {
+                if (UploadAssetsDoneEmailSettings == null)
+                {
+                    UploadAssetsDoneEmailSettings = new EmailInstanceSettingsModel();
+                    UploadAssetsDoneEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDoneEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    UploadAssetsDoneEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDoneEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.UploadAssetsDeclinedEmailSettings != null)
+            {
+                if (UploadAssetsDeclinedEmailSettings == null)
+                {
+                    UploadAssetsDeclinedEmailSettings = new EmailInstanceSettingsModel();
+                    UploadAssetsDeclinedEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDeclinedEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    UploadAssetsDeclinedEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDeclinedEmailSettings, allowEmpty);
                 }
             }
 

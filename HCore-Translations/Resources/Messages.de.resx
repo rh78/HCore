@@ -843,6 +843,12 @@
   <data name="notification_uuid_invalid" xml:space="preserve">
     <value>Die Benachrichtigungs-UUID ist ungültig</value>
   </data>
+  <data name="file_uuid_missing" xml:space="preserve">
+    <value>Die Datei-UUID fehlt</value>
+  </data>
+  <data name="file_uuids_missing" xml:space="preserve">
+    <value>Die Datei-UUIDs fehlen</value>
+  </data>
   <data name="billing_type_invalid" xml:space="preserve">
     <value>Der Abrechnungsmodus ist ungültig</value>
   </data>

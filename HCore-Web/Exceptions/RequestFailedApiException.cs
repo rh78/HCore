@@ -217,6 +217,8 @@ namespace HCore.Web.Exceptions
         public const string LastUpdatedAtToBeforeLastUpdatedAtFrom = "last_updated_at_to_before_purchased_at_from";
         public const string NotificationUuidMissing = "notification_uuid_missing";
         public const string NotificationUuidInvalid = "notification_uuid_invalid";
+        public const string FileUuidMissing = "file_uuid_missing";
+        public const string FileUuidsMissing = "file_uuids_missing";
         public const string BillingTypeInvalid = "billing_type_invalid";
         public const string ClaimsPrincipalHasTooManyGroups = "claims_principal_has_too_many_groups";
         public const string CustomCssInvalid = "custom_css_invalid";
