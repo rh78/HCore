@@ -799,6 +799,24 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The file UUID is missing ähnelt.
+        /// </summary>
+        public static string file_uuid_missing {
+            get {
+                return ResourceManager.GetString("file_uuid_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The file UUIDs are missing ähnelt.
+        /// </summary>
+        public static string file_uuids_missing {
+            get {
+                return ResourceManager.GetString("file_uuids_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The filter value is invalid ähnelt.
         /// </summary>
         public static string filter_value_invalid {

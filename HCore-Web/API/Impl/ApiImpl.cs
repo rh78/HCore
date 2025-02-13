@@ -981,6 +981,27 @@ namespace HCore.Web.API.Impl
             return notificationUuids.Select(notificationUuid => ProcessNotificationUuid(notificationUuid)).ToHashSet();
         }
 
+        public static string ProcessFileUuid(string fileUuid)
+        {
+            fileUuid = fileUuid?.Trim();
+
+            if (string.IsNullOrEmpty(fileUuid))
+                throw new RequestFailedApiException(RequestFailedApiException.FileUuidMissing, "The file UUID is missing");
+
+            return fileUuid;
+        }
+
+        public static string[] ProcessFileUuids(ICollection<string> fileUuids)
+        {
+            if (fileUuids == null ||
+                !fileUuids.Any())
+            {
+                throw new RequestFailedApiException(RequestFailedApiException.FileUuidsMissing, "The file UUIDs are missing");
+            }
+
+            return fileUuids.Select(ProcessFileUuid).Distinct().ToArray();
+        }
+
         public static bool ProcessInvited(bool? invited)
         {
             return invited ?? false;

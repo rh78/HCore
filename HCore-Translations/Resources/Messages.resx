@@ -843,6 +843,12 @@
   <data name="notification_uuid_invalid" xml:space="preserve">
     <value>The notification UUID is invalid</value>
   </data>
+  <data name="file_uuid_missing" xml:space="preserve">
+    <value>The file UUID is missing</value>
+  </data>
+  <data name="file_uuids_missing" xml:space="preserve">
+    <value>The file UUIDs are missing</value>
+  </data>
   <data name="billing_type_invalid" xml:space="preserve">
     <value>The billing type is invalid</value>
   </data>
