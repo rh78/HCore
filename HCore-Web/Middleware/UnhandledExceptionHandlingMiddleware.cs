@@ -273,6 +273,8 @@ namespace HCore.Web.Middleware
             {
                 // we ARE already on the error page, use critical fallback URL
 
+                _logger.LogError($"Subsequent error redirects to critical fallback URL: {resultException}");
+
                 context.Response.Redirect(_criticalFallbackUrl);
 
                 return;
