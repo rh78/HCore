@@ -110,6 +110,16 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public Task<string> UploadChunkFromStreamAsync(string containerName, string fileName, long blockId, long blockStart, Stream blockStream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> FinalizeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, bool overwriteIfExists, string downloadFileName = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);
