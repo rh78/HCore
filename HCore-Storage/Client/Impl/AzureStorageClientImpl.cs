@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 using HCore.Storage.Exceptions;
 using HCore.Storage.Models;
@@ -8,9 +9,10 @@ using HCore.Web.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Mime;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HCore.Storage.Client.Impl
@@ -33,6 +35,36 @@ namespace HCore.Storage.Client.Impl
                 var blobClient = containerClient.GetBlobClient(fileName);
 
                 await blobClient.DownloadToAsync(stream).ConfigureAwait(false);
+            }
+            catch (RequestFailedException requestFailedException)
+            {
+                var statusCode = requestFailedException.Status;
+
+                if (statusCode == (int)HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (statusCode == (int)HttpStatusCode.Forbidden ||
+                    statusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        public async Task<Stream> OpenReadAsync(string containerName, string fileName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                return await blobClient.OpenReadAsync().ConfigureAwait(false);
             }
             catch (RequestFailedException requestFailedException)
             {
@@ -84,6 +116,127 @@ namespace HCore.Storage.Client.Impl
                     throw;
                 }
             }
+        }
+
+        public async Task<string> UploadChunkFromStreamAsync(string containerName, string fileName, long blockId, long blockStart, Stream blockStream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            var blockBlobClient = containerClient.GetBlockBlobClient(fileName);
+
+            if (blockStart == 0)
+            {
+                if (overwriteIfExists)
+                {
+                    await blockBlobClient.DeleteIfExistsAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    bool alreadyExists = await blockBlobClient.ExistsAsync().ConfigureAwait(false);
+
+                    if (alreadyExists)
+                    {
+                        if (!overwriteIfExists)
+                        {
+                            throw new AlreadyExistsException();
+                        }
+                    }
+                }
+            }
+
+            Progress<long> innerProgressHandler = null;
+
+            if (progressHandler != null)
+            {
+                innerProgressHandler = new Progress<long>();
+
+                innerProgressHandler.ProgressChanged += (sender, bytesTransferred) =>
+                {
+                    progressHandler.Report(bytesTransferred);
+                };
+            }
+
+            var blockBlobStageBlockOptions = new BlockBlobStageBlockOptions()
+            {
+                ProgressHandler = innerProgressHandler
+            };
+
+            var blockIdString = $"{blockId:00000000000000000000}";
+
+            blockIdString = Convert.ToBase64String(Encoding.UTF8.GetBytes(blockIdString));
+
+            await blockBlobClient.StageBlockAsync(blockIdString, blockStream, blockBlobStageBlockOptions).ConfigureAwait(false);
+
+            return blockIdString;
+        }
+
+        public async Task<string> FinalizeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, bool overwriteIfExists, string downloadFileName = null)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            var blockBlobClient = containerClient.GetBlockBlobClient(fileName);
+
+            if (overwriteIfExists)
+            {
+                await blockBlobClient.DeleteIfExistsAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                bool alreadyExists = await blockBlobClient.ExistsAsync().ConfigureAwait(false);
+
+                if (alreadyExists)
+                {
+                    if (!overwriteIfExists)
+                    {
+                        throw new AlreadyExistsException();
+                    }
+                }
+            }
+
+            var blobHttpHeaders = new BlobHttpHeaders();
+
+            blobHttpHeaders.ContentType = mimeType;
+
+            if (!string.IsNullOrEmpty(downloadFileName))
+            {
+                var contentDispositionHeader = new ContentDispositionHeaderValue("attachment") { FileName = downloadFileName };
+
+                blobHttpHeaders.ContentDisposition = contentDispositionHeader.ToString();
+            }
+
+            var metadata = new Dictionary<string, string>();
+
+            if (additionalHeaders != null)
+            {
+                foreach (var key in additionalHeaders.Keys)
+                {
+                    metadata[key] = additionalHeaders[key];
+                }
+            }
+
+            var commitBlockListOptions = new CommitBlockListOptions()
+            {
+                HttpHeaders = blobHttpHeaders,
+                Metadata = metadata
+            };
+
+            if (!overwriteIfExists)
+            {
+                commitBlockListOptions.Conditions = new BlobRequestConditions
+                {
+                    IfNoneMatch = new ETag("*")
+                };
+            }
+
+            var blockIdStrings = blockIds.Select(blockId => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{blockId:00000000000000000000}"))).ToList();
+
+            await blockBlobClient.CommitBlockListAsync(blockIdStrings, commitBlockListOptions).ConfigureAwait(false);
+
+            return blockBlobClient.Uri.AbsoluteUri;
         }
 
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
