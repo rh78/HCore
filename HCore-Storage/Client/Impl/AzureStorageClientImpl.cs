@@ -56,6 +56,36 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public async Task<Stream> OpenReadAsync(string containerName, string fileName)
+        {
+            try
+            {
+                var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+                var blobClient = containerClient.GetBlobClient(fileName);
+
+                return await blobClient.OpenReadAsync().ConfigureAwait(false);
+            }
+            catch (RequestFailedException requestFailedException)
+            {
+                var statusCode = requestFailedException.Status;
+
+                if (statusCode == (int)HttpStatusCode.NotFound)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileNotFound, "The file was not found");
+                }
+                else if (statusCode == (int)HttpStatusCode.Forbidden ||
+                    statusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    throw new ExternalServiceApiException(ExternalServiceApiException.CloudStorageFileAccessDenied, "Access to the file was denied");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
         {
             try

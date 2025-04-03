@@ -74,6 +74,11 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
+        public Task<Stream> OpenReadAsync(string containerName, string fileName)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
         {
             var credential = GoogleCredential.FromJson(_credentialsJson);

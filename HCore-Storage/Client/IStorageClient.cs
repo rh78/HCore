@@ -9,6 +9,7 @@ namespace HCore.Storage.Client
     public interface IStorageClient
     {
         Task DownloadToStreamAsync(string containerName, string fileName, Stream stream);
+        Task<Stream> OpenReadAsync(string containerName, string fileName);
 
         Task<string> UploadChunkFromStreamAsync(string containerName, string fileName, long blockId, long blockStart, Stream blockStream, bool overwriteIfExists, IProgress<long> progressHandler = null);
         Task<string> FinalizeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, bool overwriteIfExists, string downloadFileName = null);
