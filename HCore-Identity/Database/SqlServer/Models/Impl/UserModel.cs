@@ -69,6 +69,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
         [MaxLength(Web.API.Impl.ApiImpl.MaxExternalUuidLength)]
         public string ExternalUuid { get; set; }
 
+        public DateTimeOffset? LastLoginAt { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
