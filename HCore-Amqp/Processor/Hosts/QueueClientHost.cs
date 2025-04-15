@@ -69,7 +69,7 @@ namespace HCore.Amqp.Processor.Hosts
                     {
                         MaxConcurrentCalls = _amqpListenerCount,
                         AutoCompleteMessages = false,
-                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2)
+                        MaxAutoLockRenewalDuration = TimeSpan.FromDays(1)
                     });
 
                     _serviceBusProcessor.ProcessMessageAsync += ProcessMessageAsync;
@@ -83,7 +83,7 @@ namespace HCore.Amqp.Processor.Hosts
                     {
                         MaxConcurrentSessions = _amqpListenerCount,
                         AutoCompleteMessages = false,
-                        MaxAutoLockRenewalDuration = TimeSpan.FromHours(2),
+                        MaxAutoLockRenewalDuration = TimeSpan.FromDays(1),
                         SessionIdleTimeout = TimeSpan.FromSeconds(1)
                     });
 
