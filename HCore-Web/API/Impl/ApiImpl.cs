@@ -789,6 +789,16 @@ namespace HCore.Web.API.Impl
             return externalUserGroupIdentifier;
         }
 
+        public static bool ProcessIsAutoAssign(bool? isAutoAssign)
+        {
+            return isAutoAssign ?? false;
+        }
+
+        public static bool ProcessBlockAutoAssign(bool? blockAutoAssign)
+        {
+            return blockAutoAssign ?? false;
+        }
+
         public static HashSet<string> ProcessExternalUserGroupIdentifiers(List<string> externalUserGroupIdentifiers)
         {
             if (externalUserGroupIdentifiers == null || externalUserGroupIdentifiers.Count == 0)
