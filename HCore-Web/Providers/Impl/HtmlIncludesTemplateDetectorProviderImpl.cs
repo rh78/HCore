@@ -14,6 +14,8 @@ namespace HCore.Web.Providers.Impl
 
         private readonly IWebHostEnvironment _hostEnvironment;
 
+        private readonly IHtmlIncludesProviderPathProvider _htmlIncludesProviderPathProvider;
+
         private readonly IHtmlIncludesProvider _defaultIncludeProvider;
 
         private readonly IHtmlTemplateFileIncludesProviderCustomProcessor _htmlTemplateFileIncludesProviderCustomProcessor;
@@ -29,6 +31,7 @@ namespace HCore.Web.Providers.Impl
             _hostEnvironment = hostingEnvironment;
             _configuration = configuration;
 
+            _htmlIncludesProviderPathProvider = serviceProvider.GetService<IHtmlIncludesProviderPathProvider>();
             _htmlTemplateFileIncludesProviderCustomProcessor = serviceProvider.GetService<IHtmlTemplateFileIncludesProviderCustomProcessor>();
 
             // default provider will set its "Applies" property to "False", as the file is "null"
@@ -39,14 +42,28 @@ namespace HCore.Web.Providers.Impl
 
         public IHtmlIncludesProvider HtmlIncludesProviderForRequest(HttpContext context)
         {
+            IHtmlIncludesProvider defaultIncludeProvider;
+
             // check parameter
+
             if (context == null)
             {
                 return _defaultIncludeProvider;
             }
 
+            string path;
+
+            if (_htmlIncludesProviderPathProvider != null)
+            {
+                path = _htmlIncludesProviderPathProvider.GetHtmlIncludesProviderPath(context);
+            }
+            else
+            {
+                path = context.Request?.Path.Value;
+            }
+
             // try URL path at first
-            var htmlTemplateProvider = GetHtmlIncludesProviderForPath(context.Request?.Path.Value);
+            var htmlTemplateProvider = GetHtmlIncludesProviderForPath(path);
             if (htmlTemplateProvider != null)
             {
                 return htmlTemplateProvider;
@@ -101,6 +118,12 @@ namespace HCore.Web.Providers.Impl
                     // map ECB to root for account UI
 
                     _htmlIncludeProviders.Add(filePath.Replace("/ecb", ""), new HtmlTemplateFileIncludesProviderImpl(fullPath, _htmlTemplateFileIncludesProviderCustomProcessor));
+                }
+                else if (filePath.StartsWith("/app"))
+                {
+                    // map Portals-FE-Portals to root
+
+                    _htmlIncludeProviders.Add(filePath.Replace("/app", ""), new HtmlTemplateFileIncludesProviderImpl(fullPath, _htmlTemplateFileIncludesProviderCustomProcessor));
                 }
             }
         }
