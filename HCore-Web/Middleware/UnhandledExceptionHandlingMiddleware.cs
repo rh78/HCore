@@ -10,6 +10,7 @@ using HCore.Translations.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
 using System.Linq;
+using Microsoft.Net.Http.Headers;
 
 namespace HCore.Web.Middleware
 {
@@ -121,6 +122,8 @@ namespace HCore.Web.Middleware
 
                 if (!string.Equals(path, e.Location))
                 {
+                    WriteNoCache(context);
+
                     context.Response.Redirect(e.Location);
                 }
 
@@ -162,6 +165,20 @@ namespace HCore.Web.Middleware
             }                           
         }
 
+        private void WriteNoCache(HttpContext context)
+        {
+            try
+            {
+                context.Response.Headers[HeaderNames.CacheControl] = "no-cache, no-store, must-revalidate";
+                context.Response.Headers[HeaderNames.Pragma] = "no-cache";
+                context.Response.Headers[HeaderNames.Expires] = "0";
+            }
+            catch
+            {
+                // ignore
+            }
+        }
+
         private bool MaintenanceMode(HttpContext context)
         {
             if (_maintenanceMode != true)
@@ -182,6 +199,8 @@ namespace HCore.Web.Middleware
             }
 
             var redirectUrl = $"/Error?errorCode=maintenance_mode";
+
+            WriteNoCache(context);
 
             context.Response.Redirect(redirectUrl);
 
@@ -225,6 +244,8 @@ namespace HCore.Web.Middleware
 
                 var redirectUrl = $"/Error?errorCode=ie11_and_lower_not_supported";
 
+                WriteNoCache(context);
+
                 context.Response.Redirect(redirectUrl);
 
                 return true;
@@ -245,6 +266,8 @@ namespace HCore.Web.Middleware
             {
                 // redirect to the tenant selector
 
+                WriteNoCache(context);
+
                 context.Response.Redirect(_tenantSelectorFallbackUrl);
 
                 return;
@@ -261,6 +284,8 @@ namespace HCore.Web.Middleware
                     redirectUrl = GetRedirectUrl(resultException);
                 }
 
+                WriteNoCache(context);
+
                 await resultException.WriteResponseAsync(context, redirectUrl).ConfigureAwait(false);
 
                 return;
@@ -275,12 +300,16 @@ namespace HCore.Web.Middleware
 
                 _logger.LogError($"Subsequent error redirects to critical fallback URL: {resultException}");
 
+                WriteNoCache(context);
+
                 context.Response.Redirect(_criticalFallbackUrl);
 
                 return;
             }
 
             redirectUrl = GetRedirectUrl(resultException);
+
+            WriteNoCache(context);
 
             context.Response.Redirect(redirectUrl);
         }
