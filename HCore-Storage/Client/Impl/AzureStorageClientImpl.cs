@@ -118,7 +118,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadChunkFromStreamAsync(string containerName, string fileName, long blockId, long blockStart, Stream blockStream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        public async Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 
@@ -126,25 +126,33 @@ namespace HCore.Storage.Client.Impl
 
             var blockBlobClient = containerClient.GetBlockBlobClient(fileName);
 
-            if (blockStart == 0)
+            if (overwriteIfExists)
             {
-                if (overwriteIfExists)
-                {
-                    await blockBlobClient.DeleteIfExistsAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    bool alreadyExists = await blockBlobClient.ExistsAsync().ConfigureAwait(false);
+                await blockBlobClient.DeleteIfExistsAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                bool alreadyExists = await blockBlobClient.ExistsAsync().ConfigureAwait(false);
 
-                    if (alreadyExists)
+                if (alreadyExists)
+                {
+                    if (!overwriteIfExists)
                     {
-                        if (!overwriteIfExists)
-                        {
-                            throw new AlreadyExistsException();
-                        }
+                        throw new AlreadyExistsException();
                     }
                 }
             }
+
+            return null;
+        }
+
+        public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long blockId, Stream blockStream, IProgress<long> progressHandler = null)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(false);
+
+            var blockBlobClient = containerClient.GetBlockBlobClient(fileName);
 
             Progress<long> innerProgressHandler = null;
 
@@ -172,7 +180,7 @@ namespace HCore.Storage.Client.Impl
             return blockIdString;
         }
 
-        public async Task<string> FinalizeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, bool overwriteIfExists, string downloadFileName = null)
+        public async Task<string> FinalizeChunksAsync(string containerName, string externalId, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, List<string> eTags, bool overwriteIfExists, string downloadFileName = null)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
 

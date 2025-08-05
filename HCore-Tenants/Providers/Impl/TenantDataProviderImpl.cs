@@ -128,7 +128,7 @@ namespace HCore.Tenants.Providers.Impl
                         string storageImplementation = developerModel.StorageImplementation;
                         if (!string.IsNullOrEmpty(storageImplementation))
                         {
-                            if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                            if (!storageImplementation.Equals(StorageConstants.StorageImplementationAws) && !storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
                                 throw new Exception("The developer storage implementation specification is invalid");
 
                             if (string.IsNullOrEmpty(developerModel.StorageConnectionString))
@@ -438,7 +438,7 @@ namespace HCore.Tenants.Providers.Impl
 
             if (!string.IsNullOrEmpty(storageImplementation))
             {
-                if (!storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
+                if (!storageImplementation.Equals(StorageConstants.StorageImplementationAws) && !storageImplementation.Equals(StorageConstants.StorageImplementationAzure) && !storageImplementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
                     throw new Exception("The tenant storage implementation specification is invalid");
 
                 storageConnectionString = tenantModel.StorageConnectionString;
