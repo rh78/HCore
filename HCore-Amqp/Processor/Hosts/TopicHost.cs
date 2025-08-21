@@ -8,8 +8,8 @@ namespace HCore.Amqp.Processor.Hosts
 {
     internal class TopicHost : ActiveMqHost
     {
-        internal TopicHost(int listenersCount, string address, bool isSession, ActiveMqMessengerImpl activeMqMessengerImpl, IConnection connection, CancellationToken cancellationToken, ILogger<ActiveMqMessengerImpl> logger)
-            : base(listenersCount, address, isSession, activeMqMessengerImpl, connection, cancellationToken, logger)
+        internal TopicHost(int listenersCount, string address, bool isSession, ActiveMqMessengerImpl activeMqMessengerImpl, CancellationToken cancellationToken, ILogger<ActiveMqMessengerImpl> logger)
+            : base(listenersCount, address, isSession, activeMqMessengerImpl, cancellationToken, logger)
         {
         }
 

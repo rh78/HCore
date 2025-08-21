@@ -31,8 +31,6 @@ namespace HCore.Amqp.Processor.Hosts
 
         private readonly ActiveMqMessengerImpl _activeMqMessengerImpl;
 
-        private readonly IConnection _connection;
-
         private readonly CancellationToken _producerCancellationToken;
 
         private readonly ILogger<ActiveMqMessengerImpl> _logger;
@@ -41,24 +39,21 @@ namespace HCore.Amqp.Processor.Hosts
         private readonly ICollection<IDestination> _destinations = [];
         private readonly ICollection<IMessageConsumer> _messageConsumers = [];
 
+        private IConnection _connection;
         private ISession _producerSession;
         private IMessageProducer _messageProducer;
 
         private bool _consumersStopped;
 
-        internal ActiveMqHost(int listenersCount, string address, bool isSession, ActiveMqMessengerImpl activeMqMessengerImpl, IConnection connection, CancellationToken cancellationToken, ILogger<ActiveMqMessengerImpl> logger)
+        internal ActiveMqHost(int listenersCount, string address, bool isSession, ActiveMqMessengerImpl activeMqMessengerImpl, CancellationToken cancellationToken, ILogger<ActiveMqMessengerImpl> logger)
         {
             _listenersCount = listenersCount;
-
-            // https://activemq.apache.org/components/classic/documentation/exclusive-consumer
 
             _address = address;
 
             _isSession = isSession;
 
             _activeMqMessengerImpl = activeMqMessengerImpl;
-
-            _connection = connection;
 
             _producerCancellationToken = cancellationToken;
 
@@ -72,6 +67,10 @@ namespace HCore.Amqp.Processor.Hosts
             try
             {
                 await CloseAsync().ConfigureAwait(false);
+
+                _connection = await _activeMqMessengerImpl.GetConnectionAsync().ConfigureAwait(false);
+
+                await _connection.StartAsync().ConfigureAwait(false);
 
                 _producerSession = await GetSessionInternallyAsync(AcknowledgementMode.AutoAcknowledge).ConfigureAwait(false);
 
@@ -88,8 +87,6 @@ namespace HCore.Amqp.Processor.Hosts
                         var destination = await GetDestinationInternallyAsync(session).ConfigureAwait(false);
 
                         var messageConsumer = await GetMessageConsumerInternallyAsync(session, destination).ConfigureAwait(false);
-
-                        // fire and forget
 
                         _ = Task.Run(async () => await ProcessMessageAsync(session, messageConsumer).ConfigureAwait(false));
                     }
@@ -470,6 +467,14 @@ namespace HCore.Amqp.Processor.Hosts
                     _sessions.Clear();
 
                     _producerSession = null;
+                }
+
+                if (_connection != null)
+                {
+                    await _connection.CloseAsync().ConfigureAwait(false);
+
+                    _connection.Dispose();
+                    _connection = null;
                 }
             }
             finally

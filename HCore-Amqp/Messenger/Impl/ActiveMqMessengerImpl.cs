@@ -36,9 +36,12 @@ namespace HCore.Amqp.Messenger.Impl
 
         private readonly ILogger<ActiveMqMessengerImpl> _logger;
 
-        private int _openTasks = 0;
+        private readonly ConnectionFactory _connectionFactory;
 
-        private IConnection _connection;
+        private readonly string _userName;
+        private readonly string _password;
+
+        private int _openTasks = 0;
 
         public ActiveMqMessengerImpl(string connectionString, string[] addresses, int[] addressListenerCount, bool[] isSessions, IAMQPMessageProcessor messageProcessor, ILogger<ActiveMqMessengerImpl> logger)
             : this(connectionString, addresses, topicAddresses: [], addressListenerCount, topicAddressListenerCount: [], isSessions, [], messageProcessor, logger)
@@ -71,11 +74,6 @@ namespace HCore.Amqp.Messenger.Impl
             _messageProcessor = messageProcessor;
 
             _logger = logger;
-        }
-
-        public async Task InitializeAsync()
-        {
-            Console.WriteLine("Initializing AMQP...");
 
             if (!Uri.TryCreate(_connectionString, UriKind.Absolute, out var connectionStringUri) || string.IsNullOrEmpty(connectionStringUri.UserInfo))
             {
@@ -99,7 +97,7 @@ namespace HCore.Amqp.Messenger.Impl
             // https://activemq.apache.org/components/classic/documentation/consumer-dispatch-async
             // using default behavior (AsyncSend = false; DispatchAsync = true)
 
-            var connectionFactory = new ConnectionFactory(brokerUri)
+            _connectionFactory = new ConnectionFactory(brokerUri)
             {
                 AsyncSend = false,
                 DispatchAsync = true,
@@ -110,12 +108,13 @@ namespace HCore.Amqp.Messenger.Impl
                 }
             };
 
-            var userName = userInfoParts[0];
-            var password = userInfoParts[1];
+            _userName = userInfoParts[0];
+            _password = userInfoParts[1];
+        }
 
-            _connection = await connectionFactory.CreateConnectionAsync(userName, password).ConfigureAwait(false);
-
-            await _connection.StartAsync().ConfigureAwait(false);
+        public async Task InitializeAsync()
+        {
+            Console.WriteLine("Initializing AMQP...");
 
             for (int i = 0; i < _addresses.Length; i++)
             {
@@ -138,9 +137,14 @@ namespace HCore.Amqp.Messenger.Impl
             Console.WriteLine($"AMQP initialized successfully");
         }
 
+        internal Task<IConnection> GetConnectionAsync()
+        {
+            return _connectionFactory.CreateConnectionAsync(_userName, _password);
+        }
+
         private async Task AddQueueClientAsync(int listenersCount, string address, bool isSession)
         {
-            var queueHost = new QueueHost(listenersCount, address, isSession, this, _connection, _cancellationToken, _logger);
+            var queueHost = new QueueHost(listenersCount, address, isSession, this, _cancellationToken, _logger);
 
             _queueHostsByAddress.Add(address, queueHost);
 
@@ -149,7 +153,7 @@ namespace HCore.Amqp.Messenger.Impl
 
         private async Task AddTopicClientAsync(int listenersCount, string address, bool isTopicSession)
         {
-            var topicHost = new TopicHost(listenersCount, address, isTopicSession, this, _connection, _cancellationToken, _logger);
+            var topicHost = new TopicHost(listenersCount, address, isTopicSession, this, _cancellationToken, _logger);
 
             _topicHostsByAddress.Add(address, topicHost);
 
@@ -264,7 +268,7 @@ namespace HCore.Amqp.Messenger.Impl
 
         public Task<bool?> IsAvailableAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(_connection?.IsStarted);
+            return Task.FromResult<bool?>(true);
         }
 
         public async Task ShutdownReceiversAsync()
@@ -315,13 +319,6 @@ namespace HCore.Amqp.Messenger.Impl
                 foreach (var topicHost in _topicHostsByAddress.Values)
                 {
                     await topicHost.CloseAsync().ConfigureAwait(false);
-                }
-
-                if (_connection != null)
-                {
-                    await _connection.CloseAsync().ConfigureAwait(false);
-
-                    _connection = null;
                 }
             }
             catch (Exception)
