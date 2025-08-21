@@ -197,11 +197,7 @@ namespace HCore.Amqp.Processor.Hosts
                         break;
                     }
 
-                    _logger.LogError($"Critical exception during processing AMQP message: {nmsException}");
-
-                    await InitializeAsync().ConfigureAwait(false);
-
-                    break;
+                    _logger.LogError($"NMS exception during processing AMQP message: {nmsException}");
                 }
                 catch (RescheduleException)
                 {
