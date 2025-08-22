@@ -120,7 +120,7 @@ namespace HCore.Storage.Client.Impl
             throw new NotImplementedException();
         }
 
-        public Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long blockId, Stream stream, IProgress<long> progressHandler = null)
+        public Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long blockId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
             throw new NotImplementedException();
         }

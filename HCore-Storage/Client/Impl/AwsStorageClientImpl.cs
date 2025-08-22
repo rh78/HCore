@@ -139,7 +139,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, Stream stream, IProgress<long> progressHandler = null)
+        public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
             using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
 

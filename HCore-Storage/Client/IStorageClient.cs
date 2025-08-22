@@ -12,7 +12,7 @@ namespace HCore.Storage.Client
         Task<Stream> OpenReadAsync(string containerName, string fileName);
 
         Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null);
-        Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, Stream stream, IProgress<long> progressHandler = null);
+        Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null);
         Task<string> FinalizeChunksAsync(string containerName, string externalId, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> chunkIds, List<string> eTags, bool overwriteIfExists, string downloadFileName = null);
 
         Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null);
