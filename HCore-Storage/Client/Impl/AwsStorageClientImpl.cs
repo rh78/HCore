@@ -12,7 +12,6 @@ using HCore.Storage.Exceptions;
 using HCore.Storage.Helpers;
 using HCore.Storage.Models;
 using HCore.Storage.Models.AwsStorage;
-using HCore.Storage.Streams;
 using HCore.Web.Exceptions;
 using Newtonsoft.Json;
 
@@ -71,7 +70,7 @@ namespace HCore.Storage.Client.Impl
 
             var getObjectResponse = await GetObjectResponseAsync(amazonS3, containerName, fileName, required: true).ConfigureAwait(false);
 
-            return new S3SeekableStream(getObjectResponse.ResponseStream, getObjectResponse.ContentLength);
+            return getObjectResponse.ResponseStream;
         }
 
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
