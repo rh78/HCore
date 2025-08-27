@@ -11,37 +11,37 @@ using Amazon.S3.Transfer;
 using HCore.Storage.Exceptions;
 using HCore.Storage.Helpers;
 using HCore.Storage.Models;
-using HCore.Storage.Models.AwsStorage;
 using HCore.Web.Exceptions;
-using Newtonsoft.Json;
 
 namespace HCore.Storage.Client.Impl
 {
-    public class AwsStorageClientImpl : IStorageClient
+    public class AwsStorageClientImpl : IStorageClient, IDisposable
     {
         private const int _defaultPageSize = 1000;
 
-        private readonly IDictionary<string, string> _connectionInfoByKey;
+        private readonly IAmazonS3 _amazonS3;
+
+        private bool _disposed;
 
         public AwsStorageClientImpl(string connectionString)
         {
-            _connectionInfoByKey = AwsHelpers.GetConnectionInfoByKey(connectionString);
+            var connectionInfoByKey = AwsHelpers.GetConnectionInfoByKey(connectionString);
+
+            _amazonS3 = AwsHelpers.GetAmazonS3(connectionInfoByKey);
         }
 
         public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            using var getObjectResponse = await GetObjectResponseAsync(amazonS3, containerName, fileName, required: true).ConfigureAwait(false);
+            using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             await getObjectResponse.ResponseStream.CopyToAsync(stream).ConfigureAwait(false);
         }
 
-        private static async Task<GetObjectResponse> GetObjectResponseAsync(IAmazonS3 amazonS3, string containerName, string fileName, bool required)
+        private async Task<GetObjectResponse> GetObjectResponseAsync(string containerName, string fileName, bool required)
         {
             try
             {
-                return await amazonS3.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+                return await _amazonS3.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -66,29 +66,23 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<Stream> OpenReadAsync(string containerName, string fileName)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            var getObjectResponse = await GetObjectResponseAsync(amazonS3, containerName, fileName, required: true).ConfigureAwait(false);
+            var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ResponseStream;
         }
 
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            using var getObjectResponse = await GetObjectResponseAsync(amazonS3, containerName, fileName, required: true).ConfigureAwait(false);
+            using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ContentLength;
         }
 
         public async Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
+            await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await CreateContainerAsync(amazonS3, containerName, isPublic: false).ConfigureAwait(false);
-
-            await HandleExistingObjectAsync(amazonS3, containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
 
             var initiateMultipartUploadRequest = new InitiateMultipartUploadRequest
             {
@@ -115,20 +109,20 @@ namespace HCore.Storage.Client.Impl
                 }
             }
 
-            var initiateMultipartUploadResponse = await amazonS3.InitiateMultipartUploadAsync(initiateMultipartUploadRequest).ConfigureAwait(false);
+            var initiateMultipartUploadResponse = await _amazonS3.InitiateMultipartUploadAsync(initiateMultipartUploadRequest).ConfigureAwait(false);
 
             return initiateMultipartUploadResponse.UploadId;
         }
 
-        private static async Task HandleExistingObjectAsync(IAmazonS3 amazonS3, string bucketName, string key, bool overwriteIfExists)
+        private async Task HandleExistingObjectAsync(string containerName, string fileName, bool overwriteIfExists)
         {
             if (overwriteIfExists)
             {
-                await DeleteObjectAsync(amazonS3, bucketName, key).ConfigureAwait(false);
+                await DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
             }
             else
             {
-                using var getObjectResponse = await GetObjectResponseAsync(amazonS3, bucketName, key, required: false).ConfigureAwait(false);
+                using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: false).ConfigureAwait(false);
 
                 if (getObjectResponse != null && !overwriteIfExists)
                 {
@@ -139,8 +133,6 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
             var uploadPartRequest = new UploadPartRequest()
             {
                 BucketName = containerName,
@@ -158,25 +150,28 @@ namespace HCore.Storage.Client.Impl
                 };
             }
 
-            var uploadPartResponse = await amazonS3.UploadPartAsync(uploadPartRequest).ConfigureAwait(false);
+            var uploadPartResponse = await _amazonS3.UploadPartAsync(uploadPartRequest).ConfigureAwait(false);
 
             return uploadPartResponse.ETag;
         }
 
         public async Task<string> FinalizeChunksAsync(string containerName, string externalId, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> chunkIds, List<string> eTags, bool overwriteIfExists, string downloadFileName = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
+            if (chunkIds.Count != eTags.Count)
+            {
+                throw new ArgumentException("chunkIds and eTags must have the same count");
+            }
 
-            await CreateContainerAsync(amazonS3, containerName, isPublic: false).ConfigureAwait(false);
+            await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await HandleExistingObjectAsync(amazonS3, containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
 
             var partETags = new List<PartETag>();
 
             for (int i = 0; i < chunkIds.Count; i++)
             {
-                var chunkId = (int)chunkIds.ElementAt(i);
-                var eTag = eTags.ElementAt(i);
+                var chunkId = (int)chunkIds[i];
+                var eTag = eTags[i];
 
                 var partETag = new PartETag(chunkId, eTag);
 
@@ -196,30 +191,18 @@ namespace HCore.Storage.Client.Impl
                 completeMultipartUploadRequest.IfNoneMatch = "*";
             }
 
-            var completeMultipartUploadResponse = await amazonS3.CompleteMultipartUploadAsync(completeMultipartUploadRequest).ConfigureAwait(false);
+            var completeMultipartUploadResponse = await _amazonS3.CompleteMultipartUploadAsync(completeMultipartUploadRequest).ConfigureAwait(false);
 
-            var absoluteUrl = GetAbsoluteUrl(amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
 
             return absoluteUrl;
         }
 
-        private static string GetAbsoluteUrl(IAmazonS3 amazonS3, string containerName, string fileName)
-        {
-            var uriBuilder = new UriBuilder(Uri.UriSchemeHttps, hostName: $"{containerName}.s3.{amazonS3.Config.RegionEndpoint.SystemName}.amazonaws.com")
-            {
-                Path = Uri.EscapeDataString(fileName)
-            };
-
-            return uriBuilder.ToString();
-        }
-
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
+            await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await CreateContainerAsync(amazonS3, containerName, isPublic: false).ConfigureAwait(false);
-
-            await HandleExistingObjectAsync(amazonS3, containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
 
             var transferUtilityUploadRequest = new TransferUtilityUploadRequest
             {
@@ -260,20 +243,18 @@ namespace HCore.Storage.Client.Impl
                 transferUtilityUploadRequest.IfNoneMatch = "*";
             }
 
-            using var transferUtility = new TransferUtility(amazonS3);
+            using var transferUtility = new TransferUtility(_amazonS3);
 
             await transferUtility.UploadAsync(transferUtilityUploadRequest);
 
-            var absoluteUrl = GetAbsoluteUrl(amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
 
             return absoluteUrl;
         }
 
         public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            await CreateContainerAsync(amazonS3, containerName, isPublic: containerIsPublic).ConfigureAwait(false);
+            await CreateContainerAsync(containerName, isPublic: containerIsPublic).ConfigureAwait(false);
 
             var transferUtilityUploadRequest = new TransferUtilityUploadRequest()
             {
@@ -309,173 +290,27 @@ namespace HCore.Storage.Client.Impl
                 };
             }
 
-            using var transferUtility = new TransferUtility(amazonS3);
+            using var transferUtility = new TransferUtility(_amazonS3);
 
             await transferUtility.UploadAsync(transferUtilityUploadRequest);
 
-            var absoluteUrl = GetAbsoluteUrl(amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
 
             return absoluteUrl;
         }
 
-        public async Task CreateContainerAsync(string containerName, bool isPublic)
+        public Task CreateContainerAsync(string containerName, bool isPublic)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            await CreateContainerAsync(amazonS3, containerName, isPublic);
-        }
-
-        private static async Task CreateContainerAsync(IAmazonS3 amazonS3, string containerName, bool isPublic)
-        {
-            GetBucketLocationResponse getBucketLocationResponse = null;
-
-            try
-            {
-                getBucketLocationResponse = await amazonS3.GetBucketLocationAsync(containerName).ConfigureAwait(false);
-            }
-            catch (AmazonS3Exception amazonS3Exception)
-            {
-                if (amazonS3Exception.StatusCode != HttpStatusCode.NotFound)
-                {
-                    throw;
-                }
-            }
-
-            if (getBucketLocationResponse == null)
-            {
-                var putBucketRequest = new PutBucketRequest
-                {
-                    BucketName = containerName
-                };
-
-                await amazonS3.PutBucketAsync(putBucketRequest).ConfigureAwait(false);
-
-                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
-
-                var putPublicAccessBlockRequest = new PutPublicAccessBlockRequest
-                {
-                    BucketName = containerName,
-                    PublicAccessBlockConfiguration = new PublicAccessBlockConfiguration
-                    {
-                        BlockPublicAcls = false,
-                        IgnorePublicAcls = false,
-                        BlockPublicPolicy = false,
-                        RestrictPublicBuckets = false
-                    }
-                };
-
-                await amazonS3.PutPublicAccessBlockAsync(putPublicAccessBlockRequest).ConfigureAwait(false);
-            }
-
-            if (isPublic)
-            {
-                var isBucketPublic = await IsBucketPublicAsync(amazonS3, containerName).ConfigureAwait(false);
-
-                if (!isBucketPublic)
-                {
-                    // https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteAccessPermissionsReqd.html
-
-                    var bucketPolicyModel = new BucketPolicyModel
-                    {
-                        Version = "2012-10-17",
-                        Statement =
-                        [
-                            new BucketPolicyStatementModel()
-                            {
-                                Sid = "PublicReadGetObject",
-                                Effect = "Allow",
-                                Principal = "*",
-                                Action = "s3:GetObject",
-                                Resource = $"arn:aws:s3:::{containerName}/*"
-                            }
-                        ]
-                    };
-
-                    var policy = JsonConvert.SerializeObject(bucketPolicyModel);
-
-                    var putBucketPolicyRequest = new PutBucketPolicyRequest
-                    {
-                        BucketName = containerName,
-                        Policy = policy
-                    };
-
-                    await amazonS3.PutBucketPolicyAsync(putBucketPolicyRequest).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static async Task<bool> IsBucketPublicAsync(IAmazonS3 amazonS3, string containerName)
-        {
-            var getBucketPolicyResponse = await amazonS3.GetBucketPolicyAsync(containerName).ConfigureAwait(false);
-
-            if (string.IsNullOrEmpty(getBucketPolicyResponse.Policy))
-            {
-                return false;
-            }
-
-            var bucketPolicyModel = JsonConvert.DeserializeObject<BucketPolicyModel>(getBucketPolicyResponse.Policy);
-
-            if (bucketPolicyModel == null ||
-                bucketPolicyModel.Statement == null)
-            {
-                return false;
-            }
-
-            foreach (var bucketPolicyStatementModel in bucketPolicyModel.Statement)
-            {
-                if (!string.Equals(bucketPolicyStatementModel.Effect, "Allow"))
-                {
-                    continue;
-                }
-
-                var isPublicPrincipal = false;
-
-                if (bucketPolicyStatementModel.Principal is string principal)
-                {
-                    isPublicPrincipal = string.Equals(principal, "*");
-
-                }
-                else if (bucketPolicyStatementModel.Principal is IDictionary<string, object> principalDict)
-                {
-                    isPublicPrincipal = principalDict.TryGetValue("AWS", out var aws) &&
-                        aws != null &&
-                        string.Equals(aws.ToString(), "*");
-                }
-
-                if (!isPublicPrincipal)
-                {
-                    continue;
-                }
-
-                var hasGetObject = false;
-
-                if (bucketPolicyStatementModel.Action is string action)
-                {
-                    hasGetObject = string.Equals(action, "s3:GetObject");
-                }
-                else if (bucketPolicyStatementModel.Action is IEnumerable<object> actions)
-                {
-                    hasGetObject = actions.Contains("s3:GetObject");
-                }
-
-                if (hasGetObject)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return AwsHelpers.CreateContainerAsync(_amazonS3, containerName, isPublic);
         }
 
         public async Task DeleteContainerAsync(string containerName)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
             string continuationToken = null;
 
             do
             {
-                var listObjectsV2Response = await ListObjectsV2Async(amazonS3, containerName, continuationToken).ConfigureAwait(false);
+                var listObjectsV2Response = await ListObjectsV2Async(containerName, continuationToken).ConfigureAwait(false);
 
                 if (listObjectsV2Response == null || !listObjectsV2Response.S3Objects.Any())
                 {
@@ -494,7 +329,7 @@ namespace HCore.Storage.Client.Impl
                     Quiet = true,
                 };
 
-                await amazonS3.DeleteObjectsAsync(deleteObjectsRequest).ConfigureAwait(false);
+                await _amazonS3.DeleteObjectsAsync(deleteObjectsRequest).ConfigureAwait(false);
 
                 continuationToken = listObjectsV2Response.NextContinuationToken;
 
@@ -502,7 +337,7 @@ namespace HCore.Storage.Client.Impl
 
             try
             {
-                await amazonS3.DeleteBucketAsync(containerName).ConfigureAwait(false);
+                await _amazonS3.DeleteBucketAsync(containerName).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -513,7 +348,7 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        private static async Task<ListObjectsV2Response> ListObjectsV2Async(IAmazonS3 amazonS3, string containerName, string continuationToken, int? maxKeys = null)
+        private async Task<ListObjectsV2Response> ListObjectsV2Async(string containerName, string continuationToken, int? maxKeys = null)
         {
             var listObjectsV2Request = new ListObjectsV2Request
             {
@@ -526,7 +361,7 @@ namespace HCore.Storage.Client.Impl
 
             try
             {
-                listObjectsV2Response = await amazonS3.ListObjectsV2Async(listObjectsV2Request).ConfigureAwait(false);
+                listObjectsV2Response = await _amazonS3.ListObjectsV2Async(listObjectsV2Request).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -539,22 +374,19 @@ namespace HCore.Storage.Client.Impl
             return listObjectsV2Response;
         }
 
-        public async Task DeleteFileAsync(string containerName, string fileName)
+        public Task DeleteFileAsync(string containerName, string fileName)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            await DeleteObjectAsync(amazonS3, containerName, fileName);
+            return DeleteObjectAsync(containerName, fileName);
         }
 
-        private static async Task DeleteObjectAsync(IAmazonS3 amazonS3, string containerName, string fileName)
+        private async Task DeleteObjectAsync(string containerName, string fileName)
         {
-            ArgumentNullException.ThrowIfNull(amazonS3);
             ArgumentNullException.ThrowIfNullOrEmpty(containerName);
             ArgumentNullException.ThrowIfNullOrEmpty(fileName);
 
             try
             {
-                await amazonS3.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
+                await _amazonS3.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -592,9 +424,7 @@ namespace HCore.Storage.Client.Impl
                 getPreSignedUrlRequest.ResponseHeaderOverrides.ContentDisposition = contentDispositionHeaderValue.ToString();
             }
 
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
-            var url = await amazonS3.GetPreSignedURLAsync(getPreSignedUrlRequest).ConfigureAwait(false);
+            var url = await _amazonS3.GetPreSignedURLAsync(getPreSignedUrlRequest).ConfigureAwait(false);
 
             return url;
         }
@@ -630,13 +460,11 @@ namespace HCore.Storage.Client.Impl
 
         public async IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null)
         {
-            using var amazonS3 = AwsHelpers.GetAmazonS3(_connectionInfoByKey);
-
             string continuationToken = null;
 
             do
             {
-                var listObjectsV2Response = await ListObjectsV2Async(amazonS3, containerName, continuationToken, maxKeys: pageSize).ConfigureAwait(false);
+                var listObjectsV2Response = await ListObjectsV2Async(containerName, continuationToken, maxKeys: pageSize).ConfigureAwait(false);
 
                 if (listObjectsV2Response == null || !listObjectsV2Response.S3Objects.Any())
                 {
@@ -656,6 +484,37 @@ namespace HCore.Storage.Client.Impl
                 continuationToken = listObjectsV2Response.NextContinuationToken;
 
             } while (!string.IsNullOrEmpty(continuationToken));
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+
+            GC.SuppressFinalize(this);
+
+            if (!_disposed)
+            {
+                _amazonS3.Dispose();
+
+                _disposed = true;
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (!disposing)
+            {
+                return;
+            }
+
+            _amazonS3.Dispose();
+
+            _disposed = true;
         }
     }
 }
