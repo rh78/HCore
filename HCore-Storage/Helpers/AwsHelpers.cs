@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
-using HCore.Storage.Models.AwsStorage;
-using Newtonsoft.Json;
 
 namespace HCore.Storage.Helpers
 {
@@ -18,16 +13,6 @@ namespace HCore.Storage.Helpers
         public const string BucketNameKey = "BucketNameKey";
 
         public const string DefaultRegion = "eu-central-1";
-
-        private static readonly ICollection<string> _publicFolders =
-        [
-            "smintiof",
-            "smintiopcce",
-            "smintioplpt",
-            "smintiopoc",
-            "smintioportalsjs",
-            "smintiopfepcdnrp"
-        ];
 
         public static IAmazonS3 GetAmazonS3(IDictionary<string, string> connectionInfoByKey)
         {
@@ -99,97 +84,6 @@ namespace HCore.Storage.Helpers
             }
 
             return bucketNameKey;
-        }
-
-        public static async Task CreateContainerAsync(IAmazonS3 amazonS3, string bucketName, string container, bool isPublic)
-        {
-            ArgumentNullException.ThrowIfNull(amazonS3);
-            ArgumentNullException.ThrowIfNullOrEmpty(bucketName);
-            ArgumentNullException.ThrowIfNullOrEmpty(container);
-
-            GetBucketLocationResponse getBucketLocationResponse = null;
-
-            var isNew = false;
-
-            try
-            {
-                getBucketLocationResponse = await amazonS3.GetBucketLocationAsync(bucketName).ConfigureAwait(false);
-            }
-            catch (AmazonS3Exception amazonS3Exception)
-            {
-                if (amazonS3Exception.StatusCode != HttpStatusCode.NotFound)
-                {
-                    throw;
-                }
-
-                isNew = true;
-            }
-
-            if (getBucketLocationResponse == null)
-            {
-                var putBucketRequest = new PutBucketRequest
-                {
-                    BucketName = bucketName
-                };
-
-                await amazonS3.PutBucketAsync(putBucketRequest).ConfigureAwait(false);
-
-                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
-
-                var putPublicAccessBlockRequest = new PutPublicAccessBlockRequest
-                {
-                    BucketName = bucketName,
-                    PublicAccessBlockConfiguration = new PublicAccessBlockConfiguration
-                    {
-                        BlockPublicAcls = false,
-                        IgnorePublicAcls = false,
-                        BlockPublicPolicy = false,
-                        RestrictPublicBuckets = false
-                    }
-                };
-
-                await amazonS3.PutPublicAccessBlockAsync(putPublicAccessBlockRequest).ConfigureAwait(false);
-            }
-
-            if (isNew || isPublic)
-            {
-                // https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteAccessPermissionsReqd.html
-
-                var resources = _publicFolders
-                    .Select(publicFolder => $"arn:aws:s3:::{bucketName}/{publicFolder}*")
-                    .ToList();
-
-                if (!_publicFolders.Any(publicFolder => container.StartsWith(publicFolder, StringComparison.OrdinalIgnoreCase)))
-                {
-                    resources.Add($"arn:aws:s3:::{bucketName}/{container}/*");
-                }
-
-                var bucketPolicyModel = new BucketPolicyModel
-                {
-                    Version = "2012-10-17",
-                    Statement =
-                    [
-                        new BucketPolicyStatementModel()
-                        {
-                            Sid = "PublicReadGetObject",
-                            Effect = "Allow",
-                            Principal = "*",
-                            Action = "s3:GetObject",
-                            Resource = resources
-                        }
-                    ]
-                };
-
-                var policy = JsonConvert.SerializeObject(bucketPolicyModel);
-
-                var putBucketPolicyRequest = new PutBucketPolicyRequest
-                {
-                    BucketName = bucketName,
-                    Policy = policy
-                };
-
-                await amazonS3.PutBucketPolicyAsync(putBucketPolicyRequest).ConfigureAwait(false);
-            }
         }
 
         public static string GetAbsoluteUrl(IAmazonS3 amazonS3, string bucketName, string container, string fileName)

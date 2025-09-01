@@ -319,7 +319,7 @@ namespace HCore.Storage.Client.Impl
 
         public Task CreateContainerAsync(string containerName, bool isPublic)
         {
-            return AwsHelpers.CreateContainerAsync(_amazonS3, _bucketName, containerName, isPublic);
+            return Task.CompletedTask;
         }
 
         public async Task DeleteContainerAsync(string containerName)
@@ -362,7 +362,6 @@ namespace HCore.Storage.Client.Impl
                 ContinuationToken = continuationToken,
                 MaxKeys = maxKeys ?? _defaultPageSize,
                 Prefix = containerName,
-                Delimiter = "/"
             };
 
             ListObjectsV2Response listObjectsV2Response = null;
