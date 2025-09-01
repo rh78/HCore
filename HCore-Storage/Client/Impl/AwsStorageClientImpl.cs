@@ -317,9 +317,15 @@ namespace HCore.Storage.Client.Impl
             return absoluteUrl;
         }
 
-        public Task CreateContainerAsync(string containerName, bool isPublic)
+        public async Task CreateContainerAsync(string containerName, bool isPublic)
         {
-            return Task.CompletedTask;
+            var putObjectRequest = new PutObjectRequest()
+            {
+                BucketName = _bucketName,
+                Key = $"{containerName}/"
+            };
+
+            await _amazonS3.PutObjectAsync(putObjectRequest).ConfigureAwait(false);
         }
 
         public async Task DeleteContainerAsync(string containerName)
