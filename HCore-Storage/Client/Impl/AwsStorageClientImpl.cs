@@ -20,6 +20,7 @@ namespace HCore.Storage.Client.Impl
         private const int _defaultPageSize = 1000;
 
         private readonly IAmazonS3 _amazonS3;
+        private readonly string _bucketPrefix;
 
         private bool _disposed;
 
@@ -28,13 +29,26 @@ namespace HCore.Storage.Client.Impl
             var connectionInfoByKey = AwsHelpers.GetConnectionInfoByKey(connectionString);
 
             _amazonS3 = AwsHelpers.GetAmazonS3(connectionInfoByKey);
+            _bucketPrefix = AwsHelpers.GetBucketPrefix(connectionInfoByKey);
         }
 
         public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
         {
+            containerName = ApplyPrefix(containerName);
+
             using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             await getObjectResponse.ResponseStream.CopyToAsync(stream).ConfigureAwait(false);
+        }
+
+        private string ApplyPrefix(string containerName)
+        {
+            if (!containerName.StartsWith(_bucketPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return $"{_bucketPrefix}{containerName}";
+            }
+
+            return containerName;
         }
 
         private async Task<GetObjectResponse> GetObjectResponseAsync(string containerName, string fileName, bool required)
@@ -66,6 +80,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<Stream> OpenReadAsync(string containerName, string fileName)
         {
+            containerName = ApplyPrefix(containerName);
+
             var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ResponseStream;
@@ -73,6 +89,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
         {
+            containerName = ApplyPrefix(containerName);
+
             using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ContentLength;
@@ -80,6 +98,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
             await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
@@ -133,6 +153,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             var uploadPartRequest = new UploadPartRequest()
             {
                 BucketName = containerName,
@@ -161,6 +183,8 @@ namespace HCore.Storage.Client.Impl
             {
                 throw new ArgumentException("chunkIds and eTags must have the same count");
             }
+
+            containerName = ApplyPrefix(containerName);
 
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
@@ -200,6 +224,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
             await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
@@ -254,6 +280,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             await CreateContainerAsync(containerName, isPublic: containerIsPublic).ConfigureAwait(false);
 
             var transferUtilityUploadRequest = new TransferUtilityUploadRequest()
@@ -301,11 +329,15 @@ namespace HCore.Storage.Client.Impl
 
         public Task CreateContainerAsync(string containerName, bool isPublic)
         {
+            containerName = ApplyPrefix(containerName);
+
             return AwsHelpers.CreateContainerAsync(_amazonS3, containerName, isPublic);
         }
 
         public async Task DeleteContainerAsync(string containerName)
         {
+            containerName = ApplyPrefix(containerName);
+
             string continuationToken = null;
 
             do
@@ -376,6 +408,8 @@ namespace HCore.Storage.Client.Impl
 
         public Task DeleteFileAsync(string containerName, string fileName)
         {
+            containerName = ApplyPrefix(containerName);
+
             return DeleteObjectAsync(containerName, fileName);
         }
 
@@ -406,6 +440,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             var getPreSignedUrlRequest = new GetPreSignedUrlRequest
             {
                 BucketName = containerName,
@@ -431,6 +467,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
+            containerName = ApplyPrefix(containerName);
+
             var names = new List<string>();
 
             await foreach (var storageItem in GetStorageItemsAsync(containerName).ConfigureAwait(false))
@@ -443,6 +481,8 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<long> GetStorageFileSizeAsync(string containerName)
         {
+            containerName = ApplyPrefix(containerName);
+
             long storageFileSize = 0;
 
             await foreach (var storageItem in GetStorageItemsAsync(containerName).ConfigureAwait(false))
@@ -460,6 +500,8 @@ namespace HCore.Storage.Client.Impl
 
         public async IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null)
         {
+            containerName = ApplyPrefix(containerName);
+
             string continuationToken = null;
 
             do
