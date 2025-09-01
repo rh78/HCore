@@ -28,25 +28,13 @@ namespace HCore.Tenants.Providers.Impl
 
             if (_storageClient == null)
             {
-                bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
-                bool useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
-                var useAws = implementation.Equals(StorageConstants.StorageImplementationAws);
-
-                if (!useGoogleCloud && !useAzure && !useAws)
-                    throw new Exception("Storage implementation specification is invalid");
-
-                if (useGoogleCloud)
+                _storageClient = implementation switch
                 {
-                    _storageClient = new GoogleCloudStorageClientImpl(connectionString);
-                }
-                else if (useAzure)
-                {
-                    _storageClient = new AzureStorageClientImpl(connectionString);
-                }
-                else
-                {
-                    _storageClient = new AwsStorageClientImpl(connectionString);
-                }
+                    StorageConstants.StorageImplementationGoogleCloud => new GoogleCloudStorageClientImpl(connectionString),
+                    StorageConstants.StorageImplementationAzure => new AzureStorageClientImpl(connectionString),
+                    StorageConstants.StorageImplementationAws => new AwsStorageClientImpl(connectionString),
+                    _ => throw new Exception("Storage implementation specification is invalid")
+                };
             }
 
             return _storageClient;
@@ -59,21 +47,13 @@ namespace HCore.Tenants.Providers.Impl
             string implementation = tenantInfo.StorageImplementation;
             string connectionString = tenantInfo.StorageConnectionString;
 
-            bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
-            bool useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
-
-            if (useGoogleCloud)
+            return implementation switch
             {
-                return new GoogleCloudStorageClientImpl(connectionString);
-            }
-            else if (useAzure)
-            {
-                return new AzureStorageClientImpl(connectionString);
-            }
-            else
-            {
-                return new AwsStorageClientImpl(connectionString);
-            }
+                StorageConstants.StorageImplementationGoogleCloud => new GoogleCloudStorageClientImpl(connectionString),
+                StorageConstants.StorageImplementationAzure => new AzureStorageClientImpl(connectionString),
+                StorageConstants.StorageImplementationAws => new AwsStorageClientImpl(connectionString),
+                _ => throw new Exception("Storage implementation specification is invalid")
+            };
         }
     }
 }
