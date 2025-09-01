@@ -115,12 +115,17 @@ namespace HCore.Storage.Client.Impl
             }
         }
 
-        public Task<string> UploadChunkFromStreamAsync(string containerName, string fileName, long blockId, long blockStart, Stream blockStream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        public Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> FinalizeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, bool overwriteIfExists, string downloadFileName = null)
+        public Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long blockId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> FinalizeChunksAsync(string containerName, string externalId, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, List<long> blockIds, List<string> eTags, bool overwriteIfExists, string downloadFileName = null)
         {
             throw new NotImplementedException();
         }

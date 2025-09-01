@@ -1,17 +1,13 @@
-﻿using HCore.Storage.Client;
+﻿using System;
+using HCore.Storage.Client;
 using HCore.Storage.Client.Impl;
 using Microsoft.Extensions.Configuration;
-using System;
 
 namespace HCore.Storage.Providers.Impl
 {
     internal class StorageClientProviderImpl : IStorageClientProvider
     {
-        private bool _useGoogleCloud;
-
-        private IStorageClient _storageClient;
-
-        private string _connectionString;
+        private readonly IStorageClient _storageClient;
 
         public StorageClientProviderImpl(IConfiguration configuration)
         {
@@ -20,29 +16,23 @@ namespace HCore.Storage.Providers.Impl
             if (string.IsNullOrEmpty(implementation))
                 throw new Exception("Storage implementation specification is empty");
 
-            if (!implementation.Equals(StorageConstants.StorageImplementationAzure) && !implementation.Equals(StorageConstants.StorageImplementationGoogleCloud))
-                throw new Exception("Storage implementation specification is invalid");
+            var connectionString = configuration["Storage:Account"];
 
-            _useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
-
-            _connectionString = configuration["Storage:Account"];
-
-            if (string.IsNullOrEmpty(_connectionString))
+            if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("Storage connection string is empty");
 
-            if (_useGoogleCloud)
+            _storageClient = implementation switch
             {
-                _storageClient = new GoogleCloudStorageClientImpl(_connectionString);
-            }
-            else
-            {
-                _storageClient = new AzureStorageClientImpl(_connectionString);
-            }
+                StorageConstants.StorageImplementationGoogleCloud => new GoogleCloudStorageClientImpl(connectionString),
+                StorageConstants.StorageImplementationAzure => new AzureStorageClientImpl(connectionString),
+                StorageConstants.StorageImplementationAws => new AwsStorageClientImpl(connectionString),
+                _ => throw new Exception("Storage implementation specification is invalid")
+            };
         }
 
         public IStorageClient GetStorageClient()
         {
-            return _storageClient;            
+            return _storageClient;
         }
     }
 }
