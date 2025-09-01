@@ -1,9 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HCore.Storage;
 using HCore.Storage.Client;
 using HCore.Storage.Client.Impl;
-using HCore.Web.Exceptions;
 
 namespace HCore.Tenants.Providers.Impl
 {
@@ -27,17 +25,22 @@ namespace HCore.Tenants.Providers.Impl
             string implementation = tenantInfo.StorageImplementation;
             string connectionString = tenantInfo.StorageConnectionString;
 
-            bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
-
-            if(_storageClient == null)
+            if (_storageClient == null)
             {
+                bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
+                bool useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
+
                 if (useGoogleCloud)
                 {
                     _storageClient = new GoogleCloudStorageClientImpl(connectionString);
                 }
-                else
+                else if (useAzure)
                 {
                     _storageClient = new AzureStorageClientImpl(connectionString);
+                }
+                else
+                {
+                    _storageClient = new AwsStorageClientImpl(connectionString);
                 }
             }
 
@@ -52,15 +55,20 @@ namespace HCore.Tenants.Providers.Impl
             string connectionString = tenantInfo.StorageConnectionString;
 
             bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
+            bool useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
 
             if (useGoogleCloud)
             {
                 return new GoogleCloudStorageClientImpl(connectionString);
             }
-            else
+            else if (useAzure)
             {
                 return new AzureStorageClientImpl(connectionString);
-            }            
+            }
+            else
+            {
+                return new AwsStorageClientImpl(connectionString);
+            }
         }
     }
 }
