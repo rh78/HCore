@@ -47,15 +47,13 @@ namespace HCore.Tenants.Providers.Impl
             string implementation = tenantInfo.StorageImplementation;
             string connectionString = tenantInfo.StorageConnectionString;
 
-            IStorageClient storageClient = implementation switch
+            return implementation switch
             {
                 StorageConstants.StorageImplementationGoogleCloud => new GoogleCloudStorageClientImpl(connectionString),
                 StorageConstants.StorageImplementationAzure => new AzureStorageClientImpl(connectionString),
                 StorageConstants.StorageImplementationAws => new AwsStorageClientImpl(connectionString),
                 _ => throw new Exception("Storage implementation specification is invalid")
             };
-
-            return storageClient;
         }
     }
 }

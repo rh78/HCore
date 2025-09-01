@@ -21,7 +21,7 @@ namespace HCore.Storage.Providers.Impl
             if (string.IsNullOrEmpty(connectionString))
                 throw new Exception("Storage connection string is empty");
 
-            IStorageClient storageClient = implementation switch
+            _storageClient = implementation switch
             {
                 StorageConstants.StorageImplementationGoogleCloud => new GoogleCloudStorageClientImpl(connectionString),
                 StorageConstants.StorageImplementationAzure => new AzureStorageClientImpl(connectionString),
