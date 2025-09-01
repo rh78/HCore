@@ -17,10 +17,10 @@ namespace HCore.Storage.Providers.Impl
                 throw new Exception("Storage implementation specification is empty");
 
             var useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
-            var useAure = implementation.Equals(StorageConstants.StorageImplementationAzure);
+            var useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
             var useAws = implementation.Equals(StorageConstants.StorageImplementationAws);
 
-            if (!useGoogleCloud && !useAure && !useAws)
+            if (!useGoogleCloud && !useAzure && !useAws)
                 throw new Exception("Storage implementation specification is invalid");
 
             var connectionString = configuration["Storage:Account"];
@@ -32,7 +32,7 @@ namespace HCore.Storage.Providers.Impl
             {
                 _storageClient = new GoogleCloudStorageClientImpl(connectionString);
             }
-            else if (useAure)
+            else if (useAzure)
             {
                 _storageClient = new AzureStorageClientImpl(connectionString);
             }

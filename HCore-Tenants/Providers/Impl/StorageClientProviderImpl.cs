@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using HCore.Storage;
 using HCore.Storage.Client;
 using HCore.Storage.Client.Impl;
@@ -29,6 +30,10 @@ namespace HCore.Tenants.Providers.Impl
             {
                 bool useGoogleCloud = implementation.Equals(StorageConstants.StorageImplementationGoogleCloud);
                 bool useAzure = implementation.Equals(StorageConstants.StorageImplementationAzure);
+                var useAws = implementation.Equals(StorageConstants.StorageImplementationAws);
+
+                if (!useGoogleCloud && !useAzure && !useAws)
+                    throw new Exception("Storage implementation specification is invalid");
 
                 if (useGoogleCloud)
                 {
