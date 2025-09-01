@@ -20,7 +20,7 @@ namespace HCore.Storage.Client.Impl
         private const int _defaultPageSize = 1000;
 
         private readonly IAmazonS3 _amazonS3;
-        private readonly string _bucketPrefix;
+        private readonly string _bucketName;
 
         private bool _disposed;
 
@@ -29,33 +29,23 @@ namespace HCore.Storage.Client.Impl
             var connectionInfoByKey = AwsHelpers.GetConnectionInfoByKey(connectionString);
 
             _amazonS3 = AwsHelpers.GetAmazonS3(connectionInfoByKey);
-            _bucketPrefix = AwsHelpers.GetBucketPrefix(connectionInfoByKey);
+            _bucketName = AwsHelpers.GetBucketName(connectionInfoByKey);
         }
 
         public async Task DownloadToStreamAsync(string containerName, string fileName, Stream stream)
         {
-            containerName = ApplyPrefix(containerName);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
-            using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
+            using var getObjectResponse = await GetObjectResponseAsync(fileKey, required: true).ConfigureAwait(false);
 
             await getObjectResponse.ResponseStream.CopyToAsync(stream).ConfigureAwait(false);
         }
 
-        private string ApplyPrefix(string containerName)
-        {
-            if (!containerName.StartsWith(_bucketPrefix, StringComparison.OrdinalIgnoreCase))
-            {
-                return $"{_bucketPrefix}{containerName}";
-            }
-
-            return containerName;
-        }
-
-        private async Task<GetObjectResponse> GetObjectResponseAsync(string containerName, string fileName, bool required)
+        private async Task<GetObjectResponse> GetObjectResponseAsync(string fileKey, bool required)
         {
             try
             {
-                return await _amazonS3.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+                return await _amazonS3.GetObjectAsync(_bucketName, fileKey).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -80,34 +70,34 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<Stream> OpenReadAsync(string containerName, string fileName)
         {
-            containerName = ApplyPrefix(containerName);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
-            var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
+            var getObjectResponse = await GetObjectResponseAsync(fileKey, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ResponseStream;
         }
 
         public async Task<long> GetFileSizeAsync(string containerName, string fileName)
         {
-            containerName = ApplyPrefix(containerName);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
-            using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: true).ConfigureAwait(false);
+            using var getObjectResponse = await GetObjectResponseAsync(fileKey, required: true).ConfigureAwait(false);
 
             return getObjectResponse.ContentLength;
         }
 
         public async Task<string> InitializeChunksAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, bool overwriteIfExists, string downloadFileName = null)
         {
-            containerName = ApplyPrefix(containerName);
-
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
+
+            await HandleExistingObjectAsync(fileKey, overwriteIfExists).ConfigureAwait(false);
 
             var initiateMultipartUploadRequest = new InitiateMultipartUploadRequest
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 ContentType = mimeType
             };
 
@@ -134,15 +124,15 @@ namespace HCore.Storage.Client.Impl
             return initiateMultipartUploadResponse.UploadId;
         }
 
-        private async Task HandleExistingObjectAsync(string containerName, string fileName, bool overwriteIfExists)
+        private async Task HandleExistingObjectAsync(string fileKey, bool overwriteIfExists)
         {
             if (overwriteIfExists)
             {
-                await DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
+                await DeleteObjectAsync(fileKey).ConfigureAwait(false);
             }
             else
             {
-                using var getObjectResponse = await GetObjectResponseAsync(containerName, fileName, required: false).ConfigureAwait(false);
+                using var getObjectResponse = await GetObjectResponseAsync(fileKey, required: false).ConfigureAwait(false);
 
                 if (getObjectResponse != null && !overwriteIfExists)
                 {
@@ -153,12 +143,12 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> UploadChunkFromStreamAsync(string containerName, string externalId, string fileName, long chunkId, long blockStart, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null)
         {
-            containerName = ApplyPrefix(containerName);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
             var uploadPartRequest = new UploadPartRequest()
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 UploadId = externalId,
                 PartNumber = (int)chunkId,
                 InputStream = stream
@@ -184,11 +174,11 @@ namespace HCore.Storage.Client.Impl
                 throw new ArgumentException("chunkIds and eTags must have the same count");
             }
 
-            containerName = ApplyPrefix(containerName);
-
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
+
+            await HandleExistingObjectAsync(fileKey, overwriteIfExists).ConfigureAwait(false);
 
             var partETags = new List<PartETag>();
 
@@ -204,8 +194,8 @@ namespace HCore.Storage.Client.Impl
 
             var completeMultipartUploadRequest = new CompleteMultipartUploadRequest
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 UploadId = externalId,
                 PartETags = partETags
             };
@@ -217,23 +207,23 @@ namespace HCore.Storage.Client.Impl
 
             var completeMultipartUploadResponse = await _amazonS3.CompleteMultipartUploadAsync(completeMultipartUploadRequest).ConfigureAwait(false);
 
-            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, _bucketName, containerName, fileName);
 
             return absoluteUrl;
         }
 
         public async Task<string> UploadFromStreamAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool overwriteIfExists, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            containerName = ApplyPrefix(containerName);
-
             await CreateContainerAsync(containerName, isPublic: false).ConfigureAwait(false);
 
-            await HandleExistingObjectAsync(containerName, fileName, overwriteIfExists).ConfigureAwait(false);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
+
+            await HandleExistingObjectAsync(fileKey, overwriteIfExists).ConfigureAwait(false);
 
             var transferUtilityUploadRequest = new TransferUtilityUploadRequest
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 InputStream = stream,
                 ContentType = mimeType
             };
@@ -273,21 +263,21 @@ namespace HCore.Storage.Client.Impl
 
             await transferUtility.UploadAsync(transferUtilityUploadRequest);
 
-            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, _bucketName, containerName, fileName);
 
             return absoluteUrl;
         }
 
         public async Task<string> UploadFromStreamLowLatencyProfileAsync(string containerName, string fileName, string mimeType, Dictionary<string, string> additionalHeaders, Stream stream, bool containerIsPublic, IProgress<long> progressHandler = null, string downloadFileName = null)
         {
-            containerName = ApplyPrefix(containerName);
-
             await CreateContainerAsync(containerName, isPublic: containerIsPublic).ConfigureAwait(false);
+
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
             var transferUtilityUploadRequest = new TransferUtilityUploadRequest()
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 InputStream = stream,
                 ContentType = mimeType
             };
@@ -322,22 +312,24 @@ namespace HCore.Storage.Client.Impl
 
             await transferUtility.UploadAsync(transferUtilityUploadRequest);
 
-            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, containerName, fileName);
+            var absoluteUrl = AwsHelpers.GetAbsoluteUrl(_amazonS3, _bucketName, containerName, fileName);
 
             return absoluteUrl;
         }
 
-        public Task CreateContainerAsync(string containerName, bool isPublic)
+        public async Task CreateContainerAsync(string containerName, bool isPublic)
         {
-            containerName = ApplyPrefix(containerName);
+            var putObjectRequest = new PutObjectRequest()
+            {
+                BucketName = _bucketName,
+                Key = $"{containerName}/"
+            };
 
-            return AwsHelpers.CreateContainerAsync(_amazonS3, containerName, isPublic);
+            await _amazonS3.PutObjectAsync(putObjectRequest).ConfigureAwait(false);
         }
 
         public async Task DeleteContainerAsync(string containerName)
         {
-            containerName = ApplyPrefix(containerName);
-
             string continuationToken = null;
 
             do
@@ -351,7 +343,7 @@ namespace HCore.Storage.Client.Impl
 
                 var deleteObjectsRequest = new DeleteObjectsRequest
                 {
-                    BucketName = containerName,
+                    BucketName = _bucketName,
                     Objects = listObjectsV2Response.S3Objects
                         .Select(s3Object => new KeyVersion()
                         {
@@ -366,27 +358,16 @@ namespace HCore.Storage.Client.Impl
                 continuationToken = listObjectsV2Response.NextContinuationToken;
 
             } while (!string.IsNullOrEmpty(continuationToken));
-
-            try
-            {
-                await _amazonS3.DeleteBucketAsync(containerName).ConfigureAwait(false);
-            }
-            catch (AmazonS3Exception amazonS3Exception)
-            {
-                if (amazonS3Exception.StatusCode != HttpStatusCode.NotFound)
-                {
-                    throw;
-                }
-            }
         }
 
         private async Task<ListObjectsV2Response> ListObjectsV2Async(string containerName, string continuationToken, int? maxKeys = null)
         {
             var listObjectsV2Request = new ListObjectsV2Request
             {
-                BucketName = containerName,
+                BucketName = _bucketName,
                 ContinuationToken = continuationToken,
                 MaxKeys = maxKeys ?? _defaultPageSize,
+                Prefix = containerName,
             };
 
             ListObjectsV2Response listObjectsV2Response = null;
@@ -408,19 +389,19 @@ namespace HCore.Storage.Client.Impl
 
         public Task DeleteFileAsync(string containerName, string fileName)
         {
-            containerName = ApplyPrefix(containerName);
-
-            return DeleteObjectAsync(containerName, fileName);
-        }
-
-        private async Task DeleteObjectAsync(string containerName, string fileName)
-        {
             ArgumentNullException.ThrowIfNullOrEmpty(containerName);
             ArgumentNullException.ThrowIfNullOrEmpty(fileName);
 
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
+
+            return DeleteObjectAsync(fileKey);
+        }
+
+        private async Task DeleteObjectAsync(string fileKey)
+        {
             try
             {
-                await _amazonS3.DeleteObjectAsync(containerName, fileName).ConfigureAwait(false);
+                await _amazonS3.DeleteObjectAsync(_bucketName, fileKey).ConfigureAwait(false);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -440,12 +421,12 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null)
         {
-            containerName = ApplyPrefix(containerName);
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
 
             var getPreSignedUrlRequest = new GetPreSignedUrlRequest
             {
-                BucketName = containerName,
-                Key = fileName,
+                BucketName = _bucketName,
+                Key = fileKey,
                 Expires = DateTime.UtcNow.Add(validityTimeSpan),
                 Verb = HttpVerb.GET
             };
@@ -467,8 +448,6 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
-            containerName = ApplyPrefix(containerName);
-
             var names = new List<string>();
 
             await foreach (var storageItem in GetStorageItemsAsync(containerName).ConfigureAwait(false))
@@ -481,8 +460,6 @@ namespace HCore.Storage.Client.Impl
 
         public async Task<long> GetStorageFileSizeAsync(string containerName)
         {
-            containerName = ApplyPrefix(containerName);
-
             long storageFileSize = 0;
 
             await foreach (var storageItem in GetStorageItemsAsync(containerName).ConfigureAwait(false))
@@ -500,8 +477,6 @@ namespace HCore.Storage.Client.Impl
 
         public async IAsyncEnumerable<StorageItemModel> GetStorageItemsAsync(string containerName, int? pageSize = null)
         {
-            containerName = ApplyPrefix(containerName);
-
             string continuationToken = null;
 
             do
