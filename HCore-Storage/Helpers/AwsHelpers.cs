@@ -23,8 +23,9 @@ namespace HCore.Storage.Helpers
         [
             "smintiof",
             "smintiopcce",
-            "smintiof",
-            "smintiof",
+            "smintioplpt",
+            "smintiopoc",
+            "smintioportalsjs",
             "smintiopfepcdnrp"
         ];
 
