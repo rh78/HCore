@@ -330,34 +330,22 @@ namespace HCore.Storage.Client.Impl
 
         public async Task DeleteContainerAsync(string containerName)
         {
-            string continuationToken = null;
+            using var getObjectResponse = await GetObjectResponseAsync($"{containerName}/", required: true).ConfigureAwait(false);
 
-            do
+            var deleteObjectsRequest = new DeleteObjectsRequest
             {
-                var listObjectsV2Response = await ListObjectsV2Async(containerName, continuationToken).ConfigureAwait(false);
+                BucketName = _bucketName,
+                Objects =
+                [
+                    new KeyVersion()
+                    {
+                        Key = getObjectResponse.Key
+                    }
+                ],
+                Quiet = true,
+            };
 
-                if (listObjectsV2Response == null || !listObjectsV2Response.S3Objects.Any())
-                {
-                    break;
-                }
-
-                var deleteObjectsRequest = new DeleteObjectsRequest
-                {
-                    BucketName = _bucketName,
-                    Objects = listObjectsV2Response.S3Objects
-                        .Select(s3Object => new KeyVersion()
-                        {
-                            Key = s3Object.Key
-                        })
-                        .ToList(),
-                    Quiet = true,
-                };
-
-                await _amazonS3.DeleteObjectsAsync(deleteObjectsRequest).ConfigureAwait(false);
-
-                continuationToken = listObjectsV2Response.NextContinuationToken;
-
-            } while (!string.IsNullOrEmpty(continuationToken));
+            await _amazonS3.DeleteObjectsAsync(deleteObjectsRequest).ConfigureAwait(false);
         }
 
         private async Task<ListObjectsV2Response> ListObjectsV2Async(string containerName, string continuationToken, int? maxKeys = null)
