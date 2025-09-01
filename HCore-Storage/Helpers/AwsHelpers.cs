@@ -15,6 +15,7 @@ namespace HCore.Storage.Helpers
     {
         public const string AccessKeyIdKey = "AccessKeyId";
         public const string SecretAccessKeyKey = "SecretAccessKey";
+        public const string BucketPrefixKey = "BucketPrefix";
 
         public const string DefaultRegion = "eu-central-1";
 
@@ -45,6 +46,22 @@ namespace HCore.Storage.Helpers
             }
 
             return new AmazonS3Client(accessKeyId, secretAccessKey, regionEndpoint);
+        }
+
+        public static string GetBucketPrefix(IDictionary<string, string> connectionInfoByKey)
+        {
+            ArgumentNullException.ThrowIfNull(connectionInfoByKey);
+
+            if (!connectionInfoByKey.TryGetValue(BucketPrefixKey, out var bucketPrefix) || string.IsNullOrEmpty(bucketPrefix))
+            {
+                throw new ArgumentException("Missing bucket prefix", BucketPrefixKey);
+            }
+
+            bucketPrefix = bucketPrefix.EndsWith('-')
+                ? bucketPrefix 
+                : $"{bucketPrefix}-";
+
+            return bucketPrefix;
         }
 
         public static IDictionary<string, string> GetConnectionInfoByKey(string connectionString)
