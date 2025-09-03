@@ -342,7 +342,10 @@ namespace HCore.Web.Startup
                             var port = ((IPEndPoint)connectionContext.LocalEndPoint).Port;
 
                             if (string.IsNullOrEmpty(hostName) ||
-                                hostName.EndsWith(hostPattern))
+                                hostName.EndsWith(hostPattern) ||
+                                string.Equals(hostName, "ecdn1.smint.io") ||
+                                string.Equals(hostName, "ecdn2.smint.io") ||
+                                string.Equals(hostName, "ecdn3.smint.io"))
                             {
                                 // this is our default certificates
 
