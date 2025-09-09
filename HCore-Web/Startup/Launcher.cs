@@ -480,14 +480,14 @@ namespace HCore.Web.Startup
 
                 if (useHttps)
                 {
-                    int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
+                    var redirectHttpToHttpsWebPort = _configuration.GetValue<int?>("WebServer:RedirectHttpToHttpsWebPort");
 
-                    if (redirectHttpToHttpsWebPort > 0)
+                    if (redirectHttpToHttpsWebPort.HasValue)
                     {
                         webServerUrl = "http://";
 
                         webServerUrl += urlPattern;
-                        webServerUrl += ":" + redirectHttpToHttpsWebPort;
+                        webServerUrl += ":" + redirectHttpToHttpsWebPort.Value;
 
                         urls.Add(webServerUrl);
                     }
