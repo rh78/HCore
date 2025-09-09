@@ -418,20 +418,11 @@ namespace HCore.Web.Startup
                         options.Listen(IPAddress.Any, webPort, listenOptions =>
                             listenOptions.UseHttps());
 
-                        int httpHealthCheckPort = _configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                        var redirectHttpToHttpsWebPort = _configuration.GetValue<int?>("WebServer:RedirectHttpToHttpsWebPort");
 
-                        if (httpHealthCheckPort > 0)
+                        if (redirectHttpToHttpsWebPort.HasValue)
                         {
-                            options.Listen(IPAddress.Any, httpHealthCheckPort);
-                        }
-                        else
-                        {
-                            // we can not do redirects to HTTPS if we have a health check running
-
-                            int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
-
-                            if (redirectHttpToHttpsWebPort > 0)
-                                options.Listen(IPAddress.Any, redirectHttpToHttpsWebPort);
+                            options.Listen(IPAddress.Any, redirectHttpToHttpsWebPort.Value);
                         }
                     }
 
@@ -489,32 +480,16 @@ namespace HCore.Web.Startup
 
                 if (useHttps)
                 {
-                    int httpHealthCheckPort = _configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                    var redirectHttpToHttpsWebPort = _configuration.GetValue<int?>("WebServer:RedirectHttpToHttpsWebPort");
 
-                    if (httpHealthCheckPort > 0)
+                    if (redirectHttpToHttpsWebPort.HasValue)
                     {
                         webServerUrl = "http://";
 
                         webServerUrl += urlPattern;
-                        webServerUrl += ":" + httpHealthCheckPort;
+                        webServerUrl += ":" + redirectHttpToHttpsWebPort.Value;
 
                         urls.Add(webServerUrl);
-                    }
-                    else
-                    {
-                        // we can not do redirects to HTTPS if we have a health check running
-
-                        int redirectHttpToHttpsWebPort = _configuration.GetValue<int>("WebServer:RedirectHttpToHttpsWebPort");
-
-                        if (redirectHttpToHttpsWebPort > 0)
-                        {
-                            webServerUrl = "http://";
-
-                            webServerUrl += urlPattern;
-                            webServerUrl += ":" + redirectHttpToHttpsWebPort;
-
-                            urls.Add(webServerUrl);
-                        }
                     }
                 }
             }
