@@ -107,18 +107,18 @@ namespace HCore.Tenants.Middleware
                 {
                     // we could not find any tenant
 
-                    // check if we have a health check running here
-
-                    var healthCheckPort = _tenantDataProvider.HealthCheckPort;
-
-                    if (healthCheckPort != null &&
-                        context.Request.Host.Port == healthCheckPort)
+                    if (context.Request.Path.HasValue)
                     {
-                        var healthCheckTenantHost = _tenantDataProvider.HealthCheckTenantHost;
+                        var path = context.Request.Path.ToString();
 
-                        if (!string.IsNullOrEmpty(healthCheckTenantHost))
+                        if (path.EndsWith("/health"))
                         {
-                            (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(healthCheckTenantHost).ConfigureAwait(false);
+                            var healthCheckTenantHost = _tenantDataProvider.HealthCheckTenantHost;
+
+                            if (!string.IsNullOrEmpty(healthCheckTenantHost))
+                            {
+                                (matchedSubDomain, tenantInfo) = await _tenantDataProvider.GetTenantByHostAsync(healthCheckTenantHost).ConfigureAwait(false);
+                            }
                         }
                     }
 

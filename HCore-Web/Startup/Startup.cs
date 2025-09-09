@@ -172,30 +172,15 @@ namespace HCore.Web.Startup
                     options.MaxAge = TimeSpan.FromDays(180);
                 });
 
-                int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                var redirectHttpToHttpsTargetWebPort = Configuration.GetValue<int?>("WebServer:RedirectHttpToHttpsTargetWebPort");
 
-                if (httpHealthCheckPort <= 0)
+                if (redirectHttpToHttpsTargetWebPort.HasValue)
                 {
-                    // we can not do redirects to HTTPS if we have a health check running
-
-                    int redirectHttpToHttpsTargetWebPort = Configuration.GetValue<int>("WebServer:RedirectHttpToHttpsTargetWebPort");
-
-                    if (redirectHttpToHttpsTargetWebPort > 0)
+                    services.AddHttpsRedirection(options =>
                     {
-                        services.AddHttpsRedirection(options =>
-                        {
-                            options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                            options.HttpsPort = redirectHttpToHttpsTargetWebPort;
-                        });
-                    }
-                    else
-                    {
-                        services.AddHttpsRedirection(options =>
-                        {
-                            options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-                            options.HttpsPort = _port;
-                        });
-                    }
+                        options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
+                        options.HttpsPort = redirectHttpToHttpsTargetWebPort.Value;
+                    });
                 }
             }
 
@@ -300,18 +285,11 @@ namespace HCore.Web.Startup
                 if (!env.IsDevelopment())
                     app.UseHsts();
 
-                int httpHealthCheckPort = Configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
+                var useCustomHttpsRedirection = Configuration.GetValue<bool>("WebServer:UseCustomHttpsRedirection");
 
-                if (httpHealthCheckPort <= 0)
+                if (!useCustomHttpsRedirection)
                 {
-                    // we can not do redirects to HTTPS if we have a health check running
-
-                    var useCustomHttpsRedirection = Configuration.GetValue<bool>("WebServer:UseCustomHttpsRedirection");
-
-                    if (!useCustomHttpsRedirection)
-                    {
-                        app.UseHttpsRedirection();
-                    }
+                    app.UseHttpsRedirection();
                 }
             }
         }

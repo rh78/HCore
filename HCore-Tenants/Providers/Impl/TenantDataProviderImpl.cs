@@ -33,7 +33,6 @@ namespace HCore.Tenants.Providers.Impl
         public List<IDeveloperInfo> Developers { get; internal set; }
         public List<string> DeveloperWildcardSubdomains { get; internal set; }
 
-        public int? HealthCheckPort { get; internal set; }
         public string HealthCheckTenantHost { get; internal set; }
 
         private byte[] _standardSamlCertificateBytes;
@@ -49,13 +48,10 @@ namespace HCore.Tenants.Providers.Impl
 
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
-            int httpHealthCheckPort = configuration.GetValue<int>("WebServer:HttpHealthCheckPort");
             string tenantHealthCheckTenant = configuration["Identity:Tenants:HealthCheckTenant"];
 
-            if (httpHealthCheckPort > 0 &&
-                !string.IsNullOrEmpty(tenantHealthCheckTenant))
+            if (!string.IsNullOrEmpty(tenantHealthCheckTenant))
             {
-                HealthCheckPort = httpHealthCheckPort;
                 HealthCheckTenantHost = tenantHealthCheckTenant;
             }
 
