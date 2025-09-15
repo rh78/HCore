@@ -1,4 +1,4 @@
-﻿using Nest;
+﻿using Elastic.Clients.Elasticsearch.IndexManagement;
 
 namespace HCore.Database.ElasticSearch
 {
@@ -6,7 +6,8 @@ namespace HCore.Database.ElasticSearch
     {
         string[] IndexNames { get; }
 
-        CreateIndexDescriptor GetCreateIndexDescriptor(IElasticSearchClient elasticSearchClient, string indexName);
+        void CreateIndexRequestDescriptor(IElasticSearchClient elasticSearchClient, CreateIndexRequestDescriptor createIndexRequestDescriptor, string indexName);
+
         int GetIndexVersion(string indexName);
     }
 }

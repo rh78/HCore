@@ -1,20 +1,14 @@
-﻿using System;
+﻿using Elasticsearch.Net;
+using Nest;
+using HCore.Database.ElasticSearch.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elastic.Clients.Elasticsearch;
-using Elastic.Clients.Elasticsearch.Analysis;
-using Elastic.Clients.Elasticsearch.IndexManagement;
-using Elastic.Clients.Elasticsearch.Mapping;
-using Elastic.Transport;
-using Elastic.Transport.Extensions;
-using HCore.Database.ElasticSearch.JsonConverters;
-using HCore.Database.ElasticSearch.Models;
-using HCore.Database.ElasticSearch.Serializers;
-using HCore.Database.ElasticSearch.Settings;
+using Nest.JsonNetSerializer;
 
 namespace HCore.Database.ElasticSearch.Impl
 {
-    internal class ElasticSearchClientImpl : IElasticSearchClient
+    internal class NestElasticSearchClientImpl : INestElasticSearchClient
     {
         private const string IndexVersionsIndexName = "indexversions";
 
@@ -22,15 +16,15 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private readonly int _numberOfShards;
         private readonly int _numberOfReplicas;
-        private readonly string _hosts;
+        private readonly string _hosts;        
 
-        public ElasticsearchClient ElasticsearchClient { get; private set; }
+        public ElasticClient ElasticClient { get; private set; }
 
-        private readonly IElasticSearchDbContext _elasticSearchDbContext;
+        private readonly INestElasticSearchDbContext _elasticSearchDbContext;
 
         private readonly bool _useJsonNetSerializer;
 
-        public ElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, IElasticSearchDbContext elasticSearchDbContext, bool useJsonNetSerializer)
+        public NestElasticSearchClientImpl(bool isProduction, int numberOfShards, int numberOfReplicas, string hosts, INestElasticSearchDbContext elasticSearchDbContext, bool useJsonNetSerializer)
         {
             _isProduction = isProduction;
 
@@ -73,51 +67,34 @@ namespace HCore.Database.ElasticSearch.Impl
                 uriList.Add(uri);
             });
 
-            NodePool nodePool =
-                uriList.Count > 1 ?
-                    new SniffingNodePool(uriList) :
-                    new SingleNodePool(uriList[0]);
+            IConnectionPool connectionPool = 
+                uriList.Count > 1 ? 
+                    (IConnectionPool) new SniffingConnectionPool(uriList) :
+                    (IConnectionPool) new SingleNodeConnectionPool(uriList[0]);
 
-            ElasticsearchClientSettings settings;
+            ConnectionSettings settings;
 
             if (_useJsonNetSerializer)
             {
-                settings = new ExtendedElasticsearchClientSettings(
-                    nodePool,
-                    sourceSerializer: (serializer, settings) => new NewtonsoftSourceSerializer(serializer),
-                    requestResponseSerializer: (serializer, settings) =>
-                    {
-                        serializer.TryGetJsonSerializerOptions(out var options);
-
-                        options.Converters.Add(new ConcatenateTokenFilterConverter());
-
-                        return serializer;
-                    })
+                settings = new ConnectionSettings(connectionPool, sourceSerializer: JsonNetSerializer.Default)
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions(alwaysThrow: false);
+                    .ThrowExceptions()
+                    .EnableApiVersioningHeader();
             }
             else
             {
-                settings = new ExtendedElasticsearchClientSettings(
-                    nodePool,
-                     requestResponseSerializer: (serializer, settings) =>
-                     {
-                         serializer.TryGetJsonSerializerOptions(out var options);
-
-                         options.Converters.Add(new ConcatenateTokenFilterConverter());
-
-                         return serializer;
-                     })
+                settings = new ConnectionSettings(connectionPool)
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions(alwaysThrow: false);
+                    .ThrowExceptions()
+                    .EnableApiVersioningHeader();
             }
 
-            ElasticsearchClient = new ElasticsearchClient(settings);
+            ElasticClient = new ElasticClient(settings);
 
             CreateIndexVersionsIndex();
 
             string[] indexNames = _elasticSearchDbContext.IndexNames;
-
+            
             indexNames.ToList().ForEach(indexName =>
             {
                 int newestIndexVersion = _elasticSearchDbContext.GetIndexVersion(indexName);
@@ -126,39 +103,36 @@ namespace HCore.Database.ElasticSearch.Impl
 
                 if (indexVersion.Version < 1)
                 {
-                    CreateIndexVersion(indexName, 0, newestIndexVersion);
-                }
-                else
+                    CreateIndexVersion(indexName, 0, newestIndexVersion);                    
+                } else
                 {
-                    if (newestIndexVersion > indexVersion.Version)
-                        CreateIndexVersion(indexName, indexVersion.Version, newestIndexVersion);
+                    if (newestIndexVersion > indexVersion.Version)                    
+                        CreateIndexVersion(indexName, indexVersion.Version, newestIndexVersion);                                           
                 }
             });
         }
 
         private void CreateIndexVersionsIndex()
         {
-            var indexVersionsIndexExists = ElasticsearchClient.Indices.Exists(IndexVersionsIndexName).Exists;
-
+            var indexVersionsIndexExists = ElasticClient.Indices.Exists(IndexVersionsIndexName).Exists;
+            
             if (!indexVersionsIndexExists)
             {
                 Console.WriteLine("Creating index versions index...");
 
-                var createIndexResponse = ElasticsearchClient.Indices.Create(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
-                    .Mappings(indexVersion => indexVersion
-                        .Properties<IndexVersion>(indexVersionProperty => indexVersionProperty
-                            .Keyword(element => element.Name)
-                            .LongNumber(element => element.Version)
+                var createIndexResponse = ElasticClient.Indices.Create(IndexVersionsIndexName, indexVersionsIndex => indexVersionsIndex
+                    .Map<IndexVersion>(indexVersion => indexVersion
+                        .Properties(indexVersionProperty => indexVersionProperty
+                            .Keyword(element => element.Name(n => n.Name))
+                            .Number(element => element.Name(n => n.Version).Type(NumberType.Long))
                         )
-                        .Dynamic(DynamicMapping.False)
+                        .Dynamic(false)
                     )
                     .Settings(indexVersionSetting => ConfigureNonConcatenateAndAutocompleteSettings(indexVersionSetting))
                 );
 
                 if (!createIndexResponse.Acknowledged)
-                {
-                    throw new Exception($"Cannot create index versions index: {createIndexResponse.ElasticsearchServerError}");
-                }
+                    throw new Exception($"Cannot create index versions index: {createIndexResponse.ServerError}");
 
                 Console.WriteLine("Index versions index created");
             }
@@ -166,24 +140,30 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private void CreateIndexVersion(string indexName, long oldVersion, int newVersion)
         {
+            var createIndexDescriptor = _elasticSearchDbContext.GetCreateIndexDescriptor(this, indexName);
+
             string oldIndexNameWithVersion = indexName + "_v" + oldVersion;
             string newIndexNameWithVersion = indexName + "_v" + newVersion;
+            
+            Console.WriteLine($"Creating index {newIndexNameWithVersion}...");
 
-            var createIndexResponse = ElasticsearchClient.Indices.Create(newIndexNameWithVersion, createIndexRequestDescriptor => _elasticSearchDbContext.CreateIndexRequestDescriptor(this, createIndexRequestDescriptor, indexName));
+            createIndexDescriptor = createIndexDescriptor.Index(newIndexNameWithVersion);
+
+            var createIndexResponse = ElasticClient.Indices.Create(newIndexNameWithVersion, index => createIndexDescriptor);
 
             Console.WriteLine($"Index {newIndexNameWithVersion} created");
-
+            
             if (oldVersion > 0)
             {
                 // we have an old index, reindex
 
                 Console.WriteLine($"Reindexing from {oldIndexNameWithVersion} to {newIndexNameWithVersion}...");
 
-                var reindexOnServerResult = ElasticsearchClient.Reindex(reindex => reindex
+                var reindexOnServerResult = ElasticClient.ReindexOnServer(reindex => reindex
                     .Source(source => source
-                        .Indices(oldIndexNameWithVersion)
+                        .Index(oldIndexNameWithVersion)
                     )
-                    .Dest(destinationDescriptor => destinationDescriptor
+                    .Destination(destination => destination
                         .Index(newIndexNameWithVersion)
                         .VersionType(VersionType.Internal)
                     ));
@@ -192,15 +172,15 @@ namespace HCore.Database.ElasticSearch.Impl
                     $"({reindexOnServerResult.Created} created, {reindexOnServerResult.Updated} updated)");
             }
 
-            var aliasExistsResponse = ElasticsearchClient.Indices.ExistsAlias(indexName);
+            var aliasExists = ElasticClient.Indices.AliasExists(indexName).Exists;
 
-            if (aliasExistsResponse.Exists)
+            if (aliasExists)
             {
                 // we need to remove the old alias
 
                 Console.WriteLine($"Deleting alias {indexName} -> {oldIndexNameWithVersion}...");
 
-                ElasticsearchClient.Indices.DeleteAlias(oldIndexNameWithVersion, indexName);
+                ElasticClient.Indices.DeleteAlias(oldIndexNameWithVersion, indexName);
 
                 Console.WriteLine($"Deleted alias {indexName} -> {oldIndexNameWithVersion}");
             }
@@ -209,7 +189,12 @@ namespace HCore.Database.ElasticSearch.Impl
 
             Console.WriteLine($"Creating alias {indexName} -> {newIndexNameWithVersion}...");
 
-            var createAliasResponse = ElasticsearchClient.Indices.PutAlias(indices: newIndexNameWithVersion, name: indexName);
+            var createAliasResponse = ElasticClient.Indices.BulkAlias(alias => alias
+                .Add(action => action
+                    .Index(newIndexNameWithVersion)
+                    .Alias(indexName)
+                )
+            );
 
             if (!createAliasResponse.Acknowledged)
                 throw new Exception($"Cannot create alias {indexName} -> {newIndexNameWithVersion}");
@@ -234,120 +219,101 @@ namespace HCore.Database.ElasticSearch.Impl
 
                     Console.WriteLine($"Deleting old index {oldIndexNameWithVersion}");
 
-                    var deleteIndexResponse = ElasticsearchClient.Indices.Delete(oldIndexNameWithVersion);
+                    var deleteIndexResponse = ElasticClient.Indices.Delete(oldIndexNameWithVersion);
 
                     if (!deleteIndexResponse.Acknowledged)
                         throw new Exception($"Cannot delete old index {oldIndexNameWithVersion}");
 
                     Console.WriteLine($"Deleted old index {oldIndexNameWithVersion}");
-                }
-                else
+                } else
                 {
                     Console.WriteLine($"WARNING: do not forget to delete old index {oldIndexNameWithVersion} if everything is all right!");
                 }
             }
         }
 
-        public void ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
+        public IPromise<IIndexSettings> ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
         {
-            setting
+            return setting
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas)
-                .AddOtherSetting("index.max_ngram_diff", int.MaxValue)
-                .AddOtherSetting("index.gc_deletes", "1h"); // 1 hour
+                .Setting("index.max_ngram_diff", int.MaxValue)
+                .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
-        public void ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
+        public IPromise<IIndexSettings> ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting)
         {
-            setting
+            return setting
                 .NumberOfShards(_numberOfShards)
                 .NumberOfReplicas(_numberOfReplicas)
                 .Analysis(analysis => ConfigureConcatenateAndAutocompleteAnalysis(analysis))
-                .AddOtherSetting("index.max_ngram_diff", int.MaxValue)
-                .AddOtherSetting("index.gc_deletes", "1h"); // 1 hour
+                .Setting("index.max_ngram_diff", int.MaxValue)
+                .Setting("index.gc_deletes", "1h"); // 1 hour
         }
 
-        private void ConfigureConcatenateAndAutocompleteAnalysis(IndexSettingsAnalysisDescriptor analysis)
+        private IAnalysis ConfigureConcatenateAndAutocompleteAnalysis(AnalysisDescriptor analysis)
         {
             // for concatenate filter see my fork: https://github.com/rh78/elasticsearch-concatenate-token-filter
 
-            var tokenFilters = new TokenFilters
-            {
-                {
-                    "concatenate_filter",
-                    new Filters.ConcatenateTokenFilter()
+            return analysis
+                .TokenFilters(filter => filter
+                    .UserDefined("concatenate_filter", new ConcatenateTokenFilter()
                     {
                         TokenSeparator = " ",
                         IncrementGap = 1000
-                    }
-                },
-                {
-                    "edge_ngram_filter",
-                    new EdgeNGramTokenFilter()
-                    {
-                        MinGram = 1,
-                        MaxGram = 50
-                    }
-                },
-                {
-                    "ngram_filter",
-                    new NGramTokenFilter()
-                    {
-                        MinGram = 3,
-                        MaxGram = 50
-                    }
-                },
-                {
-                    "short_ngram_filter",
-                    new NGramTokenFilter()
-                    {
-                        MinGram = 1,
-                        MaxGram = 50
-                    }
-                }
-            };
-
-            analysis
-                .TokenFilters(tokenFilters)
+                    })
+                    .EdgeNGram("edge_ngram_filter", edgeNGram => edgeNGram
+                        .MinGram(1)
+                        .MaxGram(50)
+                    )
+                    .NGram("ngram_filter", nGram => nGram
+                        .MinGram(3)
+                        .MaxGram(50)
+                    )
+                    .NGram("short_ngram_filter", nGram => nGram
+                        .MinGram(1)
+                        .MaxGram(50)
+                    )
+                )
                 .Analyzers(analyzer => analyzer
                     .Custom("edge_ngram_concatenate_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "concatenate_filter", "edge_ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "edge_ngram_filter" })
                     )
                     .Custom("edge_ngram_partial_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "edge_ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "edge_ngram_filter" })
                     )
                     .Custom("ngram_concatenate_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "concatenate_filter", "ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "ngram_filter" })
                     )
                     .Custom("short_ngram_concatenate_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "concatenate_filter", "short_ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter", "short_ngram_filter" })
                     )
                     .Custom("ngram_partial_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "ngram_filter" })
                     )
                     .Custom("short_ngram_partial_index", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "short_ngram_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "short_ngram_filter" })
                     )
                     .Custom("concatenate_search", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding", "concatenate_filter" })
+                        .Filters(new string[] { "lowercase", "asciifolding", "concatenate_filter" })
                     )
                     .Custom("partial_search", custom => custom
                         .Tokenizer("standard")
-                        .Filter(new string[] { "lowercase", "asciifolding" })
+                        .Filters(new string[] { "lowercase", "asciifolding" })
                     )
                 );
         }
 
         private IndexVersion GetIndexVersion(string indexName)
         {
-            bool indexVersionExists = ElasticsearchClient.Exists<IndexVersion>(indexName, get => get
+            bool indexVersionExists = ElasticClient.DocumentExists<IndexVersion>(indexName, get => get
                 .Index(IndexVersionsIndexName)).Exists;
 
             if (!indexVersionExists)
@@ -361,10 +327,9 @@ namespace HCore.Database.ElasticSearch.Impl
                 UpdateIndexVersion(newIndexVersion);
 
                 return newIndexVersion;
-            }
-            else
+            } else
             {
-                var getIndexVersionResponse = ElasticsearchClient.Get<IndexVersion>(indexName, get => get
+                var getIndexVersionResponse = ElasticClient.Get<IndexVersion>(indexName, get => get
                     .Index(IndexVersionsIndexName));
 
                 return getIndexVersionResponse.Source;
@@ -373,7 +338,7 @@ namespace HCore.Database.ElasticSearch.Impl
 
         private void UpdateIndexVersion(IndexVersion indexVersion)
         {
-            ElasticsearchClient.Index(indexVersion, index => index
+            ElasticClient.Index(indexVersion, index => index
                 .Index(IndexVersionsIndexName)
                 .Id(indexVersion.Name));
         }
