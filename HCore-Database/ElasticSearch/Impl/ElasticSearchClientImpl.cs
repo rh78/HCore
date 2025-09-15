@@ -169,6 +169,8 @@ namespace HCore.Database.ElasticSearch.Impl
             string oldIndexNameWithVersion = indexName + "_v" + oldVersion;
             string newIndexNameWithVersion = indexName + "_v" + newVersion;
 
+            Console.WriteLine($"Creating index {newIndexNameWithVersion}...");
+
             var createIndexResponse = ElasticsearchClient.Indices.Create(newIndexNameWithVersion, createIndexRequestDescriptor => _elasticSearchDbContext.CreateIndexRequestDescriptor(this, createIndexRequestDescriptor, indexName));
 
             Console.WriteLine($"Index {newIndexNameWithVersion} created");
