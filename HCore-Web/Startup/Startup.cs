@@ -423,11 +423,11 @@ namespace HCore.Web.Startup
 
                 IsShuttingDown = true;
 
-                Console.WriteLine("Health check service errored successfully, machine will be out of LB rotation in 5 secs");
+                Console.WriteLine("Health check service errored successfully, machine will be out of LB rotation in max. 30 secs");
 
                 // make sure AMQP does not start to process new things anymore
 
-                Console.WriteLine("Shutting down receivers, and waiting for LB rotation end (10 secs)...");
+                Console.WriteLine("Shutting down receivers, and waiting for LB rotation end (60 secs)...");
 
                 IAMQPMessenger amqpMessenger = null;
 
