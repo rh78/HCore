@@ -94,7 +94,7 @@ namespace HCore.Database.ElasticSearch.Impl
                         return serializer;
                     })
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions(alwaysThrow: false);
+                    .ThrowExceptions();
             }
             else
             {
@@ -109,7 +109,7 @@ namespace HCore.Database.ElasticSearch.Impl
                          return serializer;
                      })
                     .DisableAutomaticProxyDetection()
-                    .ThrowExceptions(alwaysThrow: false);
+                    .ThrowExceptions();
             }
 
             ElasticsearchClient = new ElasticsearchClient(settings);
