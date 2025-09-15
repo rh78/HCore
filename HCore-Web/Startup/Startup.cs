@@ -444,13 +444,13 @@ namespace HCore.Web.Startup
                     preShutdownTasks.Add(shutdownReceiverTask);
                 }
 
-                // make sure LB recognizes that we are shutting down (should happen after 5 secs)
+                // make sure LB recognizes that we are shutting down
 
-                var waitForLbTask = Task.Delay(10000);
+                var waitForLbTask = Task.Delay(60000);
 
                 preShutdownTasks.Add(waitForLbTask);
 
-                // we wait at least 10 secs here
+                // we wait at least 60 secs here
 
                 await Task.WhenAll(preShutdownTasks);
 
@@ -539,9 +539,17 @@ namespace HCore.Web.Startup
 
         private async Task WaitForOpenRequestsAsync()
         {
-            while (OpenRequestsMiddleware.OpenRequests > 0)
+            var count = 0;
+
+            // wait for a maximum of 60 secs to finally shut down
+
+            while (OpenRequestsMiddleware.OpenRequests > 0 && count < 60)
             {
-                await Task.Delay(5000).ConfigureAwait(false);
+                Console.WriteLine($"Still {OpenRequestsMiddleware.OpenRequests} requests open");
+
+                await Task.Delay(1000).ConfigureAwait(false);
+
+                count++;
             }
         }
     }
