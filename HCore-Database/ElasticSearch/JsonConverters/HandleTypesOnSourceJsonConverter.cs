@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Mail;
 using Elastic.Clients.Elasticsearch;
-using Elastic.Clients.Elasticsearch.Aggregations;
 using Elastic.Clients.Elasticsearch.QueryDsl;
 using Elastic.Transport;
 using HCore.Database.Extensions;
@@ -14,14 +12,18 @@ namespace HCore.Database.ElasticSearch.JsonConverters
 {
     public class HandleTypesOnSourceJsonConverter : JsonConverter
     {
-        private static readonly HashSet<Type> _typesThatCanAppearInSource =
-        [
-            typeof(Aggregation),
+        private static readonly HashSet<Type> _typesThatCanAppearInSource = new HashSet<Type>
+        {
+            // typeof(JoinField),
             typeof(Query),
-            typeof(JoinField),
-            typeof(Attachment),
-            typeof(GeoLocation)
-        ];
+            // typeof(CompletionField),
+            // typeof(Attachment),
+            // typeof(ILazyDocument),
+            // typeof(LazyDocument),
+            // typeof(GeoCoordinate),
+            typeof(GeoLocation),
+            // typeof(CartesianPoint),
+        };
 
         private readonly Serializer _builtInSerializer;
 
@@ -40,31 +42,36 @@ namespace HCore.Database.ElasticSearch.JsonConverters
                 ? SerializationFormatting.Indented
                 : SerializationFormatting.None;
 
-            using var memoryStream = new MemoryStream();
-            using var streamReader = new StreamReader(memoryStream, JTokenExtensions.ExpectedEncoding);
-            using var jsonTextReader = new JsonTextReader(streamReader);
+            using (var ms = new MemoryStream())
+            using (var streamReader = new StreamReader(ms, JTokenExtensions.ExpectedEncoding))
+            using (var reader = new JsonTextReader(streamReader))
+            {
 
-            _builtInSerializer.Serialize(value, memoryStream, formatting);
+                _builtInSerializer.Serialize(value, ms, formatting);
 
-            memoryStream.Position = 0;
-            
-            var token = jsonTextReader.ReadTokenWithDateParseHandlingNone();
+                ms.Position = 0;
 
-            writer.WriteToken(token.CreateReader(), true);
+                var token = reader.ReadTokenWithDateParseHandlingNone();
+
+                writer.WriteToken(token.CreateReader(), true);
+            }
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var token = reader.ReadTokenWithDateParseHandlingNone();
-
+            //in place because JsonConverter.Deserialize() only works on full json objects.
+            //even though we pass type JSON.NET won't try the registered converter for that type
+            //even if it can handle string tokens :(
             if (objectType == typeof(JoinField) && token.Type == JTokenType.String)
             {
                 return JoinField.Root(token.Value<string>());
             }
 
-            using var memoryStream = token.ToStream();
-
-            return _builtInSerializer.Deserialize(objectType, memoryStream);
+            using (var ms = token.ToStream())
+            {
+                return _builtInSerializer.Deserialize(objectType, ms);
+            }
         }
 
         public override bool CanConvert(Type objectType) => _typesThatCanAppearInSource.Contains(objectType);

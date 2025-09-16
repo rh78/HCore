@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Elastic.Clients.Elasticsearch;
 using Elastic.Transport;
 using HCore.Database.ElasticSearch.JsonConverters;
 using HCore.Database.Extensions;
@@ -24,7 +25,7 @@ namespace HCore.Database.ElasticSearch.Serializers
         private readonly List<JsonConverter> _defaultConverters;
         private readonly IEnumerable<JsonConverter> _jsonConverters;
 
-        public NewtonsoftSourceSerializer(Serializer builtInSerializer, JsonSerializerSettings jsonSerializerSettings = null, IEnumerable<JsonConverter> jsonConverters = null)
+        public NewtonsoftSourceSerializer(Serializer builtInSerializer, IElasticsearchClientSettings elasticsearchClientSettings, JsonSerializerSettings jsonSerializerSettings = null, IEnumerable<JsonConverter> jsonConverters = null)
         {
             _jsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings
             {
@@ -41,12 +42,14 @@ namespace HCore.Database.ElasticSearch.Serializers
                 new TimeSpanToStringConverter()
             ];
 
-            _serializer = CreateSerializer(SerializationFormatting.Indented);
-            _collapsedSerializer = CreateSerializer(SerializationFormatting.None);
+            _serializer = CreateSerializer(elasticsearchClientSettings, SerializationFormatting.Indented);
+            _collapsedSerializer = CreateSerializer(elasticsearchClientSettings, SerializationFormatting.None);
         }
 
-        private JsonSerializer CreateSerializer(SerializationFormatting formatting)
+        private JsonSerializer CreateSerializer(IElasticsearchClientSettings elasticsearchClientSettings, SerializationFormatting formatting)
         {
+            _jsonSerializerSettings.ContractResolver = new ConnectionSettingsAwareContractResolver(elasticsearchClientSettings);
+
             _jsonSerializerSettings.Formatting = formatting == SerializationFormatting.Indented
                 ? Formatting.Indented
                 : Formatting.None;
@@ -61,58 +64,42 @@ namespace HCore.Database.ElasticSearch.Serializers
 
         public override object Deserialize(Type type, Stream stream)
         {
-            if (stream == null)
+            using (var streamReader = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                return default;
+                return _serializer.Deserialize(jsonTextReader, type);
             }
-
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            return _serializer.Deserialize(jsonTextReader, type);
         }
 
         public override T Deserialize<T>(Stream stream)
         {
-            if (stream == null)
+            using (var streamReader = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                return default;
+                return _serializer.Deserialize<T>(jsonTextReader);
             }
-
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            return _serializer.Deserialize<T>(jsonTextReader);
         }
 
         public override async ValueTask<object> DeserializeAsync(Type type, Stream stream, CancellationToken cancellationToken = default)
         {
-            if (stream == null)
+            using (var streamReader = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                return default;
+                var token = await jsonTextReader.ReadTokenWithDateParseHandlingNoneAsync(cancellationToken).ConfigureAwait(false);
+
+                return token.ToObject(type, _serializer);
             }
-
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            var token = await jsonTextReader.ReadTokenWithDateParseHandlingNoneAsync(cancellationToken).ConfigureAwait(false);
-
-            return token.ToObject(type, _serializer);
         }
 
         public override async ValueTask<T> DeserializeAsync<T>(Stream stream, CancellationToken cancellationToken = default)
         {
-            if (stream == null)
+            using (var streamReader = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                return default;
+                var token = await jsonTextReader.ReadTokenWithDateParseHandlingNoneAsync(cancellationToken).ConfigureAwait(false);
+
+                return token.ToObject<T>(_serializer);
             }
-
-            using var streamReader = new StreamReader(stream);
-            using var jsonTextReader = new JsonTextReader(streamReader);
-
-            var token = await jsonTextReader.ReadTokenWithDateParseHandlingNoneAsync(cancellationToken).ConfigureAwait(false);
-
-            return token.ToObject<T>(_serializer);
         }
 
         public override void Serialize(object data, Type type, Stream stream, SerializationFormatting formatting = SerializationFormatting.None, CancellationToken cancellationToken = default)
@@ -122,16 +109,15 @@ namespace HCore.Database.ElasticSearch.Serializers
 
         public override void Serialize<T>(T data, Stream stream, SerializationFormatting formatting = SerializationFormatting.None)
         {
-            using var writer = new StreamWriter(stream, JTokenExtensions.ExpectedEncoding, _defaultBufferSize, true);
-            using var jsonWriter = new JsonTextWriter(writer);
+            using (var writer = new StreamWriter(stream, JTokenExtensions.ExpectedEncoding, _defaultBufferSize, true))
+            using (var jsonWriter = new JsonTextWriter(writer))
+            {
+                var serializer = formatting == SerializationFormatting.Indented
+                    ? _serializer
+                    : _collapsedSerializer;
 
-            var serializer = formatting == SerializationFormatting.Indented
-                ? _serializer
-                : _collapsedSerializer;
-
-            serializer.Serialize(jsonWriter, data);
-
-            jsonWriter.Flush();
+                serializer.Serialize(jsonWriter, data);
+            }
         }
 
         public override Task SerializeAsync(object data, Type type, Stream stream, SerializationFormatting formatting = SerializationFormatting.None, CancellationToken cancellationToken = default)

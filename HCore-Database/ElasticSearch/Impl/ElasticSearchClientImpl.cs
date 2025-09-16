@@ -84,7 +84,7 @@ namespace HCore.Database.ElasticSearch.Impl
             {
                 settings = new ExtendedElasticsearchClientSettings(
                     nodePool,
-                    sourceSerializer: (serializer, settings) => new NewtonsoftSourceSerializer(serializer),
+                    sourceSerializer: (serializer, settings) => new NewtonsoftSourceSerializer(serializer, settings),
                     requestResponseSerializer: (serializer, settings) =>
                     {
                         serializer.TryGetJsonSerializerOptions(out var options);
