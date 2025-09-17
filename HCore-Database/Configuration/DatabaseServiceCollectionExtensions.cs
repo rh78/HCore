@@ -13,6 +13,41 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class DatabaseServiceCollectionExtensions
     {
+        public static IServiceCollection AddNestElasticSearch<TElasticSearchDbContext>(this IServiceCollection services, IConfiguration configuration, bool isProduction, bool useJsonNetSerializer = false)
+            where TElasticSearchDbContext : INestElasticSearchDbContext
+        {
+            Console.WriteLine("Initializing Nest ElasticSearch DB context...");
+
+            // determine type here
+            var nestElasticSearchDbContextType = typeof(TElasticSearchDbContext);
+
+            // create an object of the type
+            var nestElasticSearchDbContext = (TElasticSearchDbContext)Activator.CreateInstance(nestElasticSearchDbContextType);
+
+            int numberOfShards = configuration.GetValue<int>("ElasticSearch:Shards");
+            if (numberOfShards < 1)
+                throw new Exception("ElasticSearch number of shards is invalid");
+
+            int numberOfReplicas = configuration.GetValue<int>("ElasticSearch:Replicas");
+            if (numberOfReplicas < 1)
+                throw new Exception("ElasticSearch number of replicas is invalid");
+
+            string hosts = configuration["ElasticSearch:Hosts"];
+            if (string.IsNullOrEmpty(hosts))
+                throw new Exception("ElasticSearch hosts not found");
+
+            INestElasticSearchClient nestElasticSearchClient = new NestElasticSearchClientImpl(
+                isProduction, numberOfShards, numberOfReplicas, hosts, nestElasticSearchDbContext, useJsonNetSerializer);
+
+            nestElasticSearchClient.Initialize();
+
+            services.AddSingleton(nestElasticSearchClient);
+
+            Console.WriteLine("Initialized Nest ElasticSearch DB context");
+
+            return services;
+        }
+
         public static IServiceCollection AddElasticSearch<TElasticSearchDbContext>(this IServiceCollection services, IConfiguration configuration, bool isProduction, bool useJsonNetSerializer = false)
             where TElasticSearchDbContext : IElasticSearchDbContext
         {

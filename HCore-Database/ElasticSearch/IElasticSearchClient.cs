@@ -1,14 +1,15 @@
-﻿using Nest;
+﻿using Elastic.Clients.Elasticsearch;
+using Elastic.Clients.Elasticsearch.IndexManagement;
 
 namespace HCore.Database.ElasticSearch
 {
     public interface IElasticSearchClient
     {
-        ElasticClient ElasticClient { get; }
+        ElasticsearchClient ElasticsearchClient { get; }
 
         void Initialize();
 
-        IPromise<IIndexSettings> ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting);
-        IPromise<IIndexSettings> ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting);
+        void ConfigureNonConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting);
+        void ConfigureConcatenateAndAutocompleteSettings(IndexSettingsDescriptor setting);
     }
 }
