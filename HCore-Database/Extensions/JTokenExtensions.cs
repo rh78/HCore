@@ -4,7 +4,7 @@
 
 // Original at https://github.com/elastic/elasticsearch-net/blob/7.17.5/src/Nest.JsonNetSerializer/JsonNetSerializer.cs
 
-// Adjusted for HCore by Reinhard Holzner
+// Adjusted for HCore by Yosif Velev
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;

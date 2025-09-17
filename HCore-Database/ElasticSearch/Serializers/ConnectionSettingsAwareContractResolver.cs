@@ -4,7 +4,7 @@
 
 // Original at https://github.com/elastic/elasticsearch-net/blob/7.17.5/src/Nest.JsonNetSerializer/ConnectionSettingsAwareContractResolver.cs
 
-// Adjusted for HCore by Reinhard Holzner
+// Adjusted for HCore by Yosif Velev
 using System;
 using System.Reflection;
 using Elastic.Clients.Elasticsearch;
