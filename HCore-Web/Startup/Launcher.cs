@@ -20,9 +20,7 @@ using HCore.Web.Providers;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-#if !DEBUG
 using HCore.Web.Configuration;
-#endif
 
 namespace HCore.Web.Startup
 {
@@ -123,7 +121,6 @@ namespace HCore.Web.Startup
                 .AddJsonFile($"appsettings.{_environment}.override.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
-#if !DEBUG
             _hostBuilder.ConfigureServices(services =>
             {
                 bool useOpenTelemetry = _configuration.GetValue<bool>("WebServer:UseOpenTelemetry");
@@ -133,7 +130,6 @@ namespace HCore.Web.Startup
                     services.AddOpenTelemetry(_configuration);
                 }
             });
-#endif
 
             ConfigureDefaultServiceProvider();
             ConfigureLogging();
