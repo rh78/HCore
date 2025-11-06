@@ -123,6 +123,18 @@ namespace HCore.Web.Startup
                 .AddJsonFile($"appsettings.{_environment}.override.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
+#if !DEBUG
+            _hostBuilder.ConfigureServices(services =>
+            {
+                bool useOpenTelemetry = _configuration.GetValue<bool>("WebServer:UseOpenTelemetry");
+
+                if (useOpenTelemetry)
+                {
+                    services.AddOpenTelemetry(_configuration);
+                }
+            });
+#endif
+
             ConfigureDefaultServiceProvider();
             ConfigureLogging();
             ConfigureConfiguration();
@@ -443,15 +455,6 @@ namespace HCore.Web.Startup
             webHostBuilder.ConfigureServices((hostingContext, services) =>
             {
                 var configuration = hostingContext.Configuration;
-
-#if !DEBUG
-                bool useOpenTelemetry = Configuration.GetValue<bool>("WebServer:UseOpenTelemetry");
-
-                if (useOpenTelemetry)
-                {
-                    services.AddOpenTelemetry(Configuration);
-                }
-#endif
 
                 // Fallback
                 services.PostConfigure<HostFilteringOptions>(options =>
