@@ -7,6 +7,8 @@ namespace HCore.Web.Models
         [Required]
         public string ServiceName { get; set; }
 
+        public string ServiceVersion { get; set; }
+
         public string Protocol { get; set; }
 
         public string Endpoint { get; set; }

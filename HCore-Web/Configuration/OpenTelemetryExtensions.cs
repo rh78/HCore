@@ -26,7 +26,7 @@ namespace HCore.Web.Configuration
 
             var openTelemetryBuilder = services
                 .AddOpenTelemetry()
-                .ConfigureResource(resourceBuilder => resourceBuilder.AddService(openTelemetryConfigurationModel.ServiceName));
+                .ConfigureResource(resourceBuilder => resourceBuilder.AddService(openTelemetryConfigurationModel.ServiceName, openTelemetryConfigurationModel.ServiceVersion));
 
             if (openTelemetryConfigurationModel.AddMetrics)
             {
