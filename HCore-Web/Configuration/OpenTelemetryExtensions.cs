@@ -44,6 +44,7 @@ namespace HCore.Web.Configuration
             {
                 openTelemetryBuilder = openTelemetryBuilder.WithTracing(tracerProviderBuilder =>
                 {
+                    tracerProviderBuilder.AddXRayTraceId();
                     tracerProviderBuilder.AddAspNetCoreInstrumentation();
                     tracerProviderBuilder.AddHttpClientInstrumentation();
                     tracerProviderBuilder.AddAWSInstrumentation();
