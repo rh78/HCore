@@ -20,6 +20,9 @@ using HCore.Web.Providers;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
+#if !DEBUG
+using HCore.Web.Configuration;
+#endif
 
 namespace HCore.Web.Startup
 {
@@ -440,6 +443,15 @@ namespace HCore.Web.Startup
             webHostBuilder.ConfigureServices((hostingContext, services) =>
             {
                 var configuration = hostingContext.Configuration;
+
+#if !DEBUG
+                bool useOpenTelemetry = Configuration.GetValue<bool>("WebServer:UseOpenTelemetry");
+
+                if (useOpenTelemetry)
+                {
+                    services.AddOpenTelemetry(Configuration);
+                }
+#endif
 
                 // Fallback
                 services.PostConfigure<HostFilteringOptions>(options =>

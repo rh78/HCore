@@ -20,9 +20,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using HCore.Amqp.Messenger;
-#if !DEBUG
-using HCore.Web.Configuration;
-#endif
 
 namespace HCore.Web.Startup
 {
@@ -86,15 +83,6 @@ namespace HCore.Web.Startup
 
         private void ConfigureLogging(IServiceCollection services)
         {
-#if !DEBUG
-            bool useOpenTelemetry = Configuration.GetValue<bool>("WebServer:UseOpenTelemetry");
-
-            if (useOpenTelemetry)
-            {
-                services.AddOpenTelemetry(Configuration);
-            }
-#endif
-
             bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
 
             if (useSegment)
