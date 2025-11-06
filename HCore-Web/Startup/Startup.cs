@@ -83,10 +83,6 @@ namespace HCore.Web.Startup
 
         private void ConfigureLogging(IServiceCollection services)
         {
-#if !DEBUG
-            services.AddApplicationInsightsTelemetry();
-#endif
-
             bool useSegment = Configuration.GetValue<bool>("WebServer:UseSegment");
 
             if (useSegment)
