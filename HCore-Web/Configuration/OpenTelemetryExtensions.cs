@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using HCore.Web.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -33,6 +34,7 @@ namespace HCore.Web.Configuration
                 {
                     meterProviderBuilder.AddAspNetCoreInstrumentation();
                     meterProviderBuilder.AddHttpClientInstrumentation();
+                    meterProviderBuilder.AddAWSInstrumentation();
 
                     meterProviderBuilder.AddOtlpExporter(otlpExporterOptions => SetOtlpExporterOptions(otlpExporterOptions, openTelemetryConfigurationModel));
                 });
@@ -44,6 +46,8 @@ namespace HCore.Web.Configuration
                 {
                     tracerProviderBuilder.AddAspNetCoreInstrumentation();
                     tracerProviderBuilder.AddHttpClientInstrumentation();
+                    tracerProviderBuilder.AddAWSInstrumentation();
+                    tracerProviderBuilder.AddNpgsql();
 
                     tracerProviderBuilder.AddOtlpExporter(otlpExporterOptions => SetOtlpExporterOptions(otlpExporterOptions, openTelemetryConfigurationModel));
                 });
