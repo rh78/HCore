@@ -16,11 +16,11 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Hosting;
 using System.Net.Security;
+using HCore.Web.Configuration;
 using HCore.Web.Providers;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-using HCore.Web.Configuration;
 
 namespace HCore.Web.Startup
 {
