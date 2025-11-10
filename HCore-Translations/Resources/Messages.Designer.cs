@@ -2113,7 +2113,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die You sent too many requests to confirm your email. Please get in touch with us to solve this problem ähnelt.
+        ///   Sucht eine lokalisierte Zeichenfolge, die You sent too many requests to confirm your email. Please get in touch with us to solve this problem. ähnelt.
         /// </summary>
         public static string too_many_email_confirmation_attempts {
             get {

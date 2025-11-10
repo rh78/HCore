@@ -871,6 +871,6 @@
     <value>Please use the Single Sign On (SSO) authentication for signing in with this email address</value>
   </data>
   <data name="too_many_email_confirmation_attempts" xml:space="preserve">
-    <value>You sent too many requests to confirm your email. Please get in touch with us to solve this problem</value>
+    <value>You sent too many requests to confirm your email. Please get in touch with us to solve this problem.</value>
   </data>
 </root>
