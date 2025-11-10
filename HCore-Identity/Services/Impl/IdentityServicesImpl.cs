@@ -1462,10 +1462,16 @@ namespace HCore.Identity.Services.Impl
             await _signInManager.SignOutAsync().ConfigureAwait(false);
 
             string userUuid = null;
+            UserModel userModel = null;
 
             if (httpContext.User != null)
             {
                 userUuid = httpContext.User.GetUserUuid();
+
+                if (!string.IsNullOrEmpty(userUuid))
+                {
+                    userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                }
             }
 
             if (_tenantInfoAccessor != null)
@@ -1478,20 +1484,13 @@ namespace HCore.Identity.Services.Impl
 
                 if (externalAuthenticationAllowLocalLogin)
                 {
-                    UserModel userModel = null;
-
                     isRemoteUser = false;
 
-                    if (!string.IsNullOrEmpty(userUuid))
+                    if (userModel != null && (userModel.PasswordHash == null || !string.IsNullOrEmpty(userModel.IdentityTokenCache)))
                     {
-                        userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                        // this is a remote user for sure
 
-                        if (userModel != null && (userModel.PasswordHash == null || !string.IsNullOrEmpty(userModel.IdentityTokenCache)))
-                        {
-                            // this is a remote user for sure
-
-                            isRemoteUser = true;
-                        }
+                        isRemoteUser = true;
                     }
                 }
 
@@ -1499,13 +1498,6 @@ namespace HCore.Identity.Services.Impl
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
-                        UserModel userModel = null;
-
-                        if (!string.IsNullOrEmpty(userUuid))
-                        {
-                            userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
-                        }
-
                         string idTokenHint = null;
 
                         if (userModel != null)
@@ -1538,12 +1530,17 @@ namespace HCore.Identity.Services.Impl
                 }
             }
 
+            if (userModel != null)
+            {
+                await _userManager.UpdateSecurityStampAsync(userModel).ConfigureAwait(false);
+            }
+
             _logger.LogInformation("User logged out");
            
             if (_userNotificationListener != null && !string.IsNullOrEmpty(userUuid))
             {
                 await _userNotificationListener.UserLoggedOutAsync(userUuid).ConfigureAwait(false); 
-            }                
+            }
         }
 
         public async Task<UserModel> GetUserAsync(string userUuid)

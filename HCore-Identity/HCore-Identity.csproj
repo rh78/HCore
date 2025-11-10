@@ -23,6 +23,7 @@
 
   <ItemGroup>    
     <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />    
+    <ProjectReference Include="..\HCore-Cache\HCore-Cache.csproj" />    
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />    
     <ProjectReference Include="..\HCore-Directory\HCore-Directory.csproj" />    
     <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />

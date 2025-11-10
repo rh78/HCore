@@ -46,6 +46,8 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Logging;
 using Newtonsoft.Json;
 using reCAPTCHA.AspNetCore;
+using HCore.Identity.Stores;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -608,8 +610,17 @@ namespace Microsoft.Extensions.DependencyInjection
             });
 
             IdentityModelEventSource.ShowPII = true;
-
+            
             identityBuilder.AddEntityFrameworkStores<SqlServerIdentityDbContext>();
+
+            identityBuilder.Services.AddSingleton<ISecurityStampCacheProvider, SecurityStampCacheProviderImpl>();
+
+            var userStoreDescriptor = new ServiceDescriptor(typeof(IUserStore<UserModel>), typeof(CacheableUserStore), ServiceLifetime.Transient);
+            identityBuilder.Services.Replace(userStoreDescriptor);
+
+            var securityStampValidatorDescriptor = new ServiceDescriptor(typeof(ISecurityStampValidator), typeof(CacheableSecurityStampValidator), ServiceLifetime.Scoped);
+            identityBuilder.Services.Replace(securityStampValidatorDescriptor);
+
             identityBuilder.AddDefaultTokenProviders();
 
             if (tenantsBuilder == null)
