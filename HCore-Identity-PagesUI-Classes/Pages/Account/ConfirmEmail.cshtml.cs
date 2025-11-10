@@ -12,6 +12,7 @@ using HCore.Identity.Database.SqlServer.Models.Impl;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ConfirmEmailModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

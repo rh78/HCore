@@ -27,6 +27,7 @@ using reCAPTCHA.AspNetCore;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class RegisterModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

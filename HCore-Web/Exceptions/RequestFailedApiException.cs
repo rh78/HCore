@@ -223,6 +223,7 @@ namespace HCore.Web.Exceptions
         public const string ClaimsPrincipalHasTooManyGroups = "claims_principal_has_too_many_groups";
         public const string CustomCssInvalid = "custom_css_invalid";
         public const string ExternalAuthenticationRequiredForEmailDomain = "external_authentication_required_for_email_domain";
+        public const string TooManyEmailConfirmationAttempts = "too_many_email_confirmation_attempts";
 
         // internal, not translated
 

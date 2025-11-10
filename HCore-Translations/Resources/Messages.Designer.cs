@@ -2113,6 +2113,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die You sent too many requests to confirm your email. Please get in touch with us to solve this problem. ähnelt.
+        /// </summary>
+        public static string too_many_email_confirmation_attempts {
+            get {
+                return ResourceManager.GetString("too_many_email_confirmation_attempts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please only update up to 50 records at once ähnelt.
         /// </summary>
         public static string too_many_update_records {

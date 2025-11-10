@@ -1225,7 +1225,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user.EmailConfirmed)
                     {
-                        // Email already confirmed
+                        // email already confirmed
 
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
                     }
@@ -1236,19 +1236,11 @@ namespace HCore.Identity.Services.Impl
                     {
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                        await _signInManager.SignInAsync(user, isPersistent: true).ConfigureAwait(false);
-
-                        _logger.LogInformation("User signed in");
-
-                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
-
                         transaction.Commit();
 
                         if (_userNotificationListener != null)
                         {
                             await _userNotificationListener.UserConfirmedEmailAsync(user.Id).ConfigureAwait(false);
-
-                            await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                         }
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
@@ -1462,10 +1454,16 @@ namespace HCore.Identity.Services.Impl
             await _signInManager.SignOutAsync().ConfigureAwait(false);
 
             string userUuid = null;
+            UserModel userModel = null;
 
             if (httpContext.User != null)
             {
                 userUuid = httpContext.User.GetUserUuid();
+
+                if (!string.IsNullOrEmpty(userUuid))
+                {
+                    userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                }
             }
 
             if (_tenantInfoAccessor != null)
@@ -1478,20 +1476,13 @@ namespace HCore.Identity.Services.Impl
 
                 if (externalAuthenticationAllowLocalLogin)
                 {
-                    UserModel userModel = null;
-
                     isRemoteUser = false;
 
-                    if (!string.IsNullOrEmpty(userUuid))
+                    if (userModel != null && (userModel.PasswordHash == null || !string.IsNullOrEmpty(userModel.IdentityTokenCache)))
                     {
-                        userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+                        // this is a remote user for sure
 
-                        if (userModel != null && (userModel.PasswordHash == null || !string.IsNullOrEmpty(userModel.IdentityTokenCache)))
-                        {
-                            // this is a remote user for sure
-
-                            isRemoteUser = true;
-                        }
+                        isRemoteUser = true;
                     }
                 }
 
@@ -1499,13 +1490,6 @@ namespace HCore.Identity.Services.Impl
                 {
                     if (string.Equals(tenantInfo.ExternalAuthenticationMethod, TenantConstants.ExternalAuthenticationMethodOidc))
                     {
-                        UserModel userModel = null;
-
-                        if (!string.IsNullOrEmpty(userUuid))
-                        {
-                            userModel = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
-                        }
-
                         string idTokenHint = null;
 
                         if (userModel != null)
@@ -1538,12 +1522,17 @@ namespace HCore.Identity.Services.Impl
                 }
             }
 
+            if (userModel != null)
+            {
+                await _userManager.UpdateSecurityStampAsync(userModel).ConfigureAwait(false);
+            }
+
             _logger.LogInformation("User logged out");
            
             if (_userNotificationListener != null && !string.IsNullOrEmpty(userUuid))
             {
                 await _userNotificationListener.UserLoggedOutAsync(userUuid).ConfigureAwait(false); 
-            }                
+            }
         }
 
         public async Task<UserModel> GetUserAsync(string userUuid)
@@ -1819,6 +1808,20 @@ namespace HCore.Identity.Services.Impl
                         throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
+                    if (user.EmailConfirmed)
+                    {
+                        // email already confirmed
+
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
+                    }
+
+                    var numberOfEmailConfirmationAttempts = user.NumberOfEmailConfirmationAttempts;
+
+                    if (numberOfEmailConfirmationAttempts >= 3)
+                    {
+                        throw new RequestFailedApiException(RequestFailedApiException.TooManyEmailConfirmationAttempts, "Too many email confirmation attempts have been recorded. Please get in touch with us to look at the issue");
+                    }
+                    
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
                     var currentCultureInfo = CultureInfo.CurrentCulture;
@@ -1833,6 +1836,12 @@ namespace HCore.Identity.Services.Impl
                         new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+
+                    user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
+                    user.NumberOfEmailConfirmationAttempts++;
+
+                    await _userManager.UpdateAsync(user).ConfigureAwait(false);
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 

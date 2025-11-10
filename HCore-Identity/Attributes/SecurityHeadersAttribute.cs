@@ -84,14 +84,9 @@ namespace HCore.Identity.Attributes
                     context.HttpContext.Response.Headers["Referrer-Policy"] = "no-referrer";
                 }
 
-                if (!context.HttpContext.Response.Headers.ContainsKey("Feature-Policy"))
+                if (!context.HttpContext.Response.Headers.ContainsKey("Permissions-Policy"))
                 {
-                    context.HttpContext.Response.Headers["Feature-Policy"] = "autoplay: *; max-downscaling-image: *; unsized-media: *; animations: *; vertical-scroll: 'self';";
-                }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("X-XSS-Protection"))
-                {
-                    context.HttpContext.Response.Headers["X-XSS-Protection"] = "1; mode=block";
+                    context.HttpContext.Response.Headers["Permissions-Policy"] = "geolocation=(),camera=(),microphone=(),clipboard-read=(self),clipboard-write=(self),vertical-scroll=(self),fullscreen=*,autoplay=*";
                 }
             }
         }
