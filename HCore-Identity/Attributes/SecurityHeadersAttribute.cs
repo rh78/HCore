@@ -83,11 +83,6 @@ namespace HCore.Identity.Attributes
                 {
                     context.HttpContext.Response.Headers["Referrer-Policy"] = "no-referrer";
                 }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("Feature-Policy"))
-                {
-                    context.HttpContext.Response.Headers["Feature-Policy"] = "autoplay: *; max-downscaling-image: *; unsized-media: *; animations: *; vertical-scroll: 'self';";
-                }
             }
         }
     }
