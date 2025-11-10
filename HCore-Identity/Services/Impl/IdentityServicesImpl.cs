@@ -1236,19 +1236,11 @@ namespace HCore.Identity.Services.Impl
                     {
                         await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 
-                        await _signInManager.SignInAsync(user, isPersistent: true).ConfigureAwait(false);
-
-                        _logger.LogInformation("User signed in");
-
-                        await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
-
                         transaction.Commit();
 
                         if (_userNotificationListener != null)
                         {
                             await _userNotificationListener.UserConfirmedEmailAsync(user.Id).ConfigureAwait(false);
-
-                            await _userNotificationListener.UserLoggedInAsync(user.Id).ConfigureAwait(false);
                         }
 
                         await SendUserChangeNotificationAsync(user.Id).ConfigureAwait(false);
