@@ -1225,7 +1225,7 @@ namespace HCore.Identity.Services.Impl
 
                     if (user.EmailConfirmed)
                     {
-                        // Email already confirmed
+                        // email already confirmed
 
                         throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
                     }
@@ -1808,6 +1808,20 @@ namespace HCore.Identity.Services.Impl
                         throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                     }
 
+                    if (user.EmailConfirmed)
+                    {
+                        // email already confirmed
+
+                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
+                    }
+
+                    var numberOfEmailConfirmationAttempts = user.NumberOfEmailConfirmationAttempts;
+
+                    if (numberOfEmailConfirmationAttempts > 3)
+                    {
+                        throw new RequestFailedApiException(RequestFailedApiException.TooManyEmailConfirmationAttempts, "Too many email confirmation attempts have been recorded. Please get in touch with us to look at the issue");
+                    }
+                    
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user).ConfigureAwait(false);
 
                     var currentCultureInfo = CultureInfo.CurrentCulture;
@@ -1822,6 +1836,10 @@ namespace HCore.Identity.Services.Impl
                         new ConfirmAccountEmailViewModel(callbackUrl), isPortals: null, currentCultureInfo).ConfigureAwait(false);
 
                     await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
+
+                    user.NumberOfEmailConfirmationAttempts++;
+
+                    await _userManager.UpdateAsync(user).ConfigureAwait(false);
 
                     await _identityDbContext.SaveChangesAsync().ConfigureAwait(false);
 

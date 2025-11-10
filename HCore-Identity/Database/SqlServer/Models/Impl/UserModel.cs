@@ -71,6 +71,8 @@ namespace HCore.Identity.Database.SqlServer.Models.Impl
 
         public DateTimeOffset? LastLoginAt { get; set; }
 
+        public int NumberOfEmailConfirmationAttempts { get; set; }
+
         public string GetDisplayName()
         {
             if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrEmpty(LastName))
