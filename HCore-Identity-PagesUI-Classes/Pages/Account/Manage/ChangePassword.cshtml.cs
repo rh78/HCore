@@ -16,6 +16,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ChangePasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class TenantModel : BasePageModelProvidingJsonModelData
     {
         public static readonly Regex Tenant = new Regex(@"^[a-zA-Z0-9\-]+$");

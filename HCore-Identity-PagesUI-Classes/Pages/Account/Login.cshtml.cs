@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Http;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class LoginModel : BasePageModelProvidingJsonModelData
     {
         private readonly TimeSpan SecondTimeSpan = TimeSpan.FromSeconds(1);

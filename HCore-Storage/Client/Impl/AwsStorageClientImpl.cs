@@ -242,6 +242,13 @@ namespace HCore.Storage.Client.Impl
             {
                 foreach (var key in additionalHeaders.Keys)
                 {
+                    if (string.Equals(key, "Cache-Control", StringComparison.OrdinalIgnoreCase))
+                    {
+                        transferUtilityUploadRequest.Headers.CacheControl = additionalHeaders[key];
+
+                        continue;
+                    }
+
                     transferUtilityUploadRequest.Metadata[key] = additionalHeaders[key];
                 }
             }

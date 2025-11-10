@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class LogoutModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;

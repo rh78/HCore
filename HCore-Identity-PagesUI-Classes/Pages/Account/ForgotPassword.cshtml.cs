@@ -14,6 +14,7 @@ using HCore.Identity.Attributes;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
     [SecurityHeaders]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ForgotPasswordModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
