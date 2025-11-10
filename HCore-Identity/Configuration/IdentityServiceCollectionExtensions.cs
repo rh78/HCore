@@ -641,14 +641,17 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo, name) =>
                 {
-                    options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
-
-                    if (!tenantInfo.UsersAreExternallyManaged)
+                    if (tenantInfo.DeveloperUuid == 11 || tenantInfo.DeveloperUuid == 12)
                     {
+                        // no scoped cookies for developers that have dedicated domain
+
+                        options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
                         options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.HCore.Identity.session";
                     }
                     else
                     {
+                        // scoped cookie for developers with shared domain
+
                         options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.{tenantInfo.TenantUuid}.HCore.Identity.Session";
                     }
 
