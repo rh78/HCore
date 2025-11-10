@@ -1837,6 +1837,8 @@ namespace HCore.Identity.Services.Impl
 
                     await _emailSender.SendEmailAsync(user.GetEmail(), emailTemplate.Subject, emailTemplate.Body).ConfigureAwait(false);
 
+                    user = await _userManager.FindByIdAsync(userUuid).ConfigureAwait(false);
+
                     user.NumberOfEmailConfirmationAttempts++;
 
                     await _userManager.UpdateAsync(user).ConfigureAwait(false);
