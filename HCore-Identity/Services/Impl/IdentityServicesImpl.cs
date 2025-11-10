@@ -1817,7 +1817,7 @@ namespace HCore.Identity.Services.Impl
 
                     var numberOfEmailConfirmationAttempts = user.NumberOfEmailConfirmationAttempts;
 
-                    if (numberOfEmailConfirmationAttempts > 3)
+                    if (numberOfEmailConfirmationAttempts >= 3)
                     {
                         throw new RequestFailedApiException(RequestFailedApiException.TooManyEmailConfirmationAttempts, "Too many email confirmation attempts have been recorded. Please get in touch with us to look at the issue");
                     }

@@ -871,6 +871,6 @@
     <value>Bitte nutzen Sie die Single-Sign-On (SSO) Anmeldung für diese E-Mail-Adresse</value>
   </data>
   <data name="too_many_email_confirmation_attempts" xml:space="preserve">
-    <value>Sie haben zu viele E-Mail-Bestätigungsanfragen gesendet. Bitte treten Sie mit uns in Kontakt, um das E-Mail-Problem zu beheben</value>
+    <value>Sie haben zu viele E-Mail-Bestätigungsanfragen gesendet. Bitte treten Sie mit uns in Kontakt, um das Problem zu beheben.</value>
   </data>
 </root>
