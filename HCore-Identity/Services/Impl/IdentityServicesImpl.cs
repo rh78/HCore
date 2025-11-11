@@ -1227,7 +1227,7 @@ namespace HCore.Identity.Services.Impl
                     {
                         // email already confirmed
 
-                        throw new RequestFailedApiException(RequestFailedApiException.EmailAlreadyConfirmed, "The email address already has been confirmed");
+                        return user;
                     }
 
                     var result = await _userManager.ConfirmEmailAsync(user, userConfirmEmailSpec.Code).ConfigureAwait(false);
