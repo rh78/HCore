@@ -641,7 +641,18 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 tenantsBuilder.WithPerTenantOptions<CookieAuthenticationOptions>((options, tenantInfo, name) =>
                 {
-                    if (tenantInfo.DeveloperUuid == 11 || tenantInfo.DeveloperUuid == 12)
+                    options.Cookie.Domain = tenantInfo.DeveloperAuthCookieDomain;
+
+                    if (!tenantInfo.UsersAreExternallyManaged)
+                    {
+                        options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.HCore.Identity.session";
+                    }
+                    else
+                    {
+                        options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.{tenantInfo.TenantUuid}.HCore.Identity.Session";
+                    }
+
+                    /* if (tenantInfo.DeveloperUuid == 11 || tenantInfo.DeveloperUuid == 12)
                     {
                         // no scoped cookies for developers that have dedicated domain
 
@@ -653,7 +664,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         // scoped cookie for developers with shared domain
 
                         options.Cookie.Name = $"{tenantInfo.DeveloperUuid}.{tenantInfo.TenantUuid}.HCore.Identity.Session";
-                    }
+                    } */
 
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.Cookie.HttpOnly = true;
