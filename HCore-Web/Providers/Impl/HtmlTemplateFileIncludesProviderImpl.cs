@@ -7,23 +7,14 @@ namespace HCore.Web.Providers.Impl
     {
         public bool Applies { get; }
 
-        public string HeaderIncludes { get; }
+        private string _headerIncludes;
 
-        public string BodyIncludes { get; }
-
-        public string HeaderCssIncludes { get; }
-
-        public string HeaderJsIncludes { get; }
-
-        public string BodyJsIncludes { get; }
+        private string _bodyIncludes;
 
         public HtmlTemplateFileIncludesProviderImpl(string htmlFilePath, IHtmlTemplateFileIncludesProviderCustomProcessor customProcessor = null)
         {
-            HeaderIncludes = "";
-            BodyIncludes = "";
-            HeaderCssIncludes = "";
-            HeaderJsIncludes = "";
-            BodyJsIncludes = "";
+            _headerIncludes = "";
+            _bodyIncludes = "";
 
             Applies = File.Exists(htmlFilePath);
 
@@ -43,10 +34,8 @@ namespace HCore.Web.Providers.Impl
                     RegexOptions.Singleline | RegexOptions.IgnoreCase
                 );
 
-                var (includes, css, js) = ExtractCssAndScripts(header);
-                HeaderIncludes += includes;
-                HeaderCssIncludes += css;
-                HeaderJsIncludes += js;
+                var includes = ExtractCssAndScripts(header);
+                _headerIncludes += includes;
 
                 // header part of the HTML <body></body>
                 Match body = Regex.Match(
@@ -55,15 +44,14 @@ namespace HCore.Web.Providers.Impl
                     RegexOptions.Singleline | RegexOptions.IgnoreCase
                 );
 
-                (includes, _, js) = ExtractCssAndScripts(body);
-                BodyIncludes += includes;
-                BodyJsIncludes += js;
+                includes = ExtractCssAndScripts(body);
+                _bodyIncludes += includes;
                 
                 // ignore all other parts outside
             }
         }
         
-        private (string, string, string) ExtractCssAndScripts(Match htmlPart)
+        private string ExtractCssAndScripts(Match htmlPart)
         {
             string includes = "";
             string js = "";
@@ -80,8 +68,6 @@ namespace HCore.Web.Providers.Impl
                 while (partsOfInterest.Success)
                 {
                     string part = partsOfInterest.Groups[1].Value;
-
-                    includes += $"{part}\n";
 
                     // add to other parts of the includes, too
                     if (
@@ -102,8 +88,16 @@ namespace HCore.Web.Providers.Impl
                         )
                     )
                     {
+                        part = part.Replace("<script", "<script nonce=\"NONCE-PLACEHOLDER\"");
+
                         js += $"{part}\n";
                     }
+                    else if (part.StartsWith("<link") && part.EndsWith("as=\"script\">"))
+                    {
+                        part = part.Replace("<link", "<link nonce=\"NONCE-PLACEHOLDER\"");
+                    }
+
+                    includes += $"{part}\n";
 
                     partsOfInterest = partsOfInterest.NextMatch();
                 }
@@ -111,7 +105,17 @@ namespace HCore.Web.Providers.Impl
                 htmlPart = htmlPart.NextMatch();
             }
             
-            return (includes, css, js);
+            return includes;
+        }
+
+        public string GetHeaderIncludes(string scriptNonce)
+        {
+            return _headerIncludes?.Replace("NONCE-PLACEHOLDER", scriptNonce);
+        }
+
+        public string GetBodyIncludes(string scriptNonce)
+        {
+            return _bodyIncludes?.Replace("NONCE-PLACEHOLDER", scriptNonce);
         }
     }
 }
