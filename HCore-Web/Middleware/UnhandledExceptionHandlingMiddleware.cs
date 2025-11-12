@@ -227,9 +227,12 @@ namespace HCore.Web.Middleware
 
             var path = context.Request.Path.Value;
 
-            if (!string.IsNullOrEmpty(path) && (path.ToLower().StartsWith("/error") || path.Contains("/js/") || path.Contains("/css/") || path.Contains("/fonts/")))
+            if (!string.IsNullOrEmpty(path))
             {
-                return false;
+                if (path.ToLower().StartsWith("/error") || path.Contains("/js/") || path.Contains("/css/") || path.Contains("/fonts/") || path.StartsWith("/portal/v1/"))
+                {
+                    return false;
+                }
             }
 
             var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
@@ -278,6 +281,22 @@ namespace HCore.Web.Middleware
             if (_webPort == null || context.Connection.LocalPort != _webPort)
             { 
                 // we have a call to some API endpoint, so just return the error JSON
+
+                if (resultException.Redirect() && (string.IsNullOrEmpty(path) || !path.ToLower().StartsWith("/error")))
+                {
+                    redirectUrl = GetRedirectUrl(resultException);
+                }
+
+                WriteNoCache(context);
+
+                await resultException.WriteResponseAsync(context, redirectUrl).ConfigureAwait(false);
+
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(path) && path.StartsWith("/portal/v1/"))
+            {
+                // we have a call to the portal API endpoint, so just return the error JSON
 
                 if (resultException.Redirect() && (string.IsNullOrEmpty(path) || !path.ToLower().StartsWith("/error")))
                 {
