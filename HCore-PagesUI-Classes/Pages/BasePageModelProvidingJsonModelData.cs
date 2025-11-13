@@ -1,13 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using System.Collections.Generic;
 using HCore.Translations.Resources;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Newtonsoft.Json;
 
 namespace HCore.PagesUI.Classes.Pages
 {
     public abstract class BasePageModelProvidingJsonModelData : PageModel
     {
         public abstract string ModelAsJson { get; }
+
+        private string _scriptNonce = null;
+
+        public string GetScriptNonce()
+        {
+            if (_scriptNonce == null)
+            {
+                _scriptNonce = HttpContext.GetScriptNonce();
+            }
+
+            return _scriptNonce;
+        }
 
         public virtual string ValidationErrorsAsJson =>
             JsonConvert.SerializeObject(
