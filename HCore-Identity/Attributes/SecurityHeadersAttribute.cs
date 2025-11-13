@@ -95,7 +95,7 @@ namespace HCore.Identity.Attributes
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy-Report-Only"))
                 {
-                    context.HttpContext.Response.Headers["Content-Security-Policy-Report-Only"] = csp;
+                    context.HttpContext.Response.Headers["Content-Security-Policy-Report-Only"] = cspReportOnly;
                 }
 
                 // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
