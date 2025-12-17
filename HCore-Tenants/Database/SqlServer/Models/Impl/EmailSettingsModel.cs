@@ -35,6 +35,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel UploadAssetsDoneEmailSettings { get; set; }
         public EmailInstanceSettingsModel UploadAssetsDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel GenericEmailSettings { get; set; }
 
         public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
 
@@ -391,6 +392,19 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     UploadAssetsDeclinedEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDeclinedEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.GenericEmailSettings != null)
+            {
+                if (GenericEmailSettings == null)
+                {
+                    GenericEmailSettings = new EmailInstanceSettingsModel();
+                    GenericEmailSettings.MergeWith(customEmailSettingsModel.GenericEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    GenericEmailSettings.MergeWith(customEmailSettingsModel.GenericEmailSettings, allowEmpty);
                 }
             }
 
