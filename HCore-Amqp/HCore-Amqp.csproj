@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AMQPNetLite.Core" Version="2.4.8" />
+    <PackageReference Include="Apache.NMS.ActiveMQ" Version="2.1.1" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.2" />
     <PackageReference Include="Azure.ResourceManager.ServiceBus" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
