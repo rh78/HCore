@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace HCore.Web.Providers.Impl
 {
-    internal class HtmlTemplateFileIncludesProviderImpl : IHtmlIncludesProvider
+    public class HtmlTemplateFileIncludesProviderImpl : IHtmlIncludesProvider
     {
         public bool Applies { get; }
 
