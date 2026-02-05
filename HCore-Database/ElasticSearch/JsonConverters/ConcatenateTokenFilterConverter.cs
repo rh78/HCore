@@ -10,6 +10,8 @@ namespace HCore.Database.ElasticSearch.JsonConverters
     {
         public override ConcatenateTokenFilter Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
+            // TODO this still needs to be corrected (see below) - currently we see no calls for this
+
             if (reader.TokenType != JsonTokenType.StartObject)
             {
                 throw new JsonException();
@@ -80,6 +82,34 @@ namespace HCore.Database.ElasticSearch.JsonConverters
                 {
                     writer.WriteNumber("increment_gap", concatenateTokenFilter.IncrementGap.Value);
                 }
+            }
+            else if (value is EdgeNGramTokenFilter edgeNGramTokenFilter)
+            {
+                if (edgeNGramTokenFilter.MinGram != null)
+                {
+                    writer.WriteNumber("min_gram", (decimal)edgeNGramTokenFilter.MinGram);
+                }
+
+                if (edgeNGramTokenFilter.MaxGram != null)
+                {
+                    writer.WriteNumber("max_gram", (decimal)edgeNGramTokenFilter.MaxGram);
+                }
+            }
+            else if (value is NGramTokenFilter ngramTokenFilter)
+            {
+                if (ngramTokenFilter.MinGram != null)
+                {
+                    writer.WriteNumber("min_gram", (decimal)ngramTokenFilter.MinGram);
+                }
+
+                if (ngramTokenFilter.MaxGram != null)
+                {
+                    writer.WriteNumber("max_gram", (decimal)ngramTokenFilter.MaxGram);
+                }
+            }
+            else
+            {
+                throw new NotImplementedException($"{value.Type} cannot be serialized");
             }
 
             writer.WriteEndObject();
