@@ -47,6 +47,7 @@ namespace HCore.Web.Exceptions
         public const string CodeTooLong = "code_too_long";
         public const string AccessTokenMissing = "access_token_missing";
         public const string AccessTokenTooLong = "access_token_too_long";
+        public const string PinTooLong = "pin_too_long";
         public const string IdentityTokenMissing = "identity_token_missing";
         public const string IdentityTokenTooLong = "identity_token_too_long";
         public const string RefreshTokenMissing = "refresh_token_missing";

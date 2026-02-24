@@ -69,6 +69,7 @@ namespace HCore.Web.API.Impl
         public const int MaxRedirectUrlLength = 255;
         public const int MaxSecretLength = 50;
         public const int MaxAccessTokenLength = 2048;
+        public const int MaxPinLength = 255;
         public const int MaxIdentityTokenLength = 8192;
         public const int MaxRefreshTokenLength = 2048;
         public const int MaxIssuerLength = 50;
@@ -894,7 +895,7 @@ namespace HCore.Web.API.Impl
                 return null;
 
             if (firstName.Length > MaxFirstNameLength)
-                throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, $"The first name address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.FirstNameTooLong, $"The first name is too long");
 
             return firstName;
         }
@@ -907,7 +908,7 @@ namespace HCore.Web.API.Impl
                 return null;
 
             if (lastName.Length > MaxLastNameLength)
-                throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, $"The last name address is too long");
+                throw new RequestFailedApiException(RequestFailedApiException.LastNameTooLong, $"The last name is too long");
 
             return lastName;
         }
@@ -963,6 +964,19 @@ namespace HCore.Web.API.Impl
         public static bool ProcessPhoneNumberConfirmed(bool? phoneNumberConfirmed)
         {
             return phoneNumberConfirmed ?? false;
+        }
+
+        public static string ProcessPin(string pin)
+        {
+            pin = pin?.Trim();
+
+            if (string.IsNullOrEmpty(pin))
+                return null;
+
+            if (pin.Length > MaxPinLength)
+                throw new RequestFailedApiException(RequestFailedApiException.PinTooLong, $"The PIN is too long");
+
+            return pin;
         }
 
         public static long ProcessNotificationUuid(string notificationUuid)

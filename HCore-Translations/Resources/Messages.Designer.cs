@@ -1591,6 +1591,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is too long ähnelt.
+        /// </summary>
+        public static string pin_too_long {
+            get {
+                return ResourceManager.GetString("pin_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Please accept our Privacy Policy ähnelt.
         /// </summary>
         public static string please_accept_privacy_policy {
