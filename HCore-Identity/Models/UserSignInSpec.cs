@@ -50,9 +50,22 @@ namespace HCore.Identity.Models
         [DataMember(Name = "password")]
         public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
 		
-		public bool PasswordSet = false;		
+		public bool PasswordSet = false;
 
-		private bool? _Remember;
+        private string _Pin;
+
+        /// <summary>
+        /// The PIN of the user
+        /// </summary>
+        /// <value>The PIN of the user</value>
+        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "pin_missing")]
+        [Display(ResourceType = typeof(Messages), Name = "pin")]
+        [DataMember(Name = "pin")]
+        public string Pin { get => _Pin; set { _Pin = value; PinSet = true; } }
+
+        public bool PinSet = false;
+
+        private bool? _Remember;
 
         /// <summary>
         /// Flag to indicate if the user sign in should be remembered or not
@@ -76,6 +89,7 @@ namespace HCore.Identity.Models
             sb.Append("class UserSignInSpec {\n");
             sb.Append("  Email: ").Append(Email).Append("\n");
             sb.Append("  Password: ").Append(Password).Append("\n");
+            sb.Append("  PIN: ").Append(Pin).Append("\n");
             sb.Append("  Remember: ").Append(Remember).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -122,7 +136,12 @@ namespace HCore.Identity.Models
                     Password == other.Password ||
                     Password != null &&
                     Password.Equals(other.Password)
-                ) && 
+                ) &&
+                (
+                    Pin == other.Pin ||
+                    Pin != null &&
+                    Pin.Equals(other.Pin)
+                ) &&
                 (
                     Remember == other.Remember &&
                     Remember.Equals(other.Remember)
@@ -142,8 +161,10 @@ namespace HCore.Identity.Models
                     if (Email != null)
                     hashCode = hashCode * 59 + Email.GetHashCode();
                     if (Password != null)
-                    hashCode = hashCode * 59 + Password.GetHashCode();                    
-                    hashCode = hashCode * 59 + Remember.GetHashCode();
+                    hashCode = hashCode * 59 + Password.GetHashCode();
+                    if (Pin != null)
+                    hashCode = hashCode * 59 + Pin.GetHashCode();
+                hashCode = hashCode * 59 + Remember.GetHashCode();
                 return hashCode;
             }
         }
