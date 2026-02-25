@@ -201,6 +201,9 @@
   <data name="access_token_too_long" xml:space="preserve">
     <value>The access token is too long</value>
   </data>
+  <data name="pin_missing" xml:space="preserve">
+    <value>The PIN is missing</value>
+  </data>
   <data name="pin_too_long" xml:space="preserve">
     <value>The PIN is too long</value>
   </data>

@@ -1591,6 +1591,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is missing ähnelt.
+        /// </summary>
+        public static string pin_missing {
+            get {
+                return ResourceManager.GetString("pin_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is too long ähnelt.
         /// </summary>
         public static string pin_too_long {
