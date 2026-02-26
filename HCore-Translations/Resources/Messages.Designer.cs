@@ -1591,11 +1591,47 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is already in use. Please choose another PIN ähnelt.
+        /// </summary>
+        public static string pin_already_in_use {
+            get {
+                return ResourceManager.GetString("pin_already_in_use", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Before you can log in with a PIN, you must first register your user account with an email address and password. ähnelt.
+        /// </summary>
+        public static string pin_login_requires_registration {
+            get {
+                return ResourceManager.GetString("pin_login_requires_registration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is missing ähnelt.
+        /// </summary>
+        public static string pin_missing {
+            get {
+                return ResourceManager.GetString("pin_missing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is too long ähnelt.
         /// </summary>
         public static string pin_too_long {
             get {
                 return ResourceManager.GetString("pin_too_long", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is too short ähnelt.
+        /// </summary>
+        public static string pin_too_short {
+            get {
+                return ResourceManager.GetString("pin_too_short", resourceCulture);
             }
         }
         

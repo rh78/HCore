@@ -201,8 +201,17 @@
   <data name="access_token_too_long" xml:space="preserve">
     <value>Der Zugangscode ist zu lang</value>
   </data>
+  <data name="pin_missing" xml:space="preserve">
+    <value>Der PIN fehlt</value>
+  </data>
+  <data name="pin_too_short" xml:space="preserve">
+    <value>Der PIN ist zu kurz</value>
+  </data>
   <data name="pin_too_long" xml:space="preserve">
     <value>Der PIN ist zu lang</value>
+  </data>
+  <data name="pin_already_in_use" xml:space="preserve">
+    <value>Der PIN wird bereits verwendet. Bitte wählen Sie einen anderen PIN</value>
   </data>
   <data name="identity_token_missing" xml:space="preserve">
     <value>Der Identitätscode fehlt</value>
@@ -281,6 +290,9 @@
   </data>
   <data name="invalid_credentials" xml:space="preserve">
     <value>Die Anmeldedaten sind nicht gültig</value>
+  </data>
+  <data name="pin_login_requires_registration" xml:space="preserve">
+    <value>Bevor Sie sich über mit einem PIN anmelden können, müssen Sie Ihren Benutzer zuerst mit E-Mail-Adresse und Passwort registrieren</value>
   </data>
   <data name="issuer_invalid" xml:space="preserve">
     <value>Der Aussteller ist ungültig</value>

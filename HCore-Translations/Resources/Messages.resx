@@ -201,8 +201,17 @@
   <data name="access_token_too_long" xml:space="preserve">
     <value>The access token is too long</value>
   </data>
+  <data name="pin_missing" xml:space="preserve">
+    <value>The PIN is missing</value>
+  </data>
+  <data name="pin_too_short" xml:space="preserve">
+    <value>The PIN is too short</value>
+  </data>
   <data name="pin_too_long" xml:space="preserve">
     <value>The PIN is too long</value>
+  </data>
+  <data name="pin_already_in_use" xml:space="preserve">
+    <value>The PIN is already in use. Please choose another PIN</value>
   </data>
   <data name="identity_token_missing" xml:space="preserve">
     <value>The identity token is missing</value>
@@ -281,6 +290,9 @@
   </data>
   <data name="invalid_credentials" xml:space="preserve">
     <value>The user credentials are not valid</value>
+  </data>
+  <data name="pin_login_requires_registration" xml:space="preserve">
+    <value>Before you can log in with a PIN, you must first register your user account with an email address and password.</value>
   </data>
   <data name="issuer_invalid" xml:space="preserve">
     <value>The issuer is invalid</value>

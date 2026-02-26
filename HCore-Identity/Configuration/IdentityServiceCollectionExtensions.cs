@@ -48,6 +48,7 @@ using Newtonsoft.Json;
 using reCAPTCHA.AspNetCore;
 using HCore.Identity.Stores;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using HCore.Identity.Security;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -110,6 +111,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 services.AddScoped<IAccessTokenProvider, AccessTokenProviderImpl>();
                 services.AddScoped<IIdentityServices, IdentityServicesImpl>();                
+
+                services.AddScoped<INonRandomPasswordHasher, NonRandomPasswordHasherImpl>();
             }
 
             if (useIdentity || useJwt)
