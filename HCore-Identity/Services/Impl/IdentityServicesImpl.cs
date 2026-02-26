@@ -819,7 +819,7 @@ namespace HCore.Identity.Services.Impl
             }
         }
 
-        public async Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec)
+        public async Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec, HttpRequest request = null, RecaptchaSettings recaptchaSettings = null)
         {
             userSignInSpec.Email = ProcessEmail(userSignInSpec.Email);
             userSignInSpec.Password = ProcessPassword(userSignInSpec.Password);

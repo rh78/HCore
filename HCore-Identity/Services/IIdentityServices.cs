@@ -18,7 +18,7 @@ namespace HCore.Identity.Services
         Task ResetUserPasswordAsync(ResetUserPasswordSpec resetUserPasswordSpec);
         Task SetUserPasswordAsync(string userUuid, SetUserPasswordSpec setUserPasswordSpec);
 
-        Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec);
+        Task<UserModel> SignInUserAsync(UserSignInSpec userSignInSpec, HttpRequest request = null, RecaptchaSettings recaptchaSettings = null);
         Task<(UserModel, bool)> SignInUserAsync(AuthenticateResult authenticateResult);
 
         Task SignOutUserAsync(HttpContext httpContext);
