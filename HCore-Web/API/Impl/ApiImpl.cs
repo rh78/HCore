@@ -69,6 +69,7 @@ namespace HCore.Web.API.Impl
         public const int MaxRedirectUrlLength = 255;
         public const int MaxSecretLength = 50;
         public const int MaxAccessTokenLength = 2048;
+        public const int MinPinLength = 8;
         public const int MaxPinLength = 255;
         public const int MaxIdentityTokenLength = 8192;
         public const int MaxRefreshTokenLength = 2048;
@@ -972,6 +973,9 @@ namespace HCore.Web.API.Impl
 
             if (string.IsNullOrEmpty(pin))
                 return null;
+
+            if (pin.Length < MinPinLength)
+                throw new RequestFailedApiException(RequestFailedApiException.PinTooShort, $"The PIN is too short");
 
             if (pin.Length > MaxPinLength)
                 throw new RequestFailedApiException(RequestFailedApiException.PinTooLong, $"The PIN is too long");
