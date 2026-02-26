@@ -31,7 +31,6 @@ namespace HCore.Identity.Models
         /// The email address of the user
         /// </summary>
         /// <value>The email address of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_missing")]
         [Display(ResourceType = typeof(Messages), Name = "email_address")]
         [DataMember(Name = "email")]
         [DataType(DataType.EmailAddress, ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "email_invalid")]
@@ -45,7 +44,6 @@ namespace HCore.Identity.Models
         /// The password of the user
         /// </summary>
         /// <value>The password of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "password_missing")]
         [Display(ResourceType = typeof(Messages), Name = "password")]
         [DataMember(Name = "password")]
         public string Password { get => _Password; set { _Password = value; PasswordSet = true; } }
@@ -58,7 +56,6 @@ namespace HCore.Identity.Models
         /// The PIN of the user
         /// </summary>
         /// <value>The PIN of the user</value>
-        [Required(ErrorMessageResourceType = typeof(Translations.Resources.Messages), ErrorMessageResourceName = "pin_missing")]
         [Display(ResourceType = typeof(Messages), Name = "pin")]
         [DataMember(Name = "pin")]
         public string Pin { get => _Pin; set { _Pin = value; PinSet = true; } }
