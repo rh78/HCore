@@ -1591,6 +1591,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The PIN is already in use. Please choose another PIN ähnelt.
+        /// </summary>
+        public static string pin_already_in_use {
+            get {
+                return ResourceManager.GetString("pin_already_in_use", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Before you can log in with a PIN, you must first register your user account with an email address and password. ähnelt.
         /// </summary>
         public static string pin_login_requires_registration {

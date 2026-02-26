@@ -50,6 +50,7 @@ namespace HCore.Web.Exceptions
         public const string PinMissing = "pin_missing";
         public const string PinTooShort = "pin_too_short";
         public const string PinTooLong = "pin_too_long";
+        public const string PinAlreadyInUse = "pin_already_in_use";
         public const string IdentityTokenMissing = "identity_token_missing";
         public const string IdentityTokenTooLong = "identity_token_too_long";
         public const string RefreshTokenMissing = "refresh_token_missing";
