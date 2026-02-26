@@ -360,7 +360,6 @@ namespace HCore.Identity.Services.Impl
                         Email = userSpec.Email, 
                         NormalizedEmailWithoutScope = Normalize(userSpec.Email),
                         ExpiryDate = reservedEmailAddressModel.ExpiryDate,
-                        Pin = reservedEmailAddressModel.Pin,
                         Disabled = reservedEmailAddressModel.Disabled
                     };
 
@@ -645,7 +644,6 @@ namespace HCore.Identity.Services.Impl
                             MemberOf = memberOf?.ToList(),
                             NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
                             ExpiryDate = reservedEmailAddressModel.ExpiryDate,
-                            Pin = reservedEmailAddressModel.Pin,
                             Disabled = reservedEmailAddressModel.Disabled
                         };
                     }
@@ -659,7 +657,6 @@ namespace HCore.Identity.Services.Impl
                             MemberOf = memberOf?.ToList(),
                             NormalizedEmailWithoutScope = normalizedUnscopedEmailAddress,
                             ExpiryDate = reservedEmailAddressModel.ExpiryDate,
-                            Pin = reservedEmailAddressModel.Pin,
                             Disabled = reservedEmailAddressModel.Disabled
                         };
                     }
