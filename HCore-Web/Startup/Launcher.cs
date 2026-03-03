@@ -38,38 +38,19 @@ namespace HCore.Web.Startup
                 // Listed in preferred order.
 
                 // From: https://en.internet.nl
-                // High
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                // Medium
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-                TlsCipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+
+                // TLS 1.3 (preferred) (alite)
                 TlsCipherSuite.TLS_AES_128_GCM_SHA256,
                 TlsCipherSuite.TLS_AES_256_GCM_SHA384,
                 TlsCipherSuite.TLS_CHACHA20_POLY1305_SHA256,
 
-                // for IE 11 on Win7
-                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+                // TLS 1.2 fallback (ECDHE + AEAD only) (alite)
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+                TlsCipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+                TlsCipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
             }
         );
 #pragma warning restore CA1416 // Validate platform compatibility
