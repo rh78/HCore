@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
+using HCore.Web.Models;
+using Newtonsoft.Json;
 
 namespace HCore.Web.Providers.Impl
 {
@@ -34,7 +36,7 @@ namespace HCore.Web.Providers.Impl
                     RegexOptions.Singleline | RegexOptions.IgnoreCase
                 );
 
-                var includes = ExtractCssAndScripts(header);
+                var includes = ExtractCssScriptsAndImportMap(header);
                 _headerIncludes += includes;
 
                 // header part of the HTML <body></body>
@@ -44,18 +46,16 @@ namespace HCore.Web.Providers.Impl
                     RegexOptions.Singleline | RegexOptions.IgnoreCase
                 );
 
-                includes = ExtractCssAndScripts(body);
+                includes = ExtractCssScriptsAndImportMap(body);
                 _bodyIncludes += includes;
                 
                 // ignore all other parts outside
             }
         }
         
-        private string ExtractCssAndScripts(Match htmlPart)
+        private string ExtractCssScriptsAndImportMap(Match htmlPart)
         {
             string includes = "";
-            string js = "";
-            string css = "";
             
             while (htmlPart != null && htmlPart.Success)
             {
@@ -78,7 +78,25 @@ namespace HCore.Web.Providers.Impl
                         )
                     )
                     {
-                        css += $"{part}\n";
+                        // nothing to do
+                    }
+                    else if (
+                        Regex.IsMatch(
+                            part,
+                            "<script type=\"importmap\"",
+                            RegexOptions.Singleline | RegexOptions.IgnoreCase
+                        )
+                    )
+                    {
+                        var unparsedImportMap = part
+                            .Replace("<script type=\"importmap\">", "")
+                            .Replace("</script>", "");
+
+                        var parsedImportMap = JsonConvert.DeserializeObject<ImportMap>(unparsedImportMap);
+
+                        var importMap = JsonConvert.SerializeObject(parsedImportMap);
+
+                        part = $"<script type=\"importmap\">\n{importMap}\n</script>\n";
                     }
                     else if (
                         Regex.IsMatch(
@@ -89,8 +107,6 @@ namespace HCore.Web.Providers.Impl
                     )
                     {
                         part = part.Replace("<script", "<script nonce=\"NONCE-PLACEHOLDER\"");
-
-                        js += $"{part}\n";
                     }
                     else if (part.StartsWith("<link") && part.EndsWith("as=\"script\">"))
                     {
