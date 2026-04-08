@@ -715,9 +715,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.AllowAuthorizationCodeFlow();
                 options.AllowClientCredentialsFlow();
                 options.AllowRefreshTokenFlow();
-                options.AllowImplicitFlow();
-                options.AllowPasswordFlow();
-                options.AllowHybridFlow();
+                // options.AllowImplicitFlow();
+                // options.AllowPasswordFlow();
+                // options.AllowHybridFlow();
 
                 options.SetIdentityTokenLifetime(TimeSpan.FromMinutes(5));
                 options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
