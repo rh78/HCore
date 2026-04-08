@@ -1,9 +1,5 @@
 ﻿using HCore.Identity;
 using HCore.Identity.Database.SqlServer;
-using Duende.IdentityServer;
-using Duende.IdentityServer.EntityFramework.DbContexts;
-using Duende.IdentityServer.EntityFramework.Mappers;
-using Duende.IdentityServer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,146 +35,19 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (useIdentity)
                 {
-                    var configurationDbContext = scope.ServiceProvider.GetRequiredService<SqlServerConfigurationDbContext>();
-
-                    configurationDbContext.Database.Migrate();
-
-                    var persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<SqlServerPersistedGrantDbContext>();
-
-                    persistedGrantDbContext.Database.Migrate();
-
                     var identityDbContext = scope.ServiceProvider.GetRequiredService<SqlServerIdentityDbContext>();
 
                     identityDbContext.Database.Migrate();
 
-                    InitializeIdentity(configurationDbContext, configuration);
+                    /* TODO OpenIddict InitializeIdentity(configurationDbContext, configuration);
 
-                    app.UseIdentityServer();
+                    app.UseIdentityServer(); */
                 }
             }
 
             return app;
         }
        
-        private static void InitializeIdentity(SqlServerConfigurationDbContext configurationDbContext, IConfiguration configuration)
-        {
-            string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
-            if (string.IsNullOrEmpty(defaultClientAuthority))
-                throw new Exception("Identity default client authority string is empty");
-
-            string defaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
-            if (string.IsNullOrEmpty(defaultClientId))
-                throw new Exception("Identity default client ID is empty");
-
-            string defaultClientName = configuration[$"Identity:DefaultClient:ClientName"];
-            if (string.IsNullOrEmpty(defaultClientName))
-                throw new Exception("Identity default client name is empty");
-
-            string defaultClientLogoUrl = configuration[$"Identity:DefaultClient:ClientLogoUrl"];
-            if (string.IsNullOrEmpty(defaultClientLogoUrl))
-                throw new Exception("Identity default client logo URL is empty");
-
-            string defaultClientSecret = configuration[$"Identity:DefaultClient:ClientSecret"];
-            if (string.IsNullOrEmpty(defaultClientSecret))
-                throw new Exception("Identity default client secret is empty");
-
-            string apiResources = configuration["Identity:ApiResources"];
-            if (string.IsNullOrEmpty(apiResources))
-                throw new Exception("Identity API resources are empty");
-
-            string[] apiResourcesSplit = apiResources.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (apiResourcesSplit.Length == 0)
-                throw new Exception("Identity API resources are empty");
-
-            List<string> scopes = new List<string>();
-            scopes.Add(IdentityServerConstants.StandardScopes.OpenId);
-            scopes.Add(IdentityServerConstants.StandardScopes.Profile);
-            scopes.Add(IdentityServerConstants.StandardScopes.Email);
-            scopes.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
-            
-            List<ApiResource> apiResourcesList = new List<ApiResource>();
-
-            for (int i = 0; i < apiResourcesSplit.Length; i++)
-            {
-                scopes.Add(apiResourcesSplit[i]);
-
-                string apiResourceName = configuration[$"Identity:ApiResourceDetails:{apiResourcesSplit[i]}:Name"];
-                if (string.IsNullOrEmpty(apiResourceName))
-                    throw new Exception($"Identity API resource name for API resource {apiResourcesSplit[i]} is empty");
-
-                apiResourcesList.Add(new ApiResource(apiResourcesSplit[i], apiResourceName, new string[] { IdentityCoreConstants.DeveloperAdminClaim }));
-            }
-            
-            var defaultClient = new Client
-            {
-                ClientId = defaultClientId,
-                ClientName = defaultClientName,
-                LogoUri = defaultClientLogoUrl,
-                AbsoluteRefreshTokenLifetime = Int32.MaxValue,
-                AllowAccessTokensViaBrowser = true,
-                AlwaysSendClientClaims = true,
-                IncludeJwtId = true,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                AllowedGrantTypes = GrantTypes.Code,
-                AllowedScopes = scopes,
-                AllowOfflineAccess = true,
-                RequireConsent = false,
-                ClientSecrets =
-                {
-                    new Secret(defaultClientSecret.Sha256())
-                },
-                RedirectUris =
-                {
-                    $"{defaultClientAuthority}signin-oidc"
-                },
-                PostLogoutRedirectUris =
-                {
-                    $"{defaultClientAuthority}",
-                    $"{defaultClientAuthority}signout-callback-oidc"
-                }
-            };
-
-            if (!configurationDbContext.Clients.Any())
-            {
-                Console.WriteLine("Clients are being populated...");
-
-                configurationDbContext.Clients.Add(defaultClient.ToEntity());
-
-                configurationDbContext.SaveChanges();
-
-                Console.WriteLine("Clients populated successfully");
-            }
-            
-            if (!configurationDbContext.ApiResources.Any())
-            {
-                Console.WriteLine("API resources are being populated...");
-
-                foreach (var apiResource in apiResourcesList)
-                {
-                    configurationDbContext.ApiResources.Add(apiResource.ToEntity());
-                }
-
-                configurationDbContext.SaveChanges();
-
-                Console.WriteLine("API resources populated successfully");
-            }
-
-            if (!configurationDbContext.IdentityResources.Any())
-            {
-                Console.WriteLine("Identity resources are being populated...");
-
-                configurationDbContext.IdentityResources.Add(new IdentityResources.OpenId().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Profile().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Email().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Phone().ToEntity());
-
-                configurationDbContext.SaveChanges();
-
-                Console.WriteLine("Identity resources populated successfully");
-            }
-        }
-
         internal static void Validate(this IApplicationBuilder app)
         {
             var loggerFactory = app.ApplicationServices.GetService(typeof(ILoggerFactory)) as ILoggerFactory;

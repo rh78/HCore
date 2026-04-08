@@ -1,13 +1,6 @@
 ﻿using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Web.API.Impl;
 using HCore.Web.Exceptions;
-using IdentityModel;
-using Duende.IdentityServer;
-using Duende.IdentityServer.Configuration;
-using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,32 +15,32 @@ namespace HCore.Identity.Providers.Impl
     {
         private readonly UserManager<UserModel> _userManager;
         private readonly IUserClaimsPrincipalFactory<UserModel> _principalFactory;
-        private readonly IClientStore _clientStore;
+        /* TODO OpenIddict private readonly IClientStore _clientStore;
         private readonly IResourceStore _resourceStore;
         private readonly ITokenService _tokenService;
-        private readonly IdentityServerOptions _options;
+        private readonly IdentityServerOptions _options; */
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly IClaimsService _claimsService;
+        // private readonly IClaimsService _claimsService;
         private readonly ILogger<AccessTokenProviderImpl> _logger;
 
         public AccessTokenProviderImpl(
            UserManager<UserModel> userManager,
            IUserClaimsPrincipalFactory<UserModel> principalFactory,
-           IClientStore clientStore,
+           /* TODO OpenIddict IClientStore clientStore,
            IResourceStore resourceStore,
            IClaimsService claimsService,
            ITokenService tokenService,
-           IdentityServerOptions options,
+           IdentityServerOptions options, */
            IConfigurationProvider configurationProvider,
            ILogger<AccessTokenProviderImpl> logger)
         {
             _userManager = userManager;            
             _principalFactory = principalFactory;
-            _clientStore = clientStore;
+            /* TODO OpenIddict _clientStore = clientStore;
             _resourceStore = resourceStore;
             _claimsService = claimsService;
             _tokenService = tokenService;
-            _options = options;
+            _options = options; */
             _configurationProvider = configurationProvider;
             _logger = logger;
         }
@@ -83,7 +76,7 @@ namespace HCore.Identity.Providers.Impl
         { 
             try
             {
-                var tokenCreationRequest = new TokenCreationRequest();
+                /* TODO OpenIddict var tokenCreationRequest = new TokenCreationRequest();
 
                 var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
 
@@ -140,7 +133,9 @@ namespace HCore.Identity.Providers.Impl
 
                 var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken).ConfigureAwait(false);
 
-                return accessTokenValue;
+                return accessTokenValue; */
+
+                return null;
             }
             catch (ApiException)
             {
@@ -158,7 +153,7 @@ namespace HCore.Identity.Providers.Impl
 
         private const string AccessTokenAudience = "{0}resources";
 
-        private async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
+        /* TODO OpenIddict private async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
         {
             var claims = new List<Claim>();
             claims.AddRange(await _claimsService.GetAccessTokenClaimsAsync(
@@ -192,7 +187,7 @@ namespace HCore.Identity.Providers.Impl
             }
 
             return token;
-        }
+        } */
 
         private string ProcessUserUuid(string userUuid)
         {

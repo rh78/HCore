@@ -1,7 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Duende.IdentityServer.Events;
-using Duende.IdentityServer.Extensions;
-using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Attributes;
 using HCore.Identity.Services;
@@ -18,8 +15,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
 
-        private readonly IIdentityServerInteractionService _interaction;
-        private readonly IEventService _events;
+        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction;
+        private readonly IEventService _events; */
 
         [BindProperty]
         public bool ShowLogoutPrompt { get; set; }
@@ -67,14 +64,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public LogoutModel(
              IIdentityServices identityServices,
-             IIdentityServerInteractionService interaction,
-             ITenantInfoAccessor tenantInfoAccessor,
-             IEventService events)
+             /* TODO OpenIddict IIdentityServerInteractionService interaction, */
+             ITenantInfoAccessor tenantInfoAccessor
+             /* TODO OpenIddict IEventService events */)
         {
             _identityServices = identityServices;
-            _interaction = interaction;
+            /* TODO OpenIddict _interaction = interaction; */
             _tenantInfoAccessor = tenantInfoAccessor;
-            _events = events;
+            /* TODO OpenIddict _events = events; */
         }
 
         public async Task<IActionResult> OnGetAsync(string logoutId = null)
@@ -120,7 +117,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 return;
             }
 
-            var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
+            /* TODO OpenIddict var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
 
             if (context == null || string.IsNullOrEmpty(context.SessionId))
             {
@@ -138,7 +135,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 ShowLogoutPrompt = false;
 
                 return;
-            }
+            } */
 
             // show the logout prompt. this prevents attacks where the user
             // is automatically signed out by another malicious web page.            
@@ -160,7 +157,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 // raise the logout event
                 
-                await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName())).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName())).ConfigureAwait(false); */
             }
 
             LoggedOut = true;
@@ -194,7 +191,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // get context information (client name, post logout redirect URI and iframe for federated signout)
 
-            var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
+            /* TODO OpenIddict var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
 
             if (context == null || string.IsNullOrEmpty(context.SessionId))
             {
@@ -208,7 +205,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             PostLogoutRedirectUri = context.PostLogoutRedirectUri;
             ClientName = string.IsNullOrEmpty(context.ClientName) ? context.ClientId : context.ClientName;
             SignOutIframeUrl = context.SignOutIFrameUrl;
-            LogoutId = logoutId;        
+            LogoutId = logoutId; */     
         }
     }
 }

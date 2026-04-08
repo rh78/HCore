@@ -1,6 +1,4 @@
-﻿using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Validation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HCore.Identity.Validators.Impl
 {
-    public class WildcardRedirectUriValidatorImpl : IRedirectUriValidator
+    /* TODO OpenIddict public class WildcardRedirectUriValidatorImpl : IRedirectUriValidator
     {
         public Task<bool> IsRedirectUriValidAsync(string requestedUri, Client client)
         {
@@ -40,5 +38,5 @@ namespace HCore.Identity.Validators.Impl
                         .Replace(@"\*", WildcardCharacter + "*")
                         .Replace(@"\?", WildcardCharacter);
         }
-    }
+    } */
 }

@@ -3,11 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Models;
 using HCore.Web.Exceptions;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Stores;
 using HCore.Identity.Attributes;
-using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Services;
 using HCore.Identity.Providers;
@@ -19,7 +15,6 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using HCore.Translations.Providers;
 using HCore.Tenants;
-using Duende.IdentityServer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 
@@ -34,10 +29,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;
 
-        private readonly IIdentityServerInteractionService _interaction;
-        private readonly IClientStore _clientStore;
+        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction;
+        private readonly IClientStore _clientStore; */
         private readonly IAuthenticationSchemeProvider _schemeProvider;
-        private readonly IEventService _events;
+        // private readonly IEventService _events;
 
         private readonly ISegmentProvider _segmentProvider;
 
@@ -53,20 +48,20 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public LoginModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,
-            IIdentityServerInteractionService interaction,
-            IClientStore clientStore,
+            /* TODO OpenIddict IIdentityServerInteractionService interaction,
+            IClientStore clientStore, */
             IAuthenticationSchemeProvider schemeProvider,
-            IEventService events,
+            /* TODO OpenIddict IEventService events, */
             ITranslationsProvider translationsProvider,
             IDataProtectionProvider dataProtectionProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
             _configurationProvider = configurationProvider;
-            _interaction = interaction;
-            _clientStore = clientStore;
+            /* TODO OpenIddict _interaction = interaction;
+            _clientStore = clientStore; */
             _schemeProvider = schemeProvider;
-            _events = events;
+            /* TODO OpenIddict _events = events; */
 
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
@@ -139,8 +134,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             if (string.IsNullOrEmpty(ReturnUrl))
                 ReturnUrl = "~/";
 
-            if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
-                throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid");
+            /* TODO OpenIddict if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
+                throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid"); */
 
             // start challenge and roundtrip the return URL and scheme 
 
@@ -206,14 +201,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 // Read external identity from the temporary cookie
 
-                var authenticateResult = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+                var authenticateResult = await HttpContext.AuthenticateAsync(IdentityCoreConstants.ExternalOpenIddictScheme);
 
                 if (authenticateResult?.Succeeded != true)
                     throw new Exception("The external authentication failed");
 
                 // Delete temporary cookie used during external authentication
 
-                await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
+                await HttpContext.SignOutAsync(IdentityCoreConstants.ExternalOpenIddictScheme);
 
                 // retrieve return URL
 
@@ -226,14 +221,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 if (string.IsNullOrEmpty(ReturnUrl))
                     ReturnUrl = "~/";
 
-                if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
-                    throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid");
+                /* TODO OpenIddict if (!_interaction.IsValidReturnUrl(ReturnUrl) && !Url.IsLocalUrl(ReturnUrl))
+                    throw new RequestFailedApiException(RequestFailedApiException.RedirectUrlInvalid, $"The redirect URL is invalid"); */
 
                 var (user, wasCreated) = await _identityServices.SignInUserAsync(authenticateResult).ConfigureAwait(false);
 
                 PerformTracking(user);
 
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false); */
 
                 if (wasCreated)
                 {
@@ -258,10 +253,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                             LocalRedirect("~/");
                     }
 
-                    if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                    /* TODO OpenIddict if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
                     {
                         return Redirect(ReturnUrl);
-                    }
+                    } */
 
                     return LocalRedirect("~/");
                 }
@@ -284,10 +279,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                             Redirect(tenantInfo.WebUrl);
                     }
 
-                    if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                    /* TODO OpenIddict if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
                     {
                         return Redirect($"{webUrl}{ReturnUrl}");
-                    }
+                    } */
 
                     return Redirect(tenantInfo.WebUrl);
                 }                
@@ -301,13 +296,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false); */
 
                 throw;
             }
             catch (ApiException)
             {
-                await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginFailureEvent(null, "Invalid credentials")).ConfigureAwait(false); */
 
                 throw;
             }
@@ -351,7 +346,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                         return LocalRedirect("~/");
                 }
 
-                var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl).ConfigureAwait(false);
+                /* TODO OpenIddict var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl).ConfigureAwait(false);
 
                 if (context != null)
                 {
@@ -370,7 +365,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     // Since we don't have a valid context, then we just go back to the home page
 
                     return LocalRedirect("~/");                    
-                }
+                } */
             }
 
             ModelState.Clear();
@@ -383,7 +378,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
                 PerformTracking(user);
 
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false); */
 
                 if (IsLocalAuthorization)
                 {
@@ -393,10 +388,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                         LocalRedirect("~/");
                 }
 
-                if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
+                /* TODO OpenIddict if (_interaction.IsValidReturnUrl(ReturnUrl) || Url.IsLocalUrl(ReturnUrl))
                 {
                     return Redirect(ReturnUrl);
-                }
+                } */
 
                 return LocalRedirect("~/");                
             }
@@ -409,14 +404,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
                 }
 
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false); */
 
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(
                     unauthorizedApiException.GetErrorCode(), unauthorizedApiException.Message, unauthorizedApiException.Uuid, unauthorizedApiException.Name));
             }
             catch (ApiException e)
             {
-                await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false);
+                /* TODO OpenIddict await _events.RaiseAsync(new UserLoginFailureEvent(Input.Email, "Invalid credentials")).ConfigureAwait(false); */
 
                 ModelState.AddModelError(string.Empty, _translationsProvider.TranslateError(e.GetErrorCode(), e.Message, e.Uuid, e.Name));
             }
@@ -463,7 +458,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             EnableLocalLogin = false;
             bool isLocalUrl = Url.IsLocalUrl(returnUrl);
 
-            var context = await _interaction.GetAuthorizationContextAsync(returnUrl).ConfigureAwait(false);
+            /* TODO OpenIddict var context = await _interaction.GetAuthorizationContextAsync(returnUrl).ConfigureAwait(false);
 
             if (context == null && isLocalUrl)
             {
@@ -484,7 +479,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             }
 
             ReturnUrl = returnUrl;
-            UserName = context?.LoginHint;
+            UserName = context?.LoginHint; */
         }
 
         private void PerformTracking(UserModel user)
