@@ -9,6 +9,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
+using Duende.IdentityServer.EntityFramework.DbContexts;
+using Duende.IdentityServer.EntityFramework.Options;
 using HCore.Identity;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
@@ -36,6 +38,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Logging;
@@ -43,6 +46,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using OpenIddict.Core;
 using OpenIddict.Server.AspNetCore;
 using reCAPTCHA.AspNetCore;
 using Sustainsys.Saml2;
@@ -138,6 +142,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // lightweight one for default UI implementations
             services.AddSqlDatabase<TStartup, IdentityDbContext>("Identity", configuration);
+
+            // TODO remove
+
+            services.AddSingleton(new ConfigurationStoreOptions());
+
+            services.AddSqlDatabase<TStartup, ConfigurationDbContext>("Identity", configuration);
         }
 
         private static void ConfigureDataProtection(IServiceCollection services, IConfiguration configuration)
@@ -688,6 +698,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         .UseEntityFrameworkCore()
                         .UseDbContext<SqlServerIdentityDbContext>();
                 });
+
+            var openIddictApplicationManagerDescriptor = new ServiceDescriptor(typeof(OpenIddict.Core.OpenIddictApplicationManager<>), typeof(HCore.Identity.Internal.OpenIddictApplicationManager<>), ServiceLifetime.Scoped);
+            services.Replace(openIddictApplicationManagerDescriptor);
 
             // see http://amilspage.com/signing-certificates-idsv4/
 

@@ -1,5 +1,5 @@
-﻿/* TODO remove
- 
+﻿// TODO remove
+
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
@@ -22,5 +22,3 @@ namespace HCore.Identity.Database.SqlServer
         }
     }
 }
-
-*/
