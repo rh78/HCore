@@ -80,7 +80,7 @@ namespace HCore.Identity.Internal
                 base64hash = Convert.ToBase64String(hash);
             }
 
-            return string.Equals(secret, comparand, StringComparison.Ordinal) ? new(true) : new(false);
+            return string.Equals(base64hash, comparand, StringComparison.Ordinal) ? new(true) : new(false);
         }
     }
 }

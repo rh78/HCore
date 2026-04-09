@@ -53,6 +53,7 @@ using Sustainsys.Saml2;
 using Sustainsys.Saml2.AspNetCore2;
 using Sustainsys.Saml2.Metadata;
 using Sustainsys.Saml2.Saml2P;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -740,6 +741,21 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 options.UseAspNetCore()
                     .EnableTokenEndpointPassthrough();
+
+                var apiResources = new List<string>();
+
+                configuration.GetSection("Identity:ApiResources")?.Bind(apiResources);
+
+                options.RegisterScopes([Scopes.OpenId, Scopes.Profile, Scopes.Email, Scopes.Phone, Scopes.OfflineAccess]);
+
+                if (apiResources != null && apiResources.Any())
+                {
+                    var apiResourcesArray = apiResources.ToArray();
+
+                    options.RegisterScopes(apiResourcesArray);
+                }
+
+                options.RegisterClaims([Claims.GivenName, Claims.FamilyName, Claims.Name, Claims.EmailVerified, Claims.Email, Claims.PhoneNumber, Claims.PhoneNumberVerified]);
 
                 options.AddSigningCertificate(signingCertificate);
                 options.AddEncryptionCertificate(signingCertificate);
