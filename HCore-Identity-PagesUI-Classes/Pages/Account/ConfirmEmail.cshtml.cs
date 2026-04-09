@@ -15,15 +15,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
-        /* TODO OpenIddict private readonly IEventService _events; */
 
         public ConfirmEmailModel(
             IIdentityServices identityServices,
-            /* TODO OpenIddict IEventService events, */
             ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
-            /* TODO OpenIddict _events = events; */
             _translationsProvider = translationsProvider;
         }
 
@@ -47,8 +44,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     // that was selected before
 
                     Response.Cookies.Delete(TenantModel.CookieName);
-
-                    /* TODO OpenIddict await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false); */
 
                     return LocalRedirect("/Account/ConfirmEmail?success=true");
                 }

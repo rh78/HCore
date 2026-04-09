@@ -8,7 +8,7 @@ namespace HCore.Identity.Extensions
 {
     public static class OpenIddictExtensions
     {
-        public static void SetClaimsSettings(this OpenIddictApplicationDescriptor openIddictApplicationDescriptor, Duende.IdentityServer.EntityFramework.Entities.Client identityServerClient, bool isLegacyClientSecret)
+        public static void SetClaimsSettings(this OpenIddictApplicationDescriptor openIddictApplicationDescriptor, Duende.IdentityServer.EntityFramework.Entities.Client identityServerClient)
         {
             var claims = identityServerClient?.Claims?.ToDictionary(claim => claim.Type, claim => claim.Value);
 

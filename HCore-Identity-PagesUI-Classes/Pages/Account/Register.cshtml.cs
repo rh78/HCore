@@ -30,7 +30,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
         private readonly IConfigurationProvider _configurationProvider;
-        /* TODO OpenIddict private readonly IEventService _events; */
 
         private readonly ISegmentProvider _segmentProvider;
 
@@ -59,15 +58,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public RegisterModel(
             IIdentityServices identityServices,
             IConfigurationProvider configurationProvider,
-            /* TODO OpenIddict IEventService events, */
             ITranslationsProvider translationsProvider,
             IDataProtectionProvider dataProtectionProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
             _configurationProvider = configurationProvider;
-
-            /* TODO OpenIddict _events = events; */
 
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
@@ -212,10 +208,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     Response.Cookies.Delete(TenantModel.CookieName);
 
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
-                }
-                else
-                {
-                    /* TODO OpenIddict await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false); */
                 }
 
                 // make sure we continue on THIS tenant when completing the login

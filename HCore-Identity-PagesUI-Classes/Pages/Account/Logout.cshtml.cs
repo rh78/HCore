@@ -15,8 +15,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
 
-        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction;
-        private readonly IEventService _events; */
+        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction; */
 
         [BindProperty]
         public bool ShowLogoutPrompt { get; set; }
@@ -65,13 +64,11 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         public LogoutModel(
              IIdentityServices identityServices,
              /* TODO OpenIddict IIdentityServerInteractionService interaction, */
-             ITenantInfoAccessor tenantInfoAccessor
-             /* TODO OpenIddict IEventService events */)
+             ITenantInfoAccessor tenantInfoAccessor)
         {
             _identityServices = identityServices;
             /* TODO OpenIddict _interaction = interaction; */
             _tenantInfoAccessor = tenantInfoAccessor;
-            /* TODO OpenIddict _events = events; */
         }
 
         public async Task<IActionResult> OnGetAsync(string logoutId = null)
@@ -154,10 +151,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 HandleTenantCookie();
 
                 await _identityServices.SignOutUserAsync(HttpContext).ConfigureAwait(false);
-
-                // raise the logout event
-                
-                /* TODO OpenIddict await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName())).ConfigureAwait(false); */
             }
 
             LoggedOut = true;

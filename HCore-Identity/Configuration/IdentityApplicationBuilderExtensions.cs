@@ -140,8 +140,13 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (identityServerClient.Claims != null && identityServerClient.Claims.Any())
                 {
-                    openIddictApplicationDescriptor.SetClaimsSettings(identityServerClient, isLegacyClientSecret: true);
+                    openIddictApplicationDescriptor.SetClaimsSettings(identityServerClient);
                 }
+                
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.ResponseTypes.Code);
+
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.Endpoints.Token);
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.Endpoints.Authorization);
 
                 await manager.CreateAsync(openIddictApplicationDescriptor).ConfigureAwait(false);
             }

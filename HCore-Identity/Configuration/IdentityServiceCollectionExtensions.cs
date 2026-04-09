@@ -22,9 +22,9 @@ using HCore.Identity.Security;
 using HCore.Identity.Services;
 using HCore.Identity.Services.Impl;
 using HCore.Identity.Stores;
-using HCore.Identity.Validators.Impl;
 using HCore.Tenants;
 using HCore.Translations.Providers;
+using HCore.Web.Exceptions;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -37,16 +37,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
-using OpenIddict.Core;
 using OpenIddict.Server.AspNetCore;
 using reCAPTCHA.AspNetCore;
 using Sustainsys.Saml2;
@@ -54,6 +50,7 @@ using Sustainsys.Saml2.AspNetCore2;
 using Sustainsys.Saml2.Metadata;
 using Sustainsys.Saml2.Saml2P;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using static OpenIddict.Server.OpenIddictServerEvents;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -723,7 +720,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetTokenEndpointUris("connect/token");
                 options.SetUserInfoEndpointUris("connect/userinfo");
                 options.SetEndSessionEndpointUris("connect/endsession");
-                options.SetRevocationEndpointUris("connect/revocation");
                 options.SetIntrospectionEndpointUris("connect/introspect");
                         
                 options.AllowAuthorizationCodeFlow();
@@ -740,6 +736,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetRefreshTokenLifetime(TimeSpan.FromDays(15));
 
                 options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough()
                     .EnableTokenEndpointPassthrough();
 
                 var apiResources = new List<string>();
@@ -759,9 +756,31 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 options.AddSigningCertificate(signingCertificate);
                 options.AddEncryptionCertificate(signingCertificate);
+
+                options.DisableAccessTokenEncryption();
+
+                options.DisableTokenStorage();
+
+                options.AddEventHandler<ProcessErrorContext>(builder =>
+                {
+                    builder.UseInlineHandler(context =>
+                    {
+                        if (context != null)
+                        {
+                            if (context.Error != null)
+                            {
+                                throw new RequestFailedApiException(context.Error, context.ErrorDescription);
+                            }
+                        }
+
+                        return default;
+                    });
+                });
             });
 
             // identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
+
+            services.AddSingleton<IOpenIddictContextProvider, OpenIddictContextProviderImpl>();
         }
 
         private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
