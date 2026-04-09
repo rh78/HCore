@@ -273,7 +273,7 @@ namespace HCore.Tenants.Providers.Impl
                 return (null, null);
             }
 
-            var tenantInfo = await _tenantCache.GetTenantInfoBySubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false).ConfigureAwait(false);
+            var tenantInfo = await _tenantCache.GetTenantInfoBySubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false, isSiteAnalysis: false).ConfigureAwait(false);
 
             if (tenantInfo == null)
             {
@@ -286,7 +286,7 @@ namespace HCore.Tenants.Providers.Impl
                     return (null, null);
                 }
 
-                await _tenantCache.CreateOrUpdateTenantInfoForSubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false, tenantInfo).ConfigureAwait(false);
+                await _tenantCache.CreateOrUpdateTenantInfoForSubdomainLookupAsync(developerInfo.DeveloperUuid, subDomainLookup, cultureInfo: null, isDraft: false, isSiteAnalysis: false, tenantInfo).ConfigureAwait(false);
             }
 
             return (subDomainLookup, tenantInfo);
@@ -324,7 +324,7 @@ namespace HCore.Tenants.Providers.Impl
 
             var developerInfo = _developerInfosByUuid[developerUuid];
 
-            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false).ConfigureAwait(false);
+            var tenantInfo = await _tenantCache.GetTenantInfoByUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false, isSiteAnalysis: false).ConfigureAwait(false);
 
             if (tenantInfo == null)
             {
@@ -335,7 +335,7 @@ namespace HCore.Tenants.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.TenantNotFound, $"No tenant found for developer UUID {developerUuid} and tenant UUID {tenantUuid}");
                 }
 
-                await _tenantCache.CreateOrUpdateTenantInfoForUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false, tenantInfo).ConfigureAwait(false);
+                await _tenantCache.CreateOrUpdateTenantInfoForUuidAsync(developerUuid, tenantUuid, cultureInfo: null, isDraft: false, isSiteAnalysis: false, tenantInfo).ConfigureAwait(false);
             }
 
             return tenantInfo;
