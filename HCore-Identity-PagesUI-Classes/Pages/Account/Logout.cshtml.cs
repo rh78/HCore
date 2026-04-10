@@ -15,8 +15,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
 
-        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction; */
-
         [BindProperty]
         public bool ShowLogoutPrompt { get; set; }
 
@@ -63,11 +61,9 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public LogoutModel(
              IIdentityServices identityServices,
-             /* TODO OpenIddict IIdentityServerInteractionService interaction, */
              ITenantInfoAccessor tenantInfoAccessor)
         {
             _identityServices = identityServices;
-            /* TODO OpenIddict _interaction = interaction; */
             _tenantInfoAccessor = tenantInfoAccessor;
         }
 

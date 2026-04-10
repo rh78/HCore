@@ -19,8 +19,6 @@ namespace HCore.PagesUI.Classes.Pages
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : BasePageModelProvidingJsonModelData
     {
-        /* TODO OpenIddict private readonly IIdentityServerInteractionService _interaction; */
-
         public bool ShowRequestId { get; set; }
 
         public string RequestId { get; set; }
@@ -59,8 +57,6 @@ namespace HCore.PagesUI.Classes.Pages
             IServiceProvider serviceProvider)
         {
             _dataProtectionProvider = dataProtectionProvider;
-
-            /* TODO OpenIddict _interaction = serviceProvider.GetService<IIdentityServerInteractionService>(); */
 
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
