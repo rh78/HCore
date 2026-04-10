@@ -5,8 +5,6 @@ using HCore.Web.Exceptions;
 using HCore.Identity.Models;
 using HCore.Identity.Services;
 using HCore.Translations.Providers;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
@@ -17,15 +15,12 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     {
         private readonly IIdentityServices _identityServices;
         private readonly ITranslationsProvider _translationsProvider;
-        private readonly IEventService _events;
 
         public ConfirmEmailModel(
             IIdentityServices identityServices,
-            IEventService events,
             ITranslationsProvider translationsProvider)
         {
             _identityServices = identityServices;
-            _events = events;
             _translationsProvider = translationsProvider;
         }
 
@@ -49,8 +44,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     // that was selected before
 
                     Response.Cookies.Delete(TenantModel.CookieName);
-
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
 
                     return LocalRedirect("/Account/ConfirmEmail?success=true");
                 }

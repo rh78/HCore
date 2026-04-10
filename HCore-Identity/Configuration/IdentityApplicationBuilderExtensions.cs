@@ -1,18 +1,20 @@
-﻿using HCore.Identity;
-using HCore.Identity.Database.SqlServer;
-using Duende.IdentityServer;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Duende.IdentityServer.EntityFramework.DbContexts;
-using Duende.IdentityServer.EntityFramework.Mappers;
-using Duende.IdentityServer.Models;
+using HCore.Identity;
+using HCore.Identity.Database.SqlServer;
+using HCore.Identity.Extensions;
+using HCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using OpenIddict.Abstractions;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -39,143 +41,119 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (useIdentity)
                 {
-                    var configurationDbContext = scope.ServiceProvider.GetRequiredService<SqlServerConfigurationDbContext>();
-
-                    configurationDbContext.Database.Migrate();
-
-                    var persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<SqlServerPersistedGrantDbContext>();
-
-                    persistedGrantDbContext.Database.Migrate();
-
                     var identityDbContext = scope.ServiceProvider.GetRequiredService<SqlServerIdentityDbContext>();
+                    var identityServerConfigurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
 
                     identityDbContext.Database.Migrate();
 
-                    InitializeIdentity(configurationDbContext, configuration);
-
-                    app.UseIdentityServer();
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                    InitializeIdentityAsync(scope, identityDbContext, identityServerConfigurationDbContext, configuration).Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
                 }
             }
 
             return app;
         }
-       
-        private static void InitializeIdentity(SqlServerConfigurationDbContext configurationDbContext, IConfiguration configuration)
+
+        private async static Task InitializeIdentityAsync(IServiceScope scope, SqlServerIdentityDbContext identityDbContext, ConfigurationDbContext identityServerConfigurationDbContext, IConfiguration configuration)
         {
-            string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
-            if (string.IsNullOrEmpty(defaultClientAuthority))
-                throw new Exception("Identity default client authority string is empty");
+            var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
-            string defaultClientId = configuration[$"Identity:DefaultClient:ClientId"];
-            if (string.IsNullOrEmpty(defaultClientId))
-                throw new Exception("Identity default client ID is empty");
+            var identityServerClients = await identityServerConfigurationDbContext.Clients
+                .Include(client => client.Claims)
+                .Include(client => client.ClientSecrets)
+                .Include(client => client.PostLogoutRedirectUris)
+                .Include(client => client.RedirectUris)
+                .Include(client => client.AllowedScopes)
+                .Include(client => client.AllowedGrantTypes)
+                .ToListAsync();
 
-            string defaultClientName = configuration[$"Identity:DefaultClient:ClientName"];
-            if (string.IsNullOrEmpty(defaultClientName))
-                throw new Exception("Identity default client name is empty");
-
-            string defaultClientLogoUrl = configuration[$"Identity:DefaultClient:ClientLogoUrl"];
-            if (string.IsNullOrEmpty(defaultClientLogoUrl))
-                throw new Exception("Identity default client logo URL is empty");
-
-            string defaultClientSecret = configuration[$"Identity:DefaultClient:ClientSecret"];
-            if (string.IsNullOrEmpty(defaultClientSecret))
-                throw new Exception("Identity default client secret is empty");
-
-            string apiResources = configuration["Identity:ApiResources"];
-            if (string.IsNullOrEmpty(apiResources))
-                throw new Exception("Identity API resources are empty");
-
-            string[] apiResourcesSplit = apiResources.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (apiResourcesSplit.Length == 0)
-                throw new Exception("Identity API resources are empty");
-
-            List<string> scopes = new List<string>();
-            scopes.Add(IdentityServerConstants.StandardScopes.OpenId);
-            scopes.Add(IdentityServerConstants.StandardScopes.Profile);
-            scopes.Add(IdentityServerConstants.StandardScopes.Email);
-            scopes.Add(IdentityServerConstants.StandardScopes.OfflineAccess);
-            
-            List<ApiResource> apiResourcesList = new List<ApiResource>();
-
-            for (int i = 0; i < apiResourcesSplit.Length; i++)
+            foreach (var identityServerClient in identityServerClients)
             {
-                scopes.Add(apiResourcesSplit[i]);
+                var existingClient = await manager.FindByClientIdAsync(identityServerClient.ClientId).ConfigureAwait(false);
 
-                string apiResourceName = configuration[$"Identity:ApiResourceDetails:{apiResourcesSplit[i]}:Name"];
-                if (string.IsNullOrEmpty(apiResourceName))
-                    throw new Exception($"Identity API resource name for API resource {apiResourcesSplit[i]} is empty");
-
-                apiResourcesList.Add(new ApiResource(apiResourcesSplit[i], apiResourceName, new string[] { IdentityCoreConstants.DeveloperAdminClaim }));
-            }
-            
-            var defaultClient = new Client
-            {
-                ClientId = defaultClientId,
-                ClientName = defaultClientName,
-                LogoUri = defaultClientLogoUrl,
-                AbsoluteRefreshTokenLifetime = Int32.MaxValue,
-                AllowAccessTokensViaBrowser = true,
-                AlwaysSendClientClaims = true,
-                IncludeJwtId = true,
-                RefreshTokenExpiration = TokenExpiration.Sliding,
-                AllowedGrantTypes = GrantTypes.Code,
-                AllowedScopes = scopes,
-                AllowOfflineAccess = true,
-                RequireConsent = false,
-                ClientSecrets =
+                if (existingClient != null)
                 {
-                    new Secret(defaultClientSecret.Sha256())
-                },
-                RedirectUris =
-                {
-                    $"{defaultClientAuthority}signin-oidc"
-                },
-                PostLogoutRedirectUris =
-                {
-                    $"{defaultClientAuthority}",
-                    $"{defaultClientAuthority}signout-callback-oidc"
-                }
-            };
-
-            if (!configurationDbContext.Clients.Any())
-            {
-                Console.WriteLine("Clients are being populated...");
-
-                configurationDbContext.Clients.Add(defaultClient.ToEntity());
-
-                configurationDbContext.SaveChanges();
-
-                Console.WriteLine("Clients populated successfully");
-            }
-            
-            if (!configurationDbContext.ApiResources.Any())
-            {
-                Console.WriteLine("API resources are being populated...");
-
-                foreach (var apiResource in apiResourcesList)
-                {
-                    configurationDbContext.ApiResources.Add(apiResource.ToEntity());
+                    continue;
                 }
 
-                configurationDbContext.SaveChanges();
+                var openIddictApplicationDescriptor = new OpenIddictApplicationDescriptor()
+                {
+                    ApplicationType = ApplicationTypes.Web,
+                    ClientId = identityServerClient.ClientId,
+                    // make sure we mark the secret as a legacy one coming from Identity Server
+                    ClientSecret = $"|{identityServerClient.ClientSecrets.First().Value}",
+                    ClientType = ClientTypes.Confidential,
+                    ConsentType = identityServerClient.RequireConsent ? ConsentTypes.Explicit : ConsentTypes.Implicit,
+                    DisplayName = identityServerClient.ClientName
+                };
 
-                Console.WriteLine("API resources populated successfully");
-            }
+                openIddictApplicationDescriptor.SetAccessTokenLifetime(TimeSpan.FromSeconds(identityServerClient.AccessTokenLifetime));
+                openIddictApplicationDescriptor.SetAuthorizationCodeLifetime(TimeSpan.FromSeconds(identityServerClient.AuthorizationCodeLifetime));
+                openIddictApplicationDescriptor.SetDeviceCodeLifetime(TimeSpan.FromSeconds(identityServerClient.DeviceCodeLifetime));
+                openIddictApplicationDescriptor.SetIdentityTokenLifetime(TimeSpan.FromSeconds(identityServerClient.IdentityTokenLifetime));
+                openIddictApplicationDescriptor.SetRefreshTokenLifetime(TimeSpan.FromSeconds(identityServerClient.AbsoluteRefreshTokenLifetime));
 
-            if (!configurationDbContext.IdentityResources.Any())
-            {
-                Console.WriteLine("Identity resources are being populated...");
+                if (identityServerClient.RedirectUris != null)
+                {
+                    foreach (var redirectUri in identityServerClient.RedirectUris)
+                    {
+                        var uri = redirectUri.RedirectUri;
 
-                configurationDbContext.IdentityResources.Add(new IdentityResources.OpenId().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Profile().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Email().ToEntity());
-                configurationDbContext.IdentityResources.Add(new IdentityResources.Phone().ToEntity());
+                        uri = uri.Replace("*", "WILDCARD");
 
-                configurationDbContext.SaveChanges();
+                        openIddictApplicationDescriptor.RedirectUris.Add(new Uri(uri));
+                    }
+                }
 
-                Console.WriteLine("Identity resources populated successfully");
+                if (identityServerClient.PostLogoutRedirectUris != null)
+                {
+                    foreach (var postLogoutRedirectUri in identityServerClient.PostLogoutRedirectUris)
+                    {
+                        var uri = postLogoutRedirectUri.PostLogoutRedirectUri;
+
+                        uri = uri.Replace("*", "WILDCARD");
+
+                        openIddictApplicationDescriptor.PostLogoutRedirectUris.Add(new Uri(uri));
+                    }
+                }
+
+                if (identityServerClient.RequirePkce)
+                {
+                    openIddictApplicationDescriptor.Requirements.Add(Requirements.Features.ProofKeyForCodeExchange);
+                }
+
+                if (identityServerClient.RequirePushedAuthorization)
+                {
+                    openIddictApplicationDescriptor.Requirements.Add(Requirements.Features.PushedAuthorizationRequests);
+                }
+
+                if (identityServerClient.AllowedGrantTypes != null)
+                {
+                    openIddictApplicationDescriptor.AddGrantTypePermissions(identityServerClient.AllowedGrantTypes.Select(allowedGrantType => allowedGrantType.GrantType).ToArray());
+                }
+
+                if (identityServerClient.AllowOfflineAccess)
+                {
+                    openIddictApplicationDescriptor.AddGrantTypePermissions(GrantTypes.RefreshToken);
+                }
+
+                if (identityServerClient.AllowedScopes != null)
+                {
+                    openIddictApplicationDescriptor.AddScopePermissions(identityServerClient.AllowedScopes.Select(allowedScope => allowedScope.Scope).ToArray());
+                }
+
+                if (identityServerClient.Claims != null && identityServerClient.Claims.Any())
+                {
+                    openIddictApplicationDescriptor.SetClaimsSettings(identityServerClient);
+                }
+                
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.ResponseTypes.Code);
+
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.Endpoints.Token);
+                openIddictApplicationDescriptor.Permissions.Add(Permissions.Endpoints.Authorization);
+
+                await manager.CreateAsync(openIddictApplicationDescriptor).ConfigureAwait(false);
             }
         }
 
