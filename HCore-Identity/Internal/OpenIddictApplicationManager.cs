@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -73,6 +77,59 @@ namespace HCore.Identity.Internal
             }
 
             return string.Equals(base64hash, comparand, StringComparison.Ordinal) ? new(true) : new(false);
+        }
+
+        public override async ValueTask<bool> ValidateRedirectUriAsync(TApplication application,
+            [StringSyntax(StringSyntaxAttribute.Uri)] string uri, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(application);
+            ArgumentException.ThrowIfNullOrEmpty(uri);
+
+            var candidates = await Store.GetRedirectUrisAsync(application, cancellationToken).ConfigureAwait(false);
+
+            if (IsUriMatch(uri, candidates))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public override async ValueTask<bool> ValidatePostLogoutRedirectUriAsync(TApplication application,
+            [StringSyntax(StringSyntaxAttribute.Uri)] string uri, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(application);
+            ArgumentException.ThrowIfNullOrEmpty(uri);
+
+            var candidates = await Store.GetPostLogoutRedirectUrisAsync(application, cancellationToken).ConfigureAwait(false);
+
+            if (IsUriMatch(uri, candidates))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private const string WildcardCharacter = @"[a-zA-Z0-9\-]";
+
+        private bool IsUriMatch(string requestedUri, ICollection<string> allowedUris)
+        {
+            var rules = allowedUris.Select(ConvertToRegex).ToList();
+
+            var matchingRuleFound = rules.Any(r => Regex.IsMatch(requestedUri, r, RegexOptions.IgnoreCase));
+            return matchingRuleFound;
+        }
+
+        private static string ConvertToRegex(string rule)
+        {
+            if (rule == null)
+            {
+                throw new ArgumentNullException(nameof(rule));
+            }
+
+            return Regex.Escape(rule)
+                        .Replace(@"WILDCARD", WildcardCharacter + "*");
         }
     }
 }
