@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.6" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.6" />
     <PackageReference Include="IdentityModel" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.25" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.5.1" />
     <PackageReference Include="OpenIddict.AspNetCore" Version="7.3.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.3.0" />
     <PackageReference Include="Kickbox.Net" Version="1.0.2" />

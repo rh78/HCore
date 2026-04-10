@@ -327,9 +327,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcStateRedirectNoProfile = tenantInfo.OidcStateRedirectNoProfile;
                         var oidcOverridePostLogoutRedirectUrl = tenantInfo.OidcOverridePostLogoutRedirectUrl;
 
-                        openIdConnect.SignInScheme = IdentityCoreConstants.ExternalOpenIddictScheme;
-                        openIdConnect.SignOutScheme = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme;
-                        
+                        openIdConnect.SignInScheme = IdentityConstants.ExternalScheme;
+                        openIdConnect.SignOutScheme = IdentityConstants.ExternalScheme;
+
                         openIdConnect.Authority = oidcEndpointUrl;
 
                         openIdConnect.ClientId = oidcClientId;
@@ -558,8 +558,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             saml.IdentityProviders.Add(identityProvider);
                         }
 
-                        saml.SignInScheme = IdentityCoreConstants.ExternalOpenIddictScheme;
-                        saml.SignOutScheme = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme;
+                        saml.SignInScheme = IdentityConstants.ExternalScheme;
+                        saml.SignOutScheme = IdentityConstants.ExternalScheme;
 
                         saml.Notifications.AcsCommandResultCreated = (commandResult, response) =>
                         {
@@ -695,6 +695,19 @@ namespace Microsoft.Extensions.DependencyInjection
                     options
                         .UseEntityFrameworkCore()
                         .UseDbContext<SqlServerIdentityDbContext>();
+                })
+                .AddServer(options =>
+                {
+                    // solution from here https://stackoverflow.com/questions/72204254/scopes-output-in-token
+
+                    options.AddEventHandler<GenerateTokenContext>(handler =>
+                    {
+                        handler.UseSingletonHandler<ScopesAsArrayHandler>();
+
+                        // make sure this is executed before weird stuff is done with the scopes
+
+                        handler.SetOrder(int.MinValue);
+                    });
                 });
 
             var openIddictApplicationManagerDescriptor = new ServiceDescriptor(typeof(OpenIddict.Core.OpenIddictApplicationManager<>), typeof(HCore.Identity.Internal.OpenIddictApplicationManager<>), ServiceLifetime.Scoped);
@@ -718,10 +731,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetJsonWebKeySetEndpointUris(".well-known/openid-configuration/jwks");
                 options.SetAuthorizationEndpointUris("connect/authorize");
                 options.SetTokenEndpointUris("connect/token");
-                options.SetUserInfoEndpointUris("connect/userinfo");
-                options.SetEndSessionEndpointUris("connect/endsession");
-                options.SetIntrospectionEndpointUris("connect/introspect");
-                        
+                // options.SetUserInfoEndpointUris("connect/userinfo");
+                // options.SetEndSessionEndpointUris("connect/endsession");
+                // options.SetIntrospectionEndpointUris("connect/introspect");
+
                 options.AllowAuthorizationCodeFlow();
                 options.AllowClientCredentialsFlow();
                 options.AllowRefreshTokenFlow();
@@ -812,7 +825,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 resourceStream.CopyTo(memory);
 
-                return new X509Certificate2(memory.ToArray(), signingKeyPassword);
+                return new X509Certificate2(memory.ToArray(), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
             }
         }
     }    

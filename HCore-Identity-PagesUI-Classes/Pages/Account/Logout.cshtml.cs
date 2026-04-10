@@ -182,6 +182,10 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         {
             AutomaticRedirectAfterSignOut = true;
 
+            IsLocalLogout = true;
+
+            PostLogoutRedirectUri = "/";
+
             // get context information (client name, post logout redirect URI and iframe for federated signout)
 
             /* TODO OpenIddict var context = await _interaction.GetLogoutContextAsync(logoutId).ConfigureAwait(false);
@@ -198,7 +202,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             PostLogoutRedirectUri = context.PostLogoutRedirectUri;
             ClientName = string.IsNullOrEmpty(context.ClientName) ? context.ClientId : context.ClientName;
             SignOutIframeUrl = context.SignOutIFrameUrl;
-            LogoutId = logoutId; */     
+            LogoutId = logoutId; */
         }
     }
 }

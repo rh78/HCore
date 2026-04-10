@@ -5,7 +5,7 @@ namespace HCore.Identity.Models
 {
     public class ClaimsSettingsModel
     {
-        [JsonProperty("claims")]
-        public Dictionary<string, string> Claims { get; set; }
+        [JsonProperty("client_claims")]
+        public Dictionary<string, string> ClientClaims { get; set; }
     }
 }

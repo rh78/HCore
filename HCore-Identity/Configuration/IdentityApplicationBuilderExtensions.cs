@@ -133,6 +133,11 @@ namespace Microsoft.AspNetCore.Builder
                     openIddictApplicationDescriptor.AddGrantTypePermissions(identityServerClient.AllowedGrantTypes.Select(allowedGrantType => allowedGrantType.GrantType).ToArray());
                 }
 
+                if (identityServerClient.AllowOfflineAccess)
+                {
+                    openIddictApplicationDescriptor.AddGrantTypePermissions(GrantTypes.RefreshToken);
+                }
+
                 if (identityServerClient.AllowedScopes != null)
                 {
                     openIddictApplicationDescriptor.AddScopePermissions(identityServerClient.AllowedScopes.Select(allowedScope => allowedScope.Scope).ToArray());

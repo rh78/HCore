@@ -10,16 +10,16 @@ namespace HCore.Identity.Extensions
     {
         public static void SetClaimsSettings(this OpenIddictApplicationDescriptor openIddictApplicationDescriptor, Duende.IdentityServer.EntityFramework.Entities.Client identityServerClient)
         {
-            var claims = identityServerClient?.Claims?.ToDictionary(claim => claim.Type, claim => claim.Value);
+            var clientClaims = identityServerClient?.Claims?.ToDictionary(claim => $"{identityServerClient.ClientClaimsPrefix}{claim.Type}", claim => claim.Value);
 
-            if (claims == null || !claims.Any())
+            if (clientClaims == null || !clientClaims.Any())
             {
                 return;
             }
 
             var claimsSettingsModel = new ClaimsSettingsModel()
             {
-                Claims = claims
+                ClientClaims = clientClaims
             };
 
             var claimsSettingsJson = JsonConvert.SerializeObject(claimsSettingsModel);

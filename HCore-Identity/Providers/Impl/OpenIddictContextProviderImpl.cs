@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace HCore.Identity.Providers.Impl
 {
-    internal class OpenIddictContextProviderImpl : IOpenIddictContextProvider
+    public class OpenIddictContextProviderImpl : IOpenIddictContextProvider
     {
         public Task<OpenIddictContextModel> GetOpenIddictContextAsync(string returnUrl, IUrlHelper urlHelper)
         {

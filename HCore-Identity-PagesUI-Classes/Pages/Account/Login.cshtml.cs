@@ -1,22 +1,23 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
-using HCore.Identity.Models;
-using HCore.Web.Exceptions;
 using HCore.Identity.Attributes;
 using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Identity.Services;
+using HCore.Identity.Models;
 using HCore.Identity.Providers;
-using HCore.Tenants.Providers;
+using HCore.Identity.Services;
 using HCore.Segment.Providers;
-using System;
-using Segment.Model;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
-using HCore.Translations.Providers;
 using HCore.Tenants;
+using HCore.Tenants.Providers;
+using HCore.Translations.Providers;
+using HCore.Web.Exceptions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Segment.Model;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
@@ -29,7 +30,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
         private readonly IIdentityServices _identityServices;
 
         private readonly IOpenIddictContextProvider _openIddictContextProvider;
-
 
         private readonly ISegmentProvider _segmentProvider;
 
@@ -190,14 +190,14 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
             {
                 // Read external identity from the temporary cookie
 
-                var authenticateResult = await HttpContext.AuthenticateAsync(IdentityCoreConstants.ExternalOpenIddictScheme);
+                var authenticateResult = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
 
                 if (authenticateResult?.Succeeded != true)
                     throw new Exception("The external authentication failed");
 
                 // Delete temporary cookie used during external authentication
 
-                await HttpContext.SignOutAsync(IdentityCoreConstants.ExternalOpenIddictScheme);
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
                 // retrieve return URL
 
@@ -336,8 +336,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                 if (openIddictContextModel != null)
                 {
                     /* TODO OpenIddict
-                     * 
-                    // If the user cancels, send a result back into IdentityServer as if they 
+
+                    // If the user cancels, send a result back into OpenIddict as if they 
                     // denied the consent (even if this client does not require consent).
                     // this will send back an access denied external error response to the client.
 

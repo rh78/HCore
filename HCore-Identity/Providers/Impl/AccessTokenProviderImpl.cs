@@ -47,7 +47,7 @@ namespace HCore.Identity.Providers.Impl
             _logger = logger;
         }
 
-        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
+        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClaims = null, string userUuidOverride = null)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -60,7 +60,7 @@ namespace HCore.Identity.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                 }
 
-                return await GetAccessTokenAsync(user, additionalClientClaims, userUuidOverride).ConfigureAwait(false);
+                return await GetAccessTokenAsync(user, additionalClaims, userUuidOverride).ConfigureAwait(false);
             }
             catch (ApiException)
             {
@@ -74,7 +74,7 @@ namespace HCore.Identity.Providers.Impl
             }
         }
 
-        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
+        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClaims = null, string userUuidOverride = null)
         { 
             try
             {
@@ -95,28 +95,53 @@ namespace HCore.Identity.Providers.Impl
                     { "idp", "local" }
                 };
 
+                // add claims from identity principal
+
+                var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
+
+                var developerAdminClaimValues = identityPricipal.GetClaims(IdentityCoreConstants.DeveloperAdminClaim);
+
+                if (developerAdminClaimValues != null && developerAdminClaimValues.Any())
+                {
+                    claims[IdentityCoreConstants.DeveloperAdminClaim] = developerAdminClaimValues.ToArray();
+                }
+
+                var apiDocsClaimValues = identityPricipal.GetClaims("api_docs");
+
+                if (apiDocsClaimValues != null && apiDocsClaimValues.Any())
+                {
+                    claims["api_docs"] = apiDocsClaimValues.ToArray();
+                }
+
+                var isAdcuClaimValues = identityPricipal.GetClaims("is_adcu");
+
+                if (isAdcuClaimValues != null && isAdcuClaimValues.Any())
+                {
+                    claims["is_adcu"] = isAdcuClaimValues.ToArray();
+                }
+
                 // add client claims
-                
+
                 var openIddictApplicationSettings = await _openIddictApplicationManager.GetSettingsAsync(openIddictApplication).ConfigureAwait(false);
-                var clientClaims = openIddictApplicationSettings?.GetClaimsSettings()?.Claims;
+                var clientClaims = openIddictApplicationSettings?.GetClaimsSettings()?.ClientClaims;
 
                 if (clientClaims != null && clientClaims.Any())
                 {
                     foreach (var clientClaimKeyValuePair in clientClaims)
                     {
-                        claims[$"client_{clientClaimKeyValuePair.Key}"] = clientClaimKeyValuePair.Value;
+                        claims[clientClaimKeyValuePair.Key] = clientClaimKeyValuePair.Value;
                     }
                 }
 
                 // add additional client claims
 
-                if (additionalClientClaims != null)
+                if (additionalClaims != null)
                 {
-                    foreach (Claim additionalClientClaim in additionalClientClaims)
+                    foreach (Claim additionalClaim in additionalClaims)
                     {
-                        if (!claims.Any(claim => string.Equals(claim.Key, additionalClientClaim.Type)))
+                        if (!claims.Any(claim => string.Equals(claim.Key, additionalClaim.Type)))
                         {
-                            claims.Add(additionalClientClaim.Type, additionalClientClaim.Value);
+                            claims.Add(additionalClaim.Type, additionalClaim.Value);
                         }
                     }
                 }
@@ -169,10 +194,6 @@ namespace HCore.Identity.Providers.Impl
                 throw new InternalServerErrorApiException();
             }
         }
-
-        // see https://github.com/IdentityServer/IdentityServer4/blob/dev/src/Services/Default/DefaultTokenService.cs
-
-        private const string AccessTokenAudience = "{0}resources";
 
         private string ProcessUserUuid(string userUuid)
         {
