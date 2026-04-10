@@ -30,6 +30,8 @@ namespace HCore.Identity.Database.SqlServer
             modelBuilder.Entity<UserModel>()
                 .HasIndex(entity => new { entity.DeveloperUuid, entity.TenantUuid, entity.Pin })
                 .IsUnique();
+
+            modelBuilder.UseOpenIddict();
         }
     }
 }
