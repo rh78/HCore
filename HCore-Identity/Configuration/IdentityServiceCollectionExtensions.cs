@@ -9,8 +9,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
-using Duende.IdentityServer.EntityFramework.DbContexts;
-using Duende.IdentityServer.EntityFramework.Options;
 using HCore.Identity;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
@@ -140,12 +138,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             // lightweight one for default UI implementations
             services.AddSqlDatabase<TStartup, IdentityDbContext>("Identity", configuration);
-
-            // TODO remove
-
-            services.AddSingleton(new ConfigurationStoreOptions());
-
-            services.AddSqlDatabase<TStartup, ConfigurationDbContext>("Identity", configuration);
         }
 
         private static void ConfigureDataProtection(IServiceCollection services, IConfiguration configuration)
