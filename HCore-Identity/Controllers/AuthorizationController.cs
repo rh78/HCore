@@ -5,8 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Duende.IdentityServer.Extensions;
-using HCore.Identity;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Extensions;
 using HCore.Web.Attributes;
@@ -226,7 +224,7 @@ namespace HCore.Identity.Controllers
 
             var claimsPrincipal = authenticateResult.Principal;
 
-            var subject = claimsPrincipal.GetSubjectId();
+            var subject = GetSubjectId(claimsPrincipal);
 
             if (string.IsNullOrEmpty(subject))
             {
@@ -434,6 +432,20 @@ namespace HCore.Identity.Controllers
                     yield return Destinations.AccessToken;
                     yield break;
             }
+        }
+
+        private static string GetSubjectId(ClaimsPrincipal claimsPrincipal)
+        {
+            var id = claimsPrincipal.Identity as ClaimsIdentity;
+
+            var claim = id.FindFirst(JwtClaimTypes.Subject);
+
+            if (claim == null)
+            {
+                throw new InvalidOperationException("Subject ID claim is missing");
+            }
+
+            return claim.Value;
         }
     }
 }
