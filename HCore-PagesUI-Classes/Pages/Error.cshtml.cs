@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Duende.IdentityServer.Services;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +19,6 @@ namespace HCore.PagesUI.Classes.Pages
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : BasePageModelProvidingJsonModelData
     {
-        private readonly IIdentityServerInteractionService _interaction;
-
         public bool ShowRequestId { get; set; }
 
         public string RequestId { get; set; }
@@ -61,8 +58,6 @@ namespace HCore.PagesUI.Classes.Pages
         {
             _dataProtectionProvider = dataProtectionProvider;
 
-            _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
-
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
         
@@ -86,7 +81,7 @@ namespace HCore.PagesUI.Classes.Pages
                 HidePoweredBy = tenantInfo.HidePoweredBy;
             }
 
-            if (_interaction != null && !string.IsNullOrEmpty(errorId))
+            /* TODO OpenIddict if (_interaction != null && !string.IsNullOrEmpty(errorId))
             {
                 // retrieve error details from identity server
 
@@ -108,7 +103,7 @@ namespace HCore.PagesUI.Classes.Pages
 
                     return;
                 }
-            }
+            } */
 
             // check if we have other error
 

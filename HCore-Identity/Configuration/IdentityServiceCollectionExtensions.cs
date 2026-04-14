@@ -1,54 +1,54 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using HCore.Identity;
-using HCore.Identity.Database.SqlServer;
-using HCore.Identity.Database.SqlServer.Models.Impl;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using HCore.Identity.Requirements;
-using IdentityModel;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
+using HCore.Identity;
+using HCore.Identity.Database.SqlServer;
+using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Internal;
 using HCore.Identity.Providers;
 using HCore.Identity.Providers.Impl;
-using HCore.Identity.Services.Impl;
-using HCore.Identity.Services;
-using HCore.Identity.Validators.Impl;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using HCore.Tenants;
-using Duende.IdentityServer;
-using Microsoft.AspNetCore.Authentication;
-using Sustainsys.Saml2.AspNetCore2;
-using Sustainsys.Saml2;
-using Sustainsys.Saml2.Metadata;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Duende.IdentityServer.EntityFramework.DbContexts;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
-using HCore.Identity.Internal;
-using Sustainsys.Saml2.Saml2P;
-using HCore.Translations.Providers;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.IdentityModel.Logging;
-using Newtonsoft.Json;
-using reCAPTCHA.AspNetCore;
-using HCore.Identity.Stores;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using HCore.Identity.Requirements;
 using HCore.Identity.Security;
+using HCore.Identity.Services;
+using HCore.Identity.Services.Impl;
+using HCore.Identity.Stores;
+using HCore.Tenants;
+using HCore.Translations.Providers;
+using HCore.Web.Exceptions;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using OpenIddict.Server.AspNetCore;
+using reCAPTCHA.AspNetCore;
+using Sustainsys.Saml2;
+using Sustainsys.Saml2.AspNetCore2;
+using Sustainsys.Saml2.Metadata;
+using Sustainsys.Saml2.Saml2P;
+using static OpenIddict.Abstractions.OpenIddictConstants;
+using static OpenIddict.Server.OpenIddictServerEvents;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -319,9 +319,9 @@ namespace Microsoft.Extensions.DependencyInjection
                         var oidcStateRedirectNoProfile = tenantInfo.OidcStateRedirectNoProfile;
                         var oidcOverridePostLogoutRedirectUrl = tenantInfo.OidcOverridePostLogoutRedirectUrl;
 
-                        openIdConnect.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                        openIdConnect.SignOutScheme = IdentityServerConstants.SignoutScheme;
-                        
+                        openIdConnect.SignInScheme = IdentityConstants.ExternalScheme;
+                        openIdConnect.SignOutScheme = IdentityConstants.ExternalScheme;
+
                         openIdConnect.Authority = oidcEndpointUrl;
 
                         openIdConnect.ClientId = oidcClientId;
@@ -550,8 +550,8 @@ namespace Microsoft.Extensions.DependencyInjection
                             saml.IdentityProviders.Add(identityProvider);
                         }
 
-                        saml.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                        saml.SignOutScheme = IdentityServerConstants.SignoutScheme;
+                        saml.SignInScheme = IdentityConstants.ExternalScheme;
+                        saml.SignOutScheme = IdentityConstants.ExternalScheme;
 
                         saml.Notifications.AcsCommandResultCreated = (commandResult, response) =>
                         {
@@ -681,80 +681,111 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void ConfigureIdentityServer(IServiceCollection services, TenantsBuilder tenantsBuilder, string migrationsAssembly, IConfiguration configuration)
         {
-            IIdentityServerBuilder identityServerBuilder;
-
-            if (tenantsBuilder == null)
-            {
-                identityServerBuilder = services.AddIdentityServer(options =>
+            var openIddictBuilder = services.AddOpenIddict()
+                .AddCore(options =>
                 {
-                    options.LicenseKey = configuration.GetValue<string>("Identity:LicenseKey");
-
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-                    options.UserInteraction.ErrorUrl = "/Error";
-                    options.UserInteraction.ConsentUrl = "/Account/Consent";
-                });
-            }
-            else
-            {
-                string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
-                if (string.IsNullOrEmpty(defaultClientAuthority))
-                    throw new Exception("Identity default client authority string is empty");
-
-                identityServerBuilder = services.AddIdentityServer(options =>
+                    options
+                        .UseEntityFrameworkCore()
+                        .UseDbContext<SqlServerIdentityDbContext>();
+                })
+                .AddServer(options =>
                 {
-                    options.LicenseKey = configuration.GetValue<string>("Identity:LicenseKey");
+                    // solution from here https://stackoverflow.com/questions/72204254/scopes-output-in-token
 
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-                    options.UserInteraction.ErrorUrl = "/Error";
-                    options.UserInteraction.ConsentUrl = "/Account/Consent";
+                    options.AddEventHandler<GenerateTokenContext>(handler =>
+                    {
+                        handler.UseSingletonHandler<ScopesAsArrayHandler>();
 
-                    options.IssuerUri = defaultClientAuthority;
+                        // make sure this is executed before weird stuff is done with the scopes
+
+                        handler.SetOrder(int.MinValue);
+                    });
                 });
-            }
+
+            var openIddictApplicationManagerDescriptor = new ServiceDescriptor(typeof(OpenIddict.Core.OpenIddictApplicationManager<>), typeof(HCore.Identity.Internal.OpenIddictApplicationManager<>), ServiceLifetime.Scoped);
+            services.Replace(openIddictApplicationManagerDescriptor);
 
             // see http://amilspage.com/signing-certificates-idsv4/
 
-            identityServerBuilder.AddSigningCredential(GetSigningKeyCertificate(configuration));
+            var signingCertificate = GetSigningKeyCertificate(configuration);
 
-            identityServerBuilder.AddAspNetIdentity<UserModel>();
-
-            // this adds the config data from DB (clients, resources)
-            identityServerBuilder.AddConfigurationStore<SqlServerConfigurationDbContext>(options =>
+            openIddictBuilder.AddServer(options =>
             {
-                options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
+                if (tenantsBuilder != null)
+                {
+                    string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+                    if (string.IsNullOrEmpty(defaultClientAuthority))
+                        throw new Exception("Identity default client authority string is empty");
+
+                    options.SetIssuer(defaultClientAuthority);
+                }
+
+                options.SetJsonWebKeySetEndpointUris(".well-known/openid-configuration/jwks");
+                options.SetAuthorizationEndpointUris("connect/authorize");
+                options.SetTokenEndpointUris("connect/token");
+                // options.SetUserInfoEndpointUris("connect/userinfo");
+                // options.SetEndSessionEndpointUris("connect/endsession");
+                // options.SetIntrospectionEndpointUris("connect/introspect");
+
+                options.AllowAuthorizationCodeFlow();
+                options.AllowClientCredentialsFlow();
+                options.AllowRefreshTokenFlow();
+                // options.AllowImplicitFlow();
+                // options.AllowPasswordFlow();
+                // options.AllowHybridFlow();
+
+                options.SetIdentityTokenLifetime(TimeSpan.FromMinutes(5));
+                options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
+                options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
+                // sliding expiration is enabled by default
+                options.SetRefreshTokenLifetime(TimeSpan.FromDays(15));
+
+                options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough()
+                    .EnableTokenEndpointPassthrough();
+
+                var apiResources = new List<string>();
+
+                configuration.GetSection("Identity:ApiResources")?.Bind(apiResources);
+
+                options.RegisterScopes([Scopes.OpenId, Scopes.Profile, Scopes.Email, Scopes.Phone, Scopes.OfflineAccess]);
+
+                if (apiResources != null && apiResources.Any())
+                {
+                    var apiResourcesArray = apiResources.ToArray();
+
+                    options.RegisterScopes(apiResourcesArray);
+                }
+
+                options.RegisterClaims([Claims.GivenName, Claims.FamilyName, Claims.Name, Claims.EmailVerified, Claims.Email, Claims.PhoneNumber, Claims.PhoneNumberVerified]);
+
+                options.AddSigningCertificate(signingCertificate);
+                options.AddEncryptionCertificate(signingCertificate);
+
+                options.DisableAccessTokenEncryption();
+
+                options.DisableTokenStorage();
+
+                options.AddEventHandler<ProcessErrorContext>(builder =>
+                {
+                    builder.UseInlineHandler(context =>
+                    {
+                        if (context != null)
+                        {
+                            if (context.Error != null)
+                            {
+                                throw new RequestFailedApiException(context.Error, context.ErrorDescription);
+                            }
+                        }
+
+                        return default;
+                    });
+                });
             });
 
-            services.AddDbContext<ConfigurationDbContext>(options =>
-            {
-                options.AddSqlDatabase("Identity", configuration, migrationsAssembly);
-            });
+            // identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
 
-            // this adds the operational data from DB (codes, tokens, consents)
-            identityServerBuilder.AddOperationalStore<SqlServerPersistedGrantDbContext>(options =>
-            {
-                options.ConfigureDbContext = dbContextBuilder =>
-                    dbContextBuilder.AddSqlDatabase("Identity", configuration, migrationsAssembly);
-
-                // this enables automatic token cleanup. this is optional.
-                options.EnableTokenCleanup = true;
-                // options.TokenCleanupInterval = 15; // frequency in seconds to cleanup stale grants. 15 is useful during debugging
-            });
-
-            services.AddDbContext<PersistedGrantDbContext>(options =>
-            {
-                options.AddSqlDatabase("Identity", configuration, migrationsAssembly);
-            });
-
-            identityServerBuilder.AddRedirectUriValidator<WildcardRedirectUriValidatorImpl>();
-
-            identityServerBuilder.AddConfigurationStoreCache();
+            services.AddSingleton<IOpenIddictContextProvider, OpenIddictContextProviderImpl>();
         }
 
         private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
@@ -786,7 +817,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 resourceStream.CopyTo(memory);
 
-                return new X509Certificate2(memory.ToArray(), signingKeyPassword);
+                return new X509Certificate2(memory.ToArray(), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
             }
         }
     }    

@@ -36,5 +36,7 @@
         public const string HttpContextItemsIdTokenHint = "SmintIo:IdTokenHint";
 
         public const string AllowIFrameUrlContextKey = "SmintIo:AllowIFrameUrl";
+
+        public const string ClaimsSettings = "claims";
     }
 }

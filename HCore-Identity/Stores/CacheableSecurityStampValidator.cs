@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using Duende.IdentityServer.Events;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Providers;
 using Microsoft.AspNetCore.Authentication;
