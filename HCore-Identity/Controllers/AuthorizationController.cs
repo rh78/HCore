@@ -207,6 +207,87 @@ namespace HCore.Identity.Controllers
             return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
+        [HttpGet]
+        [Route("/connect/userinfo")]
+        [HttpPost("/connect/userinfo")]
+        [Produces("application/json")]
+        [ValidateModelState]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> UserInfoAsync()
+        {
+            var authenticateResult = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+            if (!IsAuthenticated(authenticateResult, request: null))
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                    }));
+            }
+
+            var claimsPrincipal = authenticateResult.Principal;
+
+            var subject = GetSubjectId(claimsPrincipal);
+
+            if (string.IsNullOrEmpty(subject))
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                    }));
+            }
+
+            var userModel = await GetUserAsync(subject).ConfigureAwait(false);
+
+            if (userModel == null)
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                    }));
+            }
+
+            var claims = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                [Claims.Subject] = userModel.Id
+            };
+
+            // set claims
+
+            if (!string.IsNullOrEmpty(userModel.Email))
+            {
+                claims[Claims.Email] = userModel.Email;
+                claims[Claims.EmailVerified] = userModel.EmailConfirmed;
+            }
+
+            if (!string.IsNullOrEmpty(userModel.PhoneNumber))
+            {
+                claims[Claims.PhoneNumber] = userModel.PhoneNumber;
+                claims[Claims.PhoneNumberVerified] = userModel.PhoneNumberConfirmed;
+            }
+            
+            if (!string.IsNullOrEmpty(userModel.FirstName))
+            {
+                claims[Claims.GivenName] = userModel.FirstName;
+            }
+
+            if (!string.IsNullOrEmpty(userModel.LastName))
+            {
+                claims[Claims.FamilyName] = userModel.LastName;
+            }
+
+            return Ok(claims);
+        }
+
         private async Task<IActionResult> HandleAuthorizationCodeGrantTypeAsync(OpenIddictRequest openIddictRequest, ClaimsIdentity identity)
         {
             var authenticateResult = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -366,7 +447,7 @@ namespace HCore.Identity.Controllers
                 return false;
             }
 
-            if (request.MaxAge.HasValue && authenticateResult.Properties != null)
+            if (request != null && request.MaxAge.HasValue && authenticateResult.Properties != null)
             {
                 var maxAgeSeconds = TimeSpan.FromSeconds(request.MaxAge.Value);
 
