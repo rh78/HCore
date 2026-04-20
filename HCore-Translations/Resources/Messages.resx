@@ -474,8 +474,8 @@
   <data name="permission_denied" xml:space="preserve">
     <value>The permission to access this location was denied</value>
   </data>
-  <data name="ie11_and_lower_not_supported" xml:space="preserve">
-    <value>Microsoft has ended official support for Internet Explorer 11 and older generations of Internet Explorer. For security reasons, this page therefore only works with the Microsoft Edge browser</value>
+  <data name="browser_not_supported" xml:space="preserve">
+    <value>Due to security reasons, your browser version unfortunately is no longer supported by this website. Please update your browser to the newest version!</value>
   </data>
   <data name="maintenance_mode" xml:space="preserve">
     <value>We are currently conducting a scheduled system maintenance. Please try again in an hour</value>

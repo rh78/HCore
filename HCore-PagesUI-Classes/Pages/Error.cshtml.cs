@@ -65,6 +65,8 @@ namespace HCore.PagesUI.Classes.Pages
         {
             // check if we have identity error
 
+            ViewData["IsErrorPage"] = true;
+
             ShowRequestId = false;
 
             Description = null;
@@ -141,9 +143,11 @@ namespace HCore.PagesUI.Classes.Pages
                         }
                     }
                 }
-                else if (string.Equals(errorCode, "ie11_and_lower_not_supported"))
+                else if (string.Equals(errorCode, "browser_not_supported"))
                 {
-                    errorDescription = $"{Messages.ie11_and_lower_not_supported}.";
+                    errorDescription = $"{Messages.browser_not_supported}.";
+
+                    ViewData["IsBrowserNotSupported"] = true;
                 }
                 else if (string.Equals(errorCode, "maintenance_mode"))
                 {

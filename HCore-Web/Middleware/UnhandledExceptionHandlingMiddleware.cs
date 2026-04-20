@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using HCore.Web.Exceptions;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
 using System.Web;
 using HCore.Translations.Providers;
-using Microsoft.Extensions.DependencyInjection;
+using HCore.Web.Exceptions;
 using Microsoft.AspNetCore.DataProtection;
-using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
+using Newtonsoft.Json;
 
 namespace HCore.Web.Middleware
 {
@@ -26,7 +25,6 @@ namespace HCore.Web.Middleware
         private static bool _tenantSelectorFallbackUrlSetup;
         private static string _tenantSelectorFallbackUrl;
 
-        private static bool? _blockIE;
         private static bool? _maintenanceMode;
 
         private readonly RequestDelegate _next;
@@ -59,11 +57,6 @@ namespace HCore.Web.Middleware
             if (_useApi == null)
             {
                 _useApi = configuration.GetValue<bool>("WebServer:UseApi");
-            }
-
-            if (_blockIE == null)
-            {
-                _blockIE = configuration.GetValue<bool>("WebServer:BlockIE");
             }
 
             if (_maintenanceMode == null)
@@ -108,12 +101,7 @@ namespace HCore.Web.Middleware
                 
                 if (!maintenanceMode)
                 {
-                    var blocked = BlockIE11(context);
-
-                    if (!blocked)
-                    {
-                        await _next.Invoke(context).ConfigureAwait(false);
-                    }
+                    await _next.Invoke(context).ConfigureAwait(false);
                 }
             }
             catch (RedirectApiException e)
@@ -205,58 +193,6 @@ namespace HCore.Web.Middleware
             context.Response.Redirect(redirectUrl);
 
             return true;
-        }
-
-        private bool BlockIE11(HttpContext context)
-        {
-            if (context == null)
-                return false;
-
-            if (_blockIE != true)
-                return false;
-
-            if (_webPort == null || context.Connection.LocalPort != _webPort)
-            {
-                // we have a call to some API endpoint, that's OK
-
-                return false;
-            }
-
-            if (!context.Request.Headers.ContainsKey("User-Agent"))
-                return false;
-
-            var path = context.Request.Path.Value;
-
-            if (!string.IsNullOrEmpty(path))
-            {
-                if (path.ToLower().StartsWith("/error") || path.Contains("/js/") || path.Contains("/css/") || path.Contains("/fonts/") || path.StartsWith("/portal/v1/"))
-                {
-                    return false;
-                }
-            }
-
-            var userAgent = context.Request.Headers["User-Agent"].FirstOrDefault();
-            
-            if (string.IsNullOrEmpty(userAgent))
-                return false;
-
-            if (userAgent.Contains("MSIE ") ||
-                userAgent.Contains("Trident/"))
-            {
-                // IE < 11, IE 11 or similar
-
-                var redirectUrl = $"/Error?errorCode=ie11_and_lower_not_supported";
-
-                WriteNoCache(context);
-
-                context.Response.Redirect(redirectUrl);
-
-                return true;
-            }
-
-            // lets allow Edge, it should be fine
-
-            return false;
         }
 
         private async Task HandleResultExceptionAsync(HttpContext context, ApiException resultException)

@@ -474,8 +474,8 @@
   <data name="permission_denied" xml:space="preserve">
     <value>Der Zugang wurde verweigert</value>
   </data>
-  <data name="ie11_and_lower_not_supported" xml:space="preserve">
-    <value>Microsoft hat die offizielle Unterstützung des Internet Explorer 11 und ältere Generationen von Internet Explorer eingestellt. Aus Sicherheitsgründen funktioniert diese Seite deshalb nur noch mit dem Microsoft Edge Browser</value>
+  <data name="browser_not_supported" xml:space="preserve">
+    <value>Ihre Browser-Version wird von dieser Webseite aus Sicherheitsgründen leider nicht mehr unterstützt. Bitte aktualisieren Sie Ihren Browser auf die neueste Version!</value>
   </data>
   <data name="maintenance_mode" xml:space="preserve">
     <value>Wir führen im Moment eine geplante Systemwartung durch. Bitte versuchen Sie es in einer Stunde noch einmal</value>
