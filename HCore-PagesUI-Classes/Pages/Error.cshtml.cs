@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Duende.IdentityServer.Services;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,8 +19,6 @@ namespace HCore.PagesUI.Classes.Pages
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : BasePageModelProvidingJsonModelData
     {
-        private readonly IIdentityServerInteractionService _interaction;
-
         public bool ShowRequestId { get; set; }
 
         public string RequestId { get; set; }
@@ -61,14 +58,14 @@ namespace HCore.PagesUI.Classes.Pages
         {
             _dataProtectionProvider = dataProtectionProvider;
 
-            _interaction = serviceProvider.GetService<IIdentityServerInteractionService>();
-
             _tenantInfoAccessor = serviceProvider.GetService<ITenantInfoAccessor>();
         }
         
         public async Task OnGetAsync(string errorId, string errorCode, string errorDescription)
         {
             // check if we have identity error
+
+            ViewData["IsErrorPage"] = true;
 
             ShowRequestId = false;
 
@@ -86,7 +83,7 @@ namespace HCore.PagesUI.Classes.Pages
                 HidePoweredBy = tenantInfo.HidePoweredBy;
             }
 
-            if (_interaction != null && !string.IsNullOrEmpty(errorId))
+            /* TODO OpenIddict if (_interaction != null && !string.IsNullOrEmpty(errorId))
             {
                 // retrieve error details from identity server
 
@@ -108,7 +105,7 @@ namespace HCore.PagesUI.Classes.Pages
 
                     return;
                 }
-            }
+            } */
 
             // check if we have other error
 
@@ -146,9 +143,11 @@ namespace HCore.PagesUI.Classes.Pages
                         }
                     }
                 }
-                else if (string.Equals(errorCode, "ie11_and_lower_not_supported"))
+                else if (string.Equals(errorCode, "browser_not_supported"))
                 {
-                    errorDescription = $"{Messages.ie11_and_lower_not_supported}.";
+                    errorDescription = $"{Messages.browser_not_supported}.";
+
+                    ViewData["IsBrowserNotSupported"] = true;
                 }
                 else if (string.Equals(errorCode, "maintenance_mode"))
                 {

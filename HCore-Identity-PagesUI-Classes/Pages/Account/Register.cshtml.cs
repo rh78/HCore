@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Duende.IdentityServer.Events;
-using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using HCore.Identity.Attributes;
 using HCore.Identity.Models;
@@ -31,8 +29,7 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
     public class RegisterModel : BasePageModelProvidingJsonModelData
     {
         private readonly IIdentityServices _identityServices;
-        private readonly IConfigurationProvider _configurationProvider;        
-        private readonly IEventService _events;
+        private readonly IConfigurationProvider _configurationProvider;
 
         private readonly ISegmentProvider _segmentProvider;
 
@@ -60,16 +57,13 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
         public RegisterModel(
             IIdentityServices identityServices,
-            IConfigurationProvider configurationProvider,            
-            IEventService events,
+            IConfigurationProvider configurationProvider,
             ITranslationsProvider translationsProvider,
             IDataProtectionProvider dataProtectionProvider,
             IServiceProvider serviceProvider)
         {
             _identityServices = identityServices;
             _configurationProvider = configurationProvider;
-            
-            _events = events;
 
             _segmentProvider = serviceProvider.GetService<ISegmentProvider>();
 
@@ -214,10 +208,6 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
                     Response.Cookies.Delete(TenantModel.CookieName);
 
                     return RedirectToPage("./EmailNotConfirmed", new { UserUuid = protectedUserUuid });
-                }
-                else
-                {
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.GetEmail())).ConfigureAwait(false);
                 }
 
                 // make sure we continue on THIS tenant when completing the login

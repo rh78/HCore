@@ -1,20 +1,20 @@
-﻿using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Web.API.Impl;
-using HCore.Web.Exceptions;
-using IdentityModel;
-using Duende.IdentityServer;
-using Duende.IdentityServer.Configuration;
-using Duende.IdentityServer.Models;
-using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Validation;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Extensions;
+using HCore.Web.API.Impl;
+using HCore.Web.Exceptions;
+using IdentityModel;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Abstractions;
+using OpenIddict.Server;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace HCore.Identity.Providers.Impl
 {
@@ -22,37 +22,32 @@ namespace HCore.Identity.Providers.Impl
     {
         private readonly UserManager<UserModel> _userManager;
         private readonly IUserClaimsPrincipalFactory<UserModel> _principalFactory;
-        private readonly IClientStore _clientStore;
-        private readonly IResourceStore _resourceStore;
-        private readonly ITokenService _tokenService;
-        private readonly IdentityServerOptions _options;
         private readonly IConfigurationProvider _configurationProvider;
-        private readonly IClaimsService _claimsService;
+        
+        private readonly IOpenIddictApplicationManager _openIddictApplicationManager;
+        private readonly IOptionsMonitor<OpenIddictServerOptions> _openIddictServerOptions;
+        
         private readonly ILogger<AccessTokenProviderImpl> _logger;
 
         public AccessTokenProviderImpl(
            UserManager<UserModel> userManager,
            IUserClaimsPrincipalFactory<UserModel> principalFactory,
-           IClientStore clientStore,
-           IResourceStore resourceStore,
-           IClaimsService claimsService,
-           ITokenService tokenService,
-           IdentityServerOptions options,
            IConfigurationProvider configurationProvider,
+           IOpenIddictApplicationManager openIddictApplicationManager,
+           IOptionsMonitor<OpenIddictServerOptions> openIddictServerOptions,
            ILogger<AccessTokenProviderImpl> logger)
         {
-            _userManager = userManager;            
+            _userManager = userManager;
             _principalFactory = principalFactory;
-            _clientStore = clientStore;
-            _resourceStore = resourceStore;
-            _claimsService = claimsService;
-            _tokenService = tokenService;
-            _options = options;
             _configurationProvider = configurationProvider;
+
+            _openIddictApplicationManager = openIddictApplicationManager;
+            _openIddictServerOptions = openIddictServerOptions;
+
             _logger = logger;
         }
 
-        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
+        public async Task<string> GetAccessTokenAsync(string userUuid, List<Claim> additionalClaims = null, string userUuidOverride = null)
         {
             userUuid = ProcessUserUuid(userUuid);
 
@@ -65,7 +60,7 @@ namespace HCore.Identity.Providers.Impl
                     throw new NotFoundApiException(NotFoundApiException.UserNotFound, $"User with UUID {userUuid} was not found", userUuid);
                 }
 
-                return await GetAccessTokenAsync(user, additionalClientClaims, userUuidOverride).ConfigureAwait(false);
+                return await GetAccessTokenAsync(user, additionalClaims, userUuidOverride).ConfigureAwait(false);
             }
             catch (ApiException)
             {
@@ -79,66 +74,112 @@ namespace HCore.Identity.Providers.Impl
             }
         }
 
-        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClientClaims = null, string userUuidOverride = null)
+        public async Task<string> GetAccessTokenAsync(UserModel user, List<Claim> additionalClaims = null, string userUuidOverride = null)
         { 
             try
             {
-                var tokenCreationRequest = new TokenCreationRequest();
-
-                var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
-
-                var identityUser = new IdentityServerUser(!string.IsNullOrEmpty(userUuidOverride) ? userUuidOverride : user.Id.ToString());
-
-                identityUser.AdditionalClaims = identityPricipal.Claims.ToArray();
-
-                identityUser.DisplayName = user.UserName;
-
-                identityUser.AuthenticationTime = DateTime.UtcNow;
-                identityUser.IdentityProvider = IdentityServerConstants.LocalIdentityProvider;
-
-                var subject = identityUser.CreatePrincipal();
-
-                tokenCreationRequest.Subject = subject;
-
-                tokenCreationRequest.IncludeAllIdentityClaims = true;
-
-                tokenCreationRequest.ValidatedRequest = new ValidatedRequest();
-
-                tokenCreationRequest.ValidatedRequest.Subject = tokenCreationRequest.Subject;
+                var openIddictServerOptions = _openIddictServerOptions.CurrentValue;
 
                 string defaultClientId = _configurationProvider.DefaultClientId;
 
-                var client = await _clientStore.FindClientByIdAsync(defaultClientId).ConfigureAwait(false);
+                var openIddictApplication = await _openIddictApplicationManager.FindByClientIdAsync(defaultClientId).ConfigureAwait(false);
 
-                tokenCreationRequest.ValidatedRequest.SetClient(client);
+                // build claims
 
-                var resources = await _resourceStore.GetAllEnabledResourcesAsync().ConfigureAwait(false);
+                var userUuid = !string.IsNullOrEmpty(userUuidOverride) ? userUuidOverride : user.Id.ToString();
 
-                tokenCreationRequest.ValidatedResources = new ResourceValidationResult(resources);
-
-                tokenCreationRequest.ValidatedRequest.Options = _options;
-
-                if (additionalClientClaims != null)
+                var claims = new Dictionary<string, object>
                 {
-                    var clientClaims = tokenCreationRequest.ValidatedRequest.ClientClaims;
+                    { Claims.Subject, userUuid },
+                    { "client_id", defaultClientId },
+                    { "idp", "local" }
+                };
 
-                    foreach (Claim additionalClientClaim in additionalClientClaims) 
+                // add claims from identity principal
+
+                var identityPricipal = await _principalFactory.CreateAsync(user).ConfigureAwait(false);
+
+                var developerAdminClaimValues = identityPricipal.GetClaims(IdentityCoreConstants.DeveloperAdminClaim);
+
+                if (developerAdminClaimValues != null && developerAdminClaimValues.Any())
+                {
+                    claims[IdentityCoreConstants.DeveloperAdminClaim] = developerAdminClaimValues.ToArray();
+                }
+
+                var apiDocsClaimValues = identityPricipal.GetClaims("api_docs");
+
+                if (apiDocsClaimValues != null && apiDocsClaimValues.Any())
+                {
+                    claims["api_docs"] = apiDocsClaimValues.ToArray();
+                }
+
+                var isAdcuClaimValues = identityPricipal.GetClaims("is_adcu");
+
+                if (isAdcuClaimValues != null && isAdcuClaimValues.Any())
+                {
+                    claims["is_adcu"] = isAdcuClaimValues.ToArray();
+                }
+
+                // add client claims
+
+                var openIddictApplicationSettings = await _openIddictApplicationManager.GetSettingsAsync(openIddictApplication).ConfigureAwait(false);
+                var clientClaims = openIddictApplicationSettings?.GetClaimsSettings()?.ClientClaims;
+
+                if (clientClaims != null && clientClaims.Any())
+                {
+                    foreach (var clientClaimKeyValuePair in clientClaims)
                     {
-                        if (!clientClaims.Any(clientClaim => string.Equals(clientClaim.Type, additionalClientClaim.Type)))
+                        claims[clientClaimKeyValuePair.Key] = clientClaimKeyValuePair.Value;
+                    }
+                }
+
+                // add additional client claims
+
+                if (additionalClaims != null)
+                {
+                    foreach (Claim additionalClaim in additionalClaims)
+                    {
+                        if (!claims.Any(claim => string.Equals(claim.Key, additionalClaim.Type)))
                         {
-                            clientClaims.Add(additionalClientClaim);
+                            claims.Add(additionalClaim.Type, additionalClaim.Value);
                         }
                     }
                 }
 
-                var accessToken = await CreateAccessTokenAsync(tokenCreationRequest).ConfigureAwait(false);
+                // add scopes
 
-                string defaultClientAuthority = _configurationProvider.DefaultClientAuthority;
+                var openIddictApplicationPermissions = await _openIddictApplicationManager.GetPermissionsAsync(openIddictApplication).ConfigureAwait(false);
+
+                if (openIddictApplicationPermissions != null)
+                {
+                    claims[JwtClaimTypes.Scope] = openIddictApplicationPermissions
+                        .Where(openIddictApplicationPermission => openIddictApplicationPermission.StartsWith(Permissions.Prefixes.Scope))
+                        .Select(openIddictApplicationPermission => openIddictApplicationPermission[Permissions.Prefixes.Scope.Length..])
+                        .Where(openIddictApplicationPermission => !string.IsNullOrEmpty(openIddictApplicationPermission))
+                        .ToArray(); 
+                }
                 
-                accessToken.Issuer = defaultClientAuthority;
-                accessToken.Audiences = new string[] { _configurationProvider.DefaultClientAudience };
+                claims[JwtClaimTypes.JwtId] = CryptoRandom.CreateUniqueId(16);
 
-                var accessTokenValue = await _tokenService.CreateSecurityTokenAsync(accessToken).ConfigureAwait(false);
+                var issuer = _configurationProvider.DefaultClientAuthority;
+
+                var issuedAt = DateTime.UtcNow;
+                var expiresAt = issuedAt.AddHours(1);
+
+                var tokenDescriptor = new SecurityTokenDescriptor()
+                {
+                    Claims = claims,
+                    IssuedAt = issuedAt,
+                    NotBefore = issuedAt,
+                    Expires = expiresAt,
+                    Issuer = issuer,
+                    Audience = _configurationProvider.DefaultClientAudience,
+                    TokenType = TokenTypes.Bearer,
+                    SigningCredentials = openIddictServerOptions.SigningCredentials.FirstOrDefault(),
+                    EncryptingCredentials = null
+                };
+                
+                var accessTokenValue = openIddictServerOptions.JsonWebTokenHandler.CreateToken(tokenDescriptor);
 
                 return accessTokenValue;
             }
@@ -152,46 +193,6 @@ namespace HCore.Identity.Providers.Impl
 
                 throw new InternalServerErrorApiException();
             }
-        }
-
-        // see https://github.com/IdentityServer/IdentityServer4/blob/dev/src/Services/Default/DefaultTokenService.cs
-
-        private const string AccessTokenAudience = "{0}resources";
-
-        private async Task<Token> CreateAccessTokenAsync(TokenCreationRequest request)
-        {
-            var claims = new List<Claim>();
-            claims.AddRange(await _claimsService.GetAccessTokenClaimsAsync(
-                request.Subject,
-                request.ValidatedResources,
-                request.ValidatedRequest).ConfigureAwait(false));
-
-            if (request.ValidatedRequest.Client.IncludeJwtId)
-            {
-                claims.Add(new Claim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16)));
-            }
-
-            var issuer = _configurationProvider.DefaultClientAuthority;
-            var token = new Token(OidcConstants.TokenTypes.AccessToken)
-            {
-                CreationTime = DateTimeOffset.Now.UtcDateTime,
-                Audiences = { string.Format(AccessTokenAudience, issuer) },
-                Issuer = issuer,
-                Lifetime = request.ValidatedRequest.AccessTokenLifetime,
-                Claims = claims,
-                ClientId = request.ValidatedRequest.Client.ClientId,
-                AccessTokenType = request.ValidatedRequest.AccessTokenType
-            };
-
-            foreach (var api in request.ValidatedResources.Resources.ApiResources)
-            {
-                if (!string.IsNullOrEmpty(api.Name))
-                {
-                    token.Audiences.Add(api.Name);
-                }
-            }
-
-            return token;
         }
 
         private string ProcessUserUuid(string userUuid)

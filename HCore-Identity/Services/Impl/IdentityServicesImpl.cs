@@ -22,7 +22,6 @@ using System.Globalization;
 using HCore.Web.Providers;
 using HCore.Tenants.Providers;
 using Microsoft.AspNetCore.Authentication;
-using IdentityModel;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using HCore.Tenants;
@@ -33,6 +32,7 @@ using Microsoft.Extensions.Configuration;
 using Kickbox;
 using System.Web;
 using HCore.Identity.Listeners;
+using IdentityModel;
 
 namespace HCore.Identity.Services.Impl
 {
