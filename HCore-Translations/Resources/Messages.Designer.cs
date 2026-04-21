@@ -241,6 +241,15 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Due to security reasons, your browser version unfortunately is no longer supported by this website. Please update your browser to the newest version! ähnelt.
+        /// </summary>
+        public static string browser_not_supported {
+            get {
+                return ResourceManager.GetString("browser_not_supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die Back ähnelt.
         /// </summary>
         public static string button_back {
@@ -885,15 +894,6 @@ namespace HCore.Translations.Resources {
         public static string identity_token_too_long {
             get {
                 return ResourceManager.GetString("identity_token_too_long", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Sucht eine lokalisierte Zeichenfolge, die Microsoft has ended official support for Internet Explorer 11 and older generations of Internet Explorer. For security reasons, this page therefore only works with the Microsoft Edge browser ähnelt.
-        /// </summary>
-        public static string ie11_and_lower_not_supported {
-            get {
-                return ResourceManager.GetString("ie11_and_lower_not_supported", resourceCulture);
             }
         }
         

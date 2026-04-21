@@ -723,7 +723,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.SetJsonWebKeySetEndpointUris(".well-known/openid-configuration/jwks");
                 options.SetAuthorizationEndpointUris("connect/authorize");
                 options.SetTokenEndpointUris("connect/token");
-                // options.SetUserInfoEndpointUris("connect/userinfo");
+                options.SetUserInfoEndpointUris("connect/userinfo");
                 // options.SetEndSessionEndpointUris("connect/endsession");
                 // options.SetIntrospectionEndpointUris("connect/introspect");
 
@@ -742,7 +742,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 options.UseAspNetCore()
                     .EnableAuthorizationEndpointPassthrough()
-                    .EnableTokenEndpointPassthrough();
+                    .EnableTokenEndpointPassthrough()
+                    .EnableUserInfoEndpointPassthrough();
 
                 var apiResources = new List<string>();
 
