@@ -228,6 +228,11 @@ namespace HCore.Web.Exceptions
         public const string CustomCssInvalid = "custom_css_invalid";
         public const string ExternalAuthenticationRequiredForEmailDomain = "external_authentication_required_for_email_domain";
         public const string TooManyEmailConfirmationAttempts = "too_many_email_confirmation_attempts";
+        public const string IpAddressNotWhitelisted = "ip_address_not_whitelisted";
+        public const string AnalysisTokenInvalid = "analysis_token_invalid";
+        public const string AnalysisSignatureInvalid = "analysis_signature_invalid";
+        public const string AnalysisSignatureExpired = "analysis_signature_expired";
+        public const string AnalysisUserUuidMissing = "analysis_user_uuid_missing";
 
         // internal, not translated
 
