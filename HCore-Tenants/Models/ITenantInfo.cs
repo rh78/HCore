@@ -147,6 +147,9 @@ namespace HCore.Tenants.Models
 
         bool EnableAudit { get; }
 
+        bool IsPortalsDev { get; }
+        bool IsPortalsBDev { get; }
+
         public string CreatedByUserUuid { get; }
 
         public long? MapDeveloperUuid { get; }

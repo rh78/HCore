@@ -162,6 +162,9 @@ namespace HCore.Tenants.Models.Impl
 
         public bool EnableAudit { get; set; }
 
+        public bool IsPortalsDev { get; set; }
+        public bool IsPortalsBDev { get; set; }
+
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
             if (CustomTenantSettingsJson == null)
@@ -270,6 +273,8 @@ namespace HCore.Tenants.Models.Impl
                 DevAdminSsoReplacementSamlPeerEntityId = DevAdminSsoReplacementSamlPeerEntityId,
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 EnableAudit = EnableAudit,
+                IsPortalsDev = IsPortalsDev,
+                IsPortalsBDev = IsPortalsBDev,
                 CreatedByUserUuid = CreatedByUserUuid,
                 MapDeveloperUuid = MapDeveloperUuid,
                 MapTenantUuid = MapTenantUuid,
