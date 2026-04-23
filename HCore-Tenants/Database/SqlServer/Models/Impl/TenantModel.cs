@@ -149,6 +149,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
 
         public bool EnableAudit { get; set; }
 
+        public bool IsPortalsDev { get; set; }
+        public bool IsPortalsBDev { get; set; }
+
         public string CreatedByUserUuid { get; set; }
 
         public long? MapDeveloperUuid { get; set; }
