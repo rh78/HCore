@@ -80,6 +80,10 @@ namespace HCore.Web.Startup
             var host = _hostBuilder.Build();
 
             host.Run();
+
+            Console.WriteLine($"Server on URL {_serverUrl} has been successfully shut down");
+
+            Environment.Exit(0);
         }
 
         private void CreateWebHostBuilder()
