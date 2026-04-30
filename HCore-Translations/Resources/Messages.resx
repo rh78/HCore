@@ -889,18 +889,18 @@
     <value>You sent too many requests to confirm your email. Please get in touch with us to solve this problem.</value>
   </data>
   <data name="site_analysis_ip_address_not_whitelisted" xml:space="preserve">
-    <value>Site analysis IP address not whitelisted</value>
+    <value>The IP address is not whitelisted for site analysis</value>
   </data>
   <data name="site_analysis_token_invalid" xml:space="preserve">
-    <value>Invalid site analysis token</value>
+    <value>The site analysis token is invalid</value>
   </data>
   <data name="site_analysis_signature_invalid" xml:space="preserve">
-    <value>Invalid site analysis signature</value>
+    <value>The site analysis signature is invalid</value>
   </data>
   <data name="site_analysis_signature_expired" xml:space="preserve">
-    <value>Expired site analysis signature</value>
+    <value>The site analysis signature is no longer valid</value>
   </data>
   <data name="site_analysis_user_uuid_missing" xml:space="preserve">
-    <value>Missing site analysis user UUID</value>
+    <value>The user identifier for site analysis is missing</value>
   </data>
 </root>

@@ -1915,7 +1915,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Site analysis IP address not whitelisted.
+        ///   Looks up a localized string similar to The IP address is not whitelisted for site analysis.
         /// </summary>
         public static string site_analysis_ip_address_not_whitelisted {
             get {
@@ -1924,7 +1924,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Expired site analysis signature.
+        ///   Looks up a localized string similar to The site analysis signature is no longer valid.
         /// </summary>
         public static string site_analysis_signature_expired {
             get {
@@ -1933,7 +1933,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid site analysis signature.
+        ///   Looks up a localized string similar to The site analysis signature is invalid.
         /// </summary>
         public static string site_analysis_signature_invalid {
             get {
@@ -1942,7 +1942,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid site analysis token.
+        ///   Looks up a localized string similar to The site analysis token is invalid.
         /// </summary>
         public static string site_analysis_token_invalid {
             get {
@@ -1951,7 +1951,7 @@ namespace HCore.Translations.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing site analysis user UUID.
+        ///   Looks up a localized string similar to The user identifier for site analysis is missing.
         /// </summary>
         public static string site_analysis_user_uuid_missing {
             get {

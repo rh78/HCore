@@ -889,18 +889,18 @@
     <value>Sie haben zu viele E-Mail-Bestätigungsanfragen gesendet. Bitte treten Sie mit uns in Kontakt, um das Problem zu beheben.</value>
   </data>
   <data name="site_analysis_ip_address_not_whitelisted" xml:space="preserve">
-    <value>Website-Analyse: IP-Adresse nicht auf der Whitelist</value>
+    <value>Die IP-Adresse für die Site-Analyse ist nicht erlaubt</value>
   </data>
   <data name="site_analysis_token_invalid" xml:space="preserve">
-    <value>Ungültiges Website-Analyse-Token</value>
+    <value>Das Website-Analyse-Token ist ungültig</value>
   </data>
   <data name="site_analysis_signature_invalid" xml:space="preserve">
-    <value>Ungültige Signatur der Websiteanalyse</value>
+    <value>Das Website-Analyse-Token ist ungültig</value>
   </data>
   <data name="site_analysis_signature_expired" xml:space="preserve">
-    <value>Signatur der abgelaufenen Website-Analyse</value>
+    <value>Das Website-Analyse-Token ist nicht mehr gültig</value>
   </data>
   <data name="site_analysis_user_uuid_missing" xml:space="preserve">
-    <value>Fehlende Benutzer-UUID für die Site-Analyse</value>
+    <value>Die Benutzerkennung für die Website-Analyse fehlt</value>
   </data>
 </root>
