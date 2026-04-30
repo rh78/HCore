@@ -888,4 +888,19 @@
   <data name="too_many_email_confirmation_attempts" xml:space="preserve">
     <value>You sent too many requests to confirm your email. Please get in touch with us to solve this problem.</value>
   </data>
+  <data name="site_analysis_ip_address_not_whitelisted" xml:space="preserve">
+    <value>The IP address is not whitelisted for site analysis</value>
+  </data>
+  <data name="site_analysis_token_invalid" xml:space="preserve">
+    <value>The site analysis token is invalid</value>
+  </data>
+  <data name="site_analysis_signature_invalid" xml:space="preserve">
+    <value>The site analysis signature is invalid</value>
+  </data>
+  <data name="site_analysis_signature_expired" xml:space="preserve">
+    <value>The site analysis signature is no longer valid</value>
+  </data>
+  <data name="site_analysis_user_uuid_missing" xml:space="preserve">
+    <value>The user identifier for site analysis is missing</value>
+  </data>
 </root>
