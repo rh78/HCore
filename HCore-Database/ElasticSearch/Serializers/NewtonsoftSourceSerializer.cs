@@ -32,11 +32,22 @@ namespace HCore.Database.ElasticSearch.Serializers
         private readonly List<JsonConverter> _defaultConverters;
         private readonly IEnumerable<JsonConverter> _jsonConverters;
 
-        public NewtonsoftSourceSerializer(Serializer builtInSerializer, IElasticsearchClientSettings elasticsearchClientSettings, JsonSerializerSettings jsonSerializerSettings = null, IEnumerable<JsonConverter> jsonConverters = null)
+        private readonly NamingStrategy _sourceSerializationNamingStrategy;
+
+        public NewtonsoftSourceSerializer(Serializer builtInSerializer, IElasticsearchClientSettings elasticsearchClientSettings, JsonSerializerSettings jsonSerializerSettings = null, IEnumerable<JsonConverter> jsonConverters = null, NamingStrategy sourceSerializationNamingStrategy = null)
         {
+            _sourceSerializationNamingStrategy = sourceSerializationNamingStrategy;
+
+            var camelCasePropertyNamesContractResolver = new CamelCasePropertyNamesContractResolver();
+
+            if (_sourceSerializationNamingStrategy != null)
+            {
+                camelCasePropertyNamesContractResolver.NamingStrategy = _sourceSerializationNamingStrategy;
+            }
+
             _jsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                ContractResolver = camelCasePropertyNamesContractResolver,
                 NullValueHandling = NullValueHandling.Include,
                 DefaultValueHandling = DefaultValueHandling.Include
             };
@@ -55,7 +66,14 @@ namespace HCore.Database.ElasticSearch.Serializers
 
         private JsonSerializer CreateSerializer(IElasticsearchClientSettings elasticsearchClientSettings, SerializationFormatting formatting)
         {
-            _jsonSerializerSettings.ContractResolver = new ConnectionSettingsAwareContractResolver(elasticsearchClientSettings);
+            var connectionSettingsAwareContractResolver = new ConnectionSettingsAwareContractResolver(elasticsearchClientSettings);
+
+            if (_sourceSerializationNamingStrategy != null)
+            {
+                connectionSettingsAwareContractResolver.NamingStrategy = _sourceSerializationNamingStrategy;
+            }
+
+            _jsonSerializerSettings.ContractResolver = connectionSettingsAwareContractResolver;
 
             _jsonSerializerSettings.Formatting = formatting == SerializationFormatting.Indented
                 ? Formatting.Indented
