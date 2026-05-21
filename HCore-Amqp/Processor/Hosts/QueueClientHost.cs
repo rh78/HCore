@@ -209,11 +209,13 @@ namespace HCore.Amqp.Processor.Hosts
                     await args.AbandonMessageAsync(message).ConfigureAwait(false);
                 }
             }
-            catch (PostponeException)
+            catch (PostponeException postponeException)
             {
                 // intentionally locking messages. The default lock duration no longer works for sessions, so we add the delay "manually" now.
 
-                await Task.Delay(TimeSpan.FromSeconds(60)).ConfigureAwait(false);
+                var lockSessionTimeSpan = postponeException.LockSessionTimeSpan ?? TimeSpan.FromSeconds(10);
+
+                await Task.Delay(lockSessionTimeSpan).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
