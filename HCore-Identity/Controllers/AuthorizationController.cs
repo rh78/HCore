@@ -156,7 +156,7 @@ namespace HCore.Identity.Controllers
             );
 
             IActionResult actionResult = null;
-            string[] claimsPrincipalScopes = null;
+            string[] claimsPrincipalScopes = [];
 
             if (openIddictRequest.IsAuthorizationCodeGrantType() || openIddictRequest.IsRefreshTokenGrantType())
             {
@@ -210,15 +210,32 @@ namespace HCore.Identity.Controllers
 
             identity.SetClaim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16));
 
-            var requestScopes = openIddictRequest.GetScopes();
-
-            if (!openIddictRequest.IsRefreshTokenGrantType() || (requestScopes != null && requestScopes.Any()))
+            if (!openIddictRequest.IsRefreshTokenGrantType())
             {
-                identity.SetScopes(requestScopes);
+                identity.SetScopes(openIddictRequest.GetScopes());
             }
-            else if (openIddictRequest.IsRefreshTokenGrantType() && claimsPrincipalScopes != null)
+            else
             {
-                identity.SetScopes(claimsPrincipalScopes);
+                // refresh token
+
+                var requestScopes = openIddictRequest.GetScopes();
+
+                if (!requestScopes.Any())
+                {
+                    // we can use the claims principal scopes
+
+                    identity.SetScopes(claimsPrincipalScopes);
+                }
+                else
+                {
+                    // there is both - we must not issue scopes that have not been approved initially
+
+                    var validatedScopes = requestScopes
+                        .Where(requestScope => claimsPrincipalScopes.Contains(requestScope))
+                        .ToArray();
+
+                    identity.SetScopes(validatedScopes);
+                }
             }
             
             identity.SetDestinations(GetDestinations);
