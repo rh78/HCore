@@ -771,9 +771,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     builder.UseInlineHandler(context =>
                     {
-                        if (context != null)
+                        if (context != null && context.Error != null)
                         {
-                            if (context.Error != null)
+                            var requestPath = context.RequestUri?.AbsolutePath;
+
+                            if (string.Equals(requestPath, "/connect/authorize"))
                             {
                                 throw new RequestFailedApiException(context.Error, context.ErrorDescription);
                             }
