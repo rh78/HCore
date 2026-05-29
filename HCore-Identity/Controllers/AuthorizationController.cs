@@ -155,11 +155,21 @@ namespace HCore.Identity.Controllers
                 roleType: Claims.Role
             );
 
-            IActionResult actionResult;
+            IActionResult actionResult = null;
+            string[] claimsPrincipalScopes = null;
 
             if (openIddictRequest.IsAuthorizationCodeGrantType() || openIddictRequest.IsRefreshTokenGrantType())
             {
-                actionResult = await HandleAuthorizationCodeGrantTypeAsync(openIddictRequest, identity).ConfigureAwait(false);
+                var handleAuthorizationCodeGrantResult = await HandleAuthorizationCodeGrantTypeAsync(openIddictRequest, identity).ConfigureAwait(false);
+
+                if (handleAuthorizationCodeGrantResult.ActionResult != null)
+                {
+                    actionResult = handleAuthorizationCodeGrantResult.ActionResult;
+                }
+                else if (handleAuthorizationCodeGrantResult.ClaimsPrincipal != null)
+                {
+                    claimsPrincipalScopes = handleAuthorizationCodeGrantResult.ClaimsPrincipal.GetScopes().ToArray();
+                }
             }
             else if (openIddictRequest.IsClientCredentialsGrantType())
             {
@@ -200,8 +210,17 @@ namespace HCore.Identity.Controllers
 
             identity.SetClaim(JwtClaimTypes.JwtId, CryptoRandom.CreateUniqueId(16));
 
-            identity.SetScopes(openIddictRequest.GetScopes());
+            var requestScopes = openIddictRequest.GetScopes();
 
+            if (!openIddictRequest.IsRefreshTokenGrantType() || (requestScopes != null && requestScopes.Any()))
+            {
+                identity.SetScopes(requestScopes);
+            }
+            else if (openIddictRequest.IsRefreshTokenGrantType() && claimsPrincipalScopes != null)
+            {
+                identity.SetScopes(claimsPrincipalScopes);
+            }
+            
             identity.SetDestinations(GetDestinations);
 
             return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -288,19 +307,22 @@ namespace HCore.Identity.Controllers
             return Ok(claims);
         }
 
-        private async Task<IActionResult> HandleAuthorizationCodeGrantTypeAsync(OpenIddictRequest openIddictRequest, ClaimsIdentity identity)
+        private async Task<HandleAuthorizationCodeGrantResult> HandleAuthorizationCodeGrantTypeAsync(OpenIddictRequest openIddictRequest, ClaimsIdentity identity)
         {
             var authenticateResult = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
             if (!IsAuthenticated(authenticateResult, openIddictRequest))
             {
-                return Forbid(
-                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
-                    {
-                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
-                    }));
+                return new HandleAuthorizationCodeGrantResult(
+                    Forbid(
+                        authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        {
+                            [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                        })
+                    )
+                );
             }
 
             var claimsPrincipal = authenticateResult.Principal;
@@ -309,26 +331,32 @@ namespace HCore.Identity.Controllers
 
             if (string.IsNullOrEmpty(subject))
             {
-                return Forbid(
-                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
-                    {
-                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
-                    }));
+                return new HandleAuthorizationCodeGrantResult(
+                    Forbid(
+                        authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        {
+                            [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                        })
+                    )
+                );
             }
 
             var userModel = await GetUserAsync(subject).ConfigureAwait(false);
 
             if (userModel == null)
             {
-                return Forbid(
-                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
-                    {
-                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
-                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
-                    }));
+                return new HandleAuthorizationCodeGrantResult(
+                    Forbid(
+                        authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        {
+                            [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
+                            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
+                        })
+                    )
+                );
             }
 
             // set claim
@@ -360,7 +388,7 @@ namespace HCore.Identity.Controllers
                 identity.SetClaims("is_adcu", apiDocsClaimValues.ToImmutableArray());
             }
 
-            return null;
+            return new HandleAuthorizationCodeGrantResult(claimsPrincipal);
         }
 
         private async Task<IActionResult> HandleClientCredentialsGrantTypeAsync(object openIddictApplication, ClaimsIdentity identity)
@@ -527,6 +555,22 @@ namespace HCore.Identity.Controllers
             }
 
             return claim.Value;
+        }
+
+        private class HandleAuthorizationCodeGrantResult
+        {
+            internal IActionResult ActionResult { get; }
+            internal ClaimsPrincipal ClaimsPrincipal { get; }
+
+            public HandleAuthorizationCodeGrantResult(IActionResult actionResult)
+            {
+                ActionResult = actionResult;
+            }
+
+            public HandleAuthorizationCodeGrantResult(ClaimsPrincipal claimsPrincipal)
+            {
+                ClaimsPrincipal = claimsPrincipal;
+            }
         }
     }
 }
