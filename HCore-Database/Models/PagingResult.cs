@@ -9,5 +9,15 @@ namespace HCore.Database.Models
         public List<TResult> Result { get; set; }
 
         public int TotalCount { get; set; }
+
+        public List<TagFragment> TagFragments { get; set; }
+    }
+
+    [Serializable]
+    public class TagFragment
+    {
+        public string Tag { get; set; }
+
+        public long? Count { get; set; }
     }
 }
