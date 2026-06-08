@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace HCore.Translations.Providers.Impl
 
         private readonly ITranslationsProviderExtension _translationsProviderExtension;
 
-        private Dictionary<string, string> _cachedJson = new Dictionary<string, string>();
+        private ConcurrentDictionary<string, string> _cachedJson = new ConcurrentDictionary<string, string>();
 
         public TranslationsProviderImpl(IServiceProvider serviceProvider)
         {
@@ -76,35 +77,33 @@ namespace HCore.Translations.Providers.Impl
 
             string currentCulture = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
-            if (_cachedJson.ContainsKey(currentCulture))
-                return _cachedJson[currentCulture];
-
-            StringBuilder jsonBuilder = new StringBuilder();
-
-            jsonBuilder.Append("{");
-
-            _stringLocalizers.ForEach(stringLocalizer =>
+            return _cachedJson.GetOrAdd(currentCulture, (_) =>
             {
-                var translatedStrings = stringLocalizer.GetAllStrings(true);
+                StringBuilder jsonBuilder = new StringBuilder();
 
-                translatedStrings.ToList().ForEach(translatedString =>
+                jsonBuilder.Append("{");
+
+                _stringLocalizers.ForEach(stringLocalizer =>
                 {
-                    jsonBuilder
-                        .Append("\"")
-                        .Append(translatedString.Name)
-                        .Append("\": \"")
-                        .Append(HttpUtility.JavaScriptStringEncode(ProcessString(translatedString.Value)))
-                        .Append("\",\n");
+                    var translatedStrings = stringLocalizer.GetAllStrings(true);
+
+                    translatedStrings.ToList().ForEach(translatedString =>
+                    {
+                        jsonBuilder
+                            .Append("\"")
+                            .Append(translatedString.Name)
+                            .Append("\": \"")
+                            .Append(HttpUtility.JavaScriptStringEncode(ProcessString(translatedString.Value)))
+                            .Append("\",\n");
+                    });
                 });
+
+                jsonBuilder.Append("}");
+
+                string json = jsonBuilder.ToString();
+
+                return json;
             });
-
-            jsonBuilder.Append("}");
-
-            string json = jsonBuilder.ToString();
-
-            _cachedJson[currentCulture] = json;
-
-            return json;
         }
 
         public string TranslateError(string errorCode, string errorMessage, string uuid, string name)
