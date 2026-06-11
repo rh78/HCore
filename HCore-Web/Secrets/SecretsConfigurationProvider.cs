@@ -51,7 +51,6 @@ namespace HCore.Web.Secrets
             }
 
             var environmentPrefix = $"{_environment}/";
-            var serviceContextEnvironmentPrefix = $"{secretsManagerServiceContext}/{_environment}/";
 
             var listSecretsTask = secretsManager.ListSecretsAsync(new ListSecretsRequest()
             {
@@ -60,7 +59,7 @@ namespace HCore.Web.Secrets
                     new Filter()
                     {
                         Key = "name",
-                        Values = [ environmentPrefix, serviceContextEnvironmentPrefix ]
+                        Values = [ environmentPrefix ]
                     }
                 }
             });
@@ -72,6 +71,8 @@ namespace HCore.Web.Secrets
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
             var data = new Dictionary<string, string>();
+
+            var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
 
             foreach (var secretListEntry in listSecretsResponse.SecretList)
             {
