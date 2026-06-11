@@ -94,6 +94,8 @@ namespace HCore.Web.Secrets
 
                 data.Add(name, DecodeString(getSecretValueResponse));
             }
+
+            Data = data;
         }
 
         // based on https://docs.aws.amazon.com/code-library/latest/ug/secrets-manager_example_secrets-manager_GetSecretValue_section.html
