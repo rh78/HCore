@@ -30,6 +30,13 @@ namespace HCore.Web.Secrets
 
             var secretsManagerConnectionString = configuration["SecretsManager:ConnectionString"];
 
+            var secretsManagerServiceContext = configuration["SecretsManager:ServiceContext"]?.ToLower();
+
+            if (string.IsNullOrEmpty(secretsManagerServiceContext))
+            {
+                throw new Exception("Secrets manager service context is missing");
+            }
+
             IAmazonSecretsManager secretsManager;
 
             if (!string.IsNullOrEmpty(secretsManagerConnectionString)) 
@@ -44,6 +51,7 @@ namespace HCore.Web.Secrets
             }
 
             var environmentPrefix = $"{_environment}/";
+            var serviceContextEnvironmentPrefix = $"{secretsManagerServiceContext}/{_environment}/";
 
             var listSecretsTask = secretsManager.ListSecretsAsync(new ListSecretsRequest()
             {
@@ -52,7 +60,7 @@ namespace HCore.Web.Secrets
                     new Filter()
                     {
                         Key = "name",
-                        Values = [ environmentPrefix ]
+                        Values = [ environmentPrefix, serviceContextEnvironmentPrefix ]
                     }
                 }
             });
@@ -80,6 +88,7 @@ namespace HCore.Web.Secrets
 
                 var name = secretListEntry.Name;
 
+                name = name.Replace(serviceContextEnvironmentPrefix, "");
                 name = name.Replace(environmentPrefix, "");
                 name = name.Replace("/", ":");
 
