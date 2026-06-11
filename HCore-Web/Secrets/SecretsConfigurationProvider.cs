@@ -70,7 +70,8 @@ namespace HCore.Web.Secrets
             var listSecretsResponse = listSecretsTask.Result;
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
-            var data = new Dictionary<string, string>();
+            var serviceContextData = new Dictionary<string, string>();
+            var environmentData = new Dictionary<string, string>();
 
             var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
 
@@ -89,14 +90,34 @@ namespace HCore.Web.Secrets
 
                 var name = secretListEntry.Name;
 
-                name = name.Replace(serviceContextEnvironmentPrefix, "");
-                name = name.Replace(environmentPrefix, "");
-                name = name.Replace("/", ":");
+                if (name.StartsWith(serviceContextEnvironmentPrefix))
+                {
+                    name = name.Replace(serviceContextEnvironmentPrefix, "");
+                    name = name.Replace("/", ":");
 
-                data.Add(name, DecodeString(getSecretValueResponse));
+                    serviceContextData.Add(name, DecodeString(getSecretValueResponse));
+                }
+                else if (name.StartsWith(environmentPrefix))
+                {
+                    name = name.Replace(environmentPrefix, "");
+                    name = name.Replace("/", ":");
+
+                    environmentData.Add(name, DecodeString(getSecretValueResponse));
+                }
+                else
+                {
+                    continue;
+                }
             }
 
-            Data = data;
+            foreach (var serviceContextDataKeyValuePair in serviceContextData)
+            {
+                // service context settings ALWAYS overwrite generic environment settings
+
+                environmentData[serviceContextDataKeyValuePair.Key] = serviceContextDataKeyValuePair.Value;
+            }
+
+            Data = environmentData;
         }
 
         // based on https://docs.aws.amazon.com/code-library/latest/ug/secrets-manager_example_secrets-manager_GetSecretValue_section.html
