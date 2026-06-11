@@ -20,6 +20,7 @@ using HCore.Web.Providers;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
+using HCore.Web.Secrets;
 
 namespace HCore.Web.Startup
 {
@@ -92,6 +93,7 @@ namespace HCore.Web.Startup
 
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
+                .AddAmazonSecretsManager()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: false)
                 .AddJsonFile("appsettings.OEM.json", optional: true, reloadOnChange: false)
@@ -150,17 +152,19 @@ namespace HCore.Web.Startup
             {
                 var env = hostingContext.HostingEnvironment;
 
-                config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile("appsettings.OEM.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile("appsettings.override.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.override.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile("appsettings.OEM.local.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile("appsettings.override.local.json", optional: true, reloadOnChange: false)
-                      .AddJsonFile($"appsettings.{env.EnvironmentName}.override.local.json", optional: true, reloadOnChange: false);
+                config
+                    .AddAmazonSecretsManager()
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile("appsettings.OEM.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile("appsettings.override.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.override.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile("appsettings.OEM.local.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.OEM.{env.EnvironmentName}.local.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile("appsettings.override.local.json", optional: true, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.override.local.json", optional: true, reloadOnChange: false);
 
                 if (env.IsDevelopment())
                 {
