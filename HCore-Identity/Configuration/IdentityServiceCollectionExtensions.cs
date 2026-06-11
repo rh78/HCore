@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
@@ -41,7 +40,6 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using OpenIddict.Server.AspNetCore;
 using reCAPTCHA.AspNetCore;
 using Sustainsys.Saml2;
 using Sustainsys.Saml2.AspNetCore2;
@@ -793,35 +791,15 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static X509Certificate2 GetSigningKeyCertificate(IConfiguration configuration)
         {
-            string signingKeyAssembly = configuration["Identity:SigningKey:Assembly"];
-            if (string.IsNullOrEmpty(signingKeyAssembly))
-                throw new Exception("Identity signing assembly not found");
-
-            string signingKeyName = configuration["Identity:SigningKey:Name"];
-            if (string.IsNullOrEmpty(signingKeyName))
-                throw new Exception("Identity signing key name not found");
-
             string signingKeyPassword = configuration["Identity:SigningKey:Password"];
             if (string.IsNullOrEmpty(signingKeyPassword))
                 throw new Exception("Identity signing password not found");
 
-            Assembly _signingKeyAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                SingleOrDefault(assembly => assembly.GetName().Name == signingKeyAssembly);
+            string pfx = configuration["Identity:SigningKey:PFX"];
+            if (string.IsNullOrEmpty(pfx))
+                throw new Exception("Identity signing PFX not found");
 
-            if (signingKeyAssembly == null)
-                throw new Exception("Identity signing key assembly is not present in the list of assemblies");
-
-            var resourceStream = _signingKeyAssembly.GetManifestResourceStream(signingKeyName);
-
-            if (resourceStream == null)
-                throw new Exception("Identity core signing key resource not found");
-
-            using (var memory = new MemoryStream((int)resourceStream.Length))
-            {
-                resourceStream.CopyTo(memory);
-
-                return new X509Certificate2(memory.ToArray(), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
-            }
+            return new X509Certificate2(Convert.FromBase64String(pfx), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
         }
     }    
 }

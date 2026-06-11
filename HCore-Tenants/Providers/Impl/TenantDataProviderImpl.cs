@@ -12,9 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -867,44 +865,20 @@ namespace HCore.Tenants.Providers.Impl
             return Convert.FromBase64String(pemString.Substring(start, end));
         }
 
-        private X509Certificate2 ReadStandardSamlCertificate(IConfiguration configuration)
+        private void ReadStandardSamlCertificate(IConfiguration configuration)
         {
-            string samlCertificateAssembly = configuration["Identity:Saml:Certificate:Assembly"];
-            if (string.IsNullOrEmpty(samlCertificateAssembly))
-                throw new Exception("SAML certificate assembly not found");
-
-            string samlCertificateName = configuration["Identity:Saml:Certificate:Name"];
-
-            if (string.IsNullOrEmpty(samlCertificateName))
-                throw new Exception("SAML certificate name not found");
-
             string samlCertificatePassword = configuration["Identity:Saml:Certificate:Password"];
 
             if (string.IsNullOrEmpty(samlCertificatePassword))
                 throw new Exception("SAML certificate password not found");
 
-            X509Certificate2 certificate = null;
+            string pfx = configuration["Identity:Saml:Certificate:PFX"];
 
-            Assembly samlAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                SingleOrDefault(assembly => assembly.GetName().Name == samlCertificateAssembly);
+            if (string.IsNullOrEmpty(pfx))
+                throw new Exception("SAML certificate PFX not found");
 
-            if (samlAssembly == null)
-                throw new Exception("SAML certificate assembly is not present in the list of assemblies");
-
-            var resourceStream = samlAssembly.GetManifestResourceStream(samlCertificateName);
-
-            if (resourceStream == null)
-                throw new Exception("SAML certificate resource not found");
-
-            using (var memory = new MemoryStream((int)resourceStream.Length))
-            {
-                resourceStream.CopyTo(memory);
-
-                _standardSamlCertificateBytes = memory.ToArray();
-                _standardSamlCertificatePassword = samlCertificatePassword;
-            }
-
-            return certificate;
+            _standardSamlCertificateBytes = Convert.FromBase64String(pfx);
+            _standardSamlCertificatePassword = samlCertificatePassword;
         }
     }
 }
