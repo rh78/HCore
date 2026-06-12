@@ -242,16 +242,19 @@ namespace HCore.Web.Startup
 
                 if (useHttps)
                 {
+                    var primaryCertificate = GetX509Certificate2("Primary", isRequired: true);
+                    var secondaryCertificate = GetX509Certificate2("Secondary", isRequired: false);
+
                     if (useWeb)
                     {
-                        defaultWebCertificate = GetX509Certificate2("Web", isRequired: true);
-                        defaultSecondaryWebCertificate = GetX509Certificate2("SecondaryWeb", isRequired: false);
+                        defaultWebCertificate = primaryCertificate;
+                        defaultSecondaryWebCertificate = secondaryCertificate;
                     }
 
                     if (useApi)
                     {
-                        defaultApiCertificate = GetX509Certificate2("Api", isRequired: true);
-                        defaultSecondaryApiCertificate = GetX509Certificate2("SecondaryApi", isRequired: false);
+                        defaultApiCertificate = primaryCertificate;
+                        defaultSecondaryApiCertificate = secondaryCertificate;
                     }
 
                     if (defaultWebCertificate != null || defaultApiCertificate != null)
@@ -267,7 +270,12 @@ namespace HCore.Web.Startup
                         secondaryHostPattern = _configuration["WebServer:SecondaryHostPattern"];
 
                         if (string.IsNullOrEmpty(secondaryHostPattern))
-                            throw new Exception("Secondary host pattern not found");
+                        {
+                            secondaryHostPattern = null;
+
+                            defaultSecondaryWebCertificate = null;
+                            defaultSecondaryApiCertificate = null;
+                        }
                     }
                 }
 
@@ -509,44 +517,20 @@ namespace HCore.Web.Startup
 
         private X509Certificate2 GetX509Certificate2(string key, bool isRequired)
         {
-            string httpsCertificateAssembly = _configuration[$"WebServer:Https:Certificates:{key}:Assembly"];
-            if (string.IsNullOrEmpty(httpsCertificateAssembly))
-            {
-                if (!isRequired)
-                {
-                    return null;
-                }
-
-                throw new Exception("HTTPS web certificate assembly not found");
-            }
-
-            string httpsCertificateName = _configuration[$"WebServer:Https:Certificates:{key}:Name"];
-
-            if (string.IsNullOrEmpty(httpsCertificateName))
-                throw new Exception("HTTPS web certificate name not found");
-
             string httpsCertificatePassword = _configuration[$"WebServer:Https:Certificates:{key}:Password"];
 
             if (string.IsNullOrEmpty(httpsCertificatePassword))
                 throw new Exception("HTTPS web certificate password not found");
 
-            // from https://stackoverflow.com/questions/50708394/read-embedded-file-from-resource-in-asp-net-core
+            string httpsCertificatePfx = _configuration[$"WebServer:Https:Certificates:{key}:PFX"];
 
-            Assembly httpsAssembly = AppDomain.CurrentDomain.GetAssemblies().
-                SingleOrDefault(assembly => assembly.GetName().Name == httpsCertificateAssembly);
+            if (string.IsNullOrEmpty(httpsCertificatePfx))
+                throw new Exception("HTTPS web certificate PFX not found");
 
-            if (httpsAssembly == null)
-                throw new Exception("HTTPS web certificate assembly is not present in the list of assemblies");
-
-            var resourceStream = httpsAssembly.GetManifestResourceStream(httpsCertificateName);
-
-            if (resourceStream == null)
-                throw new Exception("HTTPS web certificate resource not found");
-
-            return GetX509Certificate2(resourceStream, httpsCertificatePassword);
+            return GetX509Certificate2(httpsCertificatePfx, httpsCertificatePassword);
         }
 
-        private static X509Certificate2 GetX509Certificate2(Stream stream, string password)
+        private static X509Certificate2 GetX509Certificate2(string pfx, string password)
         {
             X509Certificate2 x509Certificate2;
 
@@ -554,8 +538,10 @@ namespace HCore.Web.Startup
             {
                 var store = new Pkcs12StoreBuilder().Build();
 
-                using (stream)
+                using (var stream = new MemoryStream(Convert.FromBase64String(pfx)))
+                {
                     store.Load(stream, password.ToArray());
+                }
 
                 var keyAlias = store.Aliases.Cast<string>().SingleOrDefault(a => store.IsKeyEntry(a));
 
@@ -574,12 +560,7 @@ namespace HCore.Web.Startup
             }
             else
             {
-                using (var memoryStream = new MemoryStream((int)stream.Length))
-                {
-                    stream.CopyTo(memoryStream);
-
-                    x509Certificate2 = new X509Certificate2(memoryStream.ToArray(), password);
-                }
+                x509Certificate2 = new X509Certificate2(Convert.FromBase64String(pfx), password);
             }
 
             return x509Certificate2;
