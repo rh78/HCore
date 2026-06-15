@@ -19,7 +19,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("AMQP implementation specification is empty");
 
             bool useServiceBus = string.Equals(implementation, "ServiceBus");
-            bool useActiveMq = string.Equals(implementation, "ActiveMq");
 
             string connectionString = configuration["Amqp:ConnectionString"];
 
@@ -37,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("AMQP addresses are empty");
 
             var amqpListenerCounts = GetListenerCounts(configuration, addressesSplit);
-            var amqpIsSessions = GetSessions(configuration, addressesSplit, useServiceBus, useActiveMq);
+            var amqpIsSessions = GetSessions(configuration, addressesSplit, useServiceBus);
 
             var topicAddresses = configuration["Amqp:TopicAddresses"];
 
@@ -50,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var topicAddressesSplit = topicAddresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             var amqpTopicListenerCounts = GetListenerCounts(configuration, topicAddressesSplit);
-            var amqpIsTopicSessions = GetSessions(configuration, topicAddressesSplit, useServiceBus, useActiveMq);
+            var amqpIsTopicSessions = GetSessions(configuration, topicAddressesSplit, useServiceBus);
 
             services.AddSingleton(serviceProvider =>
             {
@@ -63,10 +62,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     // Service Bus
 
                     amqpMessenger = new ServiceBusMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, messageProcessor, serviceProvider.GetRequiredService<ILogger<ServiceBusMessengerImpl>>());
-                }
-                else if (useActiveMq)
-                {
-                    amqpMessenger = new ActiveMqMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, messageProcessor, serviceProvider.GetRequiredService<ILogger<ActiveMqMessengerImpl>>());
                 }
                 else
                 {
@@ -106,7 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return amqpListenerCounts;
         }
 
-        private static bool[] GetSessions(IConfiguration configuration, string[] addressesSplit, bool useServiceBus, bool useActiveMq)
+        private static bool[] GetSessions(IConfiguration configuration, string[] addressesSplit, bool useServiceBus)
         {
             var amqpIsSessions = new bool[addressesSplit.Length];
 
@@ -116,7 +111,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 amqpIsSessions[i] = isSession ?? false;
 
-                if (!useServiceBus && !useActiveMq && amqpIsSessions[i])
+                if (!useServiceBus && amqpIsSessions[i])
                 {
                     throw new Exception($"AMQP 1.0 implementation does not support sessions");
                 }
