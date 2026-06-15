@@ -189,6 +189,7 @@ namespace HCore.Web.Startup
             bool useHttps = _configuration.GetValue<bool>("WebServer:UseHttps");
             bool useWeb = _configuration.GetValue<bool>("WebServer:UseWeb");
             bool useApi = _configuration.GetValue<bool>("WebServer:UseApi");
+            bool enforceSecondaryCertificate = _configuration.GetValue<bool>("WebServer:EnforceSecondaryCertificate");
 
             if (!useWeb && !useApi)
                 throw new Exception("Please specify which kind of service (web or API) you want to use");
@@ -255,6 +256,15 @@ namespace HCore.Web.Startup
                     {
                         defaultApiCertificate = primaryCertificate;
                         defaultSecondaryApiCertificate = secondaryCertificate;
+                    }
+
+                    if (enforceSecondaryCertificate)
+                    {
+                        defaultWebCertificate = defaultSecondaryWebCertificate;
+                        defaultApiCertificate = defaultSecondaryApiCertificate;
+
+                        defaultSecondaryWebCertificate = null;
+                        defaultSecondaryApiCertificate = null;
                     }
 
                     if (defaultWebCertificate != null || defaultApiCertificate != null)
