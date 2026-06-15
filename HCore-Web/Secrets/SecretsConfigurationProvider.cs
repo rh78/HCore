@@ -22,6 +22,13 @@ namespace HCore.Web.Secrets
 
         public override void Load()
         {
+            if (Data.Any())
+            {
+                // already loaded
+
+                return;
+            }
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
