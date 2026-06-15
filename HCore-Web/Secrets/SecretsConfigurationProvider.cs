@@ -37,9 +37,20 @@ namespace HCore.Web.Secrets
                 throw new Exception("Secrets manager service context is missing");
             }
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+            var environmentDataTask = GetEnvironmentDataAsync(secretsManagerConnectionString, secretsManagerServiceContext);
+
+            environmentDataTask.Wait();
+
+            Data = environmentDataTask.Result;
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+        }
+
+        private async Task<Dictionary<string, string>> GetEnvironmentDataAsync(string secretsManagerConnectionString, string secretsManagerServiceContext)
+        {
             IAmazonSecretsManager secretsManager;
 
-            if (!string.IsNullOrEmpty(secretsManagerConnectionString)) 
+            if (!string.IsNullOrEmpty(secretsManagerConnectionString))
             {
                 var connectionInfoByKey = AwsHelpers.GetConnectionInfoByKey(secretsManagerConnectionString);
 
@@ -50,74 +61,82 @@ namespace HCore.Web.Secrets
                 secretsManager = new AmazonSecretsManagerClient();
             }
 
-            var environmentPrefix = $"{_environment}/";
-
-            var listSecretsTask = secretsManager.ListSecretsAsync(new ListSecretsRequest()
-            {
-                Filters = new List<Filter>()
-                {
-                    new Filter()
-                    {
-                        Key = "name",
-                        Values = [ environmentPrefix ]
-                    }
-                }
-            });
-
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-            listSecretsTask.Wait();
-
-            var listSecretsResponse = listSecretsTask.Result;
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-
-            var serviceContextData = new Dictionary<string, string>();
+            string nextToken = null;
             var environmentData = new Dictionary<string, string>();
 
-            var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
+            var environmentPrefix = $"{_environment}/";
 
-            foreach (var secretListEntry in listSecretsResponse.SecretList)
+            do
             {
-                var getSecretValueTask = secretsManager.GetSecretValueAsync(new GetSecretValueRequest()
+                var listSecretsResponse = await secretsManager.ListSecretsAsync(new ListSecretsRequest()
                 {
-                    SecretId = secretListEntry.Name
-                });
+                    NextToken = nextToken,
+                    MaxResults = 100,
+                    Filters = new List<Filter>()
+                    {
+                        new Filter()
+                        {
+                            Key = "name",
+                            Values = [ environmentPrefix ]
+                        }
+                    }
+                }).ConfigureAwait(false);
 
-#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                getSecretValueTask.Wait();
-
-                var getSecretValueResponse = getSecretValueTask.Result;
-#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
-
-                var name = secretListEntry.Name;
-
-                if (name.StartsWith(serviceContextEnvironmentPrefix))
+                if (!listSecretsResponse.SecretList.Any())
                 {
-                    name = name.Replace(serviceContextEnvironmentPrefix, "");
-                    name = name.Replace("/", ":");
+                    break;
+                }                
 
-                    serviceContextData.Add(name, DecodeString(getSecretValueResponse));
+                var serviceContextData = new Dictionary<string, string>();
+
+                var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
+
+                foreach (var secretListEntry in listSecretsResponse.SecretList)
+                {
+                    var getSecretValueResponse = await secretsManager.GetSecretValueAsync(new GetSecretValueRequest()
+                    {
+                        SecretId = secretListEntry.Name
+                    }).ConfigureAwait(false);
+
+                    var name = secretListEntry.Name;
+
+                    if (name.StartsWith(serviceContextEnvironmentPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        name = name.Replace(serviceContextEnvironmentPrefix, "", StringComparison.OrdinalIgnoreCase);
+                        name = name.Replace("/", ":");
+
+                        serviceContextData.Add(name, DecodeString(getSecretValueResponse));
+                    }
+                    else if (name.StartsWith(environmentPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        name = name.Replace(environmentPrefix, "", StringComparison.OrdinalIgnoreCase);
+                        name = name.Replace("/", ":");
+
+                        environmentData.Add(name, DecodeString(getSecretValueResponse));
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
-                else if (name.StartsWith(environmentPrefix))
-                {
-                    name = name.Replace(environmentPrefix, "");
-                    name = name.Replace("/", ":");
 
-                    environmentData.Add(name, DecodeString(getSecretValueResponse));
-                }
-                else
+                foreach (var serviceContextDataKeyValuePair in serviceContextData)
                 {
-                    continue;
+                    // service context settings ALWAYS overwrite generic environment settings
+
+                    environmentData[serviceContextDataKeyValuePair.Key] = serviceContextDataKeyValuePair.Value;
+                }
+
+                nextToken = listSecretsResponse.NextToken;
+
+                if (string.IsNullOrEmpty(nextToken))
+                {
+                    break;
                 }
             }
+            while (true);
 
-            foreach (var serviceContextDataKeyValuePair in serviceContextData)
-            {
-                // service context settings ALWAYS overwrite generic environment settings
-
-                environmentData[serviceContextDataKeyValuePair.Key] = serviceContextDataKeyValuePair.Value;
-            }
-
-            Data = environmentData;
+            return environmentData;
         }
 
         // based on https://docs.aws.amazon.com/code-library/latest/ug/secrets-manager_example_secrets-manager_GetSecretValue_section.html
