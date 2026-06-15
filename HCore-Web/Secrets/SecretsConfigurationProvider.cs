@@ -69,9 +69,12 @@ namespace HCore.Web.Secrets
             }
 
             string nextToken = null;
-            var environmentData = new Dictionary<string, string>();
+
+            var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
 
             var environmentPrefix = $"{_environment}/";
+
+            var secretList = new List<SecretListEntry>();
 
             do
             {
@@ -92,47 +95,9 @@ namespace HCore.Web.Secrets
                 if (!listSecretsResponse.SecretList.Any())
                 {
                     break;
-                }                
-
-                var serviceContextData = new Dictionary<string, string>();
-
-                var serviceContextEnvironmentPrefix = $"{_environment}/{secretsManagerServiceContext}/";
-
-                foreach (var secretListEntry in listSecretsResponse.SecretList)
-                {
-                    var getSecretValueResponse = await secretsManager.GetSecretValueAsync(new GetSecretValueRequest()
-                    {
-                        SecretId = secretListEntry.Name
-                    }).ConfigureAwait(false);
-
-                    var name = secretListEntry.Name;
-
-                    if (name.StartsWith(serviceContextEnvironmentPrefix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        name = name.Replace(serviceContextEnvironmentPrefix, "", StringComparison.OrdinalIgnoreCase);
-                        name = name.Replace("/", ":");
-
-                        serviceContextData.Add(name, DecodeString(getSecretValueResponse));
-                    }
-                    else if (name.StartsWith(environmentPrefix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        name = name.Replace(environmentPrefix, "", StringComparison.OrdinalIgnoreCase);
-                        name = name.Replace("/", ":");
-
-                        environmentData.Add(name, DecodeString(getSecretValueResponse));
-                    }
-                    else
-                    {
-                        continue;
-                    }
                 }
 
-                foreach (var serviceContextDataKeyValuePair in serviceContextData)
-                {
-                    // service context settings ALWAYS overwrite generic environment settings
-
-                    environmentData[serviceContextDataKeyValuePair.Key] = serviceContextDataKeyValuePair.Value;
-                }
+                secretList.AddRange(listSecretsResponse.SecretList);
 
                 nextToken = listSecretsResponse.NextToken;
 
@@ -142,6 +107,46 @@ namespace HCore.Web.Secrets
                 }
             }
             while (true);
+
+            var serviceContextData = new Dictionary<string, string>();
+
+            var environmentData = new Dictionary<string, string>();
+
+            foreach (var secretListEntry in secretList)
+            {
+                var getSecretValueResponse = await secretsManager.GetSecretValueAsync(new GetSecretValueRequest()
+                {
+                    SecretId = secretListEntry.Name
+                }).ConfigureAwait(false);
+
+                var name = secretListEntry.Name;
+
+                if (name.StartsWith(serviceContextEnvironmentPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    name = name.Replace(serviceContextEnvironmentPrefix, "", StringComparison.OrdinalIgnoreCase);
+                    name = name.Replace("/", ":");
+
+                    serviceContextData.Add(name, DecodeString(getSecretValueResponse));
+                }
+                else if (name.StartsWith(environmentPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    name = name.Replace(environmentPrefix, "", StringComparison.OrdinalIgnoreCase);
+                    name = name.Replace("/", ":");
+
+                    environmentData.Add(name, DecodeString(getSecretValueResponse));
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
+            foreach (var serviceContextDataKeyValuePair in serviceContextData)
+            {
+                // service context settings ALWAYS overwrite generic environment settings
+
+                environmentData[serviceContextDataKeyValuePair.Key] = serviceContextDataKeyValuePair.Value;
+            }
 
             return environmentData;
         }
