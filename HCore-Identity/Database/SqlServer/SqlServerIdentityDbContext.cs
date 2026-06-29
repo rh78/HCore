@@ -9,6 +9,7 @@ namespace HCore.Identity.Database.SqlServer
         public DbSet<ReservedEmailAddressModel> ReservedEmailAddresses { get; set; }
         public DbSet<DataProtectionKeyModel> DataProtectionKeys { get; set; }
         public DbSet<UserDeletedModel> UsersDeleted { get; set; }
+        public DbSet<WhitelistEmailAddressModel> WhitelistEmailAddresses { get; set; }
 
         public SqlServerIdentityDbContext(DbContextOptions<SqlServerIdentityDbContext> options)
             : base(options)
@@ -23,6 +24,12 @@ namespace HCore.Identity.Database.SqlServer
 
             modelBuilder.Entity<ReservedEmailAddressModel>()
                 .HasKey(entity => new { entity.Uuid, entity.NormalizedEmailAddress });
+
+            modelBuilder.Entity<ReservedEmailAddressModel>()
+                .HasIndex(entity => entity.NormalizedEmailAddress);
+
+            modelBuilder.Entity<WhitelistEmailAddressModel>()
+                .HasIndex(entity => entity.NormalizedEmailAddress);
 
             modelBuilder.Entity<UserModel>()
                 .HasIndex(entity => entity.NormalizedEmailWithoutScope);
