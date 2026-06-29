@@ -228,61 +228,78 @@ namespace HCore.Identity.Services.Impl
 
                 var response = await kickBoxApi.VerifyWithResponse(HttpUtility.UrlEncode(userSpec.Email)).ConfigureAwait(false);
 
-                if (response.Success)
+                try
                 {
-                    switch (response.Reason) {
-                        case "invalid_email":
-                        case "invalid_domain":
-                            {
-                                _logger.LogWarning($"Discovered invalid email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                                throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
-                            }
-                        case "rejected_email":
-                            {
-                                _logger.LogWarning($"Discovered rejected email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                                throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
-                            }
-                        case "low_quality":
-                            {
-                                if (_blockLowQuality)
+                    if (response.Success)
+                    {
+                        switch (response.Reason)
+                        {
+                            case "invalid_email":
+                            case "invalid_domain":
                                 {
-                                    _logger.LogWarning($"Discovered low quality email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+                                    _logger.LogWarning($"Discovered invalid email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
 
-                                    throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                    throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
                                 }
-                            }
+                            case "rejected_email":
+                                {
+                                    _logger.LogWarning($"Discovered rejected email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
 
-                            break;
-                        default:
-                            // low_quality - ignore for now
-                            // low_deliverability - ignore for now
-                            // no_connect - ignore for now
-                            // timeout - ignore for now
-                            // invalid_smtp - ignore for now
-                            // unavailable_smtp - ignore for now
-                            // unexpected_error - ignore for now
+                                    throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
+                                }
+                            case "low_quality":
+                                {
+                                    if (_blockLowQuality)
+                                    {
+                                        _logger.LogWarning($"Discovered low quality email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
 
-                            break;
+                                        throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                    }
+                                }
+
+                                break;
+                            default:
+                                // low_quality - ignore for now
+                                // low_deliverability - ignore for now
+                                // no_connect - ignore for now
+                                // timeout - ignore for now
+                                // invalid_smtp - ignore for now
+                                // unavailable_smtp - ignore for now
+                                // unexpected_error - ignore for now
+
+                                break;
+                        }
+
+                        // role - ignore for now
+                        // free - ignore for now
+                        // accept_all - ignore for now
+
+                        if (response.Disposable)
+                        {
+                            _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                            throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                        }
+
+                        if (response.Free && _blockLowQuality)
+                        {
+                            _logger.LogWarning($"Discovered free email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+
+                            throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                        }
                     }
+                }
+                catch (RequestFailedApiException)
+                {
+                    var whitelistEmailAddress = await GetWhitelistEmailAddressAsync(userSpec.Email).ConfigureAwait(false);
 
-                    // role - ignore for now
-                    // free - ignore for now
-                    // accept_all - ignore for now
-
-                    if (response.Disposable)
+                    if (!whitelistEmailAddress)
                     {
-                        _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                        throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                        throw;
                     }
-                    
-                    if (response.Free && _blockLowQuality)
+                    else
                     {
-                        _logger.LogWarning($"Discovered free email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                        throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                        _logger.LogWarning($"Email address whitelisted, continuing...");
                     }
                 }
             }
@@ -533,6 +550,24 @@ namespace HCore.Identity.Services.Impl
 
                 throw new InternalServerErrorApiException();
             }
+        }
+
+        private async Task<bool> GetWhitelistEmailAddressAsync(string unscopedEmailAddress)
+        {
+            string normalizedUnscopedEmailAddress = Normalize(unscopedEmailAddress);
+
+            IQueryable<WhitelistEmailAddressModel> query = _identityDbContext.WhitelistEmailAddresses;
+
+            query = query.Where(whitelistEmailAddressQuery => whitelistEmailAddressQuery.NormalizedEmailAddress == normalizedUnscopedEmailAddress);
+
+            var whitelistEmailAddressModel = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (whitelistEmailAddressModel != null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         // create through external authentication provider
