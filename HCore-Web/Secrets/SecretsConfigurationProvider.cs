@@ -33,6 +33,15 @@ namespace HCore.Web.Secrets
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{_environment}.json", optional: true, reloadOnChange: false)
+                .AddJsonFile("appsettings.OEM.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.{_environment}.json", optional: true, reloadOnChange: false)
+                .AddJsonFile("appsettings.override.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{_environment}.override.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{_environment}.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile("appsettings.OEM.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.OEM.{_environment}.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile("appsettings.override.local.json", optional: true, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{_environment}.override.local.json", optional: true, reloadOnChange: false)
                 .Build();
 
             var secretsManagerConnectionString = configuration["SecretsManager:ConnectionString"];
