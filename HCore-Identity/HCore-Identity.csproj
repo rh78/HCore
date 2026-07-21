@@ -12,7 +12,6 @@
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.5.1" />
     <PackageReference Include="OpenIddict.AspNetCore" Version="7.3.0" />
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.3.0" />
-    <PackageReference Include="Kickbox.Net" Version="1.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.25" />
@@ -29,7 +28,8 @@
     <ProjectReference Include="..\HCore-Cache\HCore-Cache.csproj" />    
     <ProjectReference Include="..\HCore-Database\HCore-Database.csproj" />    
     <ProjectReference Include="..\HCore-Directory\HCore-Directory.csproj" />    
-    <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />
+    <ProjectReference Include="..\HCore-Emailing\HCore-Emailing.csproj" />    
+    <ProjectReference Include="..\HCore-Rest\HCore-Rest.csproj" />
     <ProjectReference Include="..\HCore-Templating\HCore-Templating.csproj" />
     <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
     <ProjectReference Include="..\HCore-Web\HCore-Web.csproj" />
