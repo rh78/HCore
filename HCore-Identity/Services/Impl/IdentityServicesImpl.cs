@@ -1,38 +1,43 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using HCore.Amqp.Messenger;
+using HCore.Identity.Amqp;
+using HCore.Identity.Database.SqlServer;
+using HCore.Identity.Database.SqlServer.Models.Impl;
+using HCore.Identity.Internal;
+using HCore.Identity.Kickbox.Models;
+using HCore.Identity.Listeners;
+using HCore.Identity.Models;
+using HCore.Rest.Providers;
+using HCore.Templating.Emails;
+using HCore.Templating.Emails.ViewModels;
+using HCore.Tenants;
+using HCore.Tenants.Models;
+using HCore.Tenants.Providers;
+using HCore.Web.API.Impl;
+using HCore.Web.Exceptions;
+using HCore.Web.Providers;
+using IdentityModel;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using HCore.Identity.Database.SqlServer;
-using HCore.Identity.Database.SqlServer.Models.Impl;
-using HCore.Templating.Emails;
-using HCore.Templating.Emails.ViewModels;
-using HCore.Web.Exceptions;
-using System.Collections.Generic;
-using HCore.Identity.Models;
-using HCore.Web.API.Impl;
-using Microsoft.Extensions.DependencyInjection;
-using HCore.Amqp.Messenger;
-using HCore.Identity.Amqp;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using HCore.Web.Providers;
-using HCore.Tenants.Providers;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
-using HCore.Tenants;
-using HCore.Identity.Internal;
-using reCAPTCHA.AspNetCore;
-using HCore.Tenants.Models;
 using Microsoft.Extensions.Configuration;
-using Kickbox;
-using System.Web;
-using HCore.Identity.Listeners;
-using IdentityModel;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using reCAPTCHA.AspNetCore;
+using RestSharp;
+using SendGrid.Helpers.Mail;
 
 namespace HCore.Identity.Services.Impl
 {
@@ -49,7 +54,8 @@ namespace HCore.Identity.Services.Impl
         private readonly IEmailTemplateProvider _emailTemplateProvider;
         private readonly IUrlHelper _urlHelper;
         private readonly SqlServerIdentityDbContext _identityDbContext;
-        private readonly Providers.IConfigurationProvider _configurationProvider;       
+        private readonly Providers.IConfigurationProvider _configurationProvider;
+        private readonly IRestSharpClientProvider _restSharpClientProvider;
 
         private readonly INowProvider _nowProvider;
 
@@ -78,6 +84,7 @@ namespace HCore.Identity.Services.Impl
             IUrlHelper urlHelper,
             SqlServerIdentityDbContext identityDbContext,
             Providers.IConfigurationProvider configurationProvider,
+            IRestSharpClientProvider restSharpClientProvider,
             INowProvider nowProvider,
             IServiceProvider serviceProvider,
             IConfiguration configuration)
@@ -90,6 +97,7 @@ namespace HCore.Identity.Services.Impl
             _urlHelper = urlHelper;
             _identityDbContext = identityDbContext;
             _configurationProvider = configurationProvider;
+            _restSharpClientProvider = restSharpClientProvider;
 
             _nowProvider = nowProvider;
 
@@ -224,82 +232,93 @@ namespace HCore.Identity.Services.Impl
 
             if (!string.IsNullOrEmpty(_emailValidationApiKey))
             {
-                var kickBoxApi = new KickBoxApi(_emailValidationApiKey);
+                var restSharpClient = _restSharpClientProvider.GetRestSharpClient("https://api.kickbox.io");
 
-                var response = await kickBoxApi.VerifyWithResponse(HttpUtility.UrlEncode(userSpec.Email)).ConfigureAwait(false);
+                var restSharpRequest = new RestRequest("/v2/verify", Method.Get);
 
-                try
+                restSharpRequest.AddQueryParameter("apikey", _emailValidationApiKey);
+                restSharpRequest.AddQueryParameter("email", userSpec.Email);
+                restSharpRequest.AddQueryParameter("timeout", 30);
+
+                var restSharpResponse = await restSharpClient.ExecuteTaskAsync<KickboxResponse>(restSharpRequest).ConfigureAwait(false);
+
+                if (restSharpResponse.IsSuccessful && restSharpResponse.IsSuccessStatusCode && restSharpResponse.ErrorException == null && restSharpResponse.Data != null)
                 {
-                    if (response.Success)
+                    var kickboxResponse = restSharpResponse.Data;
+
+                    try
                     {
-                        switch (response.Reason)
+                        if (kickboxResponse.Success)
                         {
-                            case "invalid_email":
-                            case "invalid_domain":
-                                {
-                                    _logger.LogWarning($"Discovered invalid email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                                    throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
-                                }
-                            case "rejected_email":
-                                {
-                                    _logger.LogWarning($"Discovered rejected email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
-
-                                    throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
-                                }
-                            case "low_quality":
-                                {
-                                    if (_blockLowQuality)
+                            switch (kickboxResponse.Reason)
+                            {
+                                case "invalid_email":
+                                case "invalid_domain":
                                     {
-                                        _logger.LogWarning($"Discovered low quality email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+                                        _logger.LogWarning($"Discovered invalid email address: {userSpec.Email}, reason: {kickboxResponse.Reason}, {kickboxResponse.Message}");
 
-                                        throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                        throw new RequestFailedApiException(RequestFailedApiException.EmailInvalid, "The email address is invalid");
                                     }
-                                }
+                                case "rejected_email":
+                                    {
+                                        _logger.LogWarning($"Discovered rejected email address: {userSpec.Email}, reason: {kickboxResponse.Reason}, {kickboxResponse.Message}");
 
-                                break;
-                            default:
-                                // low_quality - ignore for now
-                                // low_deliverability - ignore for now
-                                // no_connect - ignore for now
-                                // timeout - ignore for now
-                                // invalid_smtp - ignore for now
-                                // unavailable_smtp - ignore for now
-                                // unexpected_error - ignore for now
+                                        throw new RequestFailedApiException(RequestFailedApiException.EmailNotExisting, "This e-mail address does not exist");
+                                    }
+                                case "low_quality":
+                                    {
+                                        if (_blockLowQuality)
+                                        {
+                                            _logger.LogWarning($"Discovered low quality email address: {userSpec.Email}, reason: {kickboxResponse.Reason}, {kickboxResponse.Message}");
 
-                                break;
-                        }
+                                            throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                        }
+                                    }
 
-                        // role - ignore for now
-                        // free - ignore for now
-                        // accept_all - ignore for now
+                                    break;
+                                default:
+                                    // low_quality - ignore for now
+                                    // low_deliverability - ignore for now
+                                    // no_connect - ignore for now
+                                    // timeout - ignore for now
+                                    // invalid_smtp - ignore for now
+                                    // unavailable_smtp - ignore for now
+                                    // unexpected_error - ignore for now
 
-                        if (response.Disposable)
-                        {
-                            _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+                                    break;
+                            }
 
-                            throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
-                        }
+                            // role - ignore for now
+                            // free - ignore for now
+                            // accept_all - ignore for now
 
-                        if (response.Free && _blockLowQuality)
-                        {
-                            _logger.LogWarning($"Discovered free email address: {userSpec.Email}, reason: {response.Reason}, {response.Message}");
+                            if (kickboxResponse.Disposable)
+                            {
+                                _logger.LogWarning($"Discovered disposable email address: {userSpec.Email}, reason: {kickboxResponse.Reason}, {kickboxResponse.Message}");
 
-                            throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                                throw new RequestFailedApiException(RequestFailedApiException.NoDisposableEmailsAllowed, "Please do not use an disposable e-mail address");
+                            }
+
+                            if (kickboxResponse.Free && _blockLowQuality)
+                            {
+                                _logger.LogWarning($"Discovered free email address: {userSpec.Email}, reason: {kickboxResponse.Reason}, {kickboxResponse.Message}");
+
+                                throw new RequestFailedApiException(RequestFailedApiException.EmailRequiresBusinessAccount, "Please use your business email account to register for our service");
+                            }
                         }
                     }
-                }
-                catch (RequestFailedApiException)
-                {
-                    var whitelistEmailAddress = await GetWhitelistEmailAddressAsync(userSpec.Email).ConfigureAwait(false);
+                    catch (RequestFailedApiException)
+                    {
+                        var whitelistEmailAddress = await GetWhitelistEmailAddressAsync(userSpec.Email).ConfigureAwait(false);
 
-                    if (!whitelistEmailAddress)
-                    {
-                        throw;
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"Email address whitelisted, continuing...");
+                        if (!whitelistEmailAddress)
+                        {
+                            throw;
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"Email address whitelisted, continuing...");
+                        }
                     }
                 }
             }
