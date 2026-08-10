@@ -1,7 +1,7 @@
-﻿using HCore.Pusher.Messenger;
+﻿using System;
+using HCore.Pusher.Messenger;
 using HCore.Pusher.Messenger.Impl;
 using Microsoft.Extensions.Configuration;
-using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -9,36 +9,49 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddPusher(this IServiceCollection services, IConfiguration configuration)
         {
-            Console.WriteLine("Initializing Pusher...");
+            var usePusher = configuration.GetValue<bool?>("Pusher:UsePusher") ?? false;
 
-            string cluster = configuration["Pusher:Cluster"];
-
-            if (string.IsNullOrEmpty(cluster))
-                throw new Exception("Pusher cluster is empty");
-
-            string appId = configuration["Pusher:AppId"];
-
-            if (string.IsNullOrEmpty(appId))
-                throw new Exception("Pusher app ID is empty");
-
-            string appKey = configuration["Pusher:AppKey"];
-
-            if (string.IsNullOrEmpty(appKey))
-                throw new Exception("Pusher app key is empty");
-
-            string appSecret = configuration["Pusher:AppSecret"];
-
-            if (string.IsNullOrEmpty(appSecret))
-                throw new Exception("Pusher app secret is empty");
-
-            services.AddSingleton(factory =>
+            if (usePusher)
             {
-                IPusherMessenger pusherMessenger = new PusherMessengerImpl(cluster, appId, appKey, appSecret);
+                Console.WriteLine("Initializing Pusher...");
 
-                return pusherMessenger;
-            });
+                var cluster = configuration["Pusher:Cluster"];
 
-            Console.WriteLine("Pusher initialized successfully");
+                if (string.IsNullOrEmpty(cluster))
+                {
+                    throw new Exception("Pusher cluster is empty");
+                }
+
+                var appId = configuration["Pusher:AppId"];
+
+                if (string.IsNullOrEmpty(appId))
+                {
+                    throw new Exception("Pusher app ID is empty");
+                }
+
+                var appKey = configuration["Pusher:AppKey"];
+
+                if (string.IsNullOrEmpty(appKey))
+                {
+                    throw new Exception("Pusher app key is empty");
+                }
+
+                var appSecret = configuration["Pusher:AppSecret"];
+
+                if (string.IsNullOrEmpty(appSecret))
+                {
+                    throw new Exception("Pusher app secret is empty");
+                }
+
+                services.AddSingleton(factory =>
+                {
+                    IPusherMessenger pusherMessenger = new PusherMessengerImpl(cluster, appId, appKey, appSecret);
+
+                    return pusherMessenger;
+                });
+
+                Console.WriteLine("Pusher initialized successfully");
+            }
 
             return services;
         }
