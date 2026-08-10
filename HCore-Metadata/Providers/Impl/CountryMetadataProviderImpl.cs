@@ -82,7 +82,7 @@ namespace HCore.Metadata.Impl
                 return string.Compare(country1.Name, country2.Name);
             });
 
-            _geoIP2DatabaseReader = serviceProvider.GetRequiredService<IGeoIP2DatabaseReader>();
+            _geoIP2DatabaseReader = serviceProvider.GetService<IGeoIP2DatabaseReader>();
         }
 
         public List<CountryCodeNameMapping> GetCountryList()
@@ -137,6 +137,11 @@ namespace HCore.Metadata.Impl
 
         public string GetCountryCodeForIpAddress(string ipAddress)
         {
+            if (_geoIP2DatabaseReader == null)
+            {
+                return null;
+            }
+
             try
             {
                 var location = _geoIP2DatabaseReader.Country(ipAddress);

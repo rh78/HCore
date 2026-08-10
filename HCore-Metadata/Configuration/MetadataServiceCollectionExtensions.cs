@@ -13,19 +13,24 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Console.WriteLine("Initializing metadata...");
 
-            services.AddSingleton<IGeoIP2DatabaseReader>((serviceProvider) =>
+            var useMaxMindGeoIP2 = configuration.GetValue<bool?>("MaxMindGeoIP2:UseMaxMindGeoIP2") ?? false;
+
+            if (useMaxMindGeoIP2)
             {
-                var currentAssembly = Assembly.GetExecutingAssembly();
+                services.AddSingleton<IGeoIP2DatabaseReader>((serviceProvider) =>
+                {
+                    var currentAssembly = Assembly.GetExecutingAssembly();
 
-                var resourceStream = currentAssembly.GetManifestResourceStream("HCore.Metadata.Resources.GeoLite2-Country.mmdb");
+                    var resourceStream = currentAssembly.GetManifestResourceStream("HCore.Metadata.Resources.GeoLite2-Country.mmdb");
 
-                if (resourceStream == null)
-                    throw new Exception("GeoLite2 country database was not found");
+                    if (resourceStream == null)
+                        throw new Exception("GeoLite2 country database was not found");
 
-                var databaseReader = new DatabaseReader(resourceStream);
+                    var databaseReader = new DatabaseReader(resourceStream);
 
-                return databaseReader;
-            });
+                    return databaseReader;
+                });
+            }
 
             services.AddSingleton<ICountryMetadataProvider, CountryMetadataProviderImpl>();
             services.AddSingleton<ILanguageMetadataProvider, LanguageMetadataProviderImpl>();
