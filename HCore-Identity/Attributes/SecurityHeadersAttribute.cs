@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Configuration;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 
 namespace HCore.Identity.Attributes
 {
@@ -9,11 +13,54 @@ namespace HCore.Identity.Attributes
 
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {
-        private bool _useSandbox;
+        private string _defaultSrcPolicy;
+        private string _frameAncestorsPolicy;
+        private string _scriptSrcPolicy;
+        private string _nonceScriptSrcPolicy;
+        private string _styleSrcPolicy;
+        private string _fontSrcPolicy;
+        private string _connectSrcPolicy;
+        private string _frameSrcPolicy;
+        private string _imgSrcPolicy;
+        private string _mediaSrcPolicy;
+        private string _reportUri;
 
-        public SecurityHeadersAttribute(bool useSandbox = true)
+        public SecurityHeadersAttribute(IConfiguration configuration)
         {
-            _useSandbox = useSandbox;
+            _defaultSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:DefaultSrc");
+            _frameAncestorsPolicy = GetConfiguration(configuration, "WebServer:Csp:FrameAncestors");
+            _scriptSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:ScriptSrc");
+            _nonceScriptSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:NonceScriptSrc");
+            _styleSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:StyleSrc");
+            _fontSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:FontSrc");
+            _connectSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:ConnectSrc");
+            _frameSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:FrameSrc");
+            _imgSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:ImgSrc");
+            _mediaSrcPolicy = GetConfiguration(configuration, "WebServer:Csp:MediaSrc");
+            _reportUri = configuration["WebServer:Csp:ReportUri"];
+        }
+
+        private string GetConfiguration(IConfiguration configuration, string key)
+        {
+            var section = configuration.GetSection(key);
+
+            if (section == null)
+            {
+                return "";
+            }
+
+            var values = section.Get<string[]>();
+
+            values = values?
+                .Where(value => !string.IsNullOrWhiteSpace(value)).Distinct()
+                .ToArray();
+
+            if (values == null || !values.Any())
+            {
+                return "";
+            }
+
+            return string.Join(" ", values);
         }
 
         public override void OnResultExecuting(ResultExecutingContext context)
@@ -56,16 +103,16 @@ namespace HCore.Identity.Attributes
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
                 {
-                    var csp = "default-src 'self' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com; " +
+                    var csp = $"default-src 'self' {_defaultSrcPolicy}; " +
                             "object-src 'none'; " +
-                            $"frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://*.sharepoint.com https://*.officeapps.live.com https://*.veevavault.com{allowIFrameUrl}; " +
-                            "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: http://127.0.0.1:8000 https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://smintiostoragedevrh.s3.eu-central-1.amazonaws.com https://smintiostoragedevyv.s3.eu-central-1.amazonaws.com https://smintiostoragestaging.s3.eu-central-1.amazonaws.com https://smintiocdn.azureedge.net https://cdn.smint.io https://code.jquery.com https://unpkg.com https://w.chatlio.com https://js.pusher.com https://cdn.segment.com https://www.google.com https://www.googletagmanager.com https://www.gstatic.com https://*.pusher.com https://appsforoffice.microsoft.com https://snap.licdn.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://npmcdn.com https://maps.googleapis.com https://upload-widget.cloudinary.com https://tags.tiqcdn.com https://tags.tiqcdn.cn https://tags-eu.tiqcdn.com https://*.tealiumiq.com;" +
-                            "connect-src 'self' *; " +
-                            "style-src 'self' 'unsafe-inline' https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://*.portalsapib.smint.io:43444 https://*.portalsapib.smint.io https://*.portalsapife.smint.io:43444 https://*.portalsapife.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://*.portalsapib.cloudinary-portals.com:43444 https://*.portalsapib.cloudinary-portals.com https://*.portalsapife.cloudinary-portals.com:43444 https://*.portalsapife.cloudinary-portals.com https://staticcdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                            "font-src 'self' 'unsafe-inline' data: https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://smintiostoragedevrh.s3.eu-central-1.amazonaws.com https://smintiostoragedevyv.s3.eu-central-1.amazonaws.com https://smintiostoragestaging.s3.eu-central-1.amazonaws.com https://cachecdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                            "frame-src data: 'self' *; " +
-                            "img-src * blob: data:; " +
-                            "media-src blob: *; " +
+                            $"frame-ancestors 'self' {_frameAncestorsPolicy} {allowIFrameUrl}; " +
+                            $"script-src 'self' {_scriptSrcPolicy};" +
+                            $"connect-src 'self' {_connectSrcPolicy}; " +
+                            $"style-src 'self' {_styleSrcPolicy}; " +
+                            $"font-src 'self' {_fontSrcPolicy}; " +
+                            $"frame-src 'self' {_frameSrcPolicy}; " +
+                            $"img-src {_imgSrcPolicy}; " +
+                            $"media-src {_mediaSrcPolicy}; " +
                             // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
                             // we turn it off until more is known
                             // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
@@ -77,22 +124,22 @@ namespace HCore.Identity.Attributes
 
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy-Report-Only"))
                 {
-                    var cspReportOnly = "default-src 'self' https://*.smint.io:40443 https://*.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com; " +
+                    var cspReportOnly = $"default-src 'self' {_defaultSrcPolicy}; " +
                             "object-src 'none'; " +
-                            $"frame-ancestors 'self' https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://*.sharepoint.com https://*.officeapps.live.com https://*.veevavault.com{allowIFrameUrl}; " +
-                            $"script-src 'self' 'nonce-{scriptNonce}' 'strict-dynamic' 'unsafe-inline' 'unsafe-eval';" +
-                            "connect-src 'self' *; " +
-                            "style-src 'self' 'unsafe-inline' https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://*.portalsapib.smint.io:43444 https://*.portalsapib.smint.io https://*.portalsapife.smint.io:43444 https://*.portalsapife.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://*.portalsapib.cloudinary-portals.com:43444 https://*.portalsapib.cloudinary-portals.com https://*.portalsapife.cloudinary-portals.com:43444 https://*.portalsapife.cloudinary-portals.com https://staticcdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.googleapis.com https://unpkg.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                            "font-src 'self' 'unsafe-inline' data: https://development-host.smint.io:8443 https://*.smint.io:40443 https://*.smint.io https://*.cloudinary-portals.com:50443 https://*.cloudinary-portals.com https://smintiostoragedevrh.s3.eu-central-1.amazonaws.com https://smintiostoragedevyv.s3.eu-central-1.amazonaws.com https://smintiostoragestaging.s3.eu-central-1.amazonaws.com https://cachecdn.smint.io https://smintiocdn.azureedge.net https://cdn.smint.io https://fonts.gstatic.com https://w.chatlio.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
-                            "frame-src data: 'self' *; " +
-                            "img-src * blob: data:; " +
-                            "media-src blob: *; " +
+                            $"frame-ancestors 'self' {_frameAncestorsPolicy} {allowIFrameUrl}; " +
+                            $"script-src 'self' 'nonce-{scriptNonce}' 'strict-dynamic' {_nonceScriptSrcPolicy};" +
+                            $"connect-src 'self' {_connectSrcPolicy}; " +
+                            $"style-src 'self' {_styleSrcPolicy}; " +
+                            $"font-src 'self' {_fontSrcPolicy}; " +
+                            $"frame-src 'self' {_frameSrcPolicy}; " +
+                            $"img-src {_imgSrcPolicy}; " +
+                            $"media-src {_mediaSrcPolicy}; " +
                             // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
                             // we turn it off until more is known
                             // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
                             "base-uri 'none'; " +
                             "upgrade-insecure-requests; " +
-                            "report-uri https://o367269.ingest.us.sentry.io/api/5342219/security/?sentry_key=cbe7ce9bcf6349d2a01aa4a8e1097089;";
+                            $"report-uri {_reportUri};";
 
                     context.HttpContext.Response.Headers["Content-Security-Policy-Report-Only"] = cspReportOnly;
                 }

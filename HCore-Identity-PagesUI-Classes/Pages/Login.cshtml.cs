@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace HCore.Identity.PagesUI.Classes.Pages
 {
     [Authorize]
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class LoginModel : PageModel
     {
         private string _scriptNonce = null;

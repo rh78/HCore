@@ -13,7 +13,7 @@ using HCore.Identity.Attributes;
 
 namespace HCore.Identity.PagesUI.Classes.Pages.Account
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ForgotPasswordModel : BasePageModelProvidingJsonModelData
     {
