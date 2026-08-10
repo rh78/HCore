@@ -133,14 +133,19 @@ namespace HCore.Identity.Services.Impl
                 }
             });
 
-            _emailValidationApiKey = configuration["Identity:EmailValidation:Kickbox:ApiKey"];
+            var useKickbox = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:UseKickbox") ?? false;
 
-            if (string.IsNullOrEmpty(_emailValidationApiKey))
+            if (useKickbox)
             {
-                _emailValidationApiKey = null;
-            }
+                _emailValidationApiKey = configuration["Identity:EmailValidation:Kickbox:ApiKey"];
 
-            _blockLowQuality = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:BlockLowQuality") ?? false;
+                if (string.IsNullOrEmpty(_emailValidationApiKey))
+                {
+                    _emailValidationApiKey = null;
+                }
+
+                _blockLowQuality = configuration.GetValue<bool?>("Identity:EmailValidation:Kickbox:BlockLowQuality") ?? false;
+            }
         }
 
         public async Task<ReservedEmailAddressModel> ReserveUserUuidAsync(long? developerUuid, long? tenantUuid, string unscopedEmailAddress, bool processEmailAddress = true, bool createReservationIfNotPresent = true)
