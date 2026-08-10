@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 namespace HCore.Identity.PagesUI.Classes.Pages.Account.Manage
 {
     [Authorize]
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public partial class IndexModel : BasePageModelProvidingJsonModelData
     {

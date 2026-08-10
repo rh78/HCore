@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace HCore.PagesUI.Classes.Pages
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public class ErrorModel : BasePageModelProvidingJsonModelData
     {

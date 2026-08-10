@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HCore.Identity.PagesUI.Classes.Pages
 {
-    [SecurityHeaders]
+    [ServiceFilter(typeof(SecurityHeadersAttribute))]
     public class LogoutModel : PageModel
     {
         private string _scriptNonce = null;

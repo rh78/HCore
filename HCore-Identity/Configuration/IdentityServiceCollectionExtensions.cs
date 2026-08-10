@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using HCore.Identity;
+using HCore.Identity.Attributes;
 using HCore.Identity.Database.SqlServer;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Internal;
@@ -56,6 +57,8 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddCoreIdentity<TStartup>(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<SecurityHeadersAttribute>();
+
             services.AddSingleton<IStringLocalizerProvider, MessagesStringLocalizerProviderImpl>();
 
             var migrationsAssembly = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
