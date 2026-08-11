@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using HCore.Scheduling.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
 using System;
@@ -21,7 +22,7 @@ namespace HCore.Scheduling.Factories.Impl
 
             var jobDetail = bundle.JobDetail;
 
-            var job = (IJob) scope.ServiceProvider.GetService(jobDetail.JobType);
+            var job = (ISchedulingJob) scope.ServiceProvider.GetService(jobDetail.JobType);
 
             return new ScopedJob(job, scope);
         }
@@ -31,12 +32,12 @@ namespace HCore.Scheduling.Factories.Impl
             
         }
 
-        internal class ScopedJob : IJob
+        internal class ScopedJob : ISchedulingJob
         {
-            private IJob _job;
+            private ISchedulingJob _job;
             private IServiceScope _scope;
 
-            public ScopedJob(IJob job, IServiceScope scope)
+            public ScopedJob(ISchedulingJob job, IServiceScope scope)
             {
                 _job = job;
                 _scope = scope;
@@ -47,7 +48,24 @@ namespace HCore.Scheduling.Factories.Impl
                 try
                 {
                     await _job.Execute(context).ConfigureAwait(false);
-                } catch (Exception)
+                } 
+                catch (Exception)
+                {
+                    _scope.Dispose();
+
+                    throw;
+                }
+
+                _scope.Dispose();
+            }
+
+            public async Task InitializeAsync()
+            {
+                try
+                {
+                    await _job.InitializeAsync().ConfigureAwait(false);
+                }
+                catch (Exception)
                 {
                     _scope.Dispose();
 
