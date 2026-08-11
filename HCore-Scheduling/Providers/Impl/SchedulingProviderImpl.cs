@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using Quartz;
-using System;
+﻿using System;
 using System.Reflection;
+using HCore.Scheduling.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace HCore.Scheduling.Providers.Impl
 {
@@ -9,7 +12,7 @@ namespace HCore.Scheduling.Providers.Impl
     {
         private readonly IScheduler _scheduler;
 
-        public SchedulingProviderImpl(IConfiguration configuration, IScheduler scheduler)
+        public SchedulingProviderImpl(IConfiguration configuration, IScheduler scheduler, IServiceProvider serviceProvider)
         {
             string jobs = configuration["Scheduling:Jobs"];
 
@@ -34,9 +37,28 @@ namespace HCore.Scheduling.Providers.Impl
 
                 var jobType = assembly.GetType(job);
 
-                var jobInstance = JobBuilder.Create(jobType)
+                var jobDetail = JobBuilder.Create(jobType)
                     .WithIdentity(job)
                     .Build();
+
+                var scope = serviceProvider.CreateScope();
+
+                try
+                { 
+                    var jobInstance = (ISchedulingJob)scope.ServiceProvider.GetService(jobDetail.JobType);
+
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
+                    jobInstance.InitializeAsync().Wait();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
+                }
+                catch (Exception)
+                {
+                    scope.Dispose();
+
+                    throw;
+                }
+
+                scope.Dispose();
 
                 var jobTrigger = TriggerBuilder.Create()
                     .WithIdentity(job)
@@ -45,7 +67,7 @@ namespace HCore.Scheduling.Providers.Impl
                     .Build();
 
 #pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
-                scheduler.ScheduleJob(jobInstance, jobTrigger).Wait();
+                scheduler.ScheduleJob(jobDetail, jobTrigger).Wait();
 #pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
 
                 Console.WriteLine($"Job {job} scheduled successfully");
@@ -54,7 +76,7 @@ namespace HCore.Scheduling.Providers.Impl
             _scheduler = scheduler;
         }
 
-        public void StartJob(IJob job, ITrigger jobTrigger)
+        public void StartJob(ISchedulingJob job, ITrigger jobTrigger)
         {
             var jobType = job.GetType();
 
