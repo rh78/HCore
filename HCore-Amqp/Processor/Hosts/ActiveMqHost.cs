@@ -111,11 +111,6 @@ namespace HCore.Amqp.Processor.Hosts
         {
             var destination = await GetDestinationAsync(session, _address).ConfigureAwait(false);
 
-            if (_isSession && destination is ActiveMQDestination activeMQDestination)
-            {
-                activeMQDestination.SetExclusive(true);
-            }
-
             _destinations.Add(destination);
 
             return destination;
