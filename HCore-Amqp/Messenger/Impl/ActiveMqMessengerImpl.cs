@@ -87,9 +87,11 @@ namespace HCore.Amqp.Messenger.Impl
                 throw new Exception("AMQP invalid credentials format");
             }
 
+            var sanitizedConnectionString = $"{connectionStringUri.Scheme}://{connectionStringUri.GetComponents(UriComponents.HostAndPort, UriFormat.UriEscaped)}{connectionStringUri.Query}";
+            
             // https://activemq.apache.org/components/classic/documentation/failover-transport-reference
 
-            var brokerUri = $"failover:({_connectionString})?maxReconnectAttempts=-1&initialReconnectDelay=1000&maxReconnectDelay=30000";
+            var brokerUri = $"failover:({sanitizedConnectionString})?maxReconnectAttempts=-1&initialReconnectDelay=1000&maxReconnectDelay=30000";
 
             // AsyncSend = true - maximum throughput. Uses fire and forget
             // AsyncSend = false - maximum durability. Will wait for broker ack
@@ -108,8 +110,10 @@ namespace HCore.Amqp.Messenger.Impl
                 }
             };
 
-            _userName = userInfoParts[0];
-            _password = userInfoParts[1];
+            _connectionFactory.PrefetchPolicy.All = 1;
+
+            _userName = Uri.UnescapeDataString(userInfoParts[0]);
+            _password = Uri.UnescapeDataString(userInfoParts[1]);
         }
 
         public async Task InitializeAsync()
