@@ -530,7 +530,14 @@ namespace HCore.Web.Startup
             string httpsCertificatePassword = _configuration[$"WebServer:Https:Certificates:{key}:Password"];
 
             if (string.IsNullOrEmpty(httpsCertificatePassword))
-                throw new Exception("HTTPS web certificate password not found");
+            {
+                if (isRequired)
+                {
+                    throw new Exception("HTTPS web certificate password not found");
+                }
+
+                return null;
+            }
 
             string httpsCertificatePfx = _configuration[$"WebServer:Https:Certificates:{key}:PFX"];
 
