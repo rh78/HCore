@@ -110,7 +110,7 @@ namespace HCore.Amqp.Messenger.Impl
                 }
             };
 
-            _connectionFactory.PrefetchPolicy.All = 50;
+            _connectionFactory.PrefetchPolicy.All = 5;
 
             _userName = Uri.UnescapeDataString(userInfoParts[0]);
             _password = Uri.UnescapeDataString(userInfoParts[1]);
