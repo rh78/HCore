@@ -357,11 +357,15 @@ namespace HCore.Emailing.Sender.Impl
 
             string smtpUserName = configuration[$"Smtp:{configurationKey}:UserName"];
             if (string.IsNullOrEmpty(smtpUserName))
-                throw new Exception($"SMTP user name is missing for key {configurationKey}");
+            {
+                smtpUserName = null;
+            }
 
             string smtpPassword = configuration[$"Smtp:{configurationKey}:Password"];
             if (string.IsNullOrEmpty(smtpPassword))
-                throw new Exception($"SMTP password is missing for key {configurationKey}");
+            {
+                smtpPassword = null;
+            }
 
             int smtpPort = configuration.GetValue<int>($"Smtp:{configurationKey}:Port");
             if (smtpPort <= 0)
