@@ -5,6 +5,7 @@ using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
 using HCore.Web.Exceptions;
+using HCore.Web.Providers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +24,8 @@ namespace HCore.Tenants.Providers.Impl
         private readonly IServiceScopeFactory _scopeFactory;
 
         private readonly ITenantCache _tenantCache;
+
+        private readonly IHttpsCertificateEncryptionProvider _httpsCertificateEncryptionProvider;
 
         private readonly Dictionary<string, IDeveloperInfo> _developerInfosByHostPattern;
 
@@ -43,6 +46,8 @@ namespace HCore.Tenants.Providers.Impl
             _scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
             _tenantCache = tenantCache;
+
+            _httpsCertificateEncryptionProvider = serviceProvider.GetService<IHttpsCertificateEncryptionProvider>();
 
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 
@@ -509,7 +514,12 @@ namespace HCore.Tenants.Providers.Impl
             byte[] httpsCertificateBytes = null;
             string httpsCertificatePassword = null;
 
-            if (!string.IsNullOrEmpty(tenantModel.HttpsCertificate))
+            if (!string.IsNullOrEmpty(tenantModel.EncryptedHttpsCertificate))
+            {
+                httpsCertificateBytes = _httpsCertificateEncryptionProvider.DecryptHttpsCertificate(tenantModel.EncryptedHttpsCertificate);
+                httpsCertificatePassword = _httpsCertificateEncryptionProvider.DecryptHttpsCertificatePassword(tenantModel.EncryptedHttpsCertificatePassword);
+            }
+            else if (!string.IsNullOrEmpty(tenantModel.HttpsCertificate))
             {
                 httpsCertificateBytes = Convert.FromBase64String(tenantModel.HttpsCertificate);
                 httpsCertificatePassword = tenantModel.HttpsCertificatePassword;
