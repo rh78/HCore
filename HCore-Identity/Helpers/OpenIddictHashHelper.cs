@@ -8,37 +8,23 @@ namespace HCore.Identity.Helpers
 {
     public class OpenIddictHashHelper
     {
-        public static string HashClientSecret(
-            string secret,
-            HashAlgorithmName? hashAlgorithm = null,
-            int iterations = 100_000,
-            int keyBits = 512,
-            int saltBits = 256
-        )
+        public static string HashClientSecret(string secret)
         {
-            ArgumentException.ThrowIfNullOrEmpty(secret);
+            const int Iterations = 10_000;
+            var algorithm = HashAlgorithmName.SHA256;
 
-            var algorithm = hashAlgorithm ?? HashAlgorithmName.SHA512;
+            var salt = RandomNumberGenerator.GetBytes(128 / 8);
+            var key = Rfc2898DeriveBytes.Pbkdf2(secret, salt, Iterations, algorithm, 256 / 8);
 
-            var salt = RandomNumberGenerator.GetBytes(saltBits / 8);
-            var key = Rfc2898DeriveBytes.Pbkdf2(secret, salt, iterations, algorithm, keyBits / 8);
+            var payload = new byte[13 + salt.Length + key.Length];
 
-            var length = 1 + sizeof(uint) * 3 + salt.Length + key.Length;
-            var payload = new byte[length];
-
-            payload[0] = 0x01;
-
-            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(1, sizeof(uint)),
-                algorithm == HashAlgorithmName.SHA1 ? 0u :
-                algorithm == HashAlgorithmName.SHA256 ? 1u :
-                algorithm == HashAlgorithmName.SHA512 ? 2u :
-                throw new NotSupportedException("Only SHA1, SHA256 and SHA512 are supported."));
-
-            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(5, sizeof(uint)), (uint)iterations);
-            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(9, sizeof(uint)), (uint)salt.Length);
+            payload[0] = 0x01;                                                // format marker
+            
+            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(1, 4), 1u);  // 0=SHA1, 1=SHA256, 2=SHA512
+            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(5, 4), (uint)Iterations);
+            BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(9, 4), (uint)salt.Length);
 
             salt.CopyTo(payload, 13);
-
             key.CopyTo(payload, 13 + salt.Length);
 
             return Convert.ToBase64String(payload);
