@@ -115,6 +115,10 @@ namespace HCore.Identity.Internal
 
         private bool IsUriMatch(string requestedUri, ICollection<string> allowedUris)
         {
+            var uri = new Uri(requestedUri);
+            
+            requestedUri = uri.GetLeftPart(UriPartial.Path);
+
             var rules = allowedUris.Select(ConvertToRegex).ToList();
 
             var matchingRuleFound = rules.Any(r => Regex.IsMatch(requestedUri, r, RegexOptions.IgnoreCase));
@@ -128,8 +132,10 @@ namespace HCore.Identity.Internal
                 throw new ArgumentNullException(nameof(rule));
             }
 
-            return Regex.Escape(rule)
+            var regex = Regex.Escape($"{rule}")
                         .Replace(@"WILDCARD", WildcardCharacter + "*");
+
+            return $"^{regex}";
         }
     }
 }
