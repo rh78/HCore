@@ -113,6 +113,8 @@ namespace HCore.Identity.Internal
 
         private const string WildcardCharacter = @"[a-zA-Z0-9\-]";
 
+        private const string AnyPortPattern = ":[0-9]{1,5}/";
+
         private bool IsUriMatch(string requestedUri, ICollection<string> allowedUris)
         {
             var uri = new Uri(requestedUri);
