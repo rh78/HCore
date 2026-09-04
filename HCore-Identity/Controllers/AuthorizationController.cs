@@ -66,11 +66,12 @@ namespace HCore.Identity.Controllers
             var request = HttpContext.Request;
 
             var mcpUri = UriHelper.BuildAbsolute(request.Scheme, request.Host, request.PathBase, "/mcp");
+            var portalUri = UriHelper.BuildAbsolute(request.Scheme, request.Host, request.PathBase);
 
             var oauthProtectedResourceModel = new OAuthProtectedResourceModel()
             {
                 Resource = mcpUri,
-                AuthorizationServers = [_defaultClientAuthority]
+                AuthorizationServers = [portalUri]
             };
 
             return Json(oauthProtectedResourceModel);
