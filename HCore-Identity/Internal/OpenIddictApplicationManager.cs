@@ -113,6 +113,8 @@ namespace HCore.Identity.Internal
 
         private const string WildcardCharacter = @"[a-zA-Z0-9\-]";
 
+        private const string WildcardPortPattern = ":[0-9]{1,5}/";
+
         private bool IsUriMatch(string requestedUri, ICollection<string> allowedUris)
         {
             var uri = new Uri(requestedUri);
@@ -133,7 +135,8 @@ namespace HCore.Identity.Internal
             }
 
             var regex = Regex.Escape($"{rule}")
-                        .Replace(@"WILDCARD", WildcardCharacter + "*");
+                .Replace(@"WILDCARD", WildcardCharacter + "*")
+                .Replace(":0/", WildcardPortPattern);
 
             return $"^{regex}";
         }
