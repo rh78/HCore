@@ -7,13 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using HCore.Identity.Database.SqlServer.Models.Impl;
 using HCore.Identity.Extensions;
+using HCore.Identity.Models;
 using HCore.Web.Attributes;
 using IdentityModel;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
@@ -34,7 +37,9 @@ namespace HCore.Identity.Controllers
 
         private ILogger<AuthorizationController> _logger;
 
-        public AuthorizationController(IOpenIddictApplicationManager applicationManager, UserManager<UserModel> userManager, IUserClaimsPrincipalFactory<UserModel> principalFactory, SignInManager<UserModel> signInManager, ILogger<AuthorizationController> logger)
+        private readonly string _defaultClientAuthority;
+
+        public AuthorizationController(IOpenIddictApplicationManager applicationManager, UserManager<UserModel> userManager, IUserClaimsPrincipalFactory<UserModel> principalFactory, SignInManager<UserModel> signInManager, IConfiguration configuration, ILogger<AuthorizationController> logger)
         {
             _openIddictApplicationManager = applicationManager;
 
@@ -42,7 +47,33 @@ namespace HCore.Identity.Controllers
             _principalFactory = principalFactory;
             _signInManager = signInManager;
 
+            string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
+            if (string.IsNullOrEmpty(defaultClientAuthority))
+                throw new Exception("Identity default client authority string is empty");
+
+            _defaultClientAuthority = defaultClientAuthority;
+
             _logger = logger;
+        }
+
+        [HttpGet]
+        [Route("/.well-known/oauth-protected-resource/mcp")]
+        [Produces("application/json")]
+        [ValidateModelState]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult GetOAuthProtectedResource(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var request = HttpContext.Request;
+
+            var mcpUri = UriHelper.BuildAbsolute(request.Scheme, request.Host, request.PathBase, "/mcp");
+
+            var oauthProtectedResourceModel = new OAuthProtectedResourceModel()
+            {
+                Resource = mcpUri,
+                AuthorizationServers = [_defaultClientAuthority]
+            };
+
+            return Json(oauthProtectedResourceModel);
         }
 
         [HttpGet]
