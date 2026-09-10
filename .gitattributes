@@ -1,0 +1,5 @@
+# Mustache code generation templates.
+# Stored LF in the repository, checked out CRLF in the working tree, so
+# openapi-generator emits the same line endings on every machine regardless
+# of the developer's core.autocrlf setting.
+*.mustache text eol=crlf
