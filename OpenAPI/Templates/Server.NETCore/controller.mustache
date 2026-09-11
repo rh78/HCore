@@ -30,7 +30,7 @@ namespace {{packageName}}.Controllers
         /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
-        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken));        
+        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParamInterface}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken));        
 	  {{/operation}}
     }
 	
@@ -56,13 +56,15 @@ namespace {{packageName}}.Controllers
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
-        [Route("{{{basePathWithoutHost}}}{{{path}}}")]  
-		[Authorize(Policy = IdentityCoreConstants.JwtPolicy)]
+        [Route("{{{basePathWithoutHost}}}{{{path}}}")]  {{^vendorExtensions.x-anonymous}}
+		[Authorize(Policy = {{#vendorExtensions.x-authorize-policy}}{{{vendorExtensions.x-authorize-policy}}}{{/vendorExtensions.x-authorize-policy}}{{^vendorExtensions.x-authorize-policy}}IdentityCoreConstants.JwtPolicy{{/vendorExtensions.x-authorize-policy}})]{{/vendorExtensions.x-anonymous}}
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken))
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]{{#vendorExtensions.x-disable-request-size-limit}}
+        [DisableRequestSizeLimit]{{/vendorExtensions.x-disable-request-size-limit}}{{#vendorExtensions.x-request-size-limit}}
+        [RequestSizeLimit({{{vendorExtensions.x-request-size-limit}}})]{{/vendorExtensions.x-request-size-limit}}
+        public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParamControllerAction}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken))
         { 	
 			{{#returnType}}			
 			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
