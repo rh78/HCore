@@ -1,6 +1,6 @@
 > **Read the workspace root config first.** This repo is one of ~46 that build together.
 > `.claude/CLAUDE.md` in the Claude Code config repo checked out at the **workspace root**
-> (the folder containing `HCore/` and `Smint.io/`) carries two things you need: the
+> (the folder containing `HCore/`) carries two things you need: the
 > **workspace map** — what each repo is, how they depend on each other, and the OpenAPI
 > code-generation workflow — and the **working agreements** that govern how changes are
 > made here. Read it before making cross-repo changes.
@@ -38,14 +38,22 @@ when regenerating clients and controllers:
 
 | Path | What it is |
 |---|---|
-| `OpenAPI/openapi-generator-cli.jar` | the generator invoked by the `generateSmintIo*` scripts |
+| `OpenAPI/openapi-generator-cli.jar` | the generator invoked by the `generate*` scripts |
 | `OpenAPI/NSwag` | vendored NSwag binaries, with `Net60` / `Net70` / `Net80` runners and `nswag.cmd` |
 | `OpenAPI/Templates/Server.NETCore` | server controller/model templates |
 | `OpenAPI/Templates/TypeScript` | TypeScript client templates |
 
 **Editing a template here changes generated output in every API repo.** It will not show up
-until each repo re-runs its generate script, and those runs are currently blocked by stale
-patches in `PortalsAPI-B`, `CLAPI-C` and `CL-Portal` — see the workspace map.
+until each repo re-runs its generate script.
+
+Two things to know before editing a template here:
+
+- **This may not be the only server template set.** Dependent repos can override it.
+- **Templates read standard vendor extensions.** `controller.mustache` honours
+  `x-anonymous` (emit no `[Authorize]`), `x-authorize-policy` (override the default policy
+  expression), `x-request-size-limit` and `x-disable-request-size-limit`. Those are the
+  first place a per-operation difference should go - not a post-generation fix-up. The
+  workspace map has the full decision table.
 
 ## Internal layering
 
@@ -82,5 +90,5 @@ there is the widest-reaching change you can make in this workspace.
 - **`ConcatenateTokenFilter/`** holds prebuilt Elasticsearch plugin zips (6.4.0 through
   8.19.3), matching the separate `elasticsearch-concatenate-token-filter` repo, which is
   **out of scope** for this configuration. Binary artifacts — don't try to edit them.
-- HCore is written as general-purpose infrastructure, not Smint.io product code. Keep
-  Smint.io-specific logic out of it; it belongs in `Core`, `Portals-Core` or `CL-Core`.
+- HCore is written as general-purpose infrastructure, not consumer-specific product code. Keep
+  consumer-specific logic out of it; it belongs in `Core`, `Portals-Core` or `CL-Core`.
