@@ -101,30 +101,14 @@ namespace HCore.Identity.Attributes
 
                 // once for standards compliant browsers
 
+                if (!context.HttpContext.Response.Headers.ContainsKey("Reporting-Endpoints"))
+                {
+                    context.HttpContext.Response.Headers["Reporting-Endpoints"] = $"csp-endpoint=\"{_reportUri}\"";
+                }
+
                 if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy"))
                 {
                     var csp = $"default-src 'self' {_defaultSrcPolicy}; " +
-                            "object-src 'none'; " +
-                            $"frame-ancestors 'self' {_frameAncestorsPolicy} {allowIFrameUrl}; " +
-                            $"script-src 'self' {_scriptSrcPolicy};" +
-                            $"connect-src 'self' {_connectSrcPolicy}; " +
-                            $"style-src 'self' {_styleSrcPolicy}; " +
-                            $"font-src 'self' {_fontSrcPolicy}; " +
-                            $"frame-src 'self' {_frameSrcPolicy}; " +
-                            $"img-src {_imgSrcPolicy}; " +
-                            $"media-src {_mediaSrcPolicy}; " +
-                            // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
-                            // we turn it off until more is known
-                            // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
-                            "base-uri 'self'; " +
-                            "upgrade-insecure-requests;";
-
-                    context.HttpContext.Response.Headers["Content-Security-Policy"] = csp;
-                }
-
-                if (!context.HttpContext.Response.Headers.ContainsKey("Content-Security-Policy-Report-Only"))
-                {
-                    var cspReportOnly = $"default-src 'self' {_defaultSrcPolicy}; " +
                             "object-src 'none'; " +
                             $"frame-ancestors 'self' {_frameAncestorsPolicy} {allowIFrameUrl}; " +
                             $"script-src 'self' 'nonce-{scriptNonce}' 'strict-dynamic' {_nonceScriptSrcPolicy};" +
@@ -137,11 +121,12 @@ namespace HCore.Identity.Attributes
                             // does have issues in Chrome version 83.0.4103.61 - just blocks downloads, disregarding the flags set
                             // we turn it off until more is known
                             // (_useSandbox ? "sandbox allow-forms allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox; " : "") +
-                            "base-uri 'none'; " +
+                            "base-uri 'self'; " +
                             "upgrade-insecure-requests; " +
-                            $"report-uri {_reportUri};";
+                            $"report-uri {_reportUri}; " +
+                            "report-to csp-endpoint;";
 
-                    context.HttpContext.Response.Headers["Content-Security-Policy-Report-Only"] = cspReportOnly;
+                    context.HttpContext.Response.Headers["Content-Security-Policy"] = csp;
                 }
 
                 // IE just does trouble when opening PDFs and downloads, so we cannot use it right now
