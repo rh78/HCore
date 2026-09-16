@@ -81,6 +81,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string DefaultCulture { get; set; }
         public string DefaultCurrency { get; set; }
 
+        public string EncryptedHttpsCertificate { get; set; }
+        public string EncryptedHttpsCertificatePassword { get; set; }
+
         public string HttpsCertificate { get; set; }
         public string HttpsCertificatePassword { get; set; }
 
