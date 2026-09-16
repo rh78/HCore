@@ -96,7 +96,7 @@ namespace HCore.Web.Providers.Impl
 
                         var importMap = JsonConvert.SerializeObject(parsedImportMap);
 
-                        part = $"<script type=\"importmap\">\n{importMap}\n</script>\n";
+                        part = $"<script type=\"importmap\" nonce=\"NONCE-PLACEHOLDER\">\n{importMap}\n</script>\n";
                     }
                     else if (
                         Regex.IsMatch(
