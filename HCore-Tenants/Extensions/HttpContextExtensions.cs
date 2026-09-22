@@ -71,5 +71,27 @@ namespace Microsoft.AspNetCore.Http
 
             return null;
         }
+
+        public static string GetUserAgent(this HttpContext httpContext)
+        {
+            var httpRequest = httpContext.Request;
+
+            if (httpRequest != null)
+            {
+                try
+                {
+                    if (httpContext.Request.Headers.TryGetValue("User-Agent", out var userAgent) && !string.IsNullOrEmpty(userAgent))
+                    {
+                        return userAgent;
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+
+            return null;
+        }
     }
 }
