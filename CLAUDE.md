@@ -92,3 +92,24 @@ there is the widest-reaching change you can make in this workspace.
   **out of scope** for this configuration. Binary artifacts — don't try to edit them.
 - HCore is written as general-purpose infrastructure, not consumer-specific product code. Keep
   consumer-specific logic out of it; it belongs in `Core`, `Portals-Core` or `CL-Core`.
+
+## Database: migrations and timestamps
+
+- **Startup migrations run with a 5 min command timeout.** `UseSqlDatabase`
+  (`HCore-Database/Configuration/DatabaseApplicationBuilderExtensions.cs`) sets it on the scoped
+  context right before `Migrate()`; regular queries keep Npgsql's 30 s default. Without it a
+  `CREATE INDEX CONCURRENTLY` on a large table is cancelled by the client and Postgres keeps an
+  **invalid** index behind, which `IF NOT EXISTS` then skips on every later run. Identity
+  migrates separately (`IdentityApplicationBuilderExtensions.cs`) and does not get this timeout.
+- EF Core 8 takes no migration lock. Several instances starting at once run the same migration
+  in parallel, so roll deployments one instance at a time.
+- `AddSqlDatabase` sets `Npgsql.EnableLegacyTimestampBehavior`: a C# `DateTime` maps to
+  `timestamp without time zone`, a `DateTimeOffset` to `timestamp with time zone`. In LINQ,
+  comparing a `DateTime` column with a `DateTimeOffset` value makes the compiler convert the
+  **column**, EF emits `"Col"::timestamptz`, and Postgres can no longer use an index on it. That
+  turns the query into a full table scan. Compare against `value.UtcDateTime` instead. Consumers
+  model almost every date as `DateTimeOffset`, so the problem only appears on the few `DateTime`
+  columns.
+- All database contexts are configured in the `UseSqlServer`/`UseNpgsql` lambdas
+  of `DatabaseServiceCollectionExtensions.AddSqlDatabase`. A global interceptor would have to go
+  into each of them.
