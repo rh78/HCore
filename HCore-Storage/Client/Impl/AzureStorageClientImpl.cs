@@ -461,6 +461,28 @@ namespace HCore.Storage.Client.Impl
             return uri.AbsoluteUri;
         }
 
+        public async Task<StorageFileInfoModel> GetFileInfoAsync(string containerName, string fileName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+            var blobClient = containerClient.GetBlobClient(fileName);
+
+            try
+            {
+                var blobProperties = await blobClient.GetPropertiesAsync().ConfigureAwait(false);
+
+                return new StorageFileInfoModel
+                {
+                    ContentLength = blobProperties.Value.ContentLength,
+                    ContentType = blobProperties.Value.ContentType
+                };
+            }
+            catch (RequestFailedException requestFailedException) when (requestFailedException.Status == (int)HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);

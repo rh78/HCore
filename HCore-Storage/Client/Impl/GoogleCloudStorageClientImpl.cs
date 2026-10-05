@@ -348,6 +348,29 @@ namespace HCore.Storage.Client.Impl
             return signedUrl;
         }
 
+        public async Task<StorageFileInfoModel> GetFileInfoAsync(string containerName, string fileName)
+        {
+            var credential = GoogleCredential.FromJson(_credentialsJson);
+
+            try
+            {
+                using (var storageClient = await StorageClient.CreateAsync(credential).ConfigureAwait(false))
+                {
+                    var storageObject = await storageClient.GetObjectAsync(containerName, fileName).ConfigureAwait(false);
+
+                    return new StorageFileInfoModel
+                    {
+                        ContentLength = Convert.ToInt64(storageObject.Size ?? 0),
+                        ContentType = storageObject.ContentType
+                    };
+                }
+            }
+            catch (GoogleApiException e) when (e.HttpStatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         public Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
             throw new NotImplementedException();
