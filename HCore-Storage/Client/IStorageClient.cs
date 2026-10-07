@@ -21,7 +21,10 @@ namespace HCore.Storage.Client
         Task<long> GetFileSizeAsync(string containerName, string fileName);
 
         Task<string> GetSignedDownloadUrlAsync(string containerName, string fileName, TimeSpan validityTimeSpan, string downloadFileName = null);
-        
+
+        // size and content type of a file (a metadata request, the content is not read); null when the file does not exist
+        Task<StorageFileInfoModel> GetFileInfoAsync(string containerName, string fileName);
+
         Task CreateContainerAsync(string containerName, bool isPublic);
         Task DeleteContainerAsync(string containerName);
 

@@ -453,6 +453,26 @@ namespace HCore.Storage.Client.Impl
             return url;
         }
 
+        public async Task<StorageFileInfoModel> GetFileInfoAsync(string containerName, string fileName)
+        {
+            var fileKey = AwsHelpers.GetFileKey(containerName, fileName);
+
+            try
+            {
+                var metadataResponse = await _amazonS3.GetObjectMetadataAsync(_bucketName, fileKey).ConfigureAwait(false);
+
+                return new StorageFileInfoModel
+                {
+                    ContentLength = metadataResponse.ContentLength,
+                    ContentType = metadataResponse.Headers.ContentType
+                };
+            }
+            catch (AmazonS3Exception amazonS3Exception) when (amazonS3Exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         public async Task<ICollection<string>> GetStorageFileNamesAsync(string containerName)
         {
             var names = new List<string>();

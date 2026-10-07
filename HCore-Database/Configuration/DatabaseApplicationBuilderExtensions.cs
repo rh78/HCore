@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder
@@ -16,6 +17,12 @@ namespace Microsoft.AspNetCore.Builder
 
                 if (migrate)
                 {
+                    // index builds on large tables take far longer than the default 30 s command timeout; when the
+                    // client cancels a CREATE INDEX CONCURRENTLY, Postgres keeps an invalid index behind. This only
+                    // applies to this scoped context, not to regular queries
+
+                    dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(5));
+
                     dbContext.Database.Migrate();
                 }
             }
