@@ -48,6 +48,7 @@ using Sustainsys.Saml2.Metadata;
 using Sustainsys.Saml2.Saml2P;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Server.OpenIddictServerEvents;
+using static OpenIddict.Server.OpenIddictServerHandlers.Protection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -701,6 +702,13 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         handler.SetOrder(int.MinValue);
                     });
+
+                    options.AddEventHandler<GenerateTokenContext>(handler =>
+                    {
+                        handler.UseSingletonHandler<AccessTokenIssuerHandler>();
+
+                        handler.SetOrder(GenerateIdentityModelToken.Descriptor.Order - 1);
+                    });
                 });
 
             var openIddictApplicationManagerDescriptor = new ServiceDescriptor(typeof(OpenIddict.Core.OpenIddictApplicationManager<>), typeof(HCore.Identity.Internal.OpenIddictApplicationManager<>), ServiceLifetime.Scoped);
@@ -712,14 +720,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
             openIddictBuilder.AddServer(options =>
             {
-                if (tenantsBuilder != null)
+                /*if (tenantsBuilder != null)
                 {
                     string defaultClientAuthority = configuration[$"Identity:DefaultClient:Authority"];
                     if (string.IsNullOrEmpty(defaultClientAuthority))
                         throw new Exception("Identity default client authority string is empty");
 
                     options.SetIssuer(defaultClientAuthority);
-                }
+                }*/
 
                 options.SetJsonWebKeySetEndpointUris(".well-known/openid-configuration/jwks");
                 options.SetAuthorizationEndpointUris("connect/authorize");
@@ -767,6 +775,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.DisableAccessTokenEncryption();
 
                 options.DisableTokenStorage();
+
+                options.DisableResourceValidation();
+
+                options.IgnoreResourcePermissions();
 
                 options.AddEventHandler<ProcessErrorContext>(builder =>
                 {
