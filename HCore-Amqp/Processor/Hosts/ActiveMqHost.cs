@@ -50,7 +50,9 @@ namespace HCore.Amqp.Processor.Hosts
         private ISession _producerSession;
         private IMessageProducer _messageProducer;
 
-        private bool _consumersStopped;
+        private volatile bool _consumersStopped;
+
+        private readonly CancellationTokenSource _consumersCancellationTokenSource = new();
 
         internal ActiveMqHost(int listenersCount, string address, bool isSession, ActiveMqMessengerImpl activeMqMessengerImpl, CancellationToken cancellationToken, ILogger<ActiveMqMessengerImpl> logger)
         {
@@ -86,7 +88,9 @@ namespace HCore.Amqp.Processor.Hosts
                 _messageProducer = await _producerSession.CreateProducerAsync(producerDestination).ConfigureAwait(false);
                 _messageProducer.DeliveryMode = MsgDeliveryMode.Persistent;
 
-                if (_listenersCount > 0)
+                // a send during shutdown can re-initialize the connection; it must not start consuming again
+
+                if (_listenersCount > 0 && !_consumersStopped)
                 {
                     var connection = _connection;
 
@@ -156,14 +160,19 @@ namespace HCore.Amqp.Processor.Hosts
         {
             while (true)
             {
-                var holdTimeSpan = await ProcessMessagesAsync(session, messageConsumer).ConfigureAwait(false);
+                var holdTimeSpan = await ProcessMessagesAsync(connection, session, messageConsumer).ConfigureAwait(false);
 
                 if (holdTimeSpan == null)
                 {
                     return;
                 }
 
-                await Task.Delay(holdTimeSpan.Value).ConfigureAwait(false);
+                // on shutdown the held message is rolled back when the session is closed
+
+                if (!await TryDelayAsync(holdTimeSpan.Value).ConfigureAwait(false))
+                {
+                    return;
+                }
 
                 if (!HandsBackFailedMessages && await TryRollbackAsync(session).ConfigureAwait(false))
                 {
@@ -202,6 +211,27 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
+        private async Task<bool> TryDelayAsync(TimeSpan timeSpan)
+        {
+            try
+            {
+                await Task.Delay(timeSpan, _consumersCancellationTokenSource.Token).ConfigureAwait(false);
+
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                return false;
+            }
+        }
+
+        // after a shutdown, or a reconnect where InitializeAsync creates new listeners, the listeners of the old connection end
+
+        private bool IsListenerObsolete(IConnection connection)
+        {
+            return _consumersStopped || _connection != connection;
+        }
+
         private async Task ReleaseListenerAsync(ISession session, IMessageConsumer messageConsumer)
         {
             await _closeSemaphoreSlim.WaitAsync().ConfigureAwait(false);
@@ -216,71 +246,128 @@ namespace HCore.Amqp.Processor.Hosts
                 _closeSemaphoreSlim.Release();
             }
 
-            // the connection may already be broken; the broker then releases the consumer when the connection ends
+            await CloseListenerAsync(session, messageConsumer).ConfigureAwait(false);
+        }
 
+        // each step runs even if the previous one failed: a consumer left open would keep its message and its message groups
+
+        private async Task CloseListenerAsync(ISession session, IMessageConsumer messageConsumer)
+        {
+            await TryCloseStepAsync("roll back", () => session.RollbackAsync()).ConfigureAwait(false);
+
+            if (messageConsumer != null)
+            {
+                await TryCloseStepAsync("close the consumer of", () => messageConsumer.CloseAsync()).ConfigureAwait(false);
+
+                await TryCloseStepAsync("dispose the consumer of", () =>
+                {
+                    messageConsumer.Dispose();
+
+                    return Task.CompletedTask;
+                }).ConfigureAwait(false);
+            }
+
+            await TryCloseStepAsync("close the session of", () => session.CloseAsync()).ConfigureAwait(false);
+
+            await TryCloseStepAsync("dispose the session of", () =>
+            {
+                session.Dispose();
+
+                return Task.CompletedTask;
+            }).ConfigureAwait(false);
+        }
+
+        // the connection may already be broken; the broker then releases the consumer when the connection ends
+
+        private async Task TryCloseStepAsync(string step, Func<Task> closeStep)
+        {
             try
             {
-                await session.RollbackAsync().ConfigureAwait(false);
-
-                await messageConsumer.CloseAsync().ConfigureAwait(false);
-                await session.CloseAsync().ConfigureAwait(false);
-
-                messageConsumer.Dispose();
-                session.Dispose();
+                await closeStep().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                _logger.LogWarning($"AMQP listener for address {_address} could not be closed cleanly: {exception.Message}");
+                _logger.LogWarning($"AMQP listener could not {step} address {_address}: {exception.Message}");
             }
         }
 
+        // the broker calls run outside the locks, so a broker that is unreachable cannot block shutdown or sending
+
         private async Task<(ISession, IMessageConsumer)> RecreateListenerAsync(IConnection connection)
         {
-            while (true)
+            while (!IsListenerObsolete(connection))
             {
-                await _initSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+                ISession session = null;
+                IMessageConsumer messageConsumer = null;
 
                 try
                 {
-                    // after a shutdown or a reconnect (InitializeAsync creates new listeners) this listener ends
+                    session = await connection.CreateSessionAsync(AcknowledgementMode.Transactional).ConfigureAwait(false);
 
-                    if (_consumersStopped || _connection != connection)
+                    var destination = await GetDestinationAsync(session, _address).ConfigureAwait(false);
+
+                    messageConsumer = await GetMessageConsumerAsync(session, destination).ConfigureAwait(false);
+
+                    if (await TryRegisterListenerAsync(connection, session, messageConsumer).ConfigureAwait(false))
+                    {
+                        return (session, messageConsumer);
+                    }
+
+                    await CloseListenerAsync(session, messageConsumer).ConfigureAwait(false);
+
+                    return (null, null);
+                }
+                catch (Exception exception)
+                {
+                    if (session != null)
+                    {
+                        await CloseListenerAsync(session, messageConsumer).ConfigureAwait(false);
+                    }
+
+                    if (IsListenerObsolete(connection))
                     {
                         return (null, null);
                     }
 
-                    await _closeSemaphoreSlim.WaitAsync().ConfigureAwait(false);
-
-                    try
-                    {
-                        var session = await GetSessionInternallyAsync(AcknowledgementMode.Transactional).ConfigureAwait(false);
-                        var destination = await GetDestinationAsync(session, _address).ConfigureAwait(false);
-
-                        var messageConsumer = await GetMessageConsumerInternallyAsync(session, destination).ConfigureAwait(false);
-
-                        return (session, messageConsumer);
-                    }
-                    finally
-                    {
-                        _closeSemaphoreSlim.Release();
-                    }
-                }
-                catch (Exception exception)
-                {
                     _logger.LogError($"AMQP listener for address {_address} could not be recreated, retrying: {exception}");
                 }
-                finally
+
+                if (!await TryDelayAsync(_recreateListenerRetryTimeSpan).ConfigureAwait(false))
                 {
-                    _initSemaphoreSlim.Release();
+                    return (null, null);
+                }
+            }
+
+            return (null, null);
+        }
+
+        // registered under the close lock, so a shutdown or reconnect either sees the new listener or the listener sees it
+
+        private async Task<bool> TryRegisterListenerAsync(IConnection connection, ISession session, IMessageConsumer messageConsumer)
+        {
+            await _closeSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+            try
+            {
+                if (IsListenerObsolete(connection))
+                {
+                    return false;
                 }
 
-                await Task.Delay(_recreateListenerRetryTimeSpan).ConfigureAwait(false);
+                _sessions.Add(session);
+                _messageConsumers.Add(messageConsumer);
+
+                return true;
+            }
+            finally
+            {
+                _closeSemaphoreSlim.Release();
             }
         }
 
         // returns how long to hold the current message before handing it back, or null when the listener must stop
 
-        private async Task<TimeSpan?> ProcessMessagesAsync(ISession session, IMessageConsumer messageConsumer)
+        private async Task<TimeSpan?> ProcessMessagesAsync(IConnection connection, ISession session, IMessageConsumer messageConsumer)
         {
             while (true)
             {
@@ -290,7 +377,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                     if (message == null)
                     {
-                        if (_consumersStopped)
+                        if (IsListenerObsolete(connection))
                         {
                             return null;
                         }
@@ -333,7 +420,7 @@ namespace HCore.Amqp.Processor.Hosts
                 }
                 catch (NMSException nmsException)
                 {
-                    if (_consumersStopped)
+                    if (IsListenerObsolete(connection))
                     {
                         return null;
                     }
@@ -550,15 +637,25 @@ namespace HCore.Amqp.Processor.Hosts
 
             try
             {
-                _consumersStopped |= isShuttingDown;
+                if (isShuttingDown)
+                {
+                    _consumersStopped = true;
+
+                    await _consumersCancellationTokenSource.CancelAsync().ConfigureAwait(false);
+                }
 
                 if (_messageConsumers.Any())
                 {
                     foreach (var messageConsumer in _messageConsumers)
                     {
-                        await messageConsumer.CloseAsync().ConfigureAwait(false);
+                        await TryCloseStepAsync("close a consumer of", () => messageConsumer.CloseAsync()).ConfigureAwait(false);
 
-                        messageConsumer.Dispose();
+                        await TryCloseStepAsync("dispose a consumer of", () =>
+                        {
+                            messageConsumer.Dispose();
+
+                            return Task.CompletedTask;
+                        }).ConfigureAwait(false);
                     }
 
                     _messageConsumers.Clear();
