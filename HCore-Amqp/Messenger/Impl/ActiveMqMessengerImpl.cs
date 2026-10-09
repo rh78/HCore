@@ -110,7 +110,11 @@ namespace HCore.Amqp.Messenger.Impl
                 }
             };
 
-            _connectionFactory.PrefetchPolicy.All = 5;
+            // a rolled back message blocks every message prefetched behind it on the same consumer,
+            // so each consumer only holds the message it is processing
+            // https://activemq.apache.org/components/classic/documentation/what-is-the-prefetch-limit-for
+
+            _connectionFactory.PrefetchPolicy.All = 1;
 
             _userName = Uri.UnescapeDataString(userInfoParts[0]);
             _password = Uri.UnescapeDataString(userInfoParts[1]);
