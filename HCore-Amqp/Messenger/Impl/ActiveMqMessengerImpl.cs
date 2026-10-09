@@ -103,9 +103,12 @@ namespace HCore.Amqp.Messenger.Impl
             {
                 AsyncSend = false,
                 DispatchAsync = true,
+                // ActiveMqHost holds a failed message itself and then hands it back to the broker; a client-side
+                // redelivery delay would block a thread pool thread for every rollback
+
                 RedeliveryPolicy = new RedeliveryPolicy
                 {
-                    InitialRedeliveryDelay = (int)TimeSpan.FromSeconds(60).TotalMilliseconds,
+                    InitialRedeliveryDelay = 0,
                     MaximumRedeliveries = -1
                 }
             };

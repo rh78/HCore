@@ -18,6 +18,13 @@ namespace HCore.Amqp.Processor.Hosts
     {
         private const string _scheduledDelayKey = "AMQ_SCHEDULED_DELAY";
 
+        // the same as the lock duration of the Service Bus queues and the default session lock on postpone
+
+        private static readonly TimeSpan _errorHoldTimeSpan = TimeSpan.FromMinutes(1);
+        private static readonly TimeSpan _postponeHoldTimeSpan = TimeSpan.FromSeconds(10);
+
+        private static readonly TimeSpan _recreateListenerRetryTimeSpan = TimeSpan.FromSeconds(5);
+
         private readonly SemaphoreSlim _initSemaphoreSlim = new(1, 1);
         private readonly SemaphoreSlim _closeSemaphoreSlim = new(1, 1);
 
@@ -81,6 +88,8 @@ namespace HCore.Amqp.Processor.Hosts
 
                 if (_listenersCount > 0)
                 {
+                    var connection = _connection;
+
                     for (var i = 0; i < _listenersCount; i++)
                     {
                         var session = await GetSessionInternallyAsync(AcknowledgementMode.Transactional).ConfigureAwait(false);
@@ -88,7 +97,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                         var messageConsumer = await GetMessageConsumerInternallyAsync(session, destination).ConfigureAwait(false);
 
-                        _ = Task.Run(async () => await ProcessMessageAsync(session, messageConsumer).ConfigureAwait(false));
+                        _ = Task.Run(async () => await RunListenerAsync(connection, session, messageConsumer).ConfigureAwait(false));
                     }
                 }
             }
@@ -139,7 +148,113 @@ namespace HCore.Amqp.Processor.Hosts
             return messageConsumer;
         }
 
-        private async Task ProcessMessageAsync(ISession session, IMessageConsumer messageConsumer)
+        // A message that cannot be processed now is handed back by closing this listener's consumer: the broker keeps it at
+        // the head of its message group, releases every group the consumer owned, and dispatches them to any free consumer.
+        // Holding the message before that keeps a failing group from being retried in a tight loop.
+
+        private async Task RunListenerAsync(IConnection connection, ISession session, IMessageConsumer messageConsumer)
+        {
+            while (true)
+            {
+                var holdTimeSpan = await ProcessMessagesAsync(session, messageConsumer).ConfigureAwait(false);
+
+                if (holdTimeSpan == null)
+                {
+                    return;
+                }
+
+                await Task.Delay(holdTimeSpan.Value).ConfigureAwait(false);
+
+                await ReleaseListenerAsync(session, messageConsumer).ConfigureAwait(false);
+
+                (session, messageConsumer) = await RecreateListenerAsync(connection).ConfigureAwait(false);
+
+                if (session == null)
+                {
+                    return;
+                }
+            }
+        }
+
+        private async Task ReleaseListenerAsync(ISession session, IMessageConsumer messageConsumer)
+        {
+            await _closeSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+            try
+            {
+                _messageConsumers.Remove(messageConsumer);
+                _sessions.Remove(session);
+            }
+            finally
+            {
+                _closeSemaphoreSlim.Release();
+            }
+
+            // the connection may already be broken; the broker then releases the consumer when the connection ends
+
+            try
+            {
+                await session.RollbackAsync().ConfigureAwait(false);
+
+                await messageConsumer.CloseAsync().ConfigureAwait(false);
+                await session.CloseAsync().ConfigureAwait(false);
+
+                messageConsumer.Dispose();
+                session.Dispose();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning($"AMQP listener for address {_address} could not be closed cleanly: {exception.Message}");
+            }
+        }
+
+        private async Task<(ISession, IMessageConsumer)> RecreateListenerAsync(IConnection connection)
+        {
+            while (true)
+            {
+                await _initSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    // after a shutdown or a reconnect (InitializeAsync creates new listeners) this listener ends
+
+                    if (_consumersStopped || _connection != connection)
+                    {
+                        return (null, null);
+                    }
+
+                    await _closeSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+
+                    try
+                    {
+                        var session = await GetSessionInternallyAsync(AcknowledgementMode.Transactional).ConfigureAwait(false);
+                        var destination = await GetDestinationAsync(session, _address).ConfigureAwait(false);
+
+                        var messageConsumer = await GetMessageConsumerInternallyAsync(session, destination).ConfigureAwait(false);
+
+                        return (session, messageConsumer);
+                    }
+                    finally
+                    {
+                        _closeSemaphoreSlim.Release();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError($"AMQP listener for address {_address} could not be recreated, retrying: {exception}");
+                }
+                finally
+                {
+                    _initSemaphoreSlim.Release();
+                }
+
+                await Task.Delay(_recreateListenerRetryTimeSpan).ConfigureAwait(false);
+            }
+        }
+
+        // returns how long to hold the current message before handing it back, or null when the listener must stop
+
+        private async Task<TimeSpan?> ProcessMessagesAsync(ISession session, IMessageConsumer messageConsumer)
         {
             while (true)
             {
@@ -149,6 +264,11 @@ namespace HCore.Amqp.Processor.Hosts
 
                     if (message == null)
                     {
+                        if (_consumersStopped)
+                        {
+                            return null;
+                        }
+
                         continue;
                     }
 
@@ -189,27 +309,31 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     if (_consumersStopped)
                     {
-                        break;
+                        return null;
                     }
 
                     _logger.LogError($"NMS exception during processing AMQP message: {nmsException}");
+
+                    return _errorHoldTimeSpan;
                 }
                 catch (RescheduleException)
                 {
                     // no log, this is "wanted"
+
+                    return TimeSpan.Zero;
                 }
-                catch (PostponeException)
+                catch (PostponeException postponeException)
                 {
-                    // intentionally locking messages.
+                    // intentionally holding the message, as long as the Service Bus implementation locks its session
+
+                    return postponeException.LockSessionTimeSpan ?? _postponeHoldTimeSpan;
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+                    _logger.LogError($"Exception during processing AMQP message, holding it before handing it back: {exception}");
+
+                    return _errorHoldTimeSpan;
                 }
-
-                // "abandon" message and requeue
-
-                await session.RollbackAsync().ConfigureAwait(false);
             }
         }
 
