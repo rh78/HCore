@@ -13,6 +13,8 @@ namespace HCore.Amqp.Processor.Hosts
         {
         }
 
+        protected override bool HandsBackFailedMessages => false;
+
         protected override async Task<IDestination> GetDestinationAsync(ISession session, string address)
         {
             return await session.GetTopicAsync(address).ConfigureAwait(false);
