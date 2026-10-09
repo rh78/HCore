@@ -165,6 +165,11 @@ namespace HCore.Amqp.Processor.Hosts
 
                 await Task.Delay(holdTimeSpan.Value).ConfigureAwait(false);
 
+                if (!HandsBackFailedMessages && await TryRollbackAsync(session).ConfigureAwait(false))
+                {
+                    continue;
+                }
+
                 await ReleaseListenerAsync(session, messageConsumer).ConfigureAwait(false);
 
                 (session, messageConsumer) = await RecreateListenerAsync(connection).ConfigureAwait(false);
@@ -173,6 +178,27 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     return;
                 }
+            }
+        }
+
+        // a closed consumer of a non-durable topic subscription loses its unacknowledged message,
+        // so topics redeliver a failed message locally instead of handing it back to the broker
+
+        protected virtual bool HandsBackFailedMessages => true;
+
+        private async Task<bool> TryRollbackAsync(ISession session)
+        {
+            try
+            {
+                await session.RollbackAsync().ConfigureAwait(false);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogWarning($"AMQP rollback for address {_address} failed, recreating the listener: {exception.Message}");
+
+                return false;
             }
         }
 
