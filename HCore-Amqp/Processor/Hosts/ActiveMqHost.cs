@@ -88,7 +88,9 @@ namespace HCore.Amqp.Processor.Hosts
                 _messageProducer = await _producerSession.CreateProducerAsync(producerDestination).ConfigureAwait(false);
                 _messageProducer.DeliveryMode = MsgDeliveryMode.Persistent;
 
-                if (_listenersCount > 0)
+                // a send during shutdown can re-initialize the connection; it must not start consuming again
+
+                if (_listenersCount > 0 && !_consumersStopped)
                 {
                     var connection = _connection;
 
@@ -247,28 +249,45 @@ namespace HCore.Amqp.Processor.Hosts
             await CloseListenerAsync(session, messageConsumer).ConfigureAwait(false);
         }
 
+        // each step runs even if the previous one failed: a consumer left open would keep its message and its message groups
+
         private async Task CloseListenerAsync(ISession session, IMessageConsumer messageConsumer)
         {
-            // the connection may already be broken; the broker then releases the consumer when the connection ends
+            await TryCloseStepAsync("roll back", () => session.RollbackAsync()).ConfigureAwait(false);
 
+            if (messageConsumer != null)
+            {
+                await TryCloseStepAsync("close the consumer of", () => messageConsumer.CloseAsync()).ConfigureAwait(false);
+
+                await TryCloseStepAsync("dispose the consumer of", () =>
+                {
+                    messageConsumer.Dispose();
+
+                    return Task.CompletedTask;
+                }).ConfigureAwait(false);
+            }
+
+            await TryCloseStepAsync("close the session of", () => session.CloseAsync()).ConfigureAwait(false);
+
+            await TryCloseStepAsync("dispose the session of", () =>
+            {
+                session.Dispose();
+
+                return Task.CompletedTask;
+            }).ConfigureAwait(false);
+        }
+
+        // the connection may already be broken; the broker then releases the consumer when the connection ends
+
+        private async Task TryCloseStepAsync(string step, Func<Task> closeStep)
+        {
             try
             {
-                await session.RollbackAsync().ConfigureAwait(false);
-
-                if (messageConsumer != null)
-                {
-                    await messageConsumer.CloseAsync().ConfigureAwait(false);
-
-                    messageConsumer.Dispose();
-                }
-
-                await session.CloseAsync().ConfigureAwait(false);
-
-                session.Dispose();
+                await closeStep().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                _logger.LogWarning($"AMQP listener for address {_address} could not be closed cleanly: {exception.Message}");
+                _logger.LogWarning($"AMQP listener could not {step} address {_address}: {exception.Message}");
             }
         }
 
@@ -629,9 +648,14 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     foreach (var messageConsumer in _messageConsumers)
                     {
-                        await messageConsumer.CloseAsync().ConfigureAwait(false);
+                        await TryCloseStepAsync("close a consumer of", () => messageConsumer.CloseAsync()).ConfigureAwait(false);
 
-                        messageConsumer.Dispose();
+                        await TryCloseStepAsync("dispose a consumer of", () =>
+                        {
+                            messageConsumer.Dispose();
+
+                            return Task.CompletedTask;
+                        }).ConfigureAwait(false);
                     }
 
                     _messageConsumers.Clear();
