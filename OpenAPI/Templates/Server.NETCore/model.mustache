@@ -18,33 +18,33 @@ namespace {{packageName}}.Models
     [DataContract]
     [NotMapped]
     [Serializable]
-	public partial class {{classname}} : {{#parent}}{{{parent}}}, {{/parent}}IEquatable<{{classname}}>
+    public partial class {{classname}} : {{#parent}}{{{parent}}}, {{/parent}}IEquatable<{{classname}}>
     { {{#vars}}{{#isEnum}}{{>enumClass}}{{/isEnum}}{{#items.isEnum}}{{#items}}{{>enumClass}}{{/items}}{{/items.isEnum}}
         {{#isEnum}}
-		private {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} _{{name}};
-		{{/isEnum}}
+        private {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} _{{name}};
+        {{/isEnum}}
         {{^isEnum}}
-		private {{{dataType}}} _{{name}};
-		{{/isEnum}}		
-		
-		/// <summary>
+        private {{{dataType}}} _{{name}};
+        {{/isEnum}}
+
+        /// <summary>
         /// {{^description}}Gets or Sets {{{name}}}{{/description}}{{#description}}{{description}}{{/description}}
         /// </summary>
         {{#description}}
         /// <value>{{description}}</value>
-        {{/description}}        
-		{{#required}}
+        {{/description}}
+        {{#required}}
         [Required]
         {{/required}}
         [DataMember(Name="{{baseName}}")]
         {{#isEnum}}
-		public {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
+        public {{{datatypeWithEnum}}}{{#isEnum}}{{^isContainer}}?{{/isContainer}}{{/isEnum}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
         {{/isEnum}}
         {{^isEnum}}
-		public {{{dataType}}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
+        public {{{dataType}}} {{name}} { get => _{{name}}; set { _{{name}} = value; {{name}}Set = true; } }
         {{/isEnum}}
-		
-		public bool {{name}}Set = false;		
+
+        public bool {{name}}Set = false;
         {{#hasMore}}
         {{/hasMore}}
         {{/vars}}
@@ -104,7 +104,7 @@ namespace {{packageName}}.Models
                 (
                     {{name}} == other.{{name}} ||
                     {{name}} != null &&
-					other.{{name}} != null &&
+                    other.{{name}} != null &&
                     {{name}}.SequenceEqual(other.{{name}})
                 ){{#hasMore}} && {{/hasMore}}{{/isContainer}}{{/vars}}{{^vars}}false{{/vars}};
         }

@@ -18,37 +18,37 @@ using {{packageName}}.Models;
 
 namespace {{packageName}}.Controllers
 { {{#operations}}
-	/// <summary>
+    /// <summary>
     /// {{description}}
     /// </summary>{{#description}}
     [Description("{{description}}")]{{/description}}
     public interface I{{classname}}Controller
     { {{#operation}}
-		/// <summary>
+        /// <summary>
         /// {{#summary}}{{summary}}{{/summary}}
         /// </summary>{{#notes}}
         /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
-        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParamInterface}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken));        
-	  {{/operation}}
+        Task{{#returnType}}<ApiResult<{{&returnType}}>>{{/returnType}}{{^returnType}}{{/returnType}} {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParamInterface}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken));
+      {{/operation}}
     }
-	
+
     /// <summary>
     /// {{description}}
     /// </summary>{{#description}}
     [Description("{{description}}")]{{/description}}
-	[ApiController]
+    [ApiController]
     public partial class {{classname}}Controller : Controller
-    { 
-		private I{{classname}}Controller _implementation;
-	  
-		public {{classname}}Controller(I{{classname}}Controller implementation)
-		{
-			_implementation = implementation;
-		}		
-	
-	{{#operation}}	 
+    {
+        private I{{classname}}Controller _implementation;
+
+        public {{classname}}Controller(I{{classname}}Controller implementation)
+        {
+            _implementation = implementation;
+        }
+
+    {{#operation}}
         /// <summary>
         /// {{#summary}}{{summary}}{{/summary}}
         /// </summary>{{#notes}}
@@ -56,8 +56,8 @@ namespace {{packageName}}.Controllers
         /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
         /// <response code="{{code}}">{{message}}</response>{{/responses}}
         [{{httpMethod}}]
-        [Route("{{{basePathWithoutHost}}}{{{path}}}")]  {{^vendorExtensions.x-anonymous}}
-		[Authorize(Policy = {{#vendorExtensions.x-authorize-policy}}{{{vendorExtensions.x-authorize-policy}}}{{/vendorExtensions.x-authorize-policy}}{{^vendorExtensions.x-authorize-policy}}IdentityCoreConstants.JwtPolicy{{/vendorExtensions.x-authorize-policy}})]{{/vendorExtensions.x-anonymous}}
+        [Route("{{{basePathWithoutHost}}}{{{path}}}")]{{^vendorExtensions.x-anonymous}}
+        [Authorize(Policy = {{#vendorExtensions.x-authorize-policy}}{{{vendorExtensions.x-authorize-policy}}}{{/vendorExtensions.x-authorize-policy}}{{^vendorExtensions.x-authorize-policy}}IdentityCoreConstants.JwtPolicy{{/vendorExtensions.x-authorize-policy}})]{{/vendorExtensions.x-anonymous}}
         [ValidateModelState]{{#useSwashbuckle}}
         [SwaggerOperation("{{operationId}}")]{{#responses}}{{#dataType}}
         [SwaggerResponse(statusCode: {{code}}, type: typeof({{&dataType}}), description: "{{message}}")]{{/dataType}}{{^dataType}}{{/dataType}}{{/responses}}{{/useSwashbuckle}}
@@ -65,22 +65,22 @@ namespace {{packageName}}.Controllers
         [DisableRequestSizeLimit]{{/vendorExtensions.x-disable-request-size-limit}}{{#vendorExtensions.x-request-size-limit}}
         [RequestSizeLimit({{{vendorExtensions.x-request-size-limit}}})]{{/vendorExtensions.x-request-size-limit}}
         public async Task<IActionResult> {{operationId}}Async({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParamControllerAction}}{{>headerParam}}, {{/allParams}}CancellationToken cancellationToken = default(CancellationToken))
-        { 	
-			{{#returnType}}			
-			var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
-			
-			IActionResult response = StatusCode(result.StatusCode, result.Result);            
-			
-			foreach (var header in result.Headers)
+        {
+            {{#returnType}}
+            var result = await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
+
+            IActionResult response = StatusCode(result.StatusCode, result.Result);
+
+            foreach (var header in result.Headers)
                 Request.HttpContext.Response.Headers[header.Key] = header.Value.ToString();
-			{{/returnType}}
-			{{^returnType}}
-			await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
-			
-			IActionResult response = StatusCode((int)HttpStatusCode.NoContent);
-			{{/returnType}}
-			
-            return response;								
+            {{/returnType}}
+            {{^returnType}}
+            await _implementation.{{operationId}}Async({{#allParams}}{{paramName}}, {{/allParams}}cancellationToken).ConfigureAwait(false);
+
+            IActionResult response = StatusCode((int)HttpStatusCode.NoContent);
+            {{/returnType}}
+
+            return response;
         }
         {{/operation}}
     }
