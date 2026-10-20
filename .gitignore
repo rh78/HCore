@@ -38,4 +38,6 @@
 /HCore-Pusher/obj
 /HCore-Metadata/bin
 /HCore-Metadata/obj
+/HCore.Test/bin
+/HCore.Test/obj
 /.vs
