@@ -61,7 +61,7 @@ namespace HCore.Identity.Controllers
         [Produces("application/json")]
         [ValidateModelState]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult GetOAuthProtectedResource(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IActionResult> GetOAuthProtectedResourceAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var request = HttpContext.Request;
 
@@ -73,6 +73,21 @@ namespace HCore.Identity.Controllers
                 Resource = mcpUri,
                 AuthorizationServers = [portalUri]
             };
+
+            var openIddictApplication = await _openIddictApplicationManager.FindByClientIdAsync(IdentityCoreConstants.McpClientId, cancellationToken).ConfigureAwait(false);
+
+            if (openIddictApplication != null)
+            {
+                // without scopes_supported MCP clients ask for every scope of the authorization server
+
+                var openIddictApplicationPermissions = await _openIddictApplicationManager.GetPermissionsAsync(openIddictApplication, cancellationToken).ConfigureAwait(false);
+
+                oauthProtectedResourceModel.ScopesSupported = openIddictApplicationPermissions
+                    .Where(openIddictApplicationPermission => openIddictApplicationPermission.StartsWith(Permissions.Prefixes.Scope))
+                    .Select(openIddictApplicationPermission => openIddictApplicationPermission[Permissions.Prefixes.Scope.Length..])
+                    .Where(openIddictApplicationPermission => !string.IsNullOrEmpty(openIddictApplicationPermission))
+                    .ToArray();
+            }
 
             return Json(oauthProtectedResourceModel);
         }
