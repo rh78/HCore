@@ -10,6 +10,8 @@
 
         public const string JwtPolicy = "JwtPolicy";
 
+        public const string McpClientId = "smintio-mcp";
+
         public const string DeveloperUuidClaim = "developer_uuid";
         public const string DeveloperUuidClientClaim = "client_developer_uuid";
         
