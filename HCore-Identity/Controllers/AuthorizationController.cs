@@ -113,7 +113,7 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidClient,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The client is invalid"
@@ -176,7 +176,7 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.UnsupportedGrantType,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The grant type is not supported"
@@ -189,7 +189,7 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidClient,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The client is invalid"
@@ -228,7 +228,7 @@ namespace HCore.Identity.Controllers
 
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.UnsupportedGrantType,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The grant type is not supported"
@@ -304,7 +304,7 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -319,7 +319,7 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -332,14 +332,14 @@ namespace HCore.Identity.Controllers
             {
                 return Forbid(
                     authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    properties: new AuthenticationProperties(new Dictionary<string, string>
                     {
                         [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
                     }));
             }
 
-            var claims = new Dictionary<string, object?>(StringComparer.Ordinal)
+            var claims = new Dictionary<string, object>(StringComparer.Ordinal)
             {
                 [Claims.Subject] = userModel.Id
             };
@@ -380,7 +380,7 @@ namespace HCore.Identity.Controllers
                 return new HandleAuthorizationCodeGrantResult(
                     Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        properties: new AuthenticationProperties(new Dictionary<string, string>
                         {
                             [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                             [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -398,7 +398,7 @@ namespace HCore.Identity.Controllers
                 return new HandleAuthorizationCodeGrantResult(
                     Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        properties: new AuthenticationProperties(new Dictionary<string, string>
                         {
                             [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                             [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -414,7 +414,7 @@ namespace HCore.Identity.Controllers
                 return new HandleAuthorizationCodeGrantResult(
                     Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        properties: new AuthenticationProperties(new Dictionary<string, string>
                         {
                             [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                             [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -478,7 +478,7 @@ namespace HCore.Identity.Controllers
                 {
                     return Forbid(
                         authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
-                        properties: new AuthenticationProperties(new Dictionary<string, string?>
+                        properties: new AuthenticationProperties(new Dictionary<string, string>
                         {
                             [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
                             [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Access denied"
@@ -514,7 +514,7 @@ namespace HCore.Identity.Controllers
             return user;
         }
 
-        private IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string>? excludeKeys = null)
+        private IDictionary<string, StringValues> ParseOAuthParameters(HttpContext httpContext, List<string> excludeKeys = null)
         {
             excludeKeys ??= new List<string>();
 
