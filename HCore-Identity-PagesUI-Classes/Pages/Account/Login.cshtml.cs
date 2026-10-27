@@ -128,7 +128,8 @@ namespace HCore.Identity.PagesUI.Classes.Pages.Account
 
             // start challenge and roundtrip the return URL and scheme 
 
-            var items = new Dictionary<string, string?>() {
+            var items = new Dictionary<string, string>()
+            {
                 { "returnUrl", ReturnUrl }
             };
 
