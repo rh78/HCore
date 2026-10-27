@@ -30,17 +30,6 @@ namespace HCore.Identity.Stores
             _options = optionsAccessor?.Value ?? new IdentityOptions();
         }
 
-        [Obsolete]
-        public CacheableSecurityStampValidator(IServiceProvider serviceProvider, IOptions<SecurityStampValidatorOptions> options, SignInManager<UserModel> signInManager, UserManager<UserModel> userManager, ISystemClock clock, IOptions<IdentityOptions> optionsAccessor, ILoggerFactory logger) : 
-            base(options, signInManager, clock, logger)
-        {
-            _securityStampCacheProvider = serviceProvider.GetService<ISecurityStampCacheProvider>();
-
-            _userManager = userManager;
-
-            _options = optionsAccessor?.Value ?? new IdentityOptions();
-        }
-
         public override async Task ValidateAsync(CookieValidatePrincipalContext context)
         {
             var principal = context.Principal;
