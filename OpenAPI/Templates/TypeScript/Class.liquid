@@ -6,7 +6,7 @@
 {%   if property.HasDescription -%}
     /** {{ property.Description }} */
 {%   endif -%}
-    {% if property.IsReadOnly %}readonly {% endif %}{{ property.PropertyName }}{% if property.IsOptional %}?{% elsif RequiresStrictPropertyInitialization %}!{% endif %}: {{ property.Type }}{{ property.TypePostfix }};
+    {% if property.IsReadOnly %}readonly {% endif %}{{ property.PropertyName }}{% if property.IsOptional %}?{% else %}!{% endif %}: {{ property.Type }}{{ property.TypePostfix }};
 {% endfor -%}
 {% if HasDiscriminator -%}
 
