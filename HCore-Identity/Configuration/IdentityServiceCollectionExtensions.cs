@@ -23,6 +23,7 @@ using HCore.Identity.Stores;
 using HCore.Tenants;
 using HCore.Translations.Providers;
 using HCore.Web.Exceptions;
+using HCore.Web.Helpers;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -814,7 +815,9 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(pfx))
                 throw new Exception("Identity signing PFX not found");
 
-            return new X509Certificate2(Convert.FromBase64String(pfx), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
+            var pfxBytes = Convert.FromBase64String(pfx);
+
+            return CertificateHelpers.LoadCertificate(pfxBytes, signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
         }
     }    
 }
