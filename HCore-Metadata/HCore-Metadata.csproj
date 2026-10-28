@@ -1,17 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>HCore.Metadata</RootNamespace>
     <AssemblyName>HCore.Metadata</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MaxMind.GeoIP2" Version="5.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.2.0" />
     <PackageReference Include="Nager.Country" Version="4.0.0" />
     <PackageReference Include="Nager.Country.Translation" Version="3.0.5" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>

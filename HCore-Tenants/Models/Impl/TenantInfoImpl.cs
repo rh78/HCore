@@ -1,8 +1,9 @@
-﻿using HCore.Tenants.Database.SqlServer.Models.Impl;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using HCore.Tenants.Database.SqlServer.Models.Impl;
+using HCore.Web.Helpers;
+using Newtonsoft.Json;
 
 namespace HCore.Tenants.Models.Impl
 {
@@ -297,12 +298,7 @@ namespace HCore.Tenants.Models.Impl
             DeveloperCertificateBytes = certificateBytes;
             DeveloperCertificatePassword = certificatePassword;
 
-            X509Certificate2 certificate;
-
-            if (string.IsNullOrEmpty(certificatePassword))
-                certificate = new X509Certificate2(certificateBytes);
-            else
-                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+            var certificate = CertificateHelpers.LoadCertificate(certificateBytes, certificatePassword);
 
             DeveloperCertificateThumbprint = certificate.Thumbprint;
 
@@ -334,12 +330,7 @@ namespace HCore.Tenants.Models.Impl
             HttpsCertificateBytes = certificateBytes;
             HttpsCertificatePassword = certificatePassword;
 
-            X509Certificate2 certificate;
-
-            if (string.IsNullOrEmpty(certificatePassword))
-                certificate = new X509Certificate2(certificateBytes);
-            else
-                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+            var certificate = CertificateHelpers.LoadCertificate(certificateBytes, certificatePassword);
 
             HttpsCertificateThumbprint = certificate.Thumbprint;
 
@@ -371,12 +362,7 @@ namespace HCore.Tenants.Models.Impl
             SamlCertificateBytes = certificateBytes;
             SamlCertificatePassword = certificatePassword;
 
-            X509Certificate2 certificate;
-
-            if (string.IsNullOrEmpty(certificatePassword))
-                certificate = new X509Certificate2(certificateBytes);
-            else
-                certificate = new X509Certificate2(certificateBytes, certificatePassword);
+            var certificate = CertificateHelpers.LoadCertificate(certificateBytes, certificatePassword);
 
             SamlCertificateThumbprint = certificate.Thumbprint;
 

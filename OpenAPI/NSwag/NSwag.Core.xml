@@ -210,6 +210,9 @@
         <member name="P:NSwag.OpenApiComponents.Schemas">
             <summary>Gets or sets the types.</summary>
         </member>
+        <member name="P:NSwag.OpenApiComponents.RequestBodies">
+            <summary>Gets or sets the responses which can be used for all operations.</summary>
+        </member>
         <member name="P:NSwag.OpenApiComponents.Responses">
             <summary>Gets or sets the responses which can be used for all operations.</summary>
         </member>
@@ -352,6 +355,9 @@
             <summary>Gets the operations.</summary>
         </member>
         <member name="M:NSwag.OpenApiDocument.GenerateOperationIds">
+            <summary>Generates missing or non-unique operation IDs.</summary>
+        </member>
+        <member name="M:NSwag.OpenApiDocument.GenerateOperationIds(System.Collections.Generic.List{NSwag.OpenApiOperationDescription},System.Collections.Generic.HashSet{System.String},System.Collections.Generic.HashSet{System.String})">
             <summary>Generates missing or non-unique operation IDs.</summary>
         </member>
         <member name="M:NSwag.OpenApiDocument.GetJsonSerializerContractResolver(NJsonSchema.SchemaType)">
@@ -620,6 +626,9 @@
         <member name="P:NSwag.OpenApiOperation.ActualSchemes">
             <summary>Gets the actual schemes, either from the operation or from the <see cref="T:NSwag.OpenApiDocument"/>.</summary>
         </member>
+        <member name="P:NSwag.OpenApiOperation.ActualRequestBody">
+            <summary>Gets the response body and dereferences it if necessary.</summary>
+        </member>
         <member name="P:NSwag.OpenApiOperation.ActualResponses">
             <summary>Gets the responses from the operation and from the <see cref="T:NSwag.OpenApiDocument"/> and dereferences them if necessary.</summary>
         </member>
@@ -871,6 +880,12 @@
         </member>
         <member name="M:NSwag.OpenApiRequestBody.#ctor">
             <summary>Initializes a new instance of the <see cref="T:NSwag.OpenApiRequestBody"/> class.</summary>
+        </member>
+        <member name="P:NSwag.OpenApiRequestBody.Reference">
+            <summary>Gets or sets the referenced object.</summary>
+        </member>
+        <member name="P:NSwag.OpenApiRequestBody.ActualRequestBody">
+            <summary>Gets the actual request body, either this or the referenced request body.</summary>
         </member>
         <member name="P:NSwag.OpenApiRequestBody.Name">
             <summary>Gets or sets the name.</summary>

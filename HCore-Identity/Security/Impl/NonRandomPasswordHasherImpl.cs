@@ -31,7 +31,7 @@ public class NonRandomPasswordHasherImpl : INonRandomPasswordHasher
     /// Creates a new instance of <see cref="PasswordHasher{TUser}"/>.
     /// </summary>
     /// <param name="optionsAccessor">The options for this instance.</param>
-    public NonRandomPasswordHasherImpl(IOptions<PasswordHasherOptions>? optionsAccessor = null)
+    public NonRandomPasswordHasherImpl(IOptions<PasswordHasherOptions> optionsAccessor = null)
     {
         var options = optionsAccessor?.Value ?? DefaultOptions;
 
