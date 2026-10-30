@@ -329,6 +329,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
                         openIdConnect.ClientId = oidcClientId;
 
+                        // .net 9 first posts the login parameters to the idp server to server (pushed authorization requests) when the idp offers it,
+                        // keep the .net 8 flow with all parameters in the browser redirect, an idp client not enabled for it would refuse the login
+
+                        openIdConnect.PushedAuthorizationBehavior = PushedAuthorizationBehavior.Disable;
+
                         if (!oidcUsePkce)
                         {
                             openIdConnect.UsePkce = false;
