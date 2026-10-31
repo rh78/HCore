@@ -40,4 +40,5 @@
 /HCore-Metadata/obj
 /HCore.Test/bin
 /HCore.Test/obj
+/HCore.Test/appsettings.Development.local.json
 /.vs

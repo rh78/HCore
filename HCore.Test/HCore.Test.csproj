@@ -16,7 +16,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
         <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- git-ignored Secrets Manager access for the AWS tests, see SqsAwsTests -->
+        <None Include="appsettings.Development.local.json" Condition="Exists('appsettings.Development.local.json')" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
