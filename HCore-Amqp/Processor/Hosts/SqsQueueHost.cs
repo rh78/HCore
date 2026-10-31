@@ -39,6 +39,9 @@ namespace HCore.Amqp.Processor.Hosts
 
         private const int _messageRetentionSeconds = 14 * 24 * 60 * 60;
 
+        private const string _requestThrottledCode = "RequestThrottled";
+        private const int _maximumThrottleAttempts = 5;
+
         // the same as the message time to live of the Service Bus topics
 
         internal const int TopicMessageRetentionSeconds = 60;
@@ -407,26 +410,48 @@ namespace HCore.Amqp.Processor.Hosts
         {
             foreach (var batch in receivedMessages.Chunk(_maximumBatchSize))
             {
-                var entries = batch.Select((receivedMessage, index) => new ChangeMessageVisibilityBatchRequestEntry($"{index}", receivedMessage.Message.ReceiptHandle)
-                {
-                    VisibilityTimeout = GetVisibilityTimeoutSeconds(receivedMessage, visibilityTimeSpan)
-                }).ToList();
+                var pendingMessages = batch.ToList();
 
-                try
+                for (var attempt = 1; pendingMessages.Count > 0; attempt++)
                 {
-                    var failedEntries = await _sqsApi.ChangeMessageVisibilityBatchAsync(new ChangeMessageVisibilityBatchRequest(QueueUrl, entries), CancellationToken.None).ConfigureAwait(false);
+                    var entries = pendingMessages.Select((receivedMessage, index) => new ChangeMessageVisibilityBatchRequestEntry($"{index}", receivedMessage.Message.ReceiptHandle)
+                    {
+                        VisibilityTimeout = GetVisibilityTimeoutSeconds(receivedMessage, visibilityTimeSpan)
+                    }).ToList();
 
-                    foreach (var failedEntry in failedEntries)
+                    List<BatchResultErrorEntry> failedEntries;
+
+                    try
+                    {
+                        failedEntries = await _sqsApi.ChangeMessageVisibilityBatchAsync(new ChangeMessageVisibilityBatchRequest(QueueUrl, entries), CancellationToken.None).ConfigureAwait(false);
+                    }
+                    catch (Exception exception)
+                    {
+                        if (!_cancellationToken.IsCancellationRequested)
+                        {
+                            _logger.LogWarning($"SQS visibility of messages on address {_address} could not be changed, they become visible when their current visibility timeout ends: {exception.Message}");
+                        }
+
+                        break;
+                    }
+
+                    // the throttled changes are sent again once the throttle window has passed
+
+                    var throttledEntries = failedEntries.Where(failedEntry => string.Equals(failedEntry.Code, _requestThrottledCode)).ToList();
+
+                    foreach (var failedEntry in failedEntries.Except(throttledEntries).Concat(attempt < _maximumThrottleAttempts ? [] : throttledEntries))
                     {
                         _logger.LogWarning($"SQS visibility of a message on address {_address} could not be changed, it becomes visible when its current visibility timeout ends: {failedEntry.Code} {failedEntry.Message}");
                     }
-                }
-                catch (Exception exception)
-                {
-                    if (!_cancellationToken.IsCancellationRequested)
+
+                    if (throttledEntries.Count == 0 || attempt >= _maximumThrottleAttempts)
                     {
-                        _logger.LogWarning($"SQS visibility of messages on address {_address} could not be changed, they become visible when their current visibility timeout ends: {exception.Message}");
+                        break;
                     }
+
+                    pendingMessages = throttledEntries.Select(throttledEntry => pendingMessages[int.Parse(throttledEntry.Id, CultureInfo.InvariantCulture)]).ToList();
+
+                    await Task.Delay(_timings.ThrottleRetryDelay).ConfigureAwait(false);
                 }
             }
         }

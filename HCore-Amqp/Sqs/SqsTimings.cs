@@ -30,5 +30,9 @@ namespace HCore.Amqp.Sqs
         internal int ReceiveWaitTimeSeconds { get; init; } = 20;
 
         internal TimeSpan RetryDelay { get; init; } = TimeSpan.FromSeconds(5);
+
+        // a FIFO queue rejects a visibility change made within about 250 ms of the previous one with RequestThrottled
+
+        internal TimeSpan ThrottleRetryDelay { get; init; } = TimeSpan.FromMilliseconds(300);
     }
 }

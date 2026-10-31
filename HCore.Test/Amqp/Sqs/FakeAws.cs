@@ -50,6 +50,15 @@ namespace HCore.Test.Amqp.Sqs
 
         internal Func<SendMessageBatchRequestEntry, bool> FailBatchEntry { get; set; }
 
+        // measured on SQS: a FIFO queue rejects a visibility change within about 250 ms of the previous change of the same
+        // message with RequestThrottled, also when the message was received again in between; standard queues do not
+
+        internal TimeSpan FifoVisibilityThrottleWindow { get; set; } = TimeSpan.FromMilliseconds(250);
+
+        private int _throttledVisibilityChanges;
+
+        internal int ThrottledVisibilityChanges => _throttledVisibilityChanges;
+
         internal List<SendMessageRequest> SentRequests { get; } = [];
         internal List<SendMessageBatchRequest> SentBatchRequests { get; } = [];
         internal List<string> CreatedQueueNames { get; } = [];
@@ -531,7 +540,17 @@ namespace HCore.Test.Amqp.Sqs
                         continue;
                     }
 
+                    if (queue.IsFifo && message.VisibilityChangedAt.HasValue && now - message.VisibilityChangedAt.Value < FifoVisibilityThrottleWindow)
+                    {
+                        Interlocked.Increment(ref _throttledVisibilityChanges);
+
+                        failedEntries.Add(new SqsBatchResultErrorEntry { Id = entry.Id, Code = "RequestThrottled", Message = "Request throttled because message visibility configuration was updated too recently", SenderFault = true });
+
+                        continue;
+                    }
+
                     message.VisibleAt = now.AddSeconds(entry.VisibilityTimeout);
+                    message.VisibilityChangedAt = now;
                 }
 
                 return Task.FromResult(failedEntries);
@@ -677,6 +696,7 @@ namespace HCore.Test.Amqp.Sqs
             internal DateTimeOffset ReceivedAt { get; set; }
             internal int ReceiveCount { get; set; }
             internal string ReceiptHandle { get; set; }
+            internal DateTimeOffset? VisibilityChangedAt { get; set; }
 
             internal bool IsInFlight(DateTimeOffset now) => ReceiptHandle != null && VisibleAt > now;
         }

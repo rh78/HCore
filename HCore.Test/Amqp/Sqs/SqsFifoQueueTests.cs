@@ -260,5 +260,73 @@ namespace HCore.Test.Amqp.Sqs
             Assert.Contains("no session queue", unexpected.Message);
             Assert.Empty(aws.SentRequests);
         }
+
+        [Fact]
+        public async Task ManyGroupsOnOneListener_WithFastProcessing_AreNotStalledByThrottledHandBacks()
+        {
+            var aws = new FakeAws();
+            var logger = new TestLogger();
+            var processor = new SqsTestProcessor("A") { Behaviour = _ => Task.Delay(20) };
+
+            await using var scope = new MessengerScope();
+
+            // the IntegrationLayer task queue: one listener, many sessions waiting, fast tasks. The listener receives the groups
+            // it handed back a moment ago and hands them back again within the throttle window
+
+            var messenger = await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)], logger: logger);
+
+            var groups = Enumerable.Range(1, 20).Select(index => $"G{index}").ToArray();
+
+            for (var seq = 1; seq <= 3; seq++)
+            {
+                foreach (var group in groups)
+                {
+                    await messenger.SendMessageAsync(_address, new SqsTestMessage(group, seq), sessionId: group);
+                }
+            }
+
+            await Wait.UntilAsync(() => processor.SuccessfulKeys().Count == 60, TimeSpan.FromSeconds(30), "all groups processed");
+
+            OrderAssert.InOrderExactlyOnce(processor.SuccessfulKeys(), groups.ToDictionary(group => group, _ => 3));
+
+            Assert.True(aws.ThrottledVisibilityChanges > 0, "the scenario throttles hand-backs");
+            Assert.False(logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "could not be changed"), "every throttled hand-back was sent again");
+        }
+
+        [Fact]
+        public async Task VisibilityChange_ThrottledOnEveryAttempt_IsGivenUpAfterFiveAttempts_AndTheMessageStillFollows()
+        {
+            var aws = new FakeAws { FifoVisibilityThrottleWindow = TimeSpan.FromHours(1) };
+            var logger = new TestLogger();
+
+            // the heartbeat changes the visibility first, so the postpone hold that follows is throttled every time
+
+            var processor = new SqsTestProcessor("A")
+            {
+                Behaviour = async call =>
+                {
+                    if (call.Attempt == 1)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.8));
+
+                        throw new PostponeException(TimeSpan.FromMilliseconds(100));
+                    }
+                }
+            };
+
+            await using var scope = new MessengerScope();
+
+            var messenger = await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)], logger: logger);
+
+            await messenger.SendMessageAsync(_address, new SqsTestMessage("G", 1), sessionId: "G");
+
+            await Wait.UntilAsync(() => logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "RequestThrottled"), TimeSpan.FromSeconds(10), "throttle warning after the last attempt");
+
+            Assert.Equal(5, aws.ThrottledVisibilityChanges);
+
+            // the hold could not be set, so the message follows once the heartbeat's visibility ends
+
+            await Wait.UntilAsync(() => processor.Successes().Count == 1, TimeSpan.FromSeconds(10), "processed after the visibility ended");
+        }
     }
 }
