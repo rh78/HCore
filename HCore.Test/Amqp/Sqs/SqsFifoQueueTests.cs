@@ -133,7 +133,7 @@ namespace HCore.Test.Amqp.Sqs
         }
 
         [Fact]
-        public async Task MixedBatch_IsProcessedOneGroupAtATime_AndTheOtherGroupsAreReleased()
+        public async Task MixedReceive_IsProcessedGroupByGroup_EachGroupAsOneBatch()
         {
             var aws = new FakeAws();
             var sender = new SqsTestProcessor("S");
@@ -159,7 +159,12 @@ namespace HCore.Test.Amqp.Sqs
 
             var records = processor.Successes();
 
+            // one receive returned all six; every group was processed as one batch of its two messages, nothing went back
+
+            Assert.Equal(3, records.Count);
             Assert.All(records, record => Assert.Single(record.Keys.Select(key => key.Split('#')[0]).Distinct()));
+            Assert.All(records, record => Assert.Equal(2, record.Keys.Count));
+            Assert.Equal(0, aws.ThrottledVisibilityChanges);
 
             OrderAssert.InOrderExactlyOnce(processor.SuccessfulKeys(), new Dictionary<string, int> { ["A"] = 2, ["B"] = 2, ["C"] = 2 });
         }
@@ -262,7 +267,7 @@ namespace HCore.Test.Amqp.Sqs
         }
 
         [Fact]
-        public async Task ManyGroupsOnOneListener_WithFastProcessing_AreNotStalledByThrottledHandBacks()
+        public async Task ManyGroupsOnOneListener_WithFastProcessing_AreProcessedWithoutStalls()
         {
             var aws = new FakeAws();
             var logger = new TestLogger();
@@ -270,8 +275,8 @@ namespace HCore.Test.Amqp.Sqs
 
             await using var scope = new MessengerScope();
 
-            // the IntegrationLayer task queue: one listener, many sessions waiting, fast tasks. The listener receives the groups
-            // it handed back a moment ago and hands them back again within the throttle window
+            // the IntegrationLayer task queue: one listener, many sessions waiting, fast tasks. Handing the other groups back
+            // made SQS throttle the second hand-back of the same messages, which then stalled for the visibility timeout
 
             var messenger = await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)], logger: logger);
 
@@ -285,12 +290,238 @@ namespace HCore.Test.Amqp.Sqs
                 }
             }
 
-            await Wait.UntilAsync(() => processor.SuccessfulKeys().Count == 60, TimeSpan.FromSeconds(30), "all groups processed");
+            // with a stall every hand-back would wait for the visibility timeout of 2 s
+
+            await Wait.UntilAsync(() => processor.SuccessfulKeys().Count == 60, TimeSpan.FromSeconds(6), "all groups processed");
 
             OrderAssert.InOrderExactlyOnce(processor.SuccessfulKeys(), groups.ToDictionary(group => group, _ => 3));
 
-            Assert.True(aws.ThrottledVisibilityChanges > 0, "the scenario throttles hand-backs");
-            Assert.False(logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "could not be changed"), "every throttled hand-back was sent again");
+            Assert.Equal(0, aws.ThrottledVisibilityChanges);
+            Assert.False(logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "could not be changed"));
+        }
+
+        [Fact]
+        public async Task FailingGroupInAMixedReceive_IsRetried_WhileTheOtherGroupsAreDone()
+        {
+            var aws = new FakeAws();
+            var sender = new SqsTestProcessor("S");
+            var processor = new SqsTestProcessor("A")
+            {
+                Behaviour = call => call.Messages[0].Group == "B" && call.Attempt == 1 ? throw new InvalidOperationException("B fails once") : Task.CompletedTask
+            };
+
+            await using var scope = new MessengerScope();
+
+            var senderMessenger = await scope.StartAsync(aws, aws, "S", sender, [new QueueSpec(_address, Listeners: 0, IsSession: true)]);
+
+            for (var seq = 1; seq <= 2; seq++)
+            {
+                foreach (var group in new[] { "A", "B", "C" })
+                {
+                    await senderMessenger.SendMessageAsync(_address, new SqsTestMessage(group, seq), sessionId: group);
+                }
+            }
+
+            await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)]);
+
+            await Wait.UntilAsync(() => processor.SuccessfulKeys().Count == 6, TimeSpan.FromSeconds(10), "all groups processed");
+
+            var records = processor.Records.ToList();
+
+            var failure = records.Single(record => record.Outcome != "ok");
+            var bSuccess = records.Single(record => record.Outcome == "ok" && record.Keys[0] == "B#1");
+
+            // B as a whole batch failed, A and C of the same receive were done without waiting for B's retry
+
+            Assert.Equal(["B#1", "B#2"], failure.Keys);
+            Assert.All(records.Where(record => record.Keys[0] != "B#1"), record => Assert.True(record.At < bSuccess.At));
+            Assert.True(bSuccess.At - failure.At >= TimeSpan.FromSeconds(0.9), "B waits for the error hold");
+            Assert.Equal(0, aws.ThrottledVisibilityChanges);
+
+            OrderAssert.InOrderExactlyOnce(processor.SuccessfulKeys(), new Dictionary<string, int> { ["A"] = 2, ["B"] = 2, ["C"] = 2 });
+        }
+
+        [Fact]
+        public async Task WaitingGroup_StaysWithTheListenerThatReceivedIt_WhileAnEarlierGroupIsProcessedLong()
+        {
+            var aws = new FakeAws();
+            var sender = new SqsTestProcessor("S");
+            var processingStarted = new TaskCompletionSource();
+
+            var processorA = new SqsTestProcessor("A")
+            {
+                Behaviour = async call =>
+                {
+                    if (call.Messages[0].Group == "L")
+                    {
+                        processingStarted.TrySetResult();
+
+                        // twice the visibility timeout: without the heartbeat for the waiting group, machine B would take it
+                        await Task.Delay(TimeSpan.FromSeconds(4));
+                    }
+                }
+            };
+
+            var processorB = new SqsTestProcessor("B", processorA.Records);
+
+            await using var scope = new MessengerScope();
+
+            var senderMessenger = await scope.StartAsync(aws, aws, "S", sender, [new QueueSpec(_address, Listeners: 0, IsSession: true)]);
+
+            await senderMessenger.SendMessageAsync(_address, new SqsTestMessage("L", 1), sessionId: "L");
+            await senderMessenger.SendMessageAsync(_address, new SqsTestMessage("W", 1), sessionId: "W");
+
+            await scope.StartAsync(aws, aws, "A", processorA, [new QueueSpec(_address, Listeners: 1, IsSession: true)]);
+
+            await processingStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+            await scope.StartAsync(aws, aws, "B", processorB, [new QueueSpec(_address, Listeners: 2, IsSession: true)]);
+
+            await Wait.UntilAsync(() => processorA.SuccessfulKeys().Count == 2, TimeSpan.FromSeconds(10), "both groups processed");
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            var records = processorA.Records.ToList();
+
+            Assert.Equal(2, records.Count);
+            Assert.All(records, record => Assert.Equal("A", record.Machine));
+            Assert.True(records.Single(record => record.Keys[0] == "W#1").At > records.Single(record => record.Keys[0] == "L#1").At);
+        }
+
+        [Fact]
+        public async Task FinishedGroups_LeaveTheHeartbeat_WhileALaterGroupOfTheSameReceiveIsProcessed()
+        {
+            var aws = new FakeAws();
+            var sender = new SqsTestProcessor("S");
+            var logger = new TestLogger();
+
+            var processor = new SqsTestProcessor("A")
+            {
+                Behaviour = call => call.Messages[0].Group switch
+                {
+                    "R" when call.Attempt == 1 => throw new RescheduleException(),
+                    "P" when call.Attempt == 1 => throw new PostponeException(TimeSpan.FromSeconds(1)),
+                    "L" => Task.Delay(TimeSpan.FromSeconds(2.5)),
+                    _ => Task.CompletedTask
+                }
+            };
+
+            var processorB = new SqsTestProcessor("B", processor.Records);
+
+            await using var scope = new MessengerScope();
+
+            var senderMessenger = await scope.StartAsync(aws, aws, "S", sender, [new QueueSpec(_address, Listeners: 0, IsSession: true)]);
+
+            // one receive: D is done, R rescheduled, P postponed, then L runs for several heartbeats
+
+            foreach (var group in new[] { "D", "R", "P", "L" })
+            {
+                await senderMessenger.SendMessageAsync(_address, new SqsTestMessage(group, 1), sessionId: group);
+            }
+
+            await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)], logger: logger);
+            await scope.StartAsync(aws, aws, "B", processorB, [new QueueSpec(_address, Listeners: 1, IsSession: true)]);
+
+            await Wait.UntilAsync(() => processor.SuccessfulKeys().Count == 4, TimeSpan.FromSeconds(10), "all groups processed");
+
+            var records = processor.Records.ToList();
+            var lDone = records.Single(record => record.Keys[0] == "L#1").At;
+
+            // R and P were released and held by the outcome alone: the other machine took them while L was still running,
+            // and the heartbeat never touched a message that had left it
+
+            Assert.True(records.Single(record => record.Outcome == "ok" && record.Keys[0] == "R#1").At < lDone);
+            Assert.True(records.Single(record => record.Outcome == "ok" && record.Keys[0] == "P#1").At < lDone);
+            Assert.False(logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "could not be changed"));
+        }
+
+        [Fact]
+        public async Task ShutdownDuringAReceive_HandsTheGroupsNotStartedBack()
+        {
+            var aws = new FakeAws();
+            var sender = new SqsTestProcessor("S");
+            var processingStarted = new TaskCompletionSource();
+
+            var processorA = new SqsTestProcessor("A")
+            {
+                Behaviour = async call =>
+                {
+                    if (call.Messages[0].Group == "L")
+                    {
+                        processingStarted.TrySetResult();
+
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                    }
+                }
+            };
+
+            var processorB = new SqsTestProcessor("B", processorA.Records);
+
+            await using var scope = new MessengerScope();
+
+            var senderMessenger = await scope.StartAsync(aws, aws, "S", sender, [new QueueSpec(_address, Listeners: 0, IsSession: true)]);
+
+            foreach (var group in new[] { "L", "W", "X" })
+            {
+                await senderMessenger.SendMessageAsync(_address, new SqsTestMessage(group, 1), sessionId: group);
+            }
+
+            var messengerA = await scope.StartAsync(aws, aws, "A", processorA, [new QueueSpec(_address, Listeners: 1, IsSession: true)]);
+
+            await processingStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+            await messengerA.ShutdownReceiversAsync();
+
+            // the group in progress is completed; the two not started are visible again at once, not after the visibility timeout
+
+            await Wait.UntilAsync(() => processorA.SuccessfulKeys().Count == 1, TimeSpan.FromSeconds(5), "group in progress completed");
+            await Wait.UntilAsync(() => aws.GetMessages(_queueName).Count == 2 && aws.GetMessages(_queueName).All(message => !message.IsInFlight), TimeSpan.FromSeconds(1), "groups not started handed back");
+
+            await scope.StartAsync(aws, aws, "B", processorB, [new QueueSpec(_address, Listeners: 1, IsSession: true)]);
+
+            await Wait.UntilAsync(() => processorA.SuccessfulKeys().Count == 3, TimeSpan.FromSeconds(5), "groups not started processed by the other machine");
+
+            Assert.Equal(["L#1"], processorA.Successes().Where(record => record.Machine == "A").SelectMany(record => record.Keys));
+            Assert.Equal(["W#1", "X#1"], processorA.Successes().Where(record => record.Machine == "B").SelectMany(record => record.Keys).Order());
+        }
+
+        [Fact]
+        public async Task FinalChangeRightAfterAHeartbeat_IsThrottled_AndSentAgain()
+        {
+            // a wider throttle window than SQS, so the release certainly falls into it after the heartbeat at 0.5 s
+
+            var aws = new FakeAws { FifoVisibilityThrottleWindow = TimeSpan.FromMilliseconds(800) };
+            var logger = new TestLogger();
+
+            var processor = new SqsTestProcessor("A")
+            {
+                Behaviour = async call =>
+                {
+                    if (call.Attempt == 1)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.6));
+
+                        throw new RescheduleException();
+                    }
+                }
+            };
+
+            await using var scope = new MessengerScope();
+
+            var messenger = await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec(_address, Listeners: 1, IsSession: true)], logger: logger);
+
+            await messenger.SendMessageAsync(_address, new SqsTestMessage("G", 1), sessionId: "G");
+
+            await Wait.UntilAsync(() => processor.Successes().Count == 1, TimeSpan.FromSeconds(10), "processed after the reschedule");
+
+            var records = processor.Records.ToList();
+
+            // released once the window has passed (about 1.3 s after the receive); without the retry the message would keep
+            // the heartbeat's visibility of 2 s from 0.5 s on and follow 1.9 s after the reschedule
+
+            Assert.True(aws.ThrottledVisibilityChanges > 0, "the release was throttled");
+            Assert.True(records[1].At - records[0].At < TimeSpan.FromSeconds(1.4), $"the release was sent again once the window had passed ({records[1].At - records[0].At}, throttled {aws.ThrottledVisibilityChanges})");
+            Assert.False(logger.Contains(Microsoft.Extensions.Logging.LogLevel.Warning, "could not be changed"));
         }
 
         [Fact]

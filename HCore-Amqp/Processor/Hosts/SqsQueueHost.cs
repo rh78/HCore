@@ -278,38 +278,62 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
+        // A FIFO receive can return the messages of several groups. The listener processes every group it received, one after
+        // the other and each as one batch, like a Service Bus session. It hands none of them back: it would receive them again
+        // at once, and SQS throttles a visibility change that follows another one of the same message within a moment.
+
         private async Task ProcessReceivedMessagesAsync(List<Amazon.SQS.Model.Message> messages)
         {
             var receivedAt = DateTimeOffset.UtcNow;
 
             var receivedMessages = messages.Select(message => ToReceivedMessage(message, receivedAt)).ToList();
 
-            if (_isFifo)
+            List<List<ReceivedMessage>> batches = _isFifo
+                ? receivedMessages.GroupBy(receivedMessage => receivedMessage.GroupId).Select(group => group.ToList()).ToList()
+                : [receivedMessages];
+
+            using var heartbeat = new Heartbeat(receivedMessages);
+            using var heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken);
+
+            var heartbeatTask = RunHeartbeatAsync(heartbeat, heartbeatCancellationTokenSource.Token);
+
+            try
             {
-                // the other groups go back to the queue for other listeners, so a listener works on one group at a time,
-                // like a Service Bus session processor
+                for (var batchIndex = 0; batchIndex < batches.Count; batchIndex++)
+                {
+                    if (_receiversCancellationTokenSource.IsCancellationRequested)
+                    {
+                        // shutting down: the groups not started yet go back to the queue for the other instances
 
-                var groupId = receivedMessages[0].GroupId;
+                        var notStartedMessages = batches.Skip(batchIndex).SelectMany(batch => batch).ToList();
 
-                await ChangeVisibilityAsync(receivedMessages.Where(receivedMessage => receivedMessage.GroupId != groupId).ToList(), TimeSpan.Zero).ConfigureAwait(false);
+                        await heartbeat.RemoveAsync(notStartedMessages).ConfigureAwait(false);
 
-                receivedMessages = receivedMessages.Where(receivedMessage => receivedMessage.GroupId == groupId).ToList();
+                        await ChangeVisibilityAsync(notStartedMessages, TimeSpan.Zero).ConfigureAwait(false);
+
+                        return;
+                    }
+
+                    var dueMessages = await HoldMessagesNotDueAsync(batches[batchIndex], heartbeat).ConfigureAwait(false);
+
+                    if (dueMessages.Count > 0)
+                    {
+                        await ProcessDueMessagesAsync(dueMessages, heartbeat).ConfigureAwait(false);
+                    }
+                }
             }
-
-            receivedMessages = await HoldMessagesNotDueAsync(receivedMessages).ConfigureAwait(false);
-
-            if (receivedMessages.Count == 0)
+            finally
             {
-                return;
-            }
+                await heartbeatCancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
-            await ProcessDueMessagesAsync(receivedMessages).ConfigureAwait(false);
+                await heartbeatTask.ConfigureAwait(false);
+            }
         }
 
         // A delayed message that arrives early stays invisible until it is due. On a FIFO queue its group waits behind it,
         // so the messages after it go back to the queue and follow once it has been processed.
 
-        private async Task<List<ReceivedMessage>> HoldMessagesNotDueAsync(List<ReceivedMessage> receivedMessages)
+        private async Task<List<ReceivedMessage>> HoldMessagesNotDueAsync(List<ReceivedMessage> receivedMessages, Heartbeat heartbeat)
         {
             var now = DateTimeOffset.UtcNow;
 
@@ -322,19 +346,17 @@ namespace HCore.Amqp.Processor.Hosts
 
             var notDueMessage = receivedMessages[firstNotDueIndex];
 
+            await heartbeat.RemoveAsync(receivedMessages.Skip(firstNotDueIndex)).ConfigureAwait(false);
+
             await ChangeVisibilityAsync([notDueMessage], notDueMessage.NotBefore.Value - now).ConfigureAwait(false);
             await ChangeVisibilityAsync(receivedMessages.Skip(firstNotDueIndex + 1).ToList(), TimeSpan.Zero).ConfigureAwait(false);
 
             return receivedMessages.Take(firstNotDueIndex).ToList();
         }
 
-        private async Task ProcessDueMessagesAsync(List<ReceivedMessage> receivedMessages)
+        private async Task ProcessDueMessagesAsync(List<ReceivedMessage> receivedMessages, Heartbeat heartbeat)
         {
             TimeSpan? visibilityTimeSpan = null;
-
-            using var heartbeatCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationToken);
-
-            var heartbeatTask = RunHeartbeatAsync(receivedMessages, heartbeatCancellationTokenSource.Token);
 
             try
             {
@@ -368,14 +390,10 @@ namespace HCore.Amqp.Processor.Hosts
 
                 visibilityTimeSpan = _timings.ErrorHold;
             }
-            finally
-            {
-                // the heartbeat must not extend the visibility after it was set below
 
-                await heartbeatCancellationTokenSource.CancelAsync().ConfigureAwait(false);
+            // the heartbeat must not extend the visibility after it was set below
 
-                await heartbeatTask.ConfigureAwait(false);
-            }
+            await heartbeat.RemoveAsync(receivedMessages).ConfigureAwait(false);
 
             if (visibilityTimeSpan == null)
             {
@@ -387,13 +405,13 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        // keeps long-running messages invisible, like the Service Bus lock renewal
+        // keeps the messages being processed or waiting for their turn invisible, like the Service Bus lock renewal
 
-        private async Task RunHeartbeatAsync(List<ReceivedMessage> receivedMessages, CancellationToken cancellationToken)
+        private async Task RunHeartbeatAsync(Heartbeat heartbeat, CancellationToken cancellationToken)
         {
             while (await TryDelayAsync(_timings.HeartbeatInterval, cancellationToken).ConfigureAwait(false))
             {
-                var elapsedTimeSpan = DateTimeOffset.UtcNow - receivedMessages[0].ReceivedAt;
+                var elapsedTimeSpan = DateTimeOffset.UtcNow - heartbeat.ReceivedAt;
 
                 if (elapsedTimeSpan + _timings.VisibilityTimeout > _timings.MaximumVisibility)
                 {
@@ -402,7 +420,7 @@ namespace HCore.Amqp.Processor.Hosts
                     return;
                 }
 
-                await ChangeVisibilityAsync(receivedMessages, _timings.VisibilityTimeout).ConfigureAwait(false);
+                await heartbeat.ExtendAsync(pendingMessages => ChangeVisibilityAsync(pendingMessages, _timings.VisibilityTimeout)).ConfigureAwait(false);
             }
         }
 
@@ -435,7 +453,8 @@ namespace HCore.Amqp.Processor.Hosts
                         break;
                     }
 
-                    // the throttled changes are sent again once the throttle window has passed
+                    // the throttled changes are sent again once the throttle window has passed, e.g. a final change that
+                    // came right after the heartbeat extended the same messages
 
                     var throttledEntries = failedEntries.Where(failedEntry => string.Equals(failedEntry.Code, _requestThrottledCode)).ToList();
 
@@ -698,6 +717,61 @@ namespace HCore.Amqp.Processor.Hosts
             catch (OperationCanceledException)
             {
                 return false;
+            }
+        }
+
+        // The messages of one receive that are still waiting or being processed. A message leaves it before its visibility is
+        // set for the last time (delete, hold, release), so the heartbeat never extends it afterwards.
+
+        private sealed class Heartbeat : IDisposable
+        {
+            private readonly HashSet<ReceivedMessage> _pendingMessages;
+
+            private readonly SemaphoreSlim _semaphore = new(1, 1);
+
+            internal DateTimeOffset ReceivedAt { get; }
+
+            internal Heartbeat(List<ReceivedMessage> receivedMessages)
+            {
+                _pendingMessages = [.. receivedMessages];
+
+                ReceivedAt = receivedMessages[0].ReceivedAt;
+            }
+
+            internal async Task RemoveAsync(IEnumerable<ReceivedMessage> receivedMessages)
+            {
+                await _semaphore.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    _pendingMessages.ExceptWith(receivedMessages);
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
+            }
+
+            internal async Task ExtendAsync(Func<List<ReceivedMessage>, Task> changeVisibilityAsync)
+            {
+                await _semaphore.WaitAsync().ConfigureAwait(false);
+
+                try
+                {
+                    if (_pendingMessages.Count > 0)
+                    {
+                        await changeVisibilityAsync([.. _pendingMessages]).ConfigureAwait(false);
+                    }
+                }
+                finally
+                {
+                    _semaphore.Release();
+                }
+            }
+
+            public void Dispose()
+            {
+                _semaphore.Dispose();
             }
         }
 
