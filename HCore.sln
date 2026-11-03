@@ -43,6 +43,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Pusher", "HCore-Pushe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCore-Metadata", "HCore-Metadata\HCore-Metadata.csproj", "{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCore.Test", "HCore.Test\HCore.Test.csproj", "{FCE66D06-37CC-4397-A444-399D18E4EAE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -129,6 +131,10 @@ Global
 		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC8C3C85-CD44-4003-BFF6-EC425BBDAA75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCE66D06-37CC-4397-A444-399D18E4EAE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCE66D06-37CC-4397-A444-399D18E4EAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCE66D06-37CC-4397-A444-399D18E4EAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCE66D06-37CC-4397-A444-399D18E4EAE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

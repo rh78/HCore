@@ -20,6 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             bool useServiceBus = string.Equals(implementation, "ServiceBus");
             bool useActiveMq = string.Equals(implementation, "ActiveMq");
+            bool useSqs = string.Equals(implementation, "Sqs");
 
             string connectionString = configuration["Amqp:ConnectionString"];
 
@@ -37,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new Exception("AMQP addresses are empty");
 
             var amqpListenerCounts = GetListenerCounts(configuration, addressesSplit);
-            var amqpIsSessions = GetSessions(configuration, addressesSplit, useServiceBus, useActiveMq);
+            var amqpIsSessions = GetSessions(configuration, addressesSplit, useServiceBus || useSqs, useActiveMq);
 
             var topicAddresses = configuration["Amqp:TopicAddresses"];
 
@@ -50,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var topicAddressesSplit = topicAddresses.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             var amqpTopicListenerCounts = GetListenerCounts(configuration, topicAddressesSplit);
-            var amqpIsTopicSessions = GetSessions(configuration, topicAddressesSplit, useServiceBus, useActiveMq);
+            var amqpIsTopicSessions = GetSessions(configuration, topicAddressesSplit, useServiceBus || useSqs, useActiveMq);
 
             services.AddSingleton(serviceProvider =>
             {
@@ -67,6 +68,16 @@ namespace Microsoft.Extensions.DependencyInjection
                 else if (useActiveMq)
                 {
                     amqpMessenger = new ActiveMqMessengerImpl(connectionString, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, messageProcessor, serviceProvider.GetRequiredService<ILogger<ActiveMqMessengerImpl>>());
+                }
+                else if (useSqs)
+                {
+                    var amqpMaxReceiveCounts = GetMaxReceiveCounts(configuration, addressesSplit);
+
+                    // e.g. per developer in the git-ignored appsettings.Development.local.json, so several developers share one connection string
+
+                    var queueNamePrefix = configuration["Amqp:QueueNamePrefix"];
+
+                    amqpMessenger = new SqsMessengerImpl(connectionString, queueNamePrefix, addressesSplit, topicAddressesSplit, amqpListenerCounts, amqpTopicListenerCounts, amqpIsSessions, amqpIsTopicSessions, amqpMaxReceiveCounts, messageProcessor, serviceProvider.GetRequiredService<ILogger<SqsMessengerImpl>>());
                 }
                 else
                 {
@@ -104,6 +115,21 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return amqpListenerCounts;
+        }
+
+        // optional, only used when the SQS implementation creates the queues: moves a message to a dead-letter queue
+        // after this many receives; without it a message is retried until it expires, like on Service Bus
+
+        private static int?[] GetMaxReceiveCounts(IConfiguration configuration, string[] addressesSplit)
+        {
+            var amqpMaxReceiveCounts = new int?[addressesSplit.Length];
+
+            for (int i = 0; i < addressesSplit.Length; i++)
+            {
+                amqpMaxReceiveCounts[i] = configuration.GetValue<int?>($"Amqp:AddressDetails:{addressesSplit[i]}:MaxReceiveCount");
+            }
+
+            return amqpMaxReceiveCounts;
         }
 
         private static bool[] GetSessions(IConfiguration configuration, string[] addressesSplit, bool useServiceBus, bool useActiveMq)

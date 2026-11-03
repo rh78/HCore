@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>HCore.Test</RootNamespace>
+
+        <IsPackable>false</IsPackable>
+
+        <AssemblyName>HCore.Test</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+        <PackageReference Include="xunit" Version="2.6.6" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
+        <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- git-ignored Secrets Manager access for the AWS tests, see SqsAwsTests -->
+        <None Include="appsettings.Development.local.json" Condition="Exists('appsettings.Development.local.json')" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+</Project>
