@@ -198,7 +198,7 @@ namespace HCore.Test.Amqp.Sqs
 
             // FIFO queues reject a delay per message
 
-            Assert.All(aws.SentRequests, request => Assert.Equal(0, request.DelaySeconds));
+            Assert.All(aws.SentRequests, request => Assert.Null(request.DelaySeconds));
         }
 
         [Fact]
