@@ -152,6 +152,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public bool IsPortalsDev { get; set; }
         public bool IsPortalsB { get; set; }
         public bool IsPortalsBDev { get; set; }
+        public bool IsSmintedUiDev { get; set; }
 
         public string CreatedByUserUuid { get; set; }
 

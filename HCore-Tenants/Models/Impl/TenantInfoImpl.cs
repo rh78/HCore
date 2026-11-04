@@ -165,6 +165,7 @@ namespace HCore.Tenants.Models.Impl
         public bool IsPortalsDev { get; set; }
         public bool IsPortalsB { get; set; }
         public bool IsPortalsBDev { get; set; }
+        public bool IsSmintedUiDev { get; set; }
 
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
@@ -277,6 +278,7 @@ namespace HCore.Tenants.Models.Impl
                 IsPortalsDev = IsPortalsDev,
                 IsPortalsB = IsPortalsB,
                 IsPortalsBDev = IsPortalsBDev,
+                IsSmintedUiDev = IsSmintedUiDev,
                 CreatedByUserUuid = CreatedByUserUuid,
                 MapDeveloperUuid = MapDeveloperUuid,
                 MapTenantUuid = MapTenantUuid,

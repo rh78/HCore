@@ -825,6 +825,7 @@ namespace HCore.Tenants.Providers.Impl
                 IsPortalsDev = tenantModel.IsPortalsDev,
                 IsPortalsB = tenantModel.IsPortalsB,
                 IsPortalsBDev = tenantModel.IsPortalsBDev,
+                IsSmintedUiDev = tenantModel.IsSmintedUiDev,
                 CreatedByUserUuid = tenantModel.CreatedByUserUuid,
                 MapDeveloperUuid = tenantModel.MapDeveloperUuid,
                 MapTenantUuid = tenantModel.MapTenantUuid,

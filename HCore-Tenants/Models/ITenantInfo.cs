@@ -150,6 +150,7 @@ namespace HCore.Tenants.Models
         bool IsPortalsDev { get; }
         bool IsPortalsB { get; }
         bool IsPortalsBDev { get; }
+        bool IsSmintedUiDev { get; }
 
         public string CreatedByUserUuid { get; }
 
