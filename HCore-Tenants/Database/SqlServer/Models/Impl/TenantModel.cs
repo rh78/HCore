@@ -74,7 +74,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string NoreplyEmailDisplayName { get; set; }
 
         public string CustomEmailSettingsJson { get; set; }
-        
+
         public string EcbProductName { get; set; }
         public string PortalsProductName { get; set; }
 

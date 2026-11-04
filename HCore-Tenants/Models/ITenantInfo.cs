@@ -38,7 +38,7 @@ namespace HCore.Tenants.Models
 
         string StorageImplementation { get; }
         string StorageConnectionString { get; }
-        
+
         int PrimaryColor { get; }
         int SecondaryColor { get; }
         int TextOnPrimaryColor { get; }
