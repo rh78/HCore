@@ -148,6 +148,7 @@ namespace HCore.Tenants.Models
         bool EnableAudit { get; }
 
         bool IsPortalsDev { get; }
+        bool IsPortalsB { get; }
         bool IsPortalsBDev { get; }
 
         public string CreatedByUserUuid { get; }

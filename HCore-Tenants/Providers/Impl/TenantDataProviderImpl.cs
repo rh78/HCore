@@ -823,6 +823,7 @@ namespace HCore.Tenants.Providers.Impl
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 EnableAudit = tenantModel.EnableAudit,
                 IsPortalsDev = tenantModel.IsPortalsDev,
+                IsPortalsB = tenantModel.IsPortalsB,
                 IsPortalsBDev = tenantModel.IsPortalsBDev,
                 CreatedByUserUuid = tenantModel.CreatedByUserUuid,
                 MapDeveloperUuid = tenantModel.MapDeveloperUuid,
