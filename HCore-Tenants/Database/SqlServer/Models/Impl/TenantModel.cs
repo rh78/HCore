@@ -74,7 +74,7 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public string NoreplyEmailDisplayName { get; set; }
 
         public string CustomEmailSettingsJson { get; set; }
-        
+
         public string EcbProductName { get; set; }
         public string PortalsProductName { get; set; }
 
@@ -150,7 +150,9 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public bool EnableAudit { get; set; }
 
         public bool IsPortalsDev { get; set; }
+        public bool IsPortalsB { get; set; }
         public bool IsPortalsBDev { get; set; }
+        public bool IsSmintedUiDev { get; set; }
 
         public string CreatedByUserUuid { get; set; }
 

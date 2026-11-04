@@ -118,7 +118,7 @@ namespace HCore.Tenants.Providers.Impl
                             throw new Exception("The developer icon ICO URL is empty");
 
                         // storage is optional
-                        
+
                         string storageImplementation = developerModel.StorageImplementation;
                         if (!string.IsNullOrEmpty(storageImplementation))
                         {
@@ -222,7 +222,7 @@ namespace HCore.Tenants.Providers.Impl
 
                 return (null, null);
             }
-            
+
             string[] parts = host.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
             if (parts.Length == 2)
@@ -532,11 +532,11 @@ namespace HCore.Tenants.Providers.Impl
             }
 
             bool externalAuthenticationAllowLocalLogin =
-                externalAuthorizationIsFromDeveloper ? 
+                externalAuthorizationIsFromDeveloper ?
                     developerModel.ExternalAuthenticationAllowLocalLogin :
                     tenantModel.ExternalAuthenticationAllowLocalLogin;
 
-            bool externalAuthenticationAllowUserMerge = 
+            bool externalAuthenticationAllowUserMerge =
                 externalAuthorizationIsFromDeveloper ?
                     developerModel.ExternalAuthenticationAllowUserMerge :
                     tenantModel.ExternalAuthenticationAllowUserMerge;
@@ -598,7 +598,7 @@ namespace HCore.Tenants.Providers.Impl
                     if (!oidcUsePkce)
                     {
                         oidcClientSecret = externalAuthorizationIsFromDeveloper ?
-                            developerModel.OidcClientSecret : 
+                            developerModel.OidcClientSecret :
                             tenantModel.OidcClientSecret;
 
                         if (string.IsNullOrEmpty(oidcClientSecret))
@@ -609,15 +609,15 @@ namespace HCore.Tenants.Providers.Impl
                         oidcClientSecret = null;
                     }
 
-                    oidcEndpointUrl = externalAuthorizationIsFromDeveloper ? 
-                        developerModel.OidcEndpointUrl : 
+                    oidcEndpointUrl = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcEndpointUrl :
                         tenantModel.OidcEndpointUrl;
 
                     if (string.IsNullOrEmpty(oidcEndpointUrl))
                         throw new Exception("The tenant OIDC endpoint URL is missing");
-                    
-                    oidcEndSessionEndpointUrl = externalAuthorizationIsFromDeveloper ? 
-                        developerModel.OidcEndSessionEndpointUrl : 
+
+                    oidcEndSessionEndpointUrl = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcEndSessionEndpointUrl :
                         tenantModel.OidcEndSessionEndpointUrl;
 
                     if (string.IsNullOrEmpty(oidcEndSessionEndpointUrl))
@@ -626,10 +626,10 @@ namespace HCore.Tenants.Providers.Impl
                     }
 
                     oidcScopes = externalAuthorizationIsFromDeveloper ?
-                        developerModel.OidcScopes : 
+                        developerModel.OidcScopes :
                         tenantModel.OidcScopes;
 
-                    oidcAcrValues = externalAuthorizationIsFromDeveloper ? 
+                    oidcAcrValues = externalAuthorizationIsFromDeveloper ?
                         developerModel.OidcAcrValues :
                         tenantModel.OidcAcrValues;
 
@@ -637,17 +637,17 @@ namespace HCore.Tenants.Providers.Impl
                         developerModel.OidcAcrValuesAppendix :
                         tenantModel.OidcAcrValuesAppendix;
 
-                    oidcTriggerAcrValuesAppendixByUrlParameter = 
-                        externalAuthorizationIsFromDeveloper ? 
-                            developerModel.OidcTriggerAcrValuesAppendixByUrlParameter : 
+                    oidcTriggerAcrValuesAppendixByUrlParameter =
+                        externalAuthorizationIsFromDeveloper ?
+                            developerModel.OidcTriggerAcrValuesAppendixByUrlParameter :
                             tenantModel.OidcTriggerAcrValuesAppendixByUrlParameter;
 
                     oidcQueryUserInfoEndpoint = externalAuthorizationIsFromDeveloper ?
                         developerModel.OidcQueryUserInfoEndpoint :
                         tenantModel.OidcQueryUserInfoEndpoint;
 
-                    oidcAdditionalParameters = externalAuthorizationIsFromDeveloper ? 
-                        developerModel.OidcAdditionalParameters : 
+                    oidcAdditionalParameters = externalAuthorizationIsFromDeveloper ?
+                        developerModel.OidcAdditionalParameters :
                         tenantModel.OidcAdditionalParameters;
 
                     oidcUseStateRedirect = externalAuthorizationIsFromDeveloper ?
@@ -673,26 +673,26 @@ namespace HCore.Tenants.Providers.Impl
                 }
                 else if (externalAuthorizationMethod.Equals(TenantConstants.ExternalAuthenticationMethodSaml))
                 {
-                    samlEntityId = externalAuthorizationIsFromDeveloper ? 
+                    samlEntityId = externalAuthorizationIsFromDeveloper ?
                         developerModel.SamlEntityId :
                         tenantModel.SamlEntityId;
 
                     if (string.IsNullOrEmpty(samlEntityId))
                         throw new Exception("The tenant SAML entity ID is missing");
 
-                    samlPeerEntityId = externalAuthorizationIsFromDeveloper ? 
+                    samlPeerEntityId = externalAuthorizationIsFromDeveloper ?
                         developerModel.SamlPeerEntityId :
                         tenantModel.SamlPeerEntityId;
 
                     if (string.IsNullOrEmpty(samlPeerEntityId))
                         throw new Exception("The tenant SAML peer entity ID is missing");
 
-                    samlPeerIdpMetadataLocation = externalAuthorizationIsFromDeveloper ? 
-                        developerModel.SamlPeerIdpMetadataLocation : 
+                    samlPeerIdpMetadataLocation = externalAuthorizationIsFromDeveloper ?
+                        developerModel.SamlPeerIdpMetadataLocation :
                         tenantModel.SamlPeerIdpMetadataLocation;
 
-                    samlPeerIdpMetadata = externalAuthorizationIsFromDeveloper ? 
-                        developerModel.SamlPeerIdpMetadata : 
+                    samlPeerIdpMetadata = externalAuthorizationIsFromDeveloper ?
+                        developerModel.SamlPeerIdpMetadata :
                         tenantModel.SamlPeerIdpMetadata;
 
                     if (!string.IsNullOrEmpty(samlPeerIdpMetadataLocation) && !string.IsNullOrEmpty(samlPeerIdpMetadata))
@@ -710,7 +710,7 @@ namespace HCore.Tenants.Providers.Impl
                         samlCertificateBytes = GetCertificateBytesFromPEM(samlCertificate);
 
                         samlCertificatePassword = externalAuthorizationIsFromDeveloper ?
-                            developerModel.SamlCertificatePassword : 
+                            developerModel.SamlCertificatePassword :
                             tenantModel.SamlCertificatePassword;
                     }
                     else
@@ -724,14 +724,14 @@ namespace HCore.Tenants.Providers.Impl
                         tenantModel.SamlAllowWeakSigningAlgorithm) ?? false;
                 }
 
-                externalAuthenticationClaimMappings = externalAuthorizationIsFromDeveloper ? 
-                    developerModel.ExternalAuthenticationClaimMappings : 
+                externalAuthenticationClaimMappings = externalAuthorizationIsFromDeveloper ?
+                    developerModel.ExternalAuthenticationClaimMappings :
                     tenantModel.ExternalAuthenticationClaimMappings;
 
                 usersAreExternallyManaged = !externalAuthorizationIsFromDeveloper;
 
-                externalUsersAreManuallyManaged = externalAuthorizationIsFromDeveloper ? 
-                    developerModel.ExternalUsersAreManuallyManaged : 
+                externalUsersAreManuallyManaged = externalAuthorizationIsFromDeveloper ?
+                    developerModel.ExternalUsersAreManuallyManaged :
                     tenantModel.ExternalUsersAreManuallyManaged;
             }
 
@@ -823,7 +823,9 @@ namespace HCore.Tenants.Providers.Impl
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = tenantModel.DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 EnableAudit = tenantModel.EnableAudit,
                 IsPortalsDev = tenantModel.IsPortalsDev,
+                IsPortalsB = tenantModel.IsPortalsB,
                 IsPortalsBDev = tenantModel.IsPortalsBDev,
+                IsSmintedUiDev = tenantModel.IsSmintedUiDev,
                 CreatedByUserUuid = tenantModel.CreatedByUserUuid,
                 MapDeveloperUuid = tenantModel.MapDeveloperUuid,
                 MapTenantUuid = tenantModel.MapTenantUuid,

@@ -38,7 +38,7 @@ namespace HCore.Tenants.Models
 
         string StorageImplementation { get; }
         string StorageConnectionString { get; }
-        
+
         int PrimaryColor { get; }
         int SecondaryColor { get; }
         int TextOnPrimaryColor { get; }
@@ -148,7 +148,9 @@ namespace HCore.Tenants.Models
         bool EnableAudit { get; }
 
         bool IsPortalsDev { get; }
+        bool IsPortalsB { get; }
         bool IsPortalsBDev { get; }
+        bool IsSmintedUiDev { get; }
 
         public string CreatedByUserUuid { get; }
 

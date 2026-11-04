@@ -6,7 +6,7 @@ using Amazon.S3.Model;
 
 namespace HCore.Storage.Helpers
 {
-    internal static class AwsHelpers
+    public static class AwsHelpers
     {
         public const string AccessKeyIdKey = "AccessKeyId";
         public const string SecretAccessKeyKey = "SecretAccessKey";

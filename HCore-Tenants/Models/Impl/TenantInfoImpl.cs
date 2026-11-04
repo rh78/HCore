@@ -42,7 +42,7 @@ namespace HCore.Tenants.Models.Impl
 
         public string StorageImplementation { get; set; }
         public string StorageConnectionString { get; set; }
-        
+
         public int PrimaryColor { get; internal set; }
         public int SecondaryColor { get; internal set; }
         public int TextOnPrimaryColor { get; internal set; }
@@ -89,7 +89,7 @@ namespace HCore.Tenants.Models.Impl
         public bool ExternalUsersAreManuallyManaged { get; set; }
 
         public string ExternalAuthenticationMethod { get; set; }
-        
+
         public bool ExternalAuthenticationAllowLocalLogin { get; set; }
 
         public bool ExternalAuthenticationAllowUserMerge { get; set; }
@@ -150,7 +150,7 @@ namespace HCore.Tenants.Models.Impl
 
         public long? MapDeveloperUuid { get; set; }
         public long? MapTenantUuid { get; set; }
-        
+
         public long? MapCustomUuid { get; set; }
 
         public bool? IsDraft { get; set; }
@@ -163,7 +163,9 @@ namespace HCore.Tenants.Models.Impl
         public bool EnableAudit { get; set; }
 
         public bool IsPortalsDev { get; set; }
+        public bool IsPortalsB { get; set; }
         public bool IsPortalsBDev { get; set; }
+        public bool IsSmintedUiDev { get; set; }
 
         public TCustomTenantSettingsDataType GetCustomTenantSettings<TCustomTenantSettingsDataType>()
         {
@@ -274,7 +276,9 @@ namespace HCore.Tenants.Models.Impl
                 DevAdminSsoReplacementSamlPeerIdpMetadataLocation = DevAdminSsoReplacementSamlPeerIdpMetadataLocation,
                 EnableAudit = EnableAudit,
                 IsPortalsDev = IsPortalsDev,
+                IsPortalsB = IsPortalsB,
                 IsPortalsBDev = IsPortalsBDev,
+                IsSmintedUiDev = IsSmintedUiDev,
                 CreatedByUserUuid = CreatedByUserUuid,
                 MapDeveloperUuid = MapDeveloperUuid,
                 MapTenantUuid = MapTenantUuid,
@@ -313,7 +317,7 @@ namespace HCore.Tenants.Models.Impl
         {
             if (string.IsNullOrEmpty(DeveloperCertificateThumbprint))
                 return null;
-            
+
             if (!StaticCertificates.ContainsKey(DeveloperCertificateThumbprint))
             {
                 SetDeveloperCertificate(DeveloperCertificateBytes, DeveloperCertificatePassword);

@@ -244,7 +244,7 @@ namespace HCore.Test.Amqp.Sqs
                 throw new AmazonSQSException($"MaxNumberOfMessages {request.MaxNumberOfMessages} is invalid");
             }
 
-            var deadline = DateTimeOffset.UtcNow.AddSeconds(request.WaitTimeSeconds);
+            var deadline = DateTimeOffset.UtcNow.AddSeconds(request.WaitTimeSeconds ?? 0);
 
             while (true)
             {
@@ -271,6 +271,8 @@ namespace HCore.Test.Amqp.Sqs
 
                 var candidates = new List<FakeMessage>();
 
+                var maxNumberOfMessages = request.MaxNumberOfMessages ?? 1;
+
                 if (queue.IsFifo)
                 {
                     // a group whose oldest message is in flight or not yet visible delivers nothing, so the order holds
@@ -279,7 +281,7 @@ namespace HCore.Test.Amqp.Sqs
 
                     foreach (var message in queue.Messages)
                     {
-                        if (candidates.Count == request.MaxNumberOfMessages)
+                        if (candidates.Count == maxNumberOfMessages)
                         {
                             break;
                         }
@@ -301,11 +303,11 @@ namespace HCore.Test.Amqp.Sqs
                 }
                 else
                 {
-                    candidates.AddRange(queue.Messages.Where(message => message.VisibleAt <= now).Take(request.MaxNumberOfMessages));
+                    candidates.AddRange(queue.Messages.Where(message => message.VisibleAt <= now).Take(maxNumberOfMessages));
                 }
 
                 var visibilityTimeoutSeconds = request.VisibilityTimeout > 0
-                    ? request.VisibilityTimeout
+                    ? request.VisibilityTimeout.Value
                     : int.Parse(queue.Attributes.GetValueOrDefault("VisibilityTimeout", "30"));
 
                 var receivedMessages = new List<SqsMessage>();
@@ -371,7 +373,7 @@ namespace HCore.Test.Amqp.Sqs
 
                 SentRequests.Add(request);
 
-                Enqueue(GetQueueByUrl(request.QueueUrl), request.MessageBody, request.MessageGroupId, request.MessageDeduplicationId, request.DelaySeconds, request.MessageAttributes);
+                Enqueue(GetQueueByUrl(request.QueueUrl), request.MessageBody, request.MessageGroupId, request.MessageDeduplicationId, request.DelaySeconds ?? 0, request.MessageAttributes);
 
                 return Task.CompletedTask;
             }
@@ -406,7 +408,7 @@ namespace HCore.Test.Amqp.Sqs
                         continue;
                     }
 
-                    Enqueue(queue, entry.MessageBody, entry.MessageGroupId, entry.MessageDeduplicationId, entry.DelaySeconds, entry.MessageAttributes);
+                    Enqueue(queue, entry.MessageBody, entry.MessageGroupId, entry.MessageDeduplicationId, entry.DelaySeconds ?? 0, entry.MessageAttributes);
                 }
 
                 return Task.FromResult(failedEntries);
@@ -549,7 +551,7 @@ namespace HCore.Test.Amqp.Sqs
                         continue;
                     }
 
-                    message.VisibleAt = now.AddSeconds(entry.VisibilityTimeout);
+                    message.VisibleAt = now.AddSeconds(entry.VisibilityTimeout ?? 0);
                     message.VisibilityChangedAt = now;
                 }
 

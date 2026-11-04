@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon;
 using HCore.Amqp.Message;
 using HCore.Amqp.Messenger.Impl;
 using HCore.Amqp.Processor;
@@ -137,6 +138,13 @@ namespace HCore.Test.Amqp.Sqs
             ReceiveWaitTimeSeconds = 1,
             RetryDelay = TimeSpan.FromMilliseconds(100)
         };
+
+        // the hosts set this in AddAmazonSecretsManager, these tests build the messengers without a host
+
+        static MessengerScope()
+        {
+            AWSConfigs.InitializeCollections = true;
+        }
 
         internal async Task<SqsMessengerImpl> StartAsync(
             ISqsApi sqsApi,
