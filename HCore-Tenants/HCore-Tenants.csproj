@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>HCore.Tenants</RootNamespace>
     <AssemblyName>HCore.Tenants</AssemblyName>
   </PropertyGroup>
@@ -9,7 +9,7 @@
   <ItemGroup>
 	<PackageReference Include="MessagePack" Version="2.5.307" />
 	<PackageReference Include="ExCSS" Version="4.2.5" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">    
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">    
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>

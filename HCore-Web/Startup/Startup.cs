@@ -1,25 +1,26 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using HCore.Web.Middleware;
-using Microsoft.AspNetCore.Http;
 using System;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Localization;
+using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.AspNetCore.Routing;
-using HCore.Web.Providers.Impl;
-using HCore.Web.Providers;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
-using HCore.Web.Json;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Hosting;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using HCore.Amqp.Messenger;
+using HCore.Web.Json;
+using HCore.Web.Middleware;
+using HCore.Web.Providers;
+using HCore.Web.Providers.Impl;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 
 namespace HCore.Web.Startup
 {
@@ -122,12 +123,23 @@ namespace HCore.Web.Startup
 
         protected virtual void ConfigureUrlHelper(IServiceCollection services)
         {
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped(serviceProvider =>
+            {
+                var httpContext = serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
 
-            services.AddScoped(x => {
-                var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
-                var factory = x.GetRequiredService<IUrlHelperFactory>();
-                return factory.GetUrlHelper(actionContext);
+                var routeData = httpContext.GetRouteData();
+
+                var endpoint = httpContext.GetEndpoint();
+
+                // MVC and Razor Pages endpoints carry their action descriptor, which ActionContextAccessor used to hand out
+
+                var actionDescriptor = endpoint?.Metadata.GetMetadata<ActionDescriptor>() ?? new ActionDescriptor();
+
+                var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
+
+                var urlHelperFactory = serviceProvider.GetRequiredService<IUrlHelperFactory>();
+
+                return urlHelperFactory.GetUrlHelper(actionContext);
             });
         }
 
