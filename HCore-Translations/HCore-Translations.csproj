@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>HCore.Translations</RootNamespace>
     <AssemblyName>HCore.Translations</AssemblyName>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>

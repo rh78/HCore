@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>HCore.Identity.PagesUI.Classes</RootNamespace>
     <AssemblyName>HCore.Identity.PagesUI.Classes</AssemblyName>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="reCAPTCHA.AspNetCore" Version="3.0.10" />
-	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
+	<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.14.15">
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
