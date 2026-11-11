@@ -35,6 +35,8 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
         public EmailInstanceSettingsModel PermissionRequestDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel UploadAssetsDoneEmailSettings { get; set; }
         public EmailInstanceSettingsModel UploadAssetsDeclinedEmailSettings { get; set; }
+        public EmailInstanceSettingsModel EditAssetMetadataDoneEmailSettings { get; set; }
+        public EmailInstanceSettingsModel EditAssetMetadataDeclinedEmailSettings { get; set; }
         public EmailInstanceSettingsModel GenericEmailSettings { get; set; }
 
         public SmtpEmailSenderConfigurationModel EmailSenderConfiguration { get; set; }
@@ -392,6 +394,32 @@ namespace HCore.Tenants.Database.SqlServer.Models.Impl
                 else
                 {
                     UploadAssetsDeclinedEmailSettings.MergeWith(customEmailSettingsModel.UploadAssetsDeclinedEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.EditAssetMetadataDoneEmailSettings != null)
+            {
+                if (EditAssetMetadataDoneEmailSettings == null)
+                {
+                    EditAssetMetadataDoneEmailSettings = new EmailInstanceSettingsModel();
+                    EditAssetMetadataDoneEmailSettings.MergeWith(customEmailSettingsModel.EditAssetMetadataDoneEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    EditAssetMetadataDoneEmailSettings.MergeWith(customEmailSettingsModel.EditAssetMetadataDoneEmailSettings, allowEmpty);
+                }
+            }
+
+            if (customEmailSettingsModel.EditAssetMetadataDeclinedEmailSettings != null)
+            {
+                if (EditAssetMetadataDeclinedEmailSettings == null)
+                {
+                    EditAssetMetadataDeclinedEmailSettings = new EmailInstanceSettingsModel();
+                    EditAssetMetadataDeclinedEmailSettings.MergeWith(customEmailSettingsModel.EditAssetMetadataDeclinedEmailSettings, allowEmpty);
+                }
+                else
+                {
+                    EditAssetMetadataDeclinedEmailSettings.MergeWith(customEmailSettingsModel.EditAssetMetadataDeclinedEmailSettings, allowEmpty);
                 }
             }
 
