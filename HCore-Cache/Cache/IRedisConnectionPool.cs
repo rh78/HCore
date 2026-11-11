@@ -2,7 +2,7 @@
 
 namespace HCore.Cache
 {
-    internal interface IRedisConnectionPool
+    public interface IRedisConnectionPool
     {
         IConnectionMultiplexer GetConnectionMultiplexer();
     }
