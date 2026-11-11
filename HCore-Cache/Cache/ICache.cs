@@ -9,6 +9,8 @@ namespace HCore.Cache
     {
         Task StoreAsync<T>(string key, T value, TimeSpan expiresIn);
 
+        Task<bool> StoreIfNotExistsAsync<T>(string key, T value, TimeSpan expiresIn);
+
         Task<string> GetStringAsync(string key);
         Task<T> GetObjectAsync<T>(string key) where T : class;
 
