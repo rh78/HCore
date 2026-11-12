@@ -130,9 +130,9 @@ namespace HCore.Amqp.Processor.Hosts
             {
                 // intentionally locking a message. By default, the lock duration is 1 minute
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+                _logger.LogError(e, "Exception during processing AMQP message for address {Address}, not abandoning it for timeout (this will avoid duplicates)", Address);
             }
         }
 
@@ -173,9 +173,9 @@ namespace HCore.Amqp.Processor.Hosts
                     }
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                _logger.LogError($"Exception during processing AMQP message, not abandoning it for timeout (this will avoid duplicates): {exception}");
+                _logger.LogError(e, "Exception during processing AMQP message for address {Address}, not abandoning it for timeout (this will avoid duplicates)", Address);
 
                 return;
             }
@@ -214,15 +214,15 @@ namespace HCore.Amqp.Processor.Hosts
             {
                 // intentionally locking messages. By default, the lock duration is 1 minute
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                _logger.LogError($"Exception during processing AMQP message(s), not abandoning them for timeout (this will avoid duplicates): {exception}");
+                _logger.LogError(e, "Exception during processing AMQP message(s) for address {Address}, not abandoning them for timeout (this will avoid duplicates)", Address);
             }
         }
 
         private Task ExceptionReceivedHandlerAsync(ProcessErrorEventArgs processErrorEventArgs)
         {
-            _logger.LogError($"AMQP message handler encountered an exception: {processErrorEventArgs.Exception}");
+            _logger.LogError(processErrorEventArgs.Exception, "AMQP message handler encountered an exception for address {Address}", Address);
 
             var entityPath = processErrorEventArgs.EntityPath;
 
@@ -334,7 +334,7 @@ namespace HCore.Amqp.Processor.Hosts
 
                             if (!CancellationToken.IsCancellationRequested)
                             {
-                                _logger.LogError($"AMQP exception in sender link for address {Address}: {e}");
+                                _logger.LogError(e, "AMQP exception in sender link for address {Address}", Address);
                             }
 
                             await CloseAsync().ConfigureAwait(false);
