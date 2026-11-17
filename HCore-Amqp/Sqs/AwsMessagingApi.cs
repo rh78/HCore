@@ -42,7 +42,7 @@ namespace HCore.Amqp.Sqs
             // never a profile or environment variables
 
             AWSCredentials credentials = connectionSettings.UseInstanceRole
-                ? DefaultInstanceProfileAWSCredentials.Instance
+                ? new InstanceProfileAWSCredentials()
                 : new BasicAWSCredentials(connectionSettings.AccessKeyId, connectionSettings.SecretAccessKey);
 
             _sqsClient = new AmazonSQSClient(credentials, sqsConfig);
