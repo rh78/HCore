@@ -38,9 +38,12 @@ namespace HCore.Amqp.Sqs
                 snsConfig.RegionEndpoint = regionEndpoint;
             }
 
-            // always the IAM user of the connection string, never the credentials of the machine
+            // the IAM user of the connection string, or the EC2 instance role when the connection string asks for it;
+            // never a profile or environment variables
 
-            var credentials = new BasicAWSCredentials(connectionSettings.AccessKeyId, connectionSettings.SecretAccessKey);
+            AWSCredentials credentials = connectionSettings.UseInstanceRole
+                ? DefaultInstanceProfileAWSCredentials.Instance
+                : new BasicAWSCredentials(connectionSettings.AccessKeyId, connectionSettings.SecretAccessKey);
 
             _sqsClient = new AmazonSQSClient(credentials, sqsConfig);
             _snsClient = new AmazonSimpleNotificationServiceClient(credentials, snsConfig);
