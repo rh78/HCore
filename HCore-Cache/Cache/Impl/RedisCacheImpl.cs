@@ -26,7 +26,7 @@ using CacheUtils;
 
 namespace HCore.Cache.Impl
 {
-    internal class RedisCacheImpl : ICache
+    public class RedisCacheImpl : ICache
     {
         private readonly MessagePackSerializerOptions _messagePackSerializerOptions;
 
@@ -107,6 +107,18 @@ namespace HCore.Cache.Impl
                 }
             }
 #endif
+        }
+
+        public async Task<bool> StoreIfNotExistsAsync<T>(string key, T value, TimeSpan expiresIn)
+        {
+            var bytes = Serialize(value);
+
+            if (bytes == null)
+            {
+                return false;
+            }
+
+            return await ExecuteWithFallbackAsync(() => Database.StringSetAsync(key, value: bytes, expiresIn, when: When.NotExists, flags: CommandFlags.None)).ConfigureAwait(false);
         }
 
         public async Task<string> GetStringAsync(string key)

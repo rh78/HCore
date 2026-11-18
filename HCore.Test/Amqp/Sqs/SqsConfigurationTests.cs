@@ -54,9 +54,24 @@ namespace HCore.Test.Amqp.Sqs
             Assert.Equal("eu-central-1", SqsConnectionSettings.Parse("AccessKeyId=AKIA123;SecretAccessKey=secret").Region);
         }
 
+        [Fact]
+        public void ConnectionString_WithInstanceRole_NeedsNoKeys()
+        {
+            var connectionSettings = SqsConnectionSettings.Parse("Region=us-east-2;UseInstanceRole=true");
+
+            Assert.True(connectionSettings.UseInstanceRole);
+            Assert.Null(connectionSettings.AccessKeyId);
+            Assert.Null(connectionSettings.SecretAccessKey);
+            Assert.False(SqsConnectionSettings.Parse("AccessKeyId=AKIA123;SecretAccessKey=secret").UseInstanceRole);
+        }
+
         [Theory]
         [InlineData("")]
         [InlineData("Region")]
+        [InlineData("UseInstanceRole=yes")]
+        [InlineData("UseInstanceRole=false")]
+        [InlineData("UseInstanceRole=true;AccessKeyId=AKIA123;SecretAccessKey=secret")]
+        [InlineData("UseInstanceRole=true;AccessKeyId=AKIA123")]
         [InlineData("Region=eu-central-1;Unknown=1")]
         [InlineData("CreateResources=yes")]
         [InlineData("AccessKeyId=AKIA123")]
