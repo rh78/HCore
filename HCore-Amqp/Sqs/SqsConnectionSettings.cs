@@ -4,7 +4,8 @@ using Amazon;
 namespace HCore.Amqp.Sqs
 {
     // Amqp:ConnectionString for the SQS implementation, e.g. "Region=eu-central-1;AccessKeyId=..;SecretAccessKey=.." or
-    // "Region=eu-central-1;AccessKeyId=..;SecretAccessKey=..;CreateResources=true;QueueNamePrefix=Staging"
+    // "Region=eu-central-1;AccessKeyId=..;SecretAccessKey=..;CreateResources=true;QueueNamePrefix=Staging" or
+    // "Region=us-east-2;UseInstanceRole=true"
 
     internal class SqsConnectionSettings
     {
@@ -12,10 +13,15 @@ namespace HCore.Amqp.Sqs
 
         internal string Region { get; private set; } = DefaultRegion;
 
-        // required: the messenger uses an IAM user, the machine identity only gives access to Secrets Manager
+        // the IAM user of the messenger; required unless UseInstanceRole is set
 
         internal string AccessKeyId { get; private set; }
         internal string SecretAccessKey { get; private set; }
+
+        // uses the role of the EC2 instance instead of an IAM user, for hosts whose role grants the queue access;
+        // never a profile or environment variables, so a machine without the setting cannot pick up other credentials
+
+        internal bool UseInstanceRole { get; private set; }
 
         // optional endpoint instead of the regional AWS endpoint
 
@@ -65,6 +71,15 @@ namespace HCore.Amqp.Sqs
                         connectionSettings.SecretAccessKey = value;
                         break;
 
+                    case "UseInstanceRole":
+                        if (!bool.TryParse(value, out var useInstanceRole))
+                        {
+                            throw new Exception($"SQS connection string value for UseInstanceRole is not a boolean: {value}");
+                        }
+
+                        connectionSettings.UseInstanceRole = useInstanceRole;
+                        break;
+
                     case "ServiceUrl":
                         connectionSettings.ServiceUrl = value;
                         break;
@@ -92,9 +107,18 @@ namespace HCore.Amqp.Sqs
                 throw new Exception($"SQS region is invalid: {connectionSettings.Region}");
             }
 
-            if (string.IsNullOrEmpty(connectionSettings.AccessKeyId) || string.IsNullOrEmpty(connectionSettings.SecretAccessKey))
+            var hasAccessKey = !string.IsNullOrEmpty(connectionSettings.AccessKeyId) || !string.IsNullOrEmpty(connectionSettings.SecretAccessKey);
+
+            if (connectionSettings.UseInstanceRole)
             {
-                throw new Exception("SQS connection string must contain AccessKeyId and SecretAccessKey");
+                if (hasAccessKey)
+                {
+                    throw new Exception("SQS connection string must not contain AccessKeyId or SecretAccessKey together with UseInstanceRole");
+                }
+            }
+            else if (string.IsNullOrEmpty(connectionSettings.AccessKeyId) || string.IsNullOrEmpty(connectionSettings.SecretAccessKey))
+            {
+                throw new Exception("SQS connection string must contain AccessKeyId and SecretAccessKey, or UseInstanceRole=true");
             }
 
             if (!string.IsNullOrEmpty(queueNamePrefix))
