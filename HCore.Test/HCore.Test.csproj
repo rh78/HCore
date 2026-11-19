@@ -10,13 +10,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="6.12.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+        <PackageReference Include="Moq" Version="4.20.72" />
         <PackageReference Include="xunit" Version="2.9.3" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
+        <ProjectReference Include="..\HCore-Cache\HCore-Cache.csproj" />
         <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />
         <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
     </ItemGroup>
