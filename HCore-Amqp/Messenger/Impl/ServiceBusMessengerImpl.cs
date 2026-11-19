@@ -225,7 +225,7 @@ namespace HCore.Amqp.Messenger.Impl
             Console.WriteLine("AMQP shut down successfully");
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -255,7 +255,7 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public async Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        public async Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null, Func<T, string> getMessageGroupId = null) where T : AMQPMessage
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -283,7 +283,7 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 

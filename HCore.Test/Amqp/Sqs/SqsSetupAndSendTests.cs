@@ -13,7 +13,7 @@ namespace HCore.Test.Amqp.Sqs
     public class SqsSetupAndSendTests
     {
         [Fact]
-        public async Task CreateResources_CreatesFifoAndStandardQueues_WithTheAgreedAttributes()
+        public async Task CreateResources_CreatesEveryQueueAsAFifoQueue_WithTheAgreedAttributes()
         {
             var aws = new FakeAws();
 
@@ -21,23 +21,21 @@ namespace HCore.Test.Amqp.Sqs
 
             await scope.StartAsync(aws, aws, "A", new SqsTestProcessor("A"), [new QueueSpec("Sessions", IsSession: true), new QueueSpec("Plain")]);
 
-            Assert.Equal(["Sessions.fifo", "Plain"], aws.CreatedQueueNames);
+            Assert.Equal(["Sessions.fifo", "Plain.fifo"], aws.CreatedQueueNames);
 
-            var fifoAttributes = aws.GetAttributes("Sessions.fifo");
+            foreach (var queueName in aws.CreatedQueueNames)
+            {
+                var fifoAttributes = aws.GetAttributes(queueName);
 
-            Assert.Equal("true", fifoAttributes["FifoQueue"]);
-            Assert.Equal("false", fifoAttributes["ContentBasedDeduplication"]);
-            Assert.Equal("messageGroup", fifoAttributes["DeduplicationScope"]);
-            Assert.Equal("perMessageGroupId", fifoAttributes["FifoThroughputLimit"]);
-            Assert.Equal("true", fifoAttributes["SqsManagedSseEnabled"]);
-            Assert.Equal("1209600", fifoAttributes["MessageRetentionPeriod"]);
-            Assert.False(fifoAttributes.ContainsKey("RedrivePolicy"));
-            Assert.False(fifoAttributes.ContainsKey("DelaySeconds"));
-
-            var standardAttributes = aws.GetAttributes("Plain");
-
-            Assert.False(standardAttributes.ContainsKey("FifoQueue"));
-            Assert.Equal("true", standardAttributes["SqsManagedSseEnabled"]);
+                Assert.Equal("true", fifoAttributes["FifoQueue"]);
+                Assert.Equal("false", fifoAttributes["ContentBasedDeduplication"]);
+                Assert.Equal("messageGroup", fifoAttributes["DeduplicationScope"]);
+                Assert.Equal("perMessageGroupId", fifoAttributes["FifoThroughputLimit"]);
+                Assert.Equal("true", fifoAttributes["SqsManagedSseEnabled"]);
+                Assert.Equal("1209600", fifoAttributes["MessageRetentionPeriod"]);
+                Assert.False(fifoAttributes.ContainsKey("RedrivePolicy"));
+                Assert.False(fifoAttributes.ContainsKey("DelaySeconds"));
+            }
         }
 
         [Fact]
@@ -51,20 +49,20 @@ namespace HCore.Test.Amqp.Sqs
             var messenger = await scope.StartAsync(aws, aws, "A", processor, [new QueueSpec("Sessions", IsSession: true, MaxReceiveCount: 2), new QueueSpec("Plain", MaxReceiveCount: 2)]);
 
             Assert.True(aws.HasQueue("Sessions-dlq.fifo"));
-            Assert.True(aws.HasQueue("Plain-dlq"));
+            Assert.True(aws.HasQueue("Plain-dlq.fifo"));
             Assert.Equal("true", aws.GetAttributes("Sessions-dlq.fifo")["FifoQueue"]);
 
-            var redrivePolicy = JsonConvert.DeserializeAnonymousType(aws.GetAttributes("Plain")["RedrivePolicy"], new { deadLetterTargetArn = "", maxReceiveCount = 0 });
+            var redrivePolicy = JsonConvert.DeserializeAnonymousType(aws.GetAttributes("Plain.fifo")["RedrivePolicy"], new { deadLetterTargetArn = "", maxReceiveCount = 0 });
 
-            Assert.Equal(FakeAws.GetQueueArn("Plain-dlq"), redrivePolicy.deadLetterTargetArn);
+            Assert.Equal(FakeAws.GetQueueArn("Plain-dlq.fifo"), redrivePolicy.deadLetterTargetArn);
             Assert.Equal(2, redrivePolicy.maxReceiveCount);
 
             await messenger.SendMessageAsync("Plain", new SqsTestMessage("G", 1));
 
-            await Wait.UntilAsync(() => aws.GetMessages("Plain-dlq").Count == 1, TimeSpan.FromSeconds(8), "message moved to the dead-letter queue");
+            await Wait.UntilAsync(() => aws.GetMessages("Plain-dlq.fifo").Count == 1, TimeSpan.FromSeconds(8), "message moved to the dead-letter queue");
 
             Assert.Equal(2, processor.Records.Count);
-            Assert.Empty(aws.GetMessages("Plain"));
+            Assert.Empty(aws.GetMessages("Plain.fifo"));
         }
 
         [Fact]
@@ -89,7 +87,7 @@ namespace HCore.Test.Amqp.Sqs
             // as Terraform creates them
 
             aws.AddQueue("Prod-Sessions.fifo");
-            aws.AddQueue("Prod-Plain");
+            aws.AddQueue("Prod-Plain.fifo");
             aws.AddQueue("Prod-CacheTasks-web-01");
             aws.AddTopic("Prod-CacheTasks");
             aws.AllowTopic("Prod-CacheTasks-web-01", "Prod-CacheTasks");
@@ -117,14 +115,14 @@ namespace HCore.Test.Amqp.Sqs
         {
             var aws = new FakeAws();
 
-            aws.AddQueue("Plain", new Dictionary<string, string> { ["VisibilityTimeout"] = "300" });
+            aws.AddQueue("Plain.fifo", new Dictionary<string, string> { ["FifoQueue"] = "true", ["VisibilityTimeout"] = "300" });
 
             await using var scope = new MessengerScope();
 
             await scope.StartAsync(aws, aws, "A", new SqsTestProcessor("A"), [new QueueSpec("Plain")]);
 
             Assert.Empty(aws.CreatedQueueNames);
-            Assert.Equal("300", aws.GetAttributes("Plain")["VisibilityTimeout"]);
+            Assert.Equal("300", aws.GetAttributes("Plain.fifo")["VisibilityTimeout"]);
         }
 
         [Fact]
@@ -161,7 +159,7 @@ namespace HCore.Test.Amqp.Sqs
             await messenger.SendMessagesAsync("Plain", Enumerable.Range(1, 5).Select(seq => new SqsTestMessage("B", seq, payload)).ToList());
 
             Assert.Equal([2, 2, 1], aws.SentBatchRequests.Select(request => request.Entries.Count));
-            Assert.Equal(5, aws.GetMessages("Plain").Count);
+            Assert.Equal(5, aws.GetMessages("Plain.fifo").Count);
         }
 
         [Fact]
@@ -185,11 +183,59 @@ namespace HCore.Test.Amqp.Sqs
 
             await messenger.SendMessagesAsync("Plain", Enumerable.Range(1, 10).Select(seq => new SqsTestMessage("B", seq)).ToList());
 
-            var seqs = aws.GetMessages("Plain").Select(message => JsonConvert.DeserializeObject<SqsTestMessage>(message.Body).Seq).Order().ToList();
+            var seqs = aws.GetMessages("Plain.fifo").Select(message => JsonConvert.DeserializeObject<SqsTestMessage>(message.Body).Seq).Order().ToList();
 
             Assert.Equal(Enumerable.Range(1, 10).ToList(), seqs);
             Assert.Equal([10, 3], aws.SentBatchRequests.Select(request => request.Entries.Count));
             Assert.True(logger.Contains(LogLevel.Error, "SQS batch send failed for 3 message(s)"));
+
+            // the resent entries keep their deduplication IDs, so SQS drops a copy that was stored after all
+
+            var firstDeduplicationIds = aws.SentBatchRequests[0].Entries.Select(entry => entry.MessageDeduplicationId).ToList();
+
+            Assert.All(aws.SentBatchRequests[1].Entries, entry => Assert.Contains(entry.MessageDeduplicationId, firstDeduplicationIds));
+        }
+
+        [Fact]
+        public async Task SendMessages_GivesEveryMessageAGroupOfItsOwn()
+        {
+            var aws = new FakeAws();
+
+            await using var scope = new MessengerScope();
+
+            var messenger = await scope.StartAsync(aws, aws, "A", new SqsTestProcessor("A"), [new QueueSpec("Plain", Listeners: 0)]);
+
+            await messenger.SendMessagesAsync("Plain", Enumerable.Range(1, 10).Select(seq => new SqsTestMessage("B", seq)).ToList());
+
+            var entries = aws.SentBatchRequests.Single().Entries;
+
+            Assert.Equal(10, entries.Select(entry => entry.MessageGroupId).Distinct().Count());
+            Assert.Equal(10, entries.Select(entry => entry.MessageDeduplicationId).Distinct().Count());
+        }
+
+        [Fact]
+        public async Task SendMessages_WithAMessageGroup_AreProcessedOneAfterAnother_InOrder()
+        {
+            var aws = new FakeAws();
+            var processorA = new SqsTestProcessor("A") { Behaviour = _ => Task.Delay(20) };
+            var processorB = new SqsTestProcessor("B", processorA.Records) { Behaviour = _ => Task.Delay(20) };
+
+            await using var scope = new MessengerScope();
+
+            var messengerA = await scope.StartAsync(aws, aws, "A", processorA, [new QueueSpec("Plain", Listeners: 3)]);
+            await scope.StartAsync(aws, aws, "B", processorB, [new QueueSpec("Plain", Listeners: 3)]);
+
+            var messages = Enumerable.Range(1, 15).Select(seq => new SqsTestMessage("X", seq))
+                .Concat(Enumerable.Range(1, 15).Select(seq => new SqsTestMessage("Y", seq)))
+                .ToList();
+
+            await messengerA.SendMessagesAsync("Plain", messages, getMessageGroupId: message => message.Group);
+
+            Assert.All(aws.SentBatchRequests.SelectMany(request => request.Entries), entry => Assert.Contains(entry.MessageGroupId, new[] { "X", "Y" }));
+
+            await Wait.UntilAsync(() => processorA.Successes().Count == 30, TimeSpan.FromSeconds(15), "both groups processed");
+
+            OrderAssert.InOrderExactlyOnce(processorA.SuccessfulKeys(), new Dictionary<string, int> { ["X"] = 15, ["Y"] = 15 });
         }
 
         [Fact]
@@ -221,7 +267,7 @@ namespace HCore.Test.Amqp.Sqs
 
             await messenger.SendMessageAsync("Plain", new SqsTestMessage("G", 1));
 
-            Assert.Single(aws.GetMessages("Plain"));
+            Assert.Single(aws.GetMessages("Plain.fifo"));
             Assert.Equal(2, logger.Entries.Count(entry => entry.Level == LogLevel.Error && entry.Message.Contains("AMQP exception in sender for address Plain")));
         }
 
@@ -309,7 +355,7 @@ namespace HCore.Test.Amqp.Sqs
 
             Assert.True(await messenger.IsAvailableAsync());
 
-            aws.RemoveQueue("Plain");
+            aws.RemoveQueue("Plain.fifo");
 
             Assert.False(await messenger.IsAvailableAsync());
         }

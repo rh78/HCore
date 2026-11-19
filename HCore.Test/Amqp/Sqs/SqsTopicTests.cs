@@ -91,7 +91,7 @@ namespace HCore.Test.Amqp.Sqs
 
             var topicQueueName = $"{_topicAddress}-A";
 
-            aws.AddQueue(_queueAddress);
+            aws.AddQueue($"{_queueAddress}.fifo");
             aws.AddQueue(topicQueueName);
             aws.AddTopic(_topicAddress);
             aws.AllowTopic(topicQueueName, _topicAddress);

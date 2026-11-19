@@ -106,7 +106,7 @@ namespace HCore.Test.Amqp.Sqs
 
             Assert.True(errorRecords[1].At - errorRecords[0].At >= TimeSpan.FromSeconds(1.9));
 
-            await aws.AssertQueueEmptiesAsync("Plain");
+            await aws.AssertQueueEmptiesAsync("Plain.fifo");
 
             Assert.False(logger.Contains(LogLevel.Error, "could not be deleted"));
         }
@@ -185,7 +185,7 @@ namespace HCore.Test.Amqp.Sqs
 
             Assert.Equal(2, processorA.Records.Count);
 
-            await aws.AssertQueueEmptiesAsync("Plain");
+            await aws.AssertQueueEmptiesAsync("Plain.fifo");
             await aws.AssertQueueEmptiesAsync("Sessions.fifo");
 
             Assert.False(logger.Contains(LogLevel.Warning, "could not be changed"));
@@ -251,7 +251,7 @@ namespace HCore.Test.Amqp.Sqs
 
             await messenger.SendMessageAsync("Plain", new SqsTestMessage("X", 1));
 
-            await aws.WaitForMessageAsync("Plain-dlq", _timeout);
+            await aws.WaitForMessageAsync("Plain-dlq.fifo", _timeout);
 
             Assert.Equal(2, processor.Records.Count);
         }
@@ -335,7 +335,7 @@ namespace HCore.Test.Amqp.Sqs
 
             foreach (var queue in queues)
             {
-                var queueName = SqsNames.GetQueueName(_prefix, queue.Address, queue.IsSession);
+                var queueName = SqsNames.GetQueueName(_prefix, queue.Address, isFifo: true);
 
                 _queueNames.Add(queueName);
                 _queueNames.Add(SqsNames.GetDeadLetterQueueName(queueName));

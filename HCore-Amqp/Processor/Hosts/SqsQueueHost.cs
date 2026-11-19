@@ -17,9 +17,10 @@ using Newtonsoft.Json.Linq;
 
 namespace HCore.Amqp.Processor.Hosts
 {
-    // A FIFO queue keeps the order within a message group (the session ID): while a message of a group is invisible,
-    // SQS delivers no other message of that group, but the other groups go to any free listener. Nothing binds a group
-    // to a listener, so a failing group only blocks itself.
+    // A FIFO queue keeps the order within a message group: while a message of a group is invisible, SQS delivers no other
+    // message of that group, but the other groups go to any free listener. Nothing binds a group to a listener, so a failing
+    // group only blocks itself. A session queue groups by the session ID, the other queues by the message group the sender
+    // passes, or a group per message. Unlike a standard queue, a FIFO queue never delivers a stored copy of a message.
 
     internal class SqsQueueHost
     {
@@ -49,6 +50,7 @@ namespace HCore.Amqp.Processor.Hosts
         private readonly string _address;
         private readonly string _queueName;
         private readonly bool _isFifo;
+        private readonly bool _isSession;
         private readonly int _listenersCount;
         private readonly int? _maxReceiveCount;
 
@@ -68,11 +70,17 @@ namespace HCore.Amqp.Processor.Hosts
 
         internal string QueueUrl { get; private set; }
 
-        internal SqsQueueHost(string address, string queueName, bool isFifo, int listenersCount, int? maxReceiveCount, string topicArn, SqsMessengerImpl messenger)
+        internal SqsQueueHost(string address, string queueName, bool isFifo, bool isSession, int listenersCount, int? maxReceiveCount, string topicArn, SqsMessengerImpl messenger)
         {
+            if (isSession && !isFifo)
+            {
+                throw new Exception($"SQS session queue {queueName} must be a FIFO queue");
+            }
+
             _address = address;
             _queueName = queueName;
             _isFifo = isFifo;
+            _isSession = isSession;
             _listenersCount = listenersCount;
             _maxReceiveCount = maxReceiveCount;
             _topicArn = topicArn;
@@ -235,9 +243,10 @@ namespace HCore.Amqp.Processor.Hosts
                 {
                     messages = await _sqsApi.ReceiveMessagesAsync(new ReceiveMessageRequest(QueueUrl)
                     {
-                        // a FIFO receive returns the waiting messages of a group together, like a Service Bus session
+                        // a session queue receives the waiting messages of a session together, like a Service Bus session;
+                        // the other queues receive one message at a time, so a long one holds up no other message
 
-                        MaxNumberOfMessages = _isFifo ? _maximumBatchSize : 1,
+                        MaxNumberOfMessages = _isSession ? _maximumBatchSize : 1,
                         WaitTimeSeconds = _timings.ReceiveWaitTimeSeconds,
                         VisibilityTimeout = (int)_timings.VisibilityTimeout.TotalSeconds,
                         MessageAttributeNames = [NotBeforeAttributeName],
@@ -278,9 +287,9 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        // A FIFO receive can return the messages of several groups. The listener processes every group it received, one after
-        // the other and each as one batch, like a Service Bus session. It hands none of them back: it would receive them again
-        // at once, and SQS throttles a visibility change that follows another one of the same message within a moment.
+        // A session queue receive can return the messages of several groups. The listener processes every group it received,
+        // one after the other and each as one batch, like a Service Bus session. It hands none of them back: it would receive
+        // them again at once, and SQS throttles a visibility change that follows another one of the same message within a moment.
 
         private async Task ProcessReceivedMessagesAsync(List<Amazon.SQS.Model.Message> messages)
         {
@@ -288,7 +297,7 @@ namespace HCore.Amqp.Processor.Hosts
 
             var receivedMessages = messages.Select(message => ToReceivedMessage(message, receivedAt)).ToList();
 
-            List<List<ReceivedMessage>> batches = _isFifo
+            List<List<ReceivedMessage>> batches = _isSession
                 ? receivedMessages.GroupBy(receivedMessage => receivedMessage.GroupId).Select(group => group.ToList()).ToList()
                 : [receivedMessages];
 
@@ -360,7 +369,7 @@ namespace HCore.Amqp.Processor.Hosts
 
             try
             {
-                if (_isFifo)
+                if (_isSession)
                 {
                     await _messenger.ProcessMessagesAsync(_address, receivedMessages.Select(receivedMessage => receivedMessage.Body).ToList()).ConfigureAwait(false);
                 }
@@ -380,9 +389,9 @@ namespace HCore.Amqp.Processor.Hosts
             }
             catch (PostponeException postponeException)
             {
-                // intentionally holding the messages; on a FIFO queue this blocks only their group
+                // intentionally holding the messages; this blocks only their group, a session briefly, like a Service Bus session
 
-                visibilityTimeSpan = postponeException.LockSessionTimeSpan ?? (_isFifo ? _timings.FifoPostponeHold : _timings.StandardPostponeHold);
+                visibilityTimeSpan = postponeException.LockSessionTimeSpan ?? (_isSession ? _timings.FifoPostponeHold : _timings.StandardPostponeHold);
             }
             catch (Exception exception)
             {
@@ -561,18 +570,18 @@ namespace HCore.Amqp.Processor.Hosts
             }
         }
 
-        internal async Task SendMessageAsync(AMQPMessage body, double? timeOffsetSeconds, string sessionId)
+        internal async Task SendMessageAsync(AMQPMessage body, double? timeOffsetSeconds, string sessionId, string messageGroupId)
         {
             if (!string.IsNullOrEmpty(sessionId))
             {
-                if (!_isFifo)
+                if (!_isSession)
                 {
                     throw new Exception("SQS queue is no session queue");
                 }
             }
-            else if (_isFifo)
+            else if (_isSession)
             {
-                throw new Exception("Session ID is missing for SQS FIFO queue");
+                throw new Exception("Session ID is missing for SQS session queue");
             }
 
             var messageBody = SerializeMessageBody(body);
@@ -586,7 +595,7 @@ namespace HCore.Amqp.Processor.Hosts
 
             if (_isFifo)
             {
-                request.MessageGroupId = GetMessageGroupId(sessionId);
+                request.MessageGroupId = GetMessageGroupId(_isSession ? sessionId : messageGroupId);
                 request.MessageDeduplicationId = Guid.NewGuid().ToString("N");
             }
             else if (timeOffsetSeconds > 0)
@@ -597,23 +606,29 @@ namespace HCore.Amqp.Processor.Hosts
             await _messenger.SendWithRetryAsync(_address, cancellationToken => _sqsApi.SendMessageAsync(request, cancellationToken)).ConfigureAwait(false);
         }
 
-        internal async Task SendMessagesAsync<T>(ICollection<T> bodies, double? timeOffsetSeconds, string sessionId) where T : AMQPMessage
+        internal async Task SendMessagesAsync<T>(ICollection<T> bodies, double? timeOffsetSeconds, string sessionId, Func<T, string> getMessageGroupId) where T : AMQPMessage
         {
             if (timeOffsetSeconds.HasValue)
             {
                 throw new NotImplementedException();
             }
 
-            if (_isFifo || !string.IsNullOrEmpty(sessionId))
+            if (_isSession || !string.IsNullOrEmpty(sessionId))
             {
                 throw new NotImplementedException();
             }
 
-            var messageBodies = bodies.Select(body => SerializeMessageBody(body)).ToList();
+            var messageBodies = bodies.Select(body => new MessageBody(SerializeMessageBody(body), _isFifo ? GetMessageGroupId(getMessageGroupId?.Invoke(body)) : null)).ToList();
 
             foreach (var batch in GetSendBatches(messageBodies))
             {
-                var entries = batch.Select((messageBody, index) => new SendMessageBatchRequestEntry($"{index}", messageBody)).ToList();
+                // built once, so a retry sends the same deduplication IDs and SQS drops a copy that was already stored
+
+                var entries = batch.Select((messageBody, index) => new SendMessageBatchRequestEntry($"{index}", messageBody.Body)
+                {
+                    MessageGroupId = messageBody.MessageGroupId,
+                    MessageDeduplicationId = _isFifo ? Guid.NewGuid().ToString("N") : null
+                }).ToList();
 
                 await _messenger.SendWithRetryAsync(_address, async cancellationToken =>
                 {
@@ -635,16 +650,16 @@ namespace HCore.Amqp.Processor.Hosts
 
         // a batch holds up to 10 messages and up to the maximum message size in total
 
-        private static List<List<string>> GetSendBatches(List<string> messageBodies)
+        private static List<List<MessageBody>> GetSendBatches(List<MessageBody> messageBodies)
         {
-            var batches = new List<List<string>>();
+            var batches = new List<List<MessageBody>>();
 
-            List<string> currentBatch = null;
+            List<MessageBody> currentBatch = null;
             var currentBatchSize = 0;
 
             foreach (var messageBody in messageBodies)
             {
-                var messageSize = Encoding.UTF8.GetByteCount(messageBody);
+                var messageSize = Encoding.UTF8.GetByteCount(messageBody.Body);
 
                 if (currentBatch == null || currentBatch.Count == _maximumBatchSize || currentBatchSize + messageSize > MaximumMessageSize)
                 {
@@ -694,16 +709,22 @@ namespace HCore.Amqp.Processor.Hosts
             return DateTimeOffset.UtcNow.AddSeconds(timeOffsetSeconds).ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture);
         }
 
-        // SQS allows up to 128 printable ASCII characters; a longer session ID is hashed, which keeps it a distinct group
+        // SQS allows up to 128 printable ASCII characters; a longer group is hashed, which keeps it a distinct group. A message
+        // without a group gets a group of its own, so it waits for no other message.
 
-        internal static string GetMessageGroupId(string sessionId)
+        internal static string GetMessageGroupId(string groupId)
         {
-            if (sessionId.Length <= _maximumMessageGroupIdLength && sessionId.All(character => character >= '!' && character <= '~'))
+            if (string.IsNullOrEmpty(groupId))
             {
-                return sessionId;
+                return Guid.NewGuid().ToString("N");
             }
 
-            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sessionId)));
+            if (groupId.Length <= _maximumMessageGroupIdLength && groupId.All(character => character >= '!' && character <= '~'))
+            {
+                return groupId;
+            }
+
+            return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(groupId)));
         }
 
         private static async Task<bool> TryDelayAsync(TimeSpan timeSpan, CancellationToken cancellationToken)
@@ -774,6 +795,8 @@ namespace HCore.Amqp.Processor.Hosts
                 _semaphore.Dispose();
             }
         }
+
+        private sealed record MessageBody(string Body, string MessageGroupId);
 
         private sealed record ReceivedMessage(Amazon.SQS.Model.Message Message, string Body, string GroupId, DateTimeOffset? NotBefore, DateTimeOffset ReceivedAt);
     }
