@@ -54,7 +54,7 @@ namespace HCore.Amqp.Processor.Hosts
 
             if (_listenersCount > 0)
             {
-                _queueHost = new SqsQueueHost(_address, _queueName, isFifo: false, _listenersCount, maxReceiveCount: null, TopicArn, _messenger);
+                _queueHost = new SqsQueueHost(_address, _queueName, isFifo: false, isSession: false, _listenersCount, maxReceiveCount: null, TopicArn, _messenger);
 
                 await _queueHost.InitializeAsync().ConfigureAwait(false);
             }

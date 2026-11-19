@@ -132,5 +132,16 @@ namespace HCore.Test.Amqp.Sqs
             Assert.NotEqual(SqsQueueHost.GetMessageGroupId(longSessionId), SqsQueueHost.GetMessageGroupId(new string('b', 129)));
             Assert.Equal(64, SqsQueueHost.GetMessageGroupId("with space").Length);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void MessageGroupId_IsNewForEveryMessageWithoutAGroup(string groupId)
+        {
+            var first = SqsQueueHost.GetMessageGroupId(groupId);
+
+            Assert.Equal(32, first.Length);
+            Assert.NotEqual(first, SqsQueueHost.GetMessageGroupId(groupId));
+        }
     }
 }

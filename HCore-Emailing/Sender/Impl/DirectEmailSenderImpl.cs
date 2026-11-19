@@ -219,7 +219,16 @@ namespace HCore.Emailing.Sender.Impl
                     _logger.LogWarning($"SMTP email sending completed from {fromOverride}, for {firstTo}, subject {subject}");
                 }
 				
-				await client.DisconnectAsync(quit: true).ConfigureAwait(false);
+                // the email is sent at this point, so a failing disconnect must not fail the send and get it sent again
+
+                try
+                {
+                    await client.DisconnectAsync(quit: true).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogWarning($"SMTP disconnect failed after the email was sent: {exception.Message}");
+                }
             }            
         }
 
