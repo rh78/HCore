@@ -2407,7 +2407,7 @@ namespace HCore.Identity.Services.Impl
             throw new InternalServerErrorApiException();
         }
 
-        private async Task SendUserChangeNotificationAsync(string userUuid, string accessTokenCache = null, string refreshTokenCache = null, long? targetTenantUuid = null, bool trySynchronousFirst = false)
+        internal async Task SendUserChangeNotificationAsync(string userUuid, string accessTokenCache = null, string refreshTokenCache = null, long? targetTenantUuid = null, bool trySynchronousFirst = false)
         {
             if (!string.IsNullOrEmpty(_configurationProvider.IdentityChangeTasksAmqpAddress))
             {
@@ -2425,10 +2425,12 @@ namespace HCore.Identity.Services.Impl
 
                 var amqpMessenger = _serviceProvider.GetRequiredService<IAMQPMessenger>();
 
+                // the changes of one user carry its token caches, so they are processed in the order they were sent
+
                 if (!trySynchronousFirst)
-                    await amqpMessenger.SendMessageAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
+                    await amqpMessenger.SendMessageAsync(identityChangeTasksAmqpAddress, identityChangeTask, messageGroupId: userUuid).ConfigureAwait(false);
                 else
-                    await amqpMessenger.SendMessageTrySynchronousFirstAsync(identityChangeTasksAmqpAddress, identityChangeTask).ConfigureAwait(false);
+                    await amqpMessenger.SendMessageTrySynchronousFirstAsync(identityChangeTasksAmqpAddress, identityChangeTask, messageGroupId: userUuid).ConfigureAwait(false);
             }
         }
 

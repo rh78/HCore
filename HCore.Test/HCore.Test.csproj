@@ -20,6 +20,7 @@
     <ItemGroup>
         <ProjectReference Include="..\HCore-Amqp\HCore-Amqp.csproj" />
         <ProjectReference Include="..\HCore-Cache\HCore-Cache.csproj" />
+        <ProjectReference Include="..\HCore-Identity\HCore-Identity.csproj" />
         <ProjectReference Include="..\HCore-Tenants\HCore-Tenants.csproj" />
     </ItemGroup>
 
