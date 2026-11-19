@@ -12,8 +12,10 @@ using Newtonsoft.Json;
 
 namespace HCore.Amqp.Messenger.Impl
 {
-    // Session queues are SQS FIFO queues (<address>.fifo, message group = session ID), the other queues are standard SQS
-    // queues, topics are SNS topics. Without CreateResources in the connection string, all of them must exist.
+    // Every queue is an SQS FIFO queue (<address>.fifo), so a message is processed once even when several instances listen.
+    // A session queue groups by the session ID, the other queues by the message group the sender passes, or a group per
+    // message. Topics are SNS topics, received through a standard queue per instance. Without CreateResources in the
+    // connection string, all of them must exist.
 
     internal class SqsMessengerImpl : IAMQPMessenger
     {
@@ -138,7 +140,7 @@ namespace HCore.Amqp.Messenger.Impl
                 var address = _addresses[i];
                 var isSession = _isSessions[i];
 
-                var queueHost = new SqsQueueHost(address, SqsNames.GetQueueName(queueNamePrefix, address, isFifo: isSession), isFifo: isSession, _addressListenerCounts[i], _maxReceiveCounts[i], topicArn: null, this);
+                var queueHost = new SqsQueueHost(address, SqsNames.GetQueueName(queueNamePrefix, address, isFifo: true), isFifo: true, isSession, _addressListenerCounts[i], _maxReceiveCounts[i], topicArn: null, this);
 
                 await queueHost.InitializeAsync().ConfigureAwait(false);
 
@@ -215,7 +217,7 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -233,7 +235,7 @@ namespace HCore.Amqp.Messenger.Impl
                     throw new Exception($"Address {address} is not available for AMQP sending");
                 }
 
-                await queueHost.SendMessageAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+                await queueHost.SendMessageAsync(body, timeOffsetSeconds, sessionId, messageGroupId).ConfigureAwait(false);
             }
             finally
             {
@@ -241,7 +243,7 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public async Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        public async Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null, Func<T, string> getMessageGroupId = null) where T : AMQPMessage
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -257,7 +259,7 @@ namespace HCore.Amqp.Messenger.Impl
                     throw new Exception($"Address {address} is not available for AMQP sending");
                 }
 
-                await queueHost.SendMessagesAsync(body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+                await queueHost.SendMessagesAsync(body, timeOffsetSeconds, sessionId, getMessageGroupId).ConfigureAwait(false);
             }
             finally
             {
@@ -265,7 +267,7 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -279,7 +281,7 @@ namespace HCore.Amqp.Messenger.Impl
                 {
                     Logger.LogError($"AMQP exception in sender link for address {address}: {e}");
 
-                    await SendMessageAsync(address, body, timeOffsetSeconds, sessionId).ConfigureAwait(false);
+                    await SendMessageAsync(address, body, timeOffsetSeconds, sessionId, messageGroupId).ConfigureAwait(false);
                 }
             }
             finally
@@ -325,7 +327,7 @@ namespace HCore.Amqp.Messenger.Impl
                     return false;
                 }
 
-                var queueName = SqsNames.GetQueueName(_connectionSettings.QueueNamePrefix, _addresses[0], _isSessions[0]);
+                var queueName = SqsNames.GetQueueName(_connectionSettings.QueueNamePrefix, _addresses[0], isFifo: true);
 
                 return await SqsApi.GetQueueUrlAsync(queueName, cancellationToken).ConfigureAwait(false) != null;
             }

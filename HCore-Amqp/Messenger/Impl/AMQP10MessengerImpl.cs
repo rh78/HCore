@@ -153,7 +153,7 @@ namespace HCore.Amqp.Messenger.Impl
             _messageProcessorTasks.Add(receiverLinkHost.MessageProcessorTask);
         }
 
-        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 
@@ -177,12 +177,12 @@ namespace HCore.Amqp.Messenger.Impl
             }
         }
 
-        public Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null) where T : AMQPMessage
+        public Task SendMessagesAsync<T>(string address, ICollection<T> body, double? timeOffsetSeconds = null, string sessionId = null, Func<T, string> getMessageGroupId = null) where T : AMQPMessage
         {
             throw new NotImplementedException();
         }
 
-        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null)
+        public async Task SendMessageTrySynchronousFirstAsync(string address, AMQPMessage body, double? timeOffsetSeconds = null, string sessionId = null, string messageGroupId = null)
         {
             Interlocked.Increment(ref _openTasks);
 
