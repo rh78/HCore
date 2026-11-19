@@ -93,6 +93,41 @@ there is the widest-reaching change you can make in this workspace.
 - HCore is written as general-purpose infrastructure, not consumer-specific product code. Keep
   consumer-specific logic out of it; it belongs in `Core`, `Portals-Core` or `CL-Core`.
 
+## AMQP on SQS: FIFO queues and message groups
+
+`SqsMessengerImpl` makes **every queue a FIFO queue**, except the per-host subscription queues of the SNS topics.
+A standard SNS topic cannot deliver to a FIFO queue, so topics and their queues stay standard. A standard queue can
+hand one message to two hosts at once, and consumers assume a message runs on one host only.
+
+- **Names:** configs list the addresses without a suffix. HCore adds `.fifo` (`SqsNames.GetQueueName(..., isFifo: true)`).
+  Moving a queue from standard to FIFO means a new queue, so drain the old one before the switch.
+- **Group of a message** (`SqsQueueHost.GetMessageGroupId`):
+  - on a session queue it is the session ID, and a send without one throws;
+  - on a plain queue it is the `messageGroupId` passed in (`getMessageGroupId` for batches);
+  - null or empty gives a new GUID per message, so the message waits for no other;
+  - a value over 128 characters, or with characters outside printable ASCII, is hashed with SHA256.
+- **`messageGroupId` is a separate parameter from `sessionId`**, because Service Bus rejects a session ID on a
+  non-session queue. Service Bus and ActiveMQ ignore it, so ordering and no-overlap guarantees by group exist on SQS
+  only.
+- **Plain queues receive one message per receive.** Otherwise a slow message holds the visibility of the others in its
+  batch. `SqsPlainQueueTests.ListenerReceivesOneMessageAtATime` fails with the old receive of 10. Session queues still
+  receive and dispatch batches per group.
+- **No per-message delay on FIFO queues.** HCore holds a message until its `HCoreNotBefore` time.
+- **Deduplication ID:** a GUID built once per message, before the send retries, with `DeduplicationScope=messageGroup`
+  and `ContentBasedDeduplication=false`. SQS deduplicates for 5 minutes only, so a retry that starts later can produce
+  a duplicate. That is accepted as rare.
+- **A failing message blocks its group.** It is held for `ErrorHold`, then delivered again, forever when the queue has
+  no redrive policy. That matches Service Bus, whose queues are created with `MaxDeliveryCount = int.MaxValue`.
+- **Queues created outside HCore** (for example by a customer's operations team) need `FifoQueue=true`,
+  `ContentBasedDeduplication=false`, `DeduplicationScope=messageGroup`, `FifoThroughputLimit=perMessageGroupId`,
+  `VisibilityTimeout=60`, a retention of 14 days and SSE.
+- **Tests:** `HCore.Test/Amqp/Sqs` runs against a fake SQS. `SqsAwsTests` also runs against real AWS when the
+  git-ignored `appsettings.Development.local.json` exists. `Identity/IdentityChangeMessageGroupTests` checks that
+  identity changes are grouped per user (`InternalsVisibleTo HCore.Test` in `HCore-Identity`).
+- **Service Bus duplicate detection:** `QueueClientHost` builds a new `MessageId` on every send attempt. A stable ID
+  only helps with `RequiresDuplicateDetection`, which cannot be switched on for an existing queue, so change both
+  together when the queues are recreated.
+
 ## Database: migrations and timestamps
 
 - **Startup migrations run with a 5 min command timeout.** `UseSqlDatabase`
