@@ -81,6 +81,9 @@
         <member name="P:NSwag.CodeGeneration.CSharp.CSharpClientGeneratorSettings.ClientClassAccessModifier">
             <summary>Gets or sets the client class access modifier (default: public).</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.CSharp.CSharpClientGeneratorSettings.ClientInterfaceAccessModifier">
+            <summary>Gets or sets the client interface access modifier (default: public).</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.CSharp.CSharpClientGeneratorSettings.UseBaseUrl">
             <summary>Gets or sets a value indicating whether to use and expose the base URL (default: true).</summary>
         </member>
@@ -218,7 +221,7 @@
             <summary>
             Gets name of type for binary response
             </summary>
-            <returns>FileResponse by default, FileResult if ControllerTarger parameter is AspNetCore</returns>
+            <returns>FileResponse by default, FileResult if ControllerTarget parameter is AspNetCore</returns>
         </member>
         <member name="M:NSwag.CodeGeneration.CSharp.CSharpGeneratorBase.CreateResolverWithExceptionSchema(NJsonSchema.CodeGeneration.CSharp.CSharpGeneratorSettings,NSwag.OpenApiDocument)">
             <summary>Creates a new resolver, adds the given schema definitions and registers an exception schema if available.</summary>
@@ -352,6 +355,9 @@
         </member>
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.ClientClassAccessModifier">
             <summary>Gets or sets the client class access modifier.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.ClientInterfaceAccessModifier">
+            <summary>Gets or sets the client interface access modifier.</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpClientTemplateModel.Operations">
             <summary>Gets the operations.</summary>
@@ -517,6 +523,9 @@
         </member>
         <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpControllerTemplateModel.Version">
             <summary>Gets the API version.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.CSharp.Models.CSharpControllerTemplateModel.ExtensionData">
+            <summary>Gets the extension data.</summary>
         </member>
         <member name="T:NSwag.CodeGeneration.CSharp.Models.CSharpExceptionDescriptionModel">
             <summary>The CSharp exception description model.</summary>

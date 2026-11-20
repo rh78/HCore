@@ -75,7 +75,7 @@
             <param name="allOperationDescriptions">All operation descriptions.</param>
         </member>
         <member name="P:NSwag.Generation.AspNetCore.AspNetCoreOperationProcessorContext.ApiDescription">
-            <summary>The <see cref="T:Microsoft.AspNetCore.Mvc.ApiExplorer.ApiDescription"/>.</summary>
+            <inheritdoc cref="T:Microsoft.AspNetCore.Mvc.ApiExplorer.ApiDescription"/>
         </member>
         <member name="T:NSwag.Generation.AspNetCore.Processors.AspNetCoreOperationTagsProcessor">
             <summary>Processes the SwaggerTagsAttribute on the operation method.</summary>

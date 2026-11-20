@@ -94,9 +94,6 @@
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.UseAureliaHttpInjection">
             <summary>Gets or sets a value indicating whether to use Aurelia HTTP injection.</summary>
         </member>
-        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.SupportsStrictNullChecks">
-            <summary>Gets a value indicating whether the target TypeScript version supports strict null checks.</summary>
-        </member>
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.WrapDtoExceptions">
             <summary>Gets or sets a value indicating whether DTO exceptions are wrapped in a SwaggerException instance.</summary>
         </member>
@@ -111,6 +108,12 @@
         </member>
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.IncludeHttpContext">
             <summary>Gets a value indicating whether to include the httpContext (Angular template only, default: false).</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.RequestCredentialsType">
+            <summary>Gets a value indicating credential setting for an http request. (Fetch/Angular only, default: false)</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptClientTemplateModel.RequestModeType">
+            <summary>Gets a value indicating mode setting for an http request. (Fetch only, default: n</summary>
         </member>
         <member name="T:NSwag.CodeGeneration.TypeScript.Models.TypeScriptFileTemplateModel">
             <summary>The TypeScript file template model.</summary>
@@ -201,12 +204,6 @@
         </member>
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptFileTemplateModel.RequiresMomentJSDuration">
             <summary>Gets a value indicating whether MomentJS duration format is needed (moment-duration-format package).</summary>
-        </member>
-        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptFileTemplateModel.SupportsOverrideKeyword">
-            <summary>Gets a value indicating whether the target TypeScript version supports override keyword.</summary>
-        </member>
-        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptFileTemplateModel.SupportsTypeOnlyImports">
-            <summary>Gets a value indicating whether the target TypeScript version supports Type-Only imports</summary>
         </member>
         <member name="T:NSwag.CodeGeneration.TypeScript.Models.TypeScriptFrameworkAngularModel">
             <summary>Angular specific information.</summary>
@@ -323,9 +320,6 @@
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptOperationModel.RequiresMappings">
             <summary>Gets a value indicating whether the operation requires mappings for DTO generation.</summary>
         </member>
-        <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptOperationModel.SupportsStrictNullChecks">
-            <summary>Gets a value indicating whether the target TypeScript version supports strict null checks.</summary>
-        </member>
         <member name="P:NSwag.CodeGeneration.TypeScript.Models.TypeScriptOperationModel.HandleReferences">
             <summary>Gets a value indicating whether to handle references.</summary>
         </member>
@@ -432,6 +426,63 @@
         </member>
         <member name="F:NSwag.CodeGeneration.TypeScript.PromiseType.QPromise">
             <summary>Promise from the Q promises library.</summary>
+        </member>
+        <member name="T:NSwag.CodeGeneration.TypeScript.RequestCredentialsType">
+            <summary>Settings for the <see cref="T:NSwag.CodeGeneration.TypeScript.TypeScriptClientGenerator"/>.</summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestCredentialsType.NotSet">
+            https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#credentials
+            <summary>
+            Setting will not be included.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestCredentialsType.Omit">
+            <summary>
+            Never send credentials in the request or include credentials in the response.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestCredentialsType.SameOrigin">
+            <summary>
+            Only send and include credentials for same-origin requests.   
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestCredentialsType.Include">
+            <summary>
+            Always include credentials, even for cross-origin requests.
+            </summary>
+        </member>
+        <member name="T:NSwag.CodeGeneration.TypeScript.RequestModeType">
+            <summary>Settings for the <see cref="T:NSwag.CodeGeneration.TypeScript.TypeScriptClientGenerator"/>.</summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestModeType.NotSet">
+            https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#mode
+            <summary>
+            Setting will not be included.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestModeType.SameOrigin">
+            <summary>
+            Disallows cross-origin requests. If a same-origin request is sent to a different origin, the result is a network error.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestModeType.Cors">
+            <summary>
+            If the request is cross-origin then it will use the Cross-Origin Resource Sharing (CORS) mechanism. Only CORS-safelisted response headers are exposed in the response.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestModeType.NoCors">
+            <summary>
+            Disables CORS for cross-origin requests. This option comes with the following restrictions: 
+            
+            * The method may only be one of HEAD, GET or POST.
+            * The headers may only be CORS-safelisted request headers, with the additional restriction that the Range header is also not allowed. This also applies to any headers added by service workers.
+            * The response is opaque, meaning that its headers and body are not available to JavaScript, and its status code is always 0.
+            </summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.RequestModeType.Navigate">
+            <summary>
+            Used only by HTML navigation. A navigate request is created only while navigating between documents.
+            </summary>
         </member>
         <member name="T:NSwag.CodeGeneration.TypeScript.TypeScriptClientGenerator">
             <summary>Generates the CSharp service client code. </summary>
@@ -550,6 +601,12 @@
         <member name="P:NSwag.CodeGeneration.TypeScript.TypeScriptClientGeneratorSettings.WithCredentials">
             <summary>Gets or sets a value indicating whether to set the withCredentials flag.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.TypeScript.TypeScriptClientGeneratorSettings.RequestCredentialsType">
+            <summary>Gets or sets a value indicating the credential type for requests.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.TypeScript.TypeScriptClientGeneratorSettings.RequestModeType">
+            <summary>Gets or sets a value indicating the mode for http requests.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.TypeScript.TypeScriptClientGeneratorSettings.RxJsVersion">
             <summary>Gets the RxJs version (Angular template only, default: 6.0).</summary>
         </member>
@@ -585,6 +642,9 @@
         </member>
         <member name="F:NSwag.CodeGeneration.TypeScript.TypeScriptTemplate.Axios">
             <summary>Uses the Axios service.</summary>
+        </member>
+        <member name="F:NSwag.CodeGeneration.TypeScript.TypeScriptTemplate.K6">
+            <summary>Uses the K6 http.request client.</summary>
         </member>
         <member name="T:NSwag.CodeGeneration.TypeScript.TypeScriptTypeNameGenerator">
             <summary>Generates a TypeScript type name (Error is renamed to ErrorDto, otherwise the defaults are used).</summary>

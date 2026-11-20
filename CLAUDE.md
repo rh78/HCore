@@ -39,9 +39,10 @@ when regenerating clients and controllers:
 | Path | What it is |
 |---|---|
 | `OpenAPI/openapi-generator-cli.jar` | the generator invoked by the `generate*` scripts |
-| `OpenAPI/NSwag` | vendored NSwag binaries, with `Net60` / `Net70` / `Net80` runners and `nswag.cmd` |
+| `OpenAPI/NSwag` | vendored NSwag 14.7.1 binaries, with `Net80` / `Net90` / `Net100` runners and `nswag.cmd` |
 | `OpenAPI/Templates/Server.NETCore` | server controller/model templates |
 | `OpenAPI/Templates/TypeScript` | TypeScript client templates |
+| `OpenAPI/Templates/CSharp` | C# client templates of NSwag 14.7.1 and NJsonSchema 11.6.1 with three changes: URLs are built from the base class `BaseUrl`, `field` instead of `field_`, and the old property layout |
 
 **Editing a template here changes generated output in every API repo.** It will not show up
 until each repo re-runs its generate script.
