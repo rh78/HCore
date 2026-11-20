@@ -1,26 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using HCore.Web.Helpers;
+using HCore.Web.Providers;
+using HCore.Web.Secrets;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System.Net;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
 using Microsoft.Extensions.Hosting;
-using System.Net.Security;
-using HCore.Web.Providers;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-using HCore.Web.Secrets;
 
 namespace HCore.Web.Startup
 {
@@ -214,19 +215,11 @@ namespace HCore.Web.Startup
 
             Console.WriteLine($"Thread limits: {minWorkerThreads}/{minWorkerIoThreads} - {maxWorkerThreads}/{maxWorkerIoThreads}");
 
-            ServicePointManager.UseNagleAlgorithm = false;
-
-            // see https://support.microsoft.com/de-de/help/821268/contention-poor-performance-and-deadlocks-when-you-make-calls-to-web-s
-
-            ServicePointManager.DefaultConnectionLimit = 12 * numberOfCores;
-
-            Console.WriteLine($"Default connection limit: {ServicePointManager.DefaultConnectionLimit}");
-
             int availableWorkerThreads, availableWorkerIoThreads;
 
             ThreadPool.GetAvailableThreads(out availableWorkerThreads, out availableWorkerIoThreads);
 
-            Console.WriteLine($"Available threads: {availableWorkerThreads}/{availableWorkerThreads}");
+            Console.WriteLine($"Available threads: {availableWorkerThreads}/{availableWorkerIoThreads}");
 
             webHostBuilder.UseShutdownTimeout(TimeSpan.FromMinutes(10));
             
@@ -577,7 +570,9 @@ namespace HCore.Web.Startup
             }
             else
             {
-                x509Certificate2 = new X509Certificate2(Convert.FromBase64String(pfx), password);
+                var pfxBytes = Convert.FromBase64String(pfx);
+
+                x509Certificate2 = CertificateHelpers.LoadCertificate(pfxBytes, password);
             }
 
             return x509Certificate2;

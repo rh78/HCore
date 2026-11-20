@@ -1,20 +1,21 @@
-﻿using HCore.Storage;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using HCore.Storage;
 using HCore.Tenants.Cache;
 using HCore.Tenants.Database.SqlServer;
 using HCore.Tenants.Database.SqlServer.Models.Impl;
 using HCore.Tenants.Models;
 using HCore.Tenants.Models.Impl;
 using HCore.Web.Exceptions;
+using HCore.Web.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 
 namespace HCore.Tenants.Providers.Impl
 {
@@ -78,7 +79,9 @@ namespace HCore.Tenants.Providers.Impl
                             if (string.IsNullOrEmpty(developerModel.CertificatePassword))
                                 throw new Exception("Developer in tenant database has certificate set, but no certificate password is present");
 
-                            developerCertificate = new X509Certificate2(GetCertificateBytesFromPEM(developerModel.Certificate), developerModel.CertificatePassword);
+                            var developerCertificateBytes = GetCertificateBytesFromPEM(developerModel.Certificate);
+
+                            developerCertificate = CertificateHelpers.LoadCertificate(developerCertificateBytes, developerModel.CertificatePassword, logger: logger);
                         }
 
                         if (string.IsNullOrEmpty(developerModel.Authority))
