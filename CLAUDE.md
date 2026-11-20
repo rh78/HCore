@@ -12,7 +12,7 @@
 
 The shared ASP.NET Core foundation both product lines are built on — "an opinionated
 collection of projects that help you build great ASP.NET Core projects" (README), MIT
-licensed. 20 projects, all `net8.0`, SDK pinned to `8.0.101` by `global.json`.
+licensed. 20 projects, all `net10.0`, SDK pinned to `10.0.400` by `global.json`.
 
 Two things make this repo different from every other one in the workspace.
 
