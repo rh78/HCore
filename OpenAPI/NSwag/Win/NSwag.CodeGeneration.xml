@@ -101,6 +101,12 @@
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.OperationNameGenerator">
             <summary>Gets or sets the operation name generator.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.IncludedOperationIds">
+            <summary>Gets or sets the only operations that should be included in the generated client.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.ExcludedOperationIds">
+            <summary>Gets or sets the operations that should be excluded from the generated client.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.ClientGeneratorBaseSettings.GenerateOptionalParameters">
             <summary>Gets or sets a value indicating whether to reorder parameters (required first, optional at the end) and generate optional parameters.</summary>
         </member>
@@ -240,6 +246,9 @@
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Id">
             <summary>Gets the operation ID.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Tags">
+            <summary>Gets the operation tags.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.Path">
             <summary>Gets or sets the HTTP path (i.e. the absolute route).</summary>
         </member>
@@ -337,8 +346,14 @@
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.HasFormParameters">
             <summary>Gets a value indicating whether the operation has form parameters.</summary>
         </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.ConsumesOnlyFormUrlEncoded">
+            <summary>Gets a value indicating whether the operation consumes 'application/x-www-form-urlencoded'.</summary>
+        </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.ConsumesFormUrlEncoded">
             <summary>Gets a value indicating whether the operation consumes 'application/x-www-form-urlencoded'.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.ConsumesJson">
+            <summary>Gets a value indicating whether the operation consumes 'application/json'.</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.Models.OperationModelBase`2.FormParameters">
             <summary>Gets the form parameters.</summary>
@@ -495,6 +510,9 @@
         </member>
         <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.IsArray">
             <summary>Gets a value indicating whether the parameter is of type array.</summary>
+        </member>
+        <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.IsExplodedArray">
+            <summary>Gets a value indicating whether the parameter is an exploded array.</summary>
         </member>
         <member name="P:NSwag.CodeGeneration.Models.ParameterModelBase.IsStringArray">
             <summary>Gets a value indicating whether the parameter is a string array.</summary>

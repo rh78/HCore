@@ -52,7 +52,9 @@ namespace Microsoft.AspNetCore.Builder
             {
                 var serviceProvider = scope.ServiceProvider;
 
+#pragma warning disable VSTHRD002 // Avoid problematic synchronous waits
                 ValidateAsync(serviceProvider).ConfigureAwait(false).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002 // Avoid problematic synchronous waits
             }
         }
 

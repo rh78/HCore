@@ -23,6 +23,7 @@ using HCore.Identity.Stores;
 using HCore.Tenants;
 using HCore.Translations.Providers;
 using HCore.Web.Exceptions;
+using HCore.Web.Helpers;
 using IdentityModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -327,6 +328,11 @@ namespace Microsoft.Extensions.DependencyInjection
                         openIdConnect.Authority = oidcEndpointUrl;
 
                         openIdConnect.ClientId = oidcClientId;
+
+                        // .net 9 first posts the login parameters to the idp server to server (pushed authorization requests) when the idp offers it,
+                        // keep the .net 8 flow with all parameters in the browser redirect, an idp client not enabled for it would refuse the login
+
+                        openIdConnect.PushedAuthorizationBehavior = PushedAuthorizationBehavior.Disable;
 
                         if (!oidcUsePkce)
                         {
@@ -814,7 +820,9 @@ namespace Microsoft.Extensions.DependencyInjection
             if (string.IsNullOrEmpty(pfx))
                 throw new Exception("Identity signing PFX not found");
 
-            return new X509Certificate2(Convert.FromBase64String(pfx), signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
+            var pfxBytes = Convert.FromBase64String(pfx);
+
+            return CertificateHelpers.LoadCertificate(pfxBytes, signingKeyPassword, X509KeyStorageFlags.EphemeralKeySet);
         }
     }    
 }
