@@ -15,7 +15,6 @@ namespace HCore.Tenants.Providers.Impl
 
                 return true;
             })
-            .AllowCredentials()
             .Build();
 
         public Task<CorsPolicy> GetPolicyAsync(HttpContext context, string policyName)
